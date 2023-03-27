@@ -1,5 +1,5 @@
-
-# Architecture Decision Record: Establish Format for ADRs
+---
+# Architecture Decision Record 1: Establish Format for ADRs
 
 > Start documenting infrastructure architecture decisions.
 

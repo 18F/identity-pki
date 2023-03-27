@@ -487,7 +487,7 @@ users:
     gitlab_groups:
     - devops
     ec2_username:
-    - peter.chen
+    - p3ch3n
     git_username:
     - p3ch3n
   philip.burke:

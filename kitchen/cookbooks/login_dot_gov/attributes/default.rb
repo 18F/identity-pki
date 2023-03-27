@@ -96,9 +96,13 @@ default['login_dot_gov']['static_bucket'] = "login-gov-idp-static-" \
                                             "#{aws_account_id}-#{aws_region}"
 
 default['login_dot_gov']['artifacts_bucket'] = "login-gov.app-artifacts." \
-                                               "#{aws_account_id}-#{aws_region}"
-default['login_dot_gov']['secrets_bucket'] = "login-gov.secrets." \
-                                               "#{aws_account_id}-#{aws_region}"
+                                                "#{aws_account_id}-#{aws_region}"
+
+default['login_dot_gov']['secrets_bucket']     = "login-gov.secrets." \
+                                                 "#{aws_account_id}-#{aws_region}"
+default['login_dot_gov']['app_secrets_bucket'] = "login-gov.app-secrets." \
+                                                 "#{aws_account_id}-#{aws_region}"
+
 
 # How long to set the Cache-Control max-age header on IDP static asset CDN objects
 # Defaults to 1 year since most assets are fingerprinted, setting to 0 will disable
@@ -141,3 +145,17 @@ default['passenger']['production']['user'] = node.fetch(:identity_shared_attribu
 
 # worker process count
 default['login_dot_gov']['worker_count'] = node.fetch('cpu').fetch('total')
+
+# pgbouncer tunables - See https://www.pgbouncer.org/config.html
+default['login_dot_gov']['pgbouncer']['auth_type']            = 'md5'          # See https://www.pgbouncer.org/config.html#auth_type
+default['login_dot_gov']['pgbouncer']['config_prefix']        = 'database_'    # Prefix in application.yml for host, name, username. and password attributes
+default['login_dot_gov']['pgbouncer']['pool_mode']            = 'transaction'  # session, transaction, or statement
+default['login_dot_gov']['pgbouncer']['server_reset_query']   = ''             # Use 'DISCARD ALL' if using the session pool_mode
+default['login_dot_gov']['pgbouncer']['server_check_delay']   = 30
+default['login_dot_gov']['pgbouncer']['max_client_conn']      = 500
+default['login_dot_gov']['pgbouncer']['default_pool_size']    = 20
+default['login_dot_gov']['pgbouncer']['min_pool_size']        = 0
+default['login_dot_gov']['pgbouncer']['reserve_pool_size']    = 0
+default['login_dot_gov']['pgbouncer']['reserve_pool_timeout'] = 5
+default['login_dot_gov']['pgbouncer']['max_db_connections']   = 0
+default['login_dot_gov']['pgbouncer']['max_user_connections'] = 0

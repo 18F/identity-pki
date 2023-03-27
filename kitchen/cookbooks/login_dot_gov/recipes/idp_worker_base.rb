@@ -152,7 +152,7 @@ else
   service_state = [:create, :disable, :stop]
 end
 
-systemd_unit 'idp-worker@.service' do
+systemd_unit 'idp-worker@0.service' do
   action [:create]
 
   content <<-EOM
@@ -165,6 +165,37 @@ PartOf=idp-workers.target
 
 [Service]
 ExecStart=/bin/bash -c 'bundle exec good_job start --probe-port=7001'
+EnvironmentFile=/etc/environment
+WorkingDirectory=#{release_path}
+User=#{system_user}
+Group=#{system_user}
+
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=idp-workers
+
+# attempt graceful stop first
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+  EOM
+end
+
+systemd_unit 'idp-worker@.service' do
+  action [:create]
+
+  content <<-EOM
+# Dropped off by chef
+# Systemd unit for idp-worker
+
+[Unit]
+Description=IDP Worker Runner Service (idp-worker) - %i
+PartOf=idp-workers.target
+
+[Service]
+ExecStart=/bin/bash -c 'bundle exec good_job start'
 EnvironmentFile=/etc/environment
 WorkingDirectory=#{release_path}
 User=#{system_user}

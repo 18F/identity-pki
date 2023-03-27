@@ -66,3 +66,9 @@ repos:
   ruby:
     name: "ecr-public/docker/library/ruby"
     <<: *all_write_template
+  terraform_plan:
+    name: "cd/terraform_plan"
+    <<: *all_write_template
+  terraform_apply:
+    name: "cd/terraform_apply"
+    <<: *all_write_template

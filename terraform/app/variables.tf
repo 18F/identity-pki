@@ -28,18 +28,6 @@ variable "idp_static_bucket_cross_account_access" {
   default     = []
 }
 
-variable "db1_subnet_cidr_block" { # 172.16.33.32 - 172.16.33.47
-  default = "172.16.33.32/28"
-}
-
-variable "db2_subnet_cidr_block" { # 172.16.33.48 - 172.16.33.63
-  default = "172.16.33.48/28"
-}
-
-variable "db3_subnet_cidr_block" { # 172.16.33.64 - 172.16.33.79
-  default = "172.16.33.64/28"
-}
-
 variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
   default = "172.16.35.192/27"
 }
@@ -603,22 +591,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-05f2be686c0bd36c4" # 2023-03-14 Ubuntu 18.04
+  default     = "ami-0cdc660a7be867503" # 2023-03-21 Ubuntu 18.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0222c1c46eef8fd71" # 2023-03-14 Ubuntu 18.04
+  default     = "ami-01f4d9e2fbd13e260" # 2023-03-21 Ubuntu 18.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-09b5c3b6c2d84019c" # 2023-03-14 Ubuntu 18.04
+  default     = "ami-02bdb9945d8f2c31b" # 2023-03-21 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-0b9765f4fb1693996" # 2023-03-14 Ubuntu 18.04
+  default     = "ami-088352588d054db7c" # 2023-03-21 Ubuntu 18.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -683,6 +671,17 @@ locals {
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
   dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
+}
+
+# Locals used by cloudwatch-alarms-idp.tf to create alarms on vendor exception rates:
+locals {
+  doc_auth_vendors = {
+    "aamva"    = "AAMVA",
+    "acuant"   = "Acuant",
+    "iv"       = "Instant Verify",
+    "pinpoint" = "Pinpoint",
+    "trueid"   = "TrueID",
+  }
 }
 
 # These variables are used to toggle whether certain services are enabled.
@@ -974,6 +973,16 @@ variable "idp_ial2_sp_dashboards" {
     agency   = string
   }))
   description = "Map of values for widgets on IAL2 SP dashboard"
+  default     = {}
+}
+
+variable "idp_sp_dashboards" {
+  type = map(object({
+    name   = string
+    issuer = string
+    agency = string
+  }))
+  description = "Map of values for widgets on SP dashboard"
   default     = {}
 }
 

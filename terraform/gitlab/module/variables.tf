@@ -11,7 +11,7 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
-  account_default_ami_id     = var.default_ami_id_tooling
+  default_base_ami_id        = var.default_ami_id == "" ? data.aws_ami.base.id : var.default_ami_id
   github_ipv4_cidr_blocks    = sort(data.github_ip_ranges.meta.git_ipv4)
   network_zones              = toset(keys(local.network_layout[var.region][var.env_type]._zones))
   env_runner_gitlab_hostname = var.env_runner_gitlab_hostname == "" ? "gitlab.${var.env_name}.${var.root_domain}" : var.env_runner_gitlab_hostname
@@ -75,12 +75,6 @@ variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
     "3.13.7.11/32",
     "3.130.155.242/32"
   ]
-}
-
-variable "ami_id_map" {
-  type        = map(string)
-  description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
-  default     = {}
 }
 
 # Auto scaling group desired counts
@@ -159,19 +153,23 @@ variable "bootstrap_private_git_clone_url" {
   description = "URL for provision.sh to use to clone identity-devops-private"
 }
 
-# The following two AMIs should be built at the same time and identical, even
-# though they will have different IDs. They should be updated here at the same
-# time, and then released to environments in sequence.
-variable "default_ami_id_tooling" {
-  description = "default AMI ID for environments in the tooling account"
-}
-
 variable "chef_download_url" {
   description = "URL for provision.sh to download chef debian package"
 
   #default = "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb"
   # Assume chef will be installed already in the AMI
   default = ""
+}
+
+variable "default_ami_id" {
+  description = "default AMI ID"
+  default     = ""
+}
+
+variable "ami_id_map" {
+  type        = map(string)
+  description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
+  default     = {}
 }
 
 variable "chef_download_sha256" {

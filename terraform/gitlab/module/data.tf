@@ -47,3 +47,30 @@ data "aws_subnets" "smtp_subnets" {
     values = data.aws_vpc_endpoint_service.smtp.availability_zones
   }
 }
+
+data "aws_ami" "base" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["login.gov base role hardened image Ubuntu*"]
+  }
+
+  filter {
+    name   = "tag:Role"
+    values = ["base"]
+  }
+
+  filter {
+    name   = "tag:Branch_Name"
+    values = ["main"]
+  }
+
+  filter {
+    name   = "tag:OS_Version"
+    values = ["Ubuntu 18.04"]
+  }
+}
+
+

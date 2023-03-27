@@ -19,7 +19,6 @@ module "main" {
   region                          = "us-west-2"
   root_domain                     = "gitlab.login.gov"
   slack_events_sns_hook_arn       = "arn:aws:sns:us-west-2:217680906704:slack-events"
-  default_ami_id_tooling          = "ami-0b300e82894cedb35" # 2023-03-14 Ubuntu 18.04
   route53_id                      = "Z07730471OKZ5T4V8NB2M"
   asg_gitlab_test_runner_desired  = 2
   asg_gitlab_build_runner_desired = 2
@@ -40,4 +39,24 @@ module "main" {
 
 output "gitlab_db_host" {
   value = module.main.gitlab_db_host
+}
+
+output "env_name" {
+  value = module.main.env_name
+}
+
+output "region" {
+  value = module.main.region
+}
+
+output "latest_available_ami_id" {
+  value = module.main.latest_available_ami_id
+}
+
+output "default_ami_id" {
+  value = module.main.default_ami_id
+}
+
+output "ami_id_map" {
+  value = module.main.ami_id_map
 }

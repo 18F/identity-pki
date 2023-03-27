@@ -51,7 +51,7 @@ execute "run certbot for the first time" do
   not_if {::File.exists?(renewal_config)}
   only_if {::File.zero?(pivcac_node.fetch('temporary_bundle_path'))}
   
-  command "/snap/bin/certbot certonly --agree-tos -n --dns-route53 -d #{pivcac_node.fetch('wildcard')} --email #{pivcac_node.fetch('letsencrypt_email')} --server #{letsencrypt_server} --deploy-hook #{deploy_hook} --preferred-chain '#{pivcac_node.fetch('letsencrypt_preferred')}'"
+  command "/snap/bin/certbot certonly --agree-tos -n --dns-route53 -d #{pivcac_node.fetch('wildcard')} --email #{pivcac_node.fetch('letsencrypt_email')} --server #{letsencrypt_server} --deploy-hook #{deploy_hook} --preferred-chain '#{pivcac_node.fetch('letsencrypt_preferred')}'  --key-type #{pivcac_node.fetch('letsencrypt_key_type')} #{pivcac_node.fetch('letsencrypt_key_type') == 'rsa' ? '--rsa-key-size 2048' : ''} "
   creates renewal_config
 end
 
@@ -59,7 +59,7 @@ end
 # renewal, it will call deploy_hook and push the certs back to S3.
 execute 'certbot renew' do
   only_if { ::File.exists?(renewal_config) }
-  command "/snap/bin/certbot renew -n --deploy-hook #{deploy_hook}  --preferred-chain '#{pivcac_node.fetch('letsencrypt_preferred')}'"
+  command "/snap/bin/certbot renew -n --deploy-hook #{deploy_hook}  --preferred-chain '#{pivcac_node.fetch('letsencrypt_preferred')}' --key-type #{pivcac_node.fetch('letsencrypt_key_type')} #{pivcac_node.fetch('letsencrypt_key_type') == 'rsa' ? '--rsa-key-size 2048' : ''}"
 end
 
 # update_letsencrypt_certs is called by cron and runs this recipe.

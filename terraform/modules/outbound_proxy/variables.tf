@@ -4,10 +4,6 @@ variable "ami_id_map" {
   default     = {}
 }
 
-variable "account_default_ami_id" {
-  description = "account default ami"
-}
-
 # Auto scaling group desired counts
 variable "asg_gitlab_desired" {
   default = 1
@@ -125,11 +121,7 @@ variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
 }
 
-# The following two AMIs should be built at the same time and identical, even
-# though they will have different IDs. They should be updated here at the same
-# time, and then released to environments in sequence.
-variable "default_ami_id_tooling" {
-  default     = "ami-0ab60ab26c39ffdef" # 2021-12-21 base-20211020070545 Ubuntu 18.04
+variable "default_ami_id" {
   description = "default AMI ID for environments in the tooling account"
 }
 

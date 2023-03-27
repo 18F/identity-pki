@@ -33,21 +33,10 @@ resource "aws_network_acl" "db" {
   }
 
   vpc_id     = aws_vpc.default.id
-  subnet_ids = concat([aws_subnet.db1.id, aws_subnet.db2.id], [for subnet in aws_subnet.data-services : subnet.id])
+  subnet_ids = [for subnet in aws_subnet.data-services : subnet.id]
 }
 
 # allow ephemeral ports out
-resource "aws_network_acl_rule" "db-egress-ephemeral" {
-  network_acl_id = aws_network_acl.db.id
-  egress         = true
-  from_port      = 32768
-  to_port        = 61000
-  protocol       = "tcp"
-  rule_number    = 5
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
 resource "aws_network_acl_rule" "db-egress-s-ephemeral" {
   network_acl_id = aws_network_acl.db.id
   egress         = true
@@ -72,17 +61,6 @@ resource "aws_network_acl_rule" "db-egress-nessus-ephemeral" {
 }
 
 # let redis in
-resource "aws_network_acl_rule" "db-ingress-redis" {
-  network_acl_id = aws_network_acl.db.id
-  egress         = false
-  from_port      = 6379
-  to_port        = 6379
-  protocol       = "tcp"
-  rule_number    = 10
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
 resource "aws_network_acl_rule" "db-ingress-s-redis" {
   network_acl_id = aws_network_acl.db.id
   egress         = false
@@ -95,17 +73,6 @@ resource "aws_network_acl_rule" "db-ingress-s-redis" {
 }
 
 # let postgres in
-resource "aws_network_acl_rule" "db-ingress-postgres" {
-  network_acl_id = aws_network_acl.db.id
-  egress         = false
-  from_port      = var.rds_db_port
-  to_port        = var.rds_db_port
-  protocol       = "tcp"
-  rule_number    = 15
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
 resource "aws_network_acl_rule" "db-ingress-s-postgres" {
   network_acl_id = aws_network_acl.db.id
   egress         = false
@@ -159,17 +126,6 @@ module "idp-base-nacl-rules" {
   network_acl_id = aws_network_acl.idp.id
 }
 
-resource "aws_network_acl_rule" "idp-ingress-http" {
-  network_acl_id = aws_network_acl.idp.id
-  egress         = false
-  from_port      = 80
-  to_port        = 80
-  protocol       = "tcp"
-  rule_number    = 40
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
 resource "aws_network_acl_rule" "idp-ingress-s-http" {
   network_acl_id = aws_network_acl.idp.id
   egress         = false
@@ -181,17 +137,6 @@ resource "aws_network_acl_rule" "idp-ingress-s-http" {
   cidr_block     = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
-resource "aws_network_acl_rule" "idp-ingress-https" {
-  network_acl_id = aws_network_acl.idp.id
-  egress         = false
-  from_port      = 443
-  to_port        = 443
-  protocol       = "tcp"
-  rule_number    = 45
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
 resource "aws_network_acl_rule" "idp-ingress-s-https" {
   network_acl_id = aws_network_acl.idp.id
   egress         = false
@@ -201,30 +146,6 @@ resource "aws_network_acl_rule" "idp-ingress-s-https" {
   rule_number    = 49
   rule_action    = "allow"
   cidr_block     = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
-}
-
-# The cloudhsm cluster is in the idp subnet, must allow access from the IDP
-# subnets in other AZs
-resource "aws_network_acl_rule" "idp-ingress-cloudhsm" {
-  network_acl_id = aws_network_acl.idp.id
-  egress         = false
-  from_port      = 2223
-  to_port        = 2225
-  protocol       = "tcp"
-  rule_number    = 46
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
-resource "aws_network_acl_rule" "idp-ingress-proxy" {
-  network_acl_id = aws_network_acl.idp.id
-  egress         = false
-  from_port      = 1024
-  to_port        = 65535
-  protocol       = "tcp"
-  rule_number    = 47
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
 }
 
 resource "aws_network_acl_rule" "idp-ingress-s-proxy" {
@@ -261,17 +182,6 @@ resource "aws_network_acl_rule" "alb-egress-tcp-all-egress" {
 }
 
 # allow traffic back in from when the ALBs do healthchecks
-resource "aws_network_acl_rule" "alb-ingress-tcp-all-internal" {
-  network_acl_id = aws_network_acl.alb.id
-  egress         = false
-  from_port      = 0
-  to_port        = 65535
-  protocol       = "tcp"
-  rule_number    = 20
-  rule_action    = "allow"
-  cidr_block     = var.vpc_cidr_block
-}
-
 resource "aws_network_acl_rule" "alb-ingress-tcp-all-s-internal" {
   network_acl_id = aws_network_acl.alb.id
   egress         = false

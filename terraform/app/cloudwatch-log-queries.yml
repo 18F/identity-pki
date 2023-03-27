@@ -1,13 +1,43 @@
 ---
 database/idp-postgresql-unusual-messages:
   logs:
-    - /aws/rds/instance/login-${env}-idp/postgresql
+    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
   query: |
     ## Look for unusual messages in PostgreSQL logs
     filter @message not like /DETAIL:/
     | filter @message not like /STATEMENT:\s+INSERT/
     | filter @message not like /ERROR:\s+duplicate/
     | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
+
+database/slow-queries/idp-postgresql-slow-queries:
+  logs:
+    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
+  query: |
+    # Parse logs and search for slow queries
+    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
+    | parse logs "duration:* ms*" as query_duration_ms, statement
+    | filter @message like 'duration'
+    | display date, time, remote_host, query_duration_ms, statement
+
+database/slow-queries/idp-postgresql-slow-queries-avg-max:
+  logs:
+    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
+  query: |
+    # Parse logs and search for slow queries. Show average duration and max duration per minute
+    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
+    | parse logs "duration:* ms*" as query_duration_ms, statement
+    | stats max(query_duration_ms) as max_query_duration, avg(query_duration_ms) as avg_query_duration by bin(1m) as timestamp
+    | sort timestamp desc
+
+database/slow-queries/idp-postgresql-sharelock-waits:
+  logs:
+    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
+  query: |
+    # Find all waits for ShareLocks
+    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
+    | parse logs "LOG:  process * * ShareLock on transaction * after * ms" as lock_process, action, transaction_id, lock_duration_ms
+    | filter @message like 'ShareLock'
+    | display @timestamp, lock_process, action, transaction_id, lock_duration_ms
 
 nginx/errors-by-source:
   logs:
@@ -266,3 +296,17 @@ ssm/aws-ssm-commands:
     # | filter sessionId like /paul.doom-06e40423815d036e1/
     ## Uncomment to search for activity by a specific accessKeyId
     # | filter accessKeyId like /ASIA5AXYIREUFHDAQF12/
+ssm/aws-ssm-output:
+  logs:
+    - aws-ssm-sessions-${env}
+  query: |
+    ## Shows ssm command output in an environment
+    fields @timestamp, sessionId, target.id as instance, runAsUser
+    | parse @message /"sessionData":\[(?<ssmOutput>.*?)\]/
+    | display @timestamp, sessionId, target.id as instance, runAsUser, ssmOutput
+    ## Uncomment to search for activity by a specific user
+    # | filter runAsUser like /paul.doom/
+    ## Uncomment to search for activity by a specific sessionId
+    # | filter sessionId like /paul.doom-123456789asdfghjk/
+    ## Uncomment to search for activity from a specific instance
+    # | filter instance like /i-123456789asdfghjk/

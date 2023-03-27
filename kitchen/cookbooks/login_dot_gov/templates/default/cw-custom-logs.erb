@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-  
+
 set -eu
 
 # Set instance and asg information for metrics dimensions
@@ -10,7 +10,7 @@ instance_type='<%= @instanceType %>'
 memory=$(passenger-memory-stats --no-apache | grep -i 'Total private dirty')
 
 # NGINX status logs
-echo "$instance_id $autoscaling_group_name $instance_type $(curl http://127.0.0.1/nginx_status |
+echo "$instance_id $autoscaling_group_name $instance_type $(curl -s http://127.0.0.1/nginx_status |
       tr '\n' ' ' | awk '{ print $3, $8, $9, $10, $12, $14, $16 }') $(echo $memory | awk '{print $6}') " >>/var/log/nginx/nginx_status.log
 
 

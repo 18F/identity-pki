@@ -21,7 +21,7 @@ resource "aws_security_group" "kms_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-kms_endpoint-${var.env_name}"
@@ -58,7 +58,7 @@ resource "aws_security_group" "ssm_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   #name = "${var.name}-ssm_endpoint-${var.env_name}"
@@ -96,7 +96,7 @@ resource "aws_security_group" "ssmmessages_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   #name = "${var.name}-ssmmessages_endpoint-${var.env_name}"
@@ -124,7 +124,7 @@ resource "aws_security_group" "ec2_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-ec2_endpoint-${var.env_name}"
@@ -161,7 +161,7 @@ resource "aws_security_group" "ec2messages_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-ec2messages_endpoint-${var.env_name}"
@@ -199,7 +199,7 @@ resource "aws_security_group" "logs_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-logs_endpoint-${var.env_name}"
@@ -227,7 +227,7 @@ resource "aws_security_group" "monitoring_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-monitoring_endpoint-${var.env_name}"
@@ -255,7 +255,7 @@ resource "aws_security_group" "secretsmanager_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
@@ -283,7 +283,7 @@ resource "aws_security_group" "sns_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-sns_endpoint-${var.env_name}"
@@ -334,7 +334,7 @@ resource "aws_security_group" "sqs_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   name = "${var.name}-sqs_endpoint-${var.env_name}"
@@ -523,7 +523,7 @@ resource "aws_security_group" "sts_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
 
   #name = "${var.name}-sts_endpoint-${var.env_name}"
@@ -585,7 +585,7 @@ resource "aws_security_group" "events_endpoint" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
   }
   name = "${var.name}-events_endpoint-${var.env_name}"
 

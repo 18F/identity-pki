@@ -100,6 +100,13 @@
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
+                                        },
+                                        {
+                                                "file_path": "/var/log/postgresql/pgbouncer.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/postgresql/pgbouncer.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S.%f %Z"
 
                                         },
                                         {

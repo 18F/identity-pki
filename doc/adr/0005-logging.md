@@ -1,4 +1,4 @@
-# Architecture Decision Record: Log Storage and Search
+# Architecture Decision Record 5: Log Storage and Search
 
 > Login.gov uses AWS CloudWatch Logs as our central logging source of truth
 > with CloudWatch Logs Insights for search and related CloudWatch tools for

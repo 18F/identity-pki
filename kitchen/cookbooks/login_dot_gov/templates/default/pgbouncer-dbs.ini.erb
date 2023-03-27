@@ -1,0 +1,5 @@
+; Managed by Chef - login_dot_gov::pgbouncer_autoconfig
+[databases]
+<% @databases.each do |database| -%>
+<%= database['name'] %> = host=<%= database['host'] %> port=5432 user=<%= database['username'] %>
+<% end %>
