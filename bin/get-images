@@ -178,27 +178,30 @@ update_vars() {
     local TF_VARS_PATHS=()
     if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
       for MAIN_TF in $(find "${GIT_DIR}/terraform/gitlab" -type f -name 'main.tf' -maxdepth 2) ; do
-        if [[ $(grep -E "\# +require login-${AMI_ACCT}$" "${MAIN_TF}") ]] ; then
-          TF_VARS_PATHS+=($(echo "${MAIN_TF}" | sed -E 's/.+(terraform\/)/\1/'))
+        if [[ $(grep -E "\# +require login-${AMI_ACCT}$" "${MAIN_TF}") ]] && \
+          [[ $(grep -E "default_ami_id += \"ami-[0-9a-f]+\"" "${MAIN_TF}") ]] ; then
+            TF_VARS_PATHS+=($(echo "${MAIN_TF}" | sed -E 's/.+(terraform\/)/\1/'))
         fi
       done
     else
       TF_VARS_PATHS+=('terraform/app/variables.tf')
     fi
 
-    for VAR_PATH in "${TF_VARS_PATHS[@]}" ; do
-      if [[ "${VAR_PATH}" =~ 'app' ]] ; then
-        sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
-        "${GIT_DIR}/${VAR_PATH}"
-      else
-        sed -i '' -E "s/ami-.+/${AMI_STRING}/" "${GIT_DIR}/${VAR_PATH}"
-      fi
-      if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}" ) ]]; then
-        UPDATES+=("${VAR_PATH}:${AMI_TYPE}_ami_id_${AMI_ACCT%-*}:${AMI_ID}")
-        ((UPDATED_VARS++))
-      fi
-      if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]] ; then
-        AMI_FILES+=(${VAR_PATH})
+    for VAR_PATH in "${TF_VARS_PATHS[@]:-}" ; do
+      if [[ ! -z "${VAR_PATH}" ]] ; then
+        if [[ "${VAR_PATH}" =~ 'app' ]] ; then
+          sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
+          "${GIT_DIR}/${VAR_PATH}"
+        else
+          sed -i '' -E "s/ami-.+/${AMI_STRING}/" "${GIT_DIR}/${VAR_PATH}"
+        fi
+        if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}" ) ]]; then
+          UPDATES+=("${VAR_PATH}:${AMI_TYPE}_ami_id_${AMI_ACCT%-*}:${AMI_ID}")
+          ((UPDATED_VARS++))
+        fi
+        if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]] ; then
+          AMI_FILES+=(${VAR_PATH})
+        fi
       fi
     done
   done
