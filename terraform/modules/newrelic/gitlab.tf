@@ -15,12 +15,27 @@ resource "newrelic_synthetics_monitor" "gitlab_health" {
   verify_ssl        = true
 }
 
-resource "newrelic_synthetics_alert_condition" "gitlab_health" {
-  count     = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
-  policy_id = newrelic_alert_policy.low[0].id
+resource "newrelic_nrql_alert_condition" "gitlab_health" {
+  count                        = (var.enabled + var.gitlab_enabled) >= 2 ? 1 : 0
+  policy_id                    = newrelic_alert_policy.low[0].id
+  name                         = "${var.env_name} gitlab health failure for over 3 hours: Please check to see what broke the deployment, @login-devtools-oncall"
+  violation_time_limit_seconds = 43200
+  fill_option                  = "none"
+  aggregation_window           = 900
+  aggregation_method           = "event_flow"
+  aggregation_delay            = 120
+  slide_by                     = 30
 
-  name       = "${var.env_name} gitlab health failure"
-  monitor_id = newrelic_synthetics_monitor.gitlab_health[0].id
+  nrql {
+    query = "SELECT count(*) FROM SyntheticCheck WHERE monitorName = '${var.env_name} gitlab check' AND result = 'FAILED'"
+  }
+
+  critical {
+    operator              = "above"
+    threshold             = 1
+    threshold_duration    = 10800
+    threshold_occurrences = "ALL"
+  }
 }
 
 resource "newrelic_nrql_alert_condition" "disk_space_alert" {
