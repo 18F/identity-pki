@@ -51,6 +51,12 @@ variable "gitlab_enabled" {
   default     = 0
 }
 
+variable "waf_alerts_enabled" {
+  description = "set this to true if you want to alert on WAF problems"
+  type        = number
+  default     = 0
+}
+
 variable "env_name" {}
 
 variable "region" {

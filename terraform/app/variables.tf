@@ -1294,3 +1294,9 @@ variable "enable_redis_ratelimit_instance" {
   type        = bool
   default     = false
 }
+
+variable "waf_alerts_enabled" {
+  description = "set this to true if you want to alert on WAF problems"
+  type        = number
+  default     = 0
+}

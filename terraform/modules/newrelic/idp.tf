@@ -410,3 +410,33 @@ resource "newrelic_synthetics_alert_condition" "cloud_health" {
   name       = "https://${local.idp_domain_name}/packs/manifest.json health failure"
   monitor_id = newrelic_synthetics_monitor.cloudfront_health[0].id
 }
+
+resource "newrelic_synthetics_script_monitor" "block_irs_attempts_api" {
+  count            = var.waf_alerts_enabled * var.enabled
+  status           = "ENABLED"
+  name             = "Block ${var.env_name} /api/irs_attempts_api"
+  type             = "SCRIPT_API"
+  locations_public = ["US_EAST_1", "US_EAST_2", "US_WEST_2"]
+  period           = "EVERY_5_MINUTES"
+
+  script = <<EOF
+var assert = require("assert");
+$http.get("https://${local.idp_domain_name}/api/irs_attempts_api/",
+  // Callback
+  function (err, response, body) {
+    assert.equal(response.statusCode, 403, `Expected a 403 response from WAF, but received $${response.statusCode}`);
+  }
+);
+EOF
+
+  script_language      = "JAVASCRIPT"
+  runtime_type         = "NODE_API"
+  runtime_type_version = "16.10"
+}
+
+resource "newrelic_synthetics_alert_condition" "block_irs_attempts_api" {
+  count      = var.waf_alerts_enabled * var.enabled
+  policy_id  = newrelic_alert_policy.high[0].id
+  name       = "Failure to block ${var.env_name} /api/irs_attempts_api"
+  monitor_id = newrelic_synthetics_script_monitor.block_irs_attempts_api[0].id
+}
