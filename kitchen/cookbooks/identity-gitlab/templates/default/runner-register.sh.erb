@@ -15,9 +15,13 @@ gitlab-runner register \
     --env MY_ENV="<%= node.chef_environment %>" \
     --env MY_ENV_<%= node.chef_environment %>="<%= node.chef_environment %>" \
     --env DOCKER_AUTH_CONFIG='{"credHelpers": {"public.ecr.aws": "ecr-login","<%= @gitlab_ecr_registry %>": "ecr-login"<%= @repolist %>}}' \
-    --docker-image="<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com/ecr-public/docker/library/alpine:latest" \
 <% if node.run_state['is_it_an_env_runner'] == 'true' -%>
     --docker-disable-entrypoint-overwrite \
+<% end -%>
+<% if node.run_state['allowed_images'].length > 0 -%>
+    --docker-image="<%= node.run_state['allowed_images'][0] -%>" \
+<% else -%>
+    --docker-image="<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com/ecr-public/docker/library/alpine:latest" \
 <% end -%>
 <% for allowedimage in node.run_state['allowed_images'] do -%>
     --docker-allowed-images "<%= allowedimage %>" \

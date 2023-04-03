@@ -95,3 +95,47 @@ stop:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_stop@$STOP_IMAGE_DIGEST
   script:
     - echo "Main screen turn off." ; exit 1
+
+run_allowed_image:
+  environment:
+    action: verify
+    name: ${ENV_NAME}
+  tags:
+    - test-pool
+  stage: smoke_test
+  allow_failure: true
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine:latest
+  script:
+    - touch allowed.txt
+  artifacts:
+    paths:
+      - "*.txt"
+    
+run_unallowed_image:
+  environment:
+    action: verify
+    name: ${ENV_NAME}
+  tags:
+    - ${ENV_NAME}-env-runner
+  stage: smoke_test
+  allow_failure: true
+  script:
+    - touch unallowed.txt
+  artifacts:
+    paths:
+      - "*.txt"
+
+test_unallowed_image:
+  environment:
+    action: verify
+    name: ${ENV_NAME}
+  tags:
+    - test-pool
+  stage: smoke_test
+  needs:
+    - run_unallowed_image
+    - run_allowed_image
+  script:
+    - test ! -f unallowed.txt
+    - test -f allowed.txt
