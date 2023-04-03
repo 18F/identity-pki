@@ -26,6 +26,13 @@ users:
     - appdev
     ec2_username:
     - theabrad
+  amir.reavis-bey:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - amir.reavis-bey
+    gitlab_groups:
+    - devops
   amy.walraven:
     aws_groups:
     - fraudops
