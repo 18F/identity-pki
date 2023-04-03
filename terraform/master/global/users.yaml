@@ -313,6 +313,11 @@ users:
   keith.wertsching:
     aws_groups:
     - analytics
+  kelli.ho:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
   ken.kato:
     aws_groups:
     - devopsnonprod
