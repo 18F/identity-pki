@@ -247,6 +247,6 @@ end
 
 cron_d 'kill_unsigned_images' do
   action :create
-  command '/usr/bin/flock /tmp/kill_unsigned_images /usr/local/bin/killunsignedimages.sh /root/image_signing.pub'
+  command '/usr/bin/flock -n /tmp/kill_unsigned_images /usr/local/bin/killunsignedimages.sh /root/image_signing.pub'
   only_if node['identity_gitlab']['image_signing_verification']
 end

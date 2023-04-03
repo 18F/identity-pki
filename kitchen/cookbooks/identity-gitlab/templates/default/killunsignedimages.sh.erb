@@ -38,8 +38,8 @@ docker ps --format='{{.Image}} {{.ID}}' | while read line ; do
 					echo "allowing $i because it appears to be a gitlab runner image"
 				else
 					echo "killing $CONTAINERID, as $i is not properly signed."
-					#logger -t badcontainerlaunch "$i was killed while launching because it was not properly signed:  possibly bad!"
-					#docker kill "$CONTAINERID"
+					logger -t badcontainerlaunch "$i was killed while launching because it was not properly signed:  possibly bad!"
+					docker kill "$CONTAINERID"
 				fi
 			fi
 		done
