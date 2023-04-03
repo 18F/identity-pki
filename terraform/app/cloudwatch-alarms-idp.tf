@@ -212,52 +212,6 @@ resource "aws_cloudwatch_metric_alarm" "idp_too_many_healthy_instances_alert" {
   alarm_actions = local.low_priority_alarm_actions
 }
 
-# Iterate over vendors (in variables.tf) creating alarms for:
-# AAMVA, Acuant, Instant Verify, Pinpoint, & TrueID
-resource "aws_cloudwatch_metric_alarm" "doc_auth_vendor_exception_rate" {
-  for_each = local.doc_auth_vendors
-
-  alarm_name        = "${aws_autoscaling_group.idp.name}-doc-auth-vendor-exception-rate-${each.key}"
-  alarm_description = <<EOM
-${aws_autoscaling_group.idp.name}: ${each.value} idv vendor
-exception rate is above 50% over a period of 15 mins.
-EOM
-
-  metric_query {
-    id          = "exception_rate_${each.key}"
-    expression  = "(exc${each.key} / all${each.key}) * 100"
-    label       = "Exception rate of ${each.value}"
-    return_data = "true"
-  }
-
-  metric_query {
-    id = "exc${each.key}"
-
-    metric {
-      metric_name = "doc-auth-vendor-exception-${each.key}"
-      namespace   = "${var.env_name}/idp-ialx"
-      period      = 900
-      stat        = "Sum"
-    }
-  }
-
-  metric_query {
-    id = "all${each.key}"
-
-    metric {
-      metric_name = "doc-auth-vendor-overall-${each.key}"
-      namespace   = "${var.env_name}/idp-ialx"
-      period      = 900
-      stat        = "Sum"
-    }
-  }
-
-  alarm_actions       = local.low_priority_alarm_actions
-  comparison_operator = "GreaterThanThreshold"
-  threshold           = 50
-  evaluation_periods  = 1
-}
-
 resource "aws_cloudwatch_metric_alarm" "pii_spill_detector_alarm" {
   alarm_name                = "${var.env_name}-pii-spill-detector-alarm"
   comparison_operator       = "GreaterThanThreshold"

@@ -673,17 +673,6 @@ locals {
   dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
 }
 
-# Locals used by cloudwatch-alarms-idp.tf to create alarms on vendor exception rates:
-locals {
-  doc_auth_vendors = {
-    "aamva"    = "AAMVA",
-    "acuant"   = "Acuant",
-    "iv"       = "Instant Verify",
-    "pinpoint" = "Pinpoint",
-    "trueid"   = "TrueID",
-  }
-}
-
 # These variables are used to toggle whether certain services are enabled.
 #
 # NOTE: These must be numbers, as terraform does not support boolean values,
@@ -902,6 +891,8 @@ variable "keep_legacy_bucket" {
   default     = false
 }
 
+# DocAuth / Vendors
+
 variable "doc_capture_secrets" {
   description = "Map of key name/descriptions of empty SSM parameter store items to create"
   type        = map(string)
@@ -928,9 +919,53 @@ variable "doc_capture_secrets" {
   }
 }
 
+variable "doc_auth_vendors" {
+  type        = map(string)
+  description = "Map of DocAuth vendors : metric names (for exception rate alarms)"
+  default     = {}
+}
+
+variable "external_service_alarms" {
+  type = map(object({
+    long_name          = string
+    tps_max            = optional(number)
+    tps_threshold_pct  = optional(number, 80)
+    latency_percentile = optional(number)
+    latency_threshold  = optional(number)
+  }))
+  description = "List/Map of DocAuth vendors + configs for CloudWatch alarms"
+  default     = {}
+}
+
 variable "tf_slack_channel" {
   description = "Slack channel to send events to."
   default     = "#login-personal-events"
+}
+
+variable "slack_oncall_groups" {
+  type        = list(string)
+  description = <<EOM
+Slack group handle(s) for 'prod'-environment Oncall response. Add to the Description
+of a CloudWatch alert to ping said handle(s) via an OpsGenie message in Slack.
+
+NOTE: Must be added AFTER a valid 'Runbook:' line (e.g. with a URL attached)
+to prevent the SNSToSlackNotifier from triggering a duplicate notification.
+EOM
+  default = [
+    "login-devops-oncall",
+    "login-appdev-oncall"
+  ]
+}
+
+variable "slack_proofing_groups" {
+  type        = list(string)
+  description = <<EOM
+Slack group handle(s) for Vendor Proofing Oncall. Add to the Description
+of a CloudWatch alert in order to ping said handle(s) via the SNSToSlackNotifier.
+EOM
+  default = [
+    "login-oncall-ada"
+  ]
 }
 
 variable "gitlab_enabled" {
