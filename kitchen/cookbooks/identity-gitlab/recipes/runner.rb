@@ -232,7 +232,7 @@ end
 
 # Get the unsigned image killer script going.
 file '/root/image_signing.pub' do
-  content ConfigLoader.load_config(node, node['identity_gitlab']['image_signing_pubkey'], common: node['identity_gitlab']['image_signing_pubkey_common']).chomp.split()
+  content ConfigLoader.load_config(node, node['identity_gitlab']['image_signing_pubkey'], common: node['identity_gitlab']['image_signing_pubkey_common'])
   mode '0644'
   owner 'root'
   group 'root'
