@@ -20,14 +20,14 @@ data "newrelic_entity" "idp" {
 
 resource "newrelic_alert_condition" "low_throughput" {
   count           = var.idp_enabled
-  policy_id       = newrelic_alert_policy.high[0].id
+  policy_id       = newrelic_alert_policy.high[count.index].id
   name            = "${var.env_name}: LOW Throughput (web)"
   runbook_url     = "https://github.com/18F/identity-devops/wiki/Runbook:-low-throughput-in-New-Relic"
   enabled         = true
   type            = "apm_app_metric"
   metric          = "throughput_web"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp[count.index].application_id]
 
   term {
     duration      = 5
@@ -48,13 +48,13 @@ resource "newrelic_alert_condition" "low_throughput" {
 
 resource "newrelic_alert_condition" "low_apdex" {
   count           = var.idp_enabled
-  policy_id       = newrelic_alert_policy.high[0].id
+  policy_id       = newrelic_alert_policy.high[count.index].id
   name            = "${var.env_name}: Apdex low"
   enabled         = true
   type            = "apm_app_metric"
   metric          = "apdex"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp[count.index].application_id]
 
   term {
     duration      = 5
@@ -67,13 +67,13 @@ resource "newrelic_alert_condition" "low_apdex" {
 
 resource "newrelic_alert_condition" "error_rate" {
   count           = var.idp_enabled
-  policy_id       = newrelic_alert_policy.high[0].id
+  policy_id       = newrelic_alert_policy.high[count.index].id
   name            = "${var.env_name}: High idp error rate"
   enabled         = true
   type            = "apm_app_metric"
   metric          = "error_percentage"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp[count.index].application_id]
 
   term {
     duration      = 5
@@ -106,10 +106,10 @@ resource "newrelic_synthetics_monitor" "api_health" {
 }
 resource "newrelic_synthetics_alert_condition" "api_health" {
   count     = var.idp_enabled
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.high[count.index].id
 
   name       = "https://${local.idp_domain_name}/api/health failure"
-  monitor_id = newrelic_synthetics_monitor.api_health[0].id
+  monitor_id = newrelic_synthetics_monitor.api_health[count.index].id
 }
 
 resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
@@ -126,21 +126,21 @@ resource "newrelic_synthetics_monitor" "outbound_proxy_health" {
 }
 resource "newrelic_synthetics_alert_condition" "outbound_proxy_health" {
   count     = var.idp_enabled
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.high[count.index].id
 
   name       = "https://${local.idp_domain_name}/api/health/outbound failure"
-  monitor_id = newrelic_synthetics_monitor.outbound_proxy_health[0].id
+  monitor_id = newrelic_synthetics_monitor.outbound_proxy_health[count.index].id
 }
 
 resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
   count                       = var.enduser_enabled
-  policy_id                   = newrelic_alert_policy.enduser[0].id
+  policy_id                   = newrelic_alert_policy.enduser[count.index].id
   name                        = "${var.env_name}: Web datastores slow queries"
   enabled                     = true
   type                        = "apm_app_metric"
   metric                      = "user_defined"
   condition_scope             = "application"
-  entities                    = [data.newrelic_entity.idp[0].application_id]
+  entities                    = [data.newrelic_entity.idp[count.index].application_id]
   user_defined_metric         = "Datastore/allWeb"
   user_defined_value_function = "max"
   runbook_url                 = "https://github.com/18F/identity-devops/wiki/Runbook%5BAlerts%5D%5BNew-Relic%5D:-ENV:-Web-datastores-slow-queries"
@@ -164,7 +164,7 @@ resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
 
 resource "newrelic_nrql_alert_condition" "enduser_response_time" {
   count                        = var.enduser_enabled
-  policy_id                    = newrelic_alert_policy.enduser[0].id
+  policy_id                    = newrelic_alert_policy.enduser[count.index].id
   name                         = "${var.env_name}: Response time is too high"
   enabled                      = true
   description                  = "Alerting when the 95th percentile of transaction response times are over 2s, warn when it's over 1s."
@@ -194,7 +194,7 @@ resource "newrelic_nrql_alert_condition" "enduser_response_time" {
 
 resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   count                        = var.enduser_enabled
-  policy_id                    = newrelic_alert_policy.enduser[0].id
+  policy_id                    = newrelic_alert_policy.enduser[count.index].id
   name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
   description                  = "Alerting when errors in controller action name get above 0.5% for the past 2 minutes"
@@ -218,7 +218,7 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
 
 resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   count       = var.enduser_enabled
-  policy_id   = newrelic_alert_policy.enduser[0].id
+  policy_id   = newrelic_alert_policy.enduser[count.index].id
   name        = "${var.env_name}: high rate of errors for service provider"
   enabled     = true
   description = "Alerting when errors for individual service provider get above 0.5% for the past 2 minutes"
@@ -243,13 +243,13 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
 
 resource "newrelic_alert_condition" "enduser_error_percentage" {
   count           = var.enduser_enabled
-  policy_id       = newrelic_alert_policy.enduser[0].id
+  policy_id       = newrelic_alert_policy.enduser[count.index].id
   name            = "${var.env_name}: Error percentage is too high"
   enabled         = true
   type            = "apm_app_metric"
   metric          = "error_percentage"
   condition_scope = "application"
-  entities        = [data.newrelic_entity.idp[0].application_id]
+  entities        = [data.newrelic_entity.idp[count.index].application_id]
 
   term {
     duration      = 5
@@ -269,8 +269,8 @@ resource "newrelic_alert_condition" "enduser_error_percentage" {
 }
 
 resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
-  count       = var.in_person_enabled
-  policy_id   = newrelic_alert_policy.in_person[0].id
+  count       = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
+  policy_id   = newrelic_alert_policy.in_person[count.index].id
   type        = "static"
   name        = "Identity Proofing Slow Backend Response Time"
   description = <<EOT
@@ -299,8 +299,8 @@ resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
 }
 
 resource "newrelic_nrql_alert_condition" "proofing_javascript_errors" {
-  count       = var.in_person_enabled
-  policy_id   = newrelic_alert_policy.in_person[0].id
+  count       = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
+  policy_id   = newrelic_alert_policy.in_person[count.index].id
   type        = "static"
   name        = "Identity Proofing JavaScript Errors"
   description = <<EOT
@@ -405,10 +405,10 @@ resource "newrelic_synthetics_monitor" "cloudfront_health" {
 }
 resource "newrelic_synthetics_alert_condition" "cloud_health" {
   count     = (var.enabled + var.cdn_idp_static_assets_alarms_enabled) >= 2 ? 1 : 0
-  policy_id = newrelic_alert_policy.high[0].id
+  policy_id = newrelic_alert_policy.high[count.index].id
 
   name       = "https://${local.idp_domain_name}/packs/manifest.json health failure"
-  monitor_id = newrelic_synthetics_monitor.cloudfront_health[0].id
+  monitor_id = newrelic_synthetics_monitor.cloudfront_health[count.index].id
 }
 
 resource "newrelic_synthetics_script_monitor" "block_irs_attempts_api" {
