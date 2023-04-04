@@ -86,7 +86,7 @@ describe file('/srv/idp/current/config/application.yml') do
   it { should be_readable.by_user('websrv') }
   its('content') { should include('production:') }
   its('content') { should include('database_host') }
-  its('content') { should include('"suffix":"2021"') }
+  its('content') { should include('"suffix":"2023"') }
 end
 
 describe file('/srv/idp/current/config/database.yml') do
@@ -129,8 +129,8 @@ describe port(443) do
   it { should be_listening }
 end
 
-# verify certs and hit the IDP SAML 2021 metadata endpoint
-describe file('/srv/idp/shared/certs/saml2021.crt') do
+# verify certs and hit the IDP SAML 2023 metadata endpoint
+describe file('/srv/idp/shared/certs/saml2023.crt') do
   it { should exist }
   it { should be_file }
   it { should_not be_symlink }
@@ -138,7 +138,7 @@ describe file('/srv/idp/shared/certs/saml2021.crt') do
   its(:size) { should > 0 }
 end
 
-describe file('/srv/idp/shared/keys/saml2021.key.enc') do
+describe file('/srv/idp/shared/keys/saml2023.key.enc') do
   it { should exist }
   it { should be_file }
   it { should_not be_symlink }
@@ -148,7 +148,7 @@ describe file('/srv/idp/shared/keys/saml2021.key.enc') do
   its(:size) { should > 0 }
 end
 
-describe http('https://localhost/api/saml/metadata2021', ssl_verify: false) do
+describe http('https://localhost/api/saml/metadata2023', ssl_verify: false) do
   its('status') { should eq 200 }
   its('headers.Content-Type') { should cmp 'text/xml; charset=utf-8' }
   its('body') { should include '<SingleSignOnService' }
