@@ -655,6 +655,7 @@ users:
     gitlab_groups:
     - bots
     - lg
+    - lg-all
     - devops
     - appdev
     - pm
