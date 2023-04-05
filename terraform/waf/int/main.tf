@@ -17,11 +17,12 @@ module "waf_data" {
 module "main" {
   source = "../module"
 
-  env     = "int"
-  region  = "us-west-2"
-  enforce = true
-
-  enforce_rate_limit = true
+  env                   = "int"
+  region                = "us-west-2"
+  enforce               = true
+  enforce_waf_captcha   = false
+  enforce_waf_challenge = true
+  enforce_rate_limit    = true
 
   # Uncomment to use header_block_regex filter
   #header_block_regex = yamldecode(file("header_block_regex.yml"))
