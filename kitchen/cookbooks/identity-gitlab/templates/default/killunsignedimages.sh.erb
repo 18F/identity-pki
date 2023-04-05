@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# This script will check the signatures on every running container against
+# the supplied pubkey, and if they are not signed, it will kill them.
+#
+# It's meant to be run pretty much continuously, to try to minimize time that a
+# bad container has to do bad things.
+#
+# Since there's no good way to do Docker Content Trust with ECR, we
+# must do this.  When we containerize, this will go away because we
+# will be using conneseur or one of the other admission controllers
+# for this.
+#
+# If this sticks around long enough, keep an eye on
+# https://github.com/docker/roadmap/issues/269 in case they build support
+# in natively.
+#
+
+PUBKEY=$1
+
+if [ -z "$PUBKEY" ] ; then
+	echo "usage: $0 <path_to_pubkey>"
+	echo "example: $0 /root/signingkey.pub"
+	exit 1
+fi
+
+docker ps --format='{{.Image}} {{.ID}}' | while read line ; do
+	set $line
+	IMAGEID="$1"
+	CONTAINERID="$2"
+	
+	docker image inspect "$IMAGEID" --format='{{join .RepoTags " "}}' | while read line ; do
+		for i in $line ; do
+			if cosign verify --insecure-ignore-tlog=true --key "$PUBKEY" "$i" >/dev/null 2>&1 ; then
+				echo "$i" is signed
+			else
+				if echo "$i" | grep 'registry.gitlab.com/gitlab-org/gitlab-runner/' >/dev/null ; then
+					echo "allowing $i because it appears to be a gitlab runner image"
+				else
+					echo "killing $CONTAINERID, as $i is not properly signed."
+					logger -t badcontainerlaunch "$i was killed while launching because it was not properly signed:  possibly bad!"
+					docker kill "$CONTAINERID"
+				fi
+			fi
+		done
+	done
+done

@@ -228,3 +228,25 @@ execute 'update_runner_concurrency' do
   command 'sed -i "s/^concurrent = .*/concurrent = 1/" /etc/gitlab-runner/config.toml'
   notifies :run, 'execute[reload_runner]', :immediately
 end
+
+
+# Get the unsigned image killer script going.
+file '/root/image_signing.pub' do
+  content ConfigLoader.load_config(node, node['identity_gitlab']['image_signing_pubkey'], common: node['identity_gitlab']['image_signing_pubkey_common'])
+  mode '0644'
+  owner 'root'
+  group 'root'
+  only_if { node['identity_gitlab']['image_signing_verification'] }
+end
+
+template '/usr/local/bin/killunsignedimages.sh' do
+  source 'killunsignedimages.sh.erb'
+  mode '755'
+  only_if { node['identity_gitlab']['image_signing_verification'] }
+end
+
+cron_d 'kill_unsigned_images' do
+  action :create
+  command '/usr/bin/flock -n /tmp/kill_unsigned_images /usr/local/bin/killunsignedimages.sh /root/image_signing.pub'
+  only_if { node['identity_gitlab']['image_signing_verification'] && node.run_state['is_it_an_env_runner'] == 'true' }
+end
