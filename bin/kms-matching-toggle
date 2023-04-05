@@ -1,0 +1,130 @@
+#!/bin/bash
+
+#### Disables/Enables KMS Matching Pipeline in selected environment  ####
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh" 
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-h] -e ENVIRONMENT -t TOGGLE
+
+Flags:
+  -e : Environment to enable/disable KMS Matching in
+  -t : Toggle KMS matching
+         "enable"  - Enables KMS matching
+         "disable" - Disables KMS Matching     
+  -h : Detailed help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`
+
+EOM
+}
+
+help_text() {
+  cat >&2 << EOM
+
+Usage: ${0} [-h] -e ENVIRONMENT -t TOGGLE
+
+Runs all necessary commands to enable or disable the KMS Matching Pipeline
+for the selected environment. Designed to run with no specified flags/arguments.
+
+Flags:
+  -e : Environment to enable/disable KMS Matching in
+  -t : Toggle KMS matching
+         "enable"  - Enables KMS matching
+         "disable" - Disables KMS Matching
+  -h : Displays this help
+  
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`
+
+EOM
+  exit 0
+}
+
+# Runs the SSM Document 'disable-cloudwatch-kms' or 'enable-cloudwatch-kms' 
+# (based on value of TOGGLE) on all appropriate instances of the environment 
+# via the ssm-command utility. 
+# 'disable' prevents the app servers from pushing KMS Events to CloudWatch.
+# 'enable' restores the ability for the app servers to push KMS events to CloudWatch
+toggle_cloudwatch_logging() {
+  echo "${TOGGLE} CW logging"
+  for role in "${ROLES[@]}"; do
+    echo "Running ssm-command for ${ENV}-${role}"
+    ./ssm-command -d "${TOGGLE}"-cloudwatch-kms -e "${ENV}" -r "${role}";
+  done
+}
+
+# Runs an AWS CLI command to disable the '<env>-decryption-events' Event Bus rule.
+# This prevents CloudWatch from pushing KMS Decryption events to SNS, thus breaking
+# the KMS Matching pipeline.
+toggle_eventbus_rule() {
+  echo "${TOGGLE} EventBus Rule"
+  aws events "${TOGGLE}"-rule --name "${ENV}-decryption-events"
+}
+
+# Runs all steps necessary to enable/disable the KMS Pipeline
+toggle_kms() {
+  echo "${TOGGLE} KMS"
+  toggle_cloudwatch_logging
+  toggle_eventbus_rule
+}
+
+# Load Environment Variables specific to the selected environment.
+# Gives access to use the STRICT_ENVIRONMENT environment variable
+load_environment_variables() {
+  local return_dir env_var_dir
+  return_dir="$(pwd)"
+  env_var_dir="${return_dir}/../../identity-devops-private/env/"
+  cd "${env_var_dir}"
+  . "${env_var_dir}${ENV}".sh
+  cd "${return_dir}"
+}
+
+# Check if the environment is considered Strict and require an extra step
+# to purposefully disable KMS Matching in the environment
+strict_environment_restriction() {
+  local strict_check
+  strict_check="${STRICT_ENVIRONMENT-}"
+  [ -z "$strict_check" ] && return
+
+  if [ "$strict_check" == 1 ] && [ -z "${KMS_ENVIRONMENT_OVERRIDE-}" ]; then
+    echo_red >&2 "Error: Strict environment. Cannot toggle KMS Matching in this environment by default"
+    echo_red >&2 "(set KMS_ENVIRONMENT_OVERRIDE=1 to skip this check and force toggle of KMS Matching in current environment)"
+    return 2        
+  fi
+}
+
+while getopts e:t:h opt
+do
+  case $opt in
+    e) ENV="${OPTARG}"           ;;
+    t) TOGGLE="${OPTARG}"        ;;
+    h) help_text                 ;;
+   \?) exit 1                    ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ -z "${ENV:-}" ]] || [[ -z "${TOGGLE:-}" ]]; then
+  raise "Must specify ENVIRONMENT (-e) and TOGGLE (-t)"
+fi
+
+echo $ENV
+echo $TOGGLE
+
+ROLES=(app idp pivcac worker)
+cd "$(dirname "$0")"
+
+if [[ "${TOGGLE}" != "enable" ]] && [[ "${TOGGLE}" != "disable" ]]; then
+  raise "Invalid TOGGLE option. Must be \"enable\" or \"disable\""
+fi
+
+# Clear previous environment variables that could impact usage
+unset STRICT_ENVIRONMENT
+
+load_environment_variables
+strict_environment_restriction
+toggle_kms

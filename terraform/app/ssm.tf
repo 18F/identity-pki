@@ -6,6 +6,7 @@ locals {
       command     = ["sudo systemctl restart idp-workers.target"]
       description = "Restart idp-worker service via systemctl"
       logging     = false
+      use_root    = false
       parameters  = []
     }
     "passenger-restart" = {
@@ -14,6 +15,7 @@ locals {
       ]
       description = "Restart passenger service via id-passenger-restart script"
       logging     = false
+      use_root    = false
       parameters  = []
     }
     "scp-s3-cp" = {
@@ -33,10 +35,26 @@ locals {
         },
       ]
       logging = false
+      use_root    = false
       command = [
         "aws s3 cp {{ sourcefile }} {{ destfile }}"
       ]
     }
+    "disable-cloudwatch-kms" = {
+      command     = ["id-disable-cloudwatch-kms"]
+      description = "Disable KMS Logging of CloudWatch Agent via id-disable-cloudwatch-kms"
+      logging     = false
+      use_root    = true
+      parameters  = []
+    }
+    "enable-cloudwatch-kms" = {
+      command     = ["id-enable-cloudwatch-kms"]
+      description = "Enable KMS Logging of CloudWatch Agent via id-enable-cloudwatch-kms"
+      logging     = false
+      use_root    = true
+      parameters  = []
+    }
+
   }
 }
 

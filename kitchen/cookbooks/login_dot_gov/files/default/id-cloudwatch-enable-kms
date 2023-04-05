@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#### Purge KMS logs and enable sending KMS logs to CloudWatch ####
+
+set -eu
+
+LOG_DIR='/srv/idp/shared/log'
+KMS_LOG='kms.log'
+
+# Purge KMS Log
+> $LOG_DIR/$KMS_LOG
+
+# Update CloudWatch Agent Config to enable sending of KMS Log
+sed -i "s~\"file_path\": \"${LOG_DIR}/${KMS_LOG}disabled\"~\"file_path\": \"${LOG_DIR}/${KMS_LOG}\"~g" /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
+# Restart the CloudWatch Agent
+systemctl restart amazon-cloudwatch-agent.service

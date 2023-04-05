@@ -15,6 +15,7 @@ locals {
       ]
       description = "Initiates the locust master service and local workers with remaining cores"
       logging     = false
+      use_root    = false
       parameters = [
         {
           name        = "TEST"
@@ -63,6 +64,7 @@ locals {
       ]
       description = "Initiates workers that connect to the locust-leader"
       logging     = false
+      use_root    = false
       parameters = [
         {
           name        = "TEST"
@@ -106,6 +108,7 @@ locals {
       ]
       description = "Footprints locust-leader and uploads results to transfer-utility"
       logging     = false
+      use_root    = false
       parameters  = []
     }
     "idp-footprint" = {
@@ -124,6 +127,7 @@ locals {
       ]
       description = "Footprints idp host and uploads results to transfer-utility"
       logging     = false
+      use_root    = false
       parameters = [
         {
           name        = "IDPREPOS"
@@ -136,8 +140,7 @@ locals {
           type        = "String"
           default     = "/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config/application.yml"
           description = "List of Configuration Files to fingerprint"
-        },
-
+        }
       ]
     }
   }

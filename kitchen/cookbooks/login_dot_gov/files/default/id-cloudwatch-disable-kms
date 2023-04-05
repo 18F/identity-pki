@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#### Disable sending KMS logs to CloudWatch and place demlimiter line in /srv/idp/shared/log/kms.log ####
+
+set -eu
+
+LOG_DIR='/srv/idp/shared/log'
+KMS_LOG='kms.log'
+
+# Verify that the log directory and kms.log file exist. May not exist if newly stood up instance.
+[ -d "$LOG_DIR" ] || mkdir -p $LOG_DIR
+[ -f "$LOG_DIR/$KMS_LOG" ] || touch $LOG_DIR/$KMS_LOG
+
+# Update CloudWatch Agent Config to disable sending of KMS Log
+sed -i "s~\"file_path\": \"${LOG_DIR}/${KMS_LOG}\"~\"file_path\": \"${LOG_DIR}/${KMS_LOG}disabled\"~g" /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
+# Restart the CloudWatch Agent
+systemctl restart amazon-cloudwatch-agent.service
