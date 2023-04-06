@@ -59,9 +59,9 @@ email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
 
 target_url = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
-               'https://secure.login.gov/api/saml/auth2022'
+               'https://secure.login.gov/api/saml/auth2023'
              else
-               'https://idp.int.identitysandbox.gov/api/saml/auth2021'
+               'https://idp.int.identitysandbox.gov/api/saml/auth2023'
              end
 
 # Login.gov SAML parameters
