@@ -58,9 +58,9 @@ cat > /tmp/keypolicy.json.$$ <<EOF
 EOF
 
 # create key/alias
-aws kms create-key --customer-master-key-spec RSA_4096 --policy /tmp/keypolicy.json.$$ --key-usage SIGN_VERIFY --description "$1 Cosign Signature Key" > /tmp/keydata.json.$$
+aws kms create-key --customer-master-key-spec RSA_4096 --policy "$(cat /tmp/keypolicy.json.$$)" --key-usage SIGN_VERIFY --description "$1 Cosign Signature Key" > /tmp/keydata.json.$$
 AWS_CMK_ID=$(cat /tmp/keydata.json.$$ | jq -r .KeyMetadata.KeyId)
-aws kms create-alias --alias-name "$1_cosign_signature_key" --target-key-id "$AWS_CMK_ID"
+aws kms create-alias --alias-name "alias/$1_cosign_signature_key" --target-key-id "$AWS_CMK_ID"
 
 # create file that has the key ID in it
 echo "$AWS_CMK_ID" | aws s3 cp - "s3://login-gov.secrets.${AWS_ACCOUNTID}-${AWS_REGION}/common/$1.keyid"
