@@ -24,10 +24,43 @@ fi
 AWS_ACCOUNTID=$(aws sts get-caller-identity --query Account --output text)
 
 
+# create key policy
+cat > /tmp/keypolicy.json.$$ <<EOF
+{
+    "Version": "2012-10-17",
+    "Id": "key-default-$1",
+    "Statement": [
+		{
+		  "Sid": "Allow access for FullAdmins",
+		  "Effect": "Allow",
+		  "Principal": {"AWS":"arn:aws:iam::$AWS_ACCOUNTID:role/FullAdministrator"},
+		  "Action": [
+		    "kms:Create*",
+		    "kms:Describe*",
+		    "kms:Enable*",
+		    "kms:List*",
+		    "kms:Put*",
+		    "kms:Update*",
+		    "kms:Revoke*",
+		    "kms:Disable*",
+		    "kms:Get*",
+		    "kms:Delete*",
+		    "kms:TagResource",
+		    "kms:UntagResource",
+		    "kms:ScheduleKeyDeletion",
+		    "kms:Sign",
+		    "kms:CancelKeyDeletion"
+		  ],
+		  "Resource": "*"
+		}
+    ]
+}
+EOF
 
-# create key
-aws kms create-key --customer-master-key-spec RSA_4096 --key-usage SIGN_VERIFY --description "$1 Cosign Signature Key" > /tmp/keydata.json.$$
+# create key/alias
+aws kms create-key --customer-master-key-spec RSA_4096 --policy "$(cat /tmp/keypolicy.json.$$)" --key-usage SIGN_VERIFY --description "$1 Cosign Signature Key" > /tmp/keydata.json.$$
 AWS_CMK_ID=$(cat /tmp/keydata.json.$$ | jq -r .KeyMetadata.KeyId)
+aws kms create-alias --alias-name "alias/$1_cosign_signature_key" --target-key-id "$AWS_CMK_ID"
 
 # create file that has the key ID in it
 echo "$AWS_CMK_ID" | aws s3 cp - "s3://login-gov.secrets.${AWS_ACCOUNTID}-${AWS_REGION}/common/$1.keyid"
@@ -38,4 +71,4 @@ openssl rsa -pubin -inform der -outform PEM -in /tmp/cosign.der.$$ -out /tmp/cos
 aws s3 cp /tmp/cosign.pub.$$ "s3://login-gov.secrets.${AWS_ACCOUNTID}-${AWS_REGION}/common/$1.pub"
 
 # clean up
-rm -f /tmp/keydata.json.$$ /tmp/cosign.der.$$ /tmp/cosign.pub.$$
+rm -f /tmp/keydata.json.$$ /tmp/cosign.der.$$ /tmp/cosign.pub.$$ /tmp/keypolicy.json.$$
