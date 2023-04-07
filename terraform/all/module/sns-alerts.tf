@@ -174,7 +174,14 @@ module "opsgenie_sns" {
   }
 }
 
-## us-east-1
+module "splunk_oncall_sns" {
+  source                     = "../../modules/splunk_oncall_sns"
+  splunk_oncall_routing_keys = var.splunk_oncall_routing_keys
+  providers = {
+    aws.usw2 = aws.usw2
+    aws.use1 = aws.use1
+  }
+}
 
 resource "aws_cloudwatch_log_group" "slack_use1_success_logs_groups" {
   provider = aws.use1

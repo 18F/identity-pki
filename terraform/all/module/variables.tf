@@ -136,6 +136,22 @@ EOM
   default     = true
 }
 
+variable "splunk_oncall_routing_keys" {
+  description = <<EOM
+A map of Splunk OnCall routing keys (key) to description entries.  A SNS
+topic in supported regions will be created for each routing key.
+
+The splunk_oncall_endpoint file must exist in S3 for the account before
+creating these topics.  Set to {} if creating a new account without the
+file present.
+EOM
+  type        = map(string)
+  default = {
+    "login-platform"    = "Platform oncall alerts",
+    "login-application" = "General product engineer/appdev alerts"
+  }
+}
+
 variable "tf_slack_channel" {
   description = "Slack channel where Terraform change notifications should be sent."
   type        = string
