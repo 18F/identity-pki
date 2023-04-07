@@ -350,6 +350,18 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    idp_usps_proofing_results_minutes_since_last_status_check_completed = {
+      name         = "usps-proofing-minutes-since-last-status-check-completed"
+      pattern      = "{ $.name = \"GetUspsProofingResultsJob:*\" && $.properties.event_properties.minutes_since_last_status_check_completed > -1 }"
+      metric_value = "$.properties.event_properties.minutes_since_last_status_check_completed"
+      dimensions   = {}
+    },
+    idp_usps_proofing_results_minutes_without_status_check_completed_since_established = {
+      name         = "usps-proofing-minutes-without-status-check-completed-since-established"
+      pattern      = "{ $.name = \"GetUspsProofingResultsJob:*\" && $.properties.event_properties.minutes_since_established > -1 && ($.properties.event_properties.minutes_since_last_status_check_completed IS NULL) }"
+      metric_value = "$.properties.event_properties.minutes_since_established"
+      dimensions   = {}
+    },
     idp_usps_proofing_results_minutes_since_enrollment_established = {
       name         = "usps-proofing-minutes-since-enrollment-established"
       pattern      = "{ ($.name = \"GetUspsProofingResultsJob:*\") && ($.properties.event_properties.enrollment_id > 0) && ($.properties.event_properties.minutes_since_established > -1) }"

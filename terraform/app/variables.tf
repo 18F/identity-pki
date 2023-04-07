@@ -1290,6 +1290,12 @@ variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   default     = 43560 # 30 days + 6 hours
 }
 
+variable "minutes_since_ipp_enrollment_status_check_completed_alarm_threshold" {
+  description = "Maximum number of minutes expected between completed status checks for an established USPS IPP enrollment"
+  type        = number
+  default     = 360 # 6 hours
+}
+
 variable "enrollments_expiration_alarm_threshold" {
   description = "Large number of pending enrollments are set to expire"
   type        = number
