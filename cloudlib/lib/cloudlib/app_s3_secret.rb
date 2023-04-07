@@ -215,7 +215,18 @@ module Cloudlib
         case extension.downcase
         when '.yml', '.yaml'
           require 'yaml'
-          YAML.parse(content)
+          parsed = YAML.load(content)
+
+          has_smart_quotes = parsed['production'].any? do |key, value|
+            value.kind_of?(String) && (
+              value.start_with?('“') ||
+                value.start_with?('‘') ||
+                value.end_with?('”') ||
+                value.end_with?('’')
+            )
+          end
+          raise "smart/curly quotes in YAML detected [“”‘’]" if has_smart_quotes
+
           true
         when '.json'
           require 'json'

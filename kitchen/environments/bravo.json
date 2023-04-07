@@ -6,6 +6,9 @@
   "default_attributes": {
     "login_dot_gov": {
       "deploy_branch_default": "main"
+    },
+    "identity_gitlab": {
+      "image_signing_verification": true
     }
   },
   "override_attributes": {

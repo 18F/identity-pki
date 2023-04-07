@@ -59,10 +59,12 @@ waf_paudoom_deploy:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
-    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
-      when: always
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/pauldoom"
+      when: always
 
 # plan jobs 
 ecr_tooling_sandbox_plan:
@@ -84,9 +86,11 @@ ecr_tooling_sandbox_plan:
       when: never
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never 
     - changes:
         - terraform/ecr/module*
-        - terraform/ecr/tooling/*
+        - terraform/ecr/tooling/*  
 
 # plan jobs 
 tooling_tooling_sandbox_plan:
@@ -108,7 +112,8 @@ tooling_tooling_sandbox_plan:
       when: never
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - changes:
         - terraform/tooling/module*
         - terraform/tooling/tooling/*
-    

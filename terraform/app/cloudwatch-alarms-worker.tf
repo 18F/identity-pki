@@ -166,7 +166,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_large_n
   threshold = var.enrollments_expiration_alarm_threshold
 
   alarm_description = <<EOM
-25% of USPS get proofing results jobs are set to expire within about 7 days.
+25% of enrollments processed in a recent USPS get proofing results job are set to expire within about 7 days.
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
 EOM

@@ -5,7 +5,7 @@ include:
   local: /.gitlab-ci-rules.yml
 
 cloudlib_spec:
-  image: cimg/ruby:2.7
+  image: cimg/ruby:3.0
   script:
     - bundle check || bundle install --deployment --jobs=4 --retry=3  --path vendor/bundle
     - bundle exec rspec cloudlib/spec

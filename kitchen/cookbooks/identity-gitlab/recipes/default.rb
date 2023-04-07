@@ -58,11 +58,10 @@ end
 email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
 
-# target_url = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
-target_url = if node.chef_environment == 'production'
-               'https://secure.login.gov/api/saml/auth2022'
+target_url = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
+               'https://secure.login.gov/api/saml/auth2023'
              else
-               'https://idp.int.identitysandbox.gov/api/saml/auth2021'
+               'https://idp.int.identitysandbox.gov/api/saml/auth2023'
              end
 
 # Login.gov SAML parameters
@@ -322,6 +321,112 @@ cron_d 'gitlab_backup_create' do
   command '/etc/gitlab/backup.sh'
   notifies :create, 'file[/etc/gitlab/backup.sh]', :before
   user 'root'
+end
+
+file '/etc/gitlab/repo_mirror_alarm.sh' do
+  content <<-EOF
+#!/bin/bash
+
+debug=0
+gitlab_token=$(cat /etc/gitlab/gitlab_root_api_token)
+sns_topic_arn=$(cat /etc/login.gov/info/sns_topic_arn)
+aws_region=#{aws_region}
+external_url=#{external_url}
+environment=#{node.chef_environment}
+slack_handle=\\<\\!subteam\\^SUY1QMZE3\\>
+
+failure() {
+  echo $1 > .message
+
+  cat .message | logger
+  /usr/local/bin/aws sns publish \
+    --region ${aws_region} \
+    --topic-arn ${sns_topic_arn} \
+    --message file://.message
+}
+
+project_json=$(curl -s --noproxy '*' --insecure --header "PRIVATE-TOKEN: ${gitlab_token}" \
+  "${external_url}/api/v4/projects?" | jq '.[] | select(.name=="identity-devops")')
+rv="$?"
+if [[ $rv -ne 0 || ! $project_json ]]; then
+    echo "failed to get project_json" 1>&2
+    exit 1
+fi
+if [[ $debug -ne 0 || ! $debug ]]; then
+    echo "project_json set to $project_json" 1>&2
+fi
+
+project_number=$(echo $project_json | jq '.id')
+rv="$?"
+if [[ $rv -ne 0 || ! $project_number ]]; then
+    echo "failed to get project_number" 1>&2
+    exit 1
+fi
+if [[ $debug -ne 0 || ! $debug ]]; then
+    echo "project_number set to $project_number" 1>&2
+fi
+
+mirror_update_time=$(curl -s --noproxy '*' --insecure --header "PRIVATE-TOKEN: ${gitlab_token}" \
+"${external_url}/api/v4/projects/${project_number}/mirror/pull" | jq -r '.last_successful_update_at')
+rv="$?"
+if [[ $rv -ne 0 || ! $mirror_update_time ]]; then
+    echo "failed to get mirror_update_time" 1>&2
+    exit 1
+fi
+if [[ $debug -ne 0 || ! $debug ]]; then
+    echo "mirror_update_time set to $mirror_update_time" 1>&2
+fi
+
+mirror_date_serial=$(date -d $mirror_update_time "+%s")
+rv="$?"
+if [[ $rv -ne 0 || ! $mirror_date_serial ]]; then
+    echo "failed to get mirror_date_serial" 1>&2
+    exit 1
+fi
+if [[ $debug -ne 0 || ! $debug ]]; then
+    echo "mirror_date_serial set to $mirror_date_serial" 1>&2
+fi
+
+current_date_serial=$(date "+%s")
+rv="$?"
+if [[ $rv -ne 0 || ! $current_date_serial ]]; then
+    echo "failed to get current_date_serial" 1>&2
+    exit 1
+fi
+if [[ $debug -ne 0 || ! $debug ]]; then
+    echo "current_date_serial set to $current_date_serial" 1>&2
+fi
+
+delta=$(( $current_date_serial - $mirror_date_serial ))
+rv="$?"
+if [[ $rv -ne 0 || ! $delta ]]; then
+    echo "failed to get delta" 1>&2
+    exit 1
+fi
+if [[ $debug -ne 0 || ! $debug ]]; then
+    echo "delta set to $delta" 1>&2
+fi
+
+if [ "$delta" -ge 600 ]; then
+      failure "warning:  Identity-devops in Gitlab ${environment} is out of date by ${delta} seconds ${slack_handle}"
+    else
+      echo "Identity-devops in ${environment} has synced recently"
+fi
+EOF
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+  only_if node.chef_environment == 'production'
+end
+
+cron_d 'identity_devops_mirror_check' do
+  action :create
+  predefined_value '@hourly'
+  command '/etc/gitlab/repo_mirror_alarm.sh'
+  notifies :create, 'file[/etc/gitlab/backup.sh]', :before
+  user 'root'
+  only_if node.chef_environment == 'production'
 end
 
 file '/etc/gitlab/gitlab_root_api_token' do

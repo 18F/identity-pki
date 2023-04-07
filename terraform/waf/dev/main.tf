@@ -17,9 +17,11 @@ module "waf_data" {
 module "main" {
   source = "../module"
 
-  env     = "dev"
-  region  = "us-west-2"
-  enforce = true
+  env                   = "dev"
+  region                = "us-west-2"
+  enforce               = true
+  enforce_waf_captcha   = false
+  enforce_waf_challenge = true
 
   # commenting this out to free up one of our 10(!) available
   # per-account per-region regex pattern sets
