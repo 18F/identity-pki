@@ -50,10 +50,9 @@ EOM
 # 'disable' prevents the app servers from pushing KMS Events to CloudWatch.
 # 'enable' restores the ability for the app servers to push KMS events to CloudWatch
 toggle_cloudwatch_logging() {
-  echo "${TOGGLE} CW logging"
   for role in "${ROLES[@]}"; do
     echo "Running ssm-command for ${ENV}-${role}"
-    ./ssm-command -d "${TOGGLE}"-cloudwatch-kms -e "${ENV}" -r "${role}";
+    ./ssm-command -d "${TOGGLE}"-cloudwatch-kms -e "${ENV}" -r "${role}" -y;
   done
 }
 
@@ -61,15 +60,7 @@ toggle_cloudwatch_logging() {
 # This prevents CloudWatch from pushing KMS Decryption events to SNS, thus breaking
 # the KMS Matching pipeline.
 toggle_eventbus_rule() {
-  echo "${TOGGLE} EventBus Rule"
   aws events "${TOGGLE}"-rule --name "${ENV}-decryption-events"
-}
-
-# Runs all steps necessary to enable/disable the KMS Pipeline
-toggle_kms() {
-  echo "${TOGGLE} KMS"
-  toggle_cloudwatch_logging
-  toggle_eventbus_rule
 }
 
 # Load Environment Variables specific to the selected environment.
@@ -112,8 +103,6 @@ if [[ -z "${ENV:-}" ]] || [[ -z "${TOGGLE:-}" ]]; then
   raise "Must specify ENVIRONMENT (-e) and TOGGLE (-t)"
 fi
 
-echo $ENV
-echo $TOGGLE
 
 ROLES=(app idp pivcac worker)
 cd "$(dirname "$0")"
@@ -125,6 +114,12 @@ fi
 # Clear previous environment variables that could impact usage
 unset STRICT_ENVIRONMENT
 
+echo "Utility will ${TOGGLE} the KMS Matching Pipeline in the ${ENV} environment"
+
+# Determine if strict environment and require additional step if so
 load_environment_variables
 strict_environment_restriction
-toggle_kms
+
+# Toggle the KMS Matching Pipeline
+toggle_cloudwatch_logging
+toggle_eventbus_rule
