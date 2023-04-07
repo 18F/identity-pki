@@ -34,8 +34,8 @@ locals {
           description = "destination file to copy to"
         },
       ]
-      logging = false
-      use_root    = false
+      logging  = false
+      use_root = false
       command = [
         "aws s3 cp {{ sourcefile }} {{ destfile }}"
       ]
