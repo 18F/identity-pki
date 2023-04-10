@@ -236,13 +236,13 @@ file '/root/image_signing.pub' do
   mode '0644'
   owner 'root'
   group 'root'
-  only_if { node['identity_gitlab']['image_signing_verification'] }
+  only_if { node['identity_gitlab']['image_signing_verification'] && node.run_state['is_it_an_env_runner'] == 'true' }
 end
 
 template '/usr/local/bin/killunsignedimages.sh' do
   source 'killunsignedimages.sh.erb'
   mode '755'
-  only_if { node['identity_gitlab']['image_signing_verification'] }
+  only_if { node['identity_gitlab']['image_signing_verification'] && node.run_state['is_it_an_env_runner'] == 'true' }
 end
 
 cron_d 'kill_unsigned_images' do
