@@ -13,11 +13,16 @@ variable "opsgenie_key_ready" {
   default = true
 }
 
+variable "splunk_oncall_endpoint" {
+  default = "UNSET"
+}
+
 module "main" {
-  source             = "../module"
-  opsgenie_key_ready = var.opsgenie_key_ready
-  smtp_user_ready    = true
-  iam_account_alias  = "login-tooling-prod"
+  source                 = "../module"
+  opsgenie_key_ready     = var.opsgenie_key_ready
+  splunk_oncall_endpoint = var.splunk_oncall_endpoint
+  smtp_user_ready        = true
+  iam_account_alias      = "login-tooling-prod"
 
   cloudtrail_event_selectors = [
     {

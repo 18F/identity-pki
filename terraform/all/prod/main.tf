@@ -9,10 +9,15 @@ terraform {
   }
 }
 
+variable "splunk_oncall_endpoint" {
+  default = "UNSET"
+}
+
 module "main" {
   source = "../module"
 
   slack_events_sns_topic = "slack-events"
+  splunk_oncall_endpoint = var.splunk_oncall_endpoint
   dnssec_zone_exists     = true
   iam_account_alias      = "login-prod"
   reports_bucket_arn     = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"

@@ -9,14 +9,19 @@ terraform {
   }
 }
 
+variable "splunk_oncall_endpoint" {
+  default = "UNSET"
+}
+
 module "main" {
   source = "../module"
 
-  iam_account_alias   = "login-sandbox"
-  dnssec_zone_exists  = true
-  reports_bucket_arn  = "arn:aws:s3:::login-gov.reports.894947205914-us-west-2"
-  datapoints_to_alarm = 25
-  evaluation_periods  = 25
+  iam_account_alias      = "login-sandbox"
+  splunk_oncall_endpoint = var.splunk_oncall_endpoint
+  dnssec_zone_exists     = true
+  reports_bucket_arn     = "arn:aws:s3:::login-gov.reports.894947205914-us-west-2"
+  datapoints_to_alarm    = 25
+  evaluation_periods     = 25
   account_roles_map = {
     iam_reports_enabled    = true
     iam_kmsadmin_enabled   = true

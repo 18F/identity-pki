@@ -1,5 +1,17 @@
+variable "splunk_oncall_endpoint" {
+  description = <<EOM
+Splunk On-Call AWS CloudWatch routing URI (minus /$routing-key)
+
+The default value of UNSET will prevent creation of SNS subscriptions,
+requiring you to update the /account/splunk_oncall/endpoint SSM Parameter
+then re-applying Terraform to create subscriptions.
+EOM
+  type        = string
+  default     = "UNSET"
+}
+
 variable "splunk_oncall_routing_keys" {
-  description = "Splunk OnCall routing keys to deliver alerts to"
+  description = "Splunk On-Call routing keys to deliver alerts to"
   type        = map(string)
   validation {
     condition = alltrue(

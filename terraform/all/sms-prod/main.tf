@@ -9,10 +9,15 @@ terraform {
   }
 }
 
+variable "splunk_oncall_endpoint" {
+  default = "UNSET"
+}
+
 module "main" {
   source = "../module"
 
   slack_events_sns_topic = "slack-events"
+  splunk_oncall_endpoint = var.splunk_oncall_endpoint
   iam_account_alias      = "login-sms-prod"
   account_roles_map = {
     iam_analytics_enabled      = true,

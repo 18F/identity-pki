@@ -13,11 +13,16 @@ variable "opsgenie_key_ready" {
   default = true
 }
 
+variable "splunk_oncall_endpoint" {
+  default = "UNSET"
+}
+
 module "main" {
   source = "../module"
 
-  opsgenie_key_ready = var.opsgenie_key_ready
-  iam_account_alias  = "login-secops-dev"
+  opsgenie_key_ready     = var.opsgenie_key_ready
+  splunk_oncall_endpoint = var.splunk_oncall_endpoint
+  iam_account_alias      = "login-secops-dev"
   cloudtrail_event_selectors = [
     {
       include_management_events = false

@@ -174,12 +174,21 @@ module "opsgenie_sns" {
   }
 }
 
-module "splunk_oncall_sns" {
+module "splunk_oncall_sns_usw2" {
   source                     = "../../modules/splunk_oncall_sns"
+  splunk_oncall_endpoint     = var.splunk_oncall_endpoint
   splunk_oncall_routing_keys = var.splunk_oncall_routing_keys
   providers = {
-    aws.usw2 = aws.usw2
-    aws.use1 = aws.use1
+    aws = aws.usw2
+  }
+}
+
+module "splunk_oncall_sns_use1" {
+  source                     = "../../modules/splunk_oncall_sns"
+  splunk_oncall_endpoint     = var.splunk_oncall_endpoint
+  splunk_oncall_routing_keys = var.splunk_oncall_routing_keys
+  providers = {
+    aws = aws.use1
   }
 }
 

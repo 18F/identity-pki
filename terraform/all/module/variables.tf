@@ -136,19 +136,27 @@ EOM
   default     = true
 }
 
+variable "splunk_oncall_endpoint" {
+  description = <<EOM
+Splunk On-Call AWS CloudWatch routing URI (minus /$routing-key)
+
+The default value of UNSET will prevent creation of SNS subscriptions,
+requiring you to update the /account/splunk_oncall/endpoint SSM Parameter
+then re-applying Terraform to create subscriptions.
+EOM
+  type        = string
+  default     = "UNSET"
+}
+
 variable "splunk_oncall_routing_keys" {
   description = <<EOM
-A map of Splunk OnCall routing keys (key) to description entries.  A SNS
+A map of Splunk On-Call routing keys (key) to description entries.  A SNS
 topic in supported regions will be created for each routing key.
-
-The splunk_oncall_endpoint file must exist in S3 for the account before
-creating these topics.  Set to {} if creating a new account without the
-file present.
 EOM
   type        = map(string)
   default = {
-    "login-platform"    = "Platform oncall alerts",
-    "login-application" = "General product engineer/appdev alerts"
+    "login-platform"    = "Platform On-Call alerts",
+    "login-application" = "AppDev/product engineer alerts"
   }
 }
 

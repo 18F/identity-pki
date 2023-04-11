@@ -9,10 +9,15 @@ terraform {
   }
 }
 
+variable "splunk_oncall_endpoint" {
+  default = "UNSET"
+}
+
 module "main" {
   source = "../module"
 
-  opsgenie_key_ready = false
-  iam_account_alias  = "login-alpha"
+  opsgenie_key_ready     = false
+  splunk_oncall_endpoint = var.splunk_oncall_endpoint
+  iam_account_alias      = "login-alpha"
   #dnssec_zone_exists = true
 }
