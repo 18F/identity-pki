@@ -7,7 +7,7 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 2.6
+- Ruby 3.0
 - [Postgresql](http://www.postgresql.org/download/)
 
 #### Setting up and running the app
@@ -24,7 +24,7 @@ PIV/CAC support for login.gov.
   ```
   git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
 
-  rbenv alias 2.6 2.6.5 # create the version alias
+  rbenv alias 3.0 3.0.6 # create the version alias
   ```
 
 2. Make sure Postgres is running.
@@ -87,7 +87,7 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 3. Find the cert named "**identity-pki Development Certificate**" open its settings
 
-4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown 
+4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown
 
 #### Cleaning up the root SSL certificate
 
