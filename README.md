@@ -87,7 +87,7 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 3. Find the cert named "**identity-pki Development Certificate**" open its settings
 
-4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown 
+4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown
 
 #### Cleaning up the root SSL certificate
 
