@@ -35,7 +35,8 @@ group :development do
   gem 'rack-mini-profiler', '>= 1.0.2', require: false
   gem 'rails-erd', '>= 1.6.0'
   gem 'rubocop', require: false
-  gem 'rubocop-rails', '>= 2.4.1', require: false
+  gem 'rubocop-rails', '>= 2.19.0', require: false
+  gem 'rubocop-performance', '~> 1.17', require: false
 end
 
 group :test do
