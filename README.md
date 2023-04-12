@@ -7,7 +7,7 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 2.6
+- Ruby 3.0
 - [Postgresql](http://www.postgresql.org/download/)
 
 #### Setting up and running the app
@@ -24,7 +24,7 @@ PIV/CAC support for login.gov.
   ```
   git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
 
-  rbenv alias 2.6 2.6.5 # create the version alias
+  rbenv alias 3.0 3.0.6 # create the version alias
   ```
 
 2. Make sure Postgres is running.

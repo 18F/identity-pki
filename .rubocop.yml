@@ -19,6 +19,7 @@ AllCops:
     - 'node_modules/**/*'
     - 'vendor/**/*'
   TargetRubyVersion: 2.6
+  TargetRubyVersion: 3.0
   TargetRailsVersion: 5.1
   UseCache: true
 
