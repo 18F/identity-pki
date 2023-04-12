@@ -23,6 +23,9 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
   gem 'thin', '>= 1.8.0'
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', '>= 2.19.0', require: false
+  gem 'rubocop-performance', '~> 1.17', require: false
 end
 
 group :development do
@@ -34,9 +37,6 @@ group :development do
   gem 'overcommit', require: false
   gem 'rack-mini-profiler', '>= 1.0.2', require: false
   gem 'rails-erd', '>= 1.6.0'
-  gem 'rubocop', require: false
-  gem 'rubocop-rails', '>= 2.19.0', require: false
-  gem 'rubocop-performance', '~> 1.17', require: false
 end
 
 group :test do
