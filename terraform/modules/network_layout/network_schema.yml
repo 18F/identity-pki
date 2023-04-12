@@ -64,3 +64,23 @@ purposes:
   - apps # (continued) Primary application instance subnets
   - apps # (continued) Primary application instance subnets
   - apps # (continued) Primary application instance subnets
+  - cluster-a # EKS cluster space A
+  - cluster-a # (continued) EKS cluster space A
+  - cluster-a # (continued) EKS cluster space A
+  - cluster-a # (continued) EKS cluster space A
+  - cluster-b # EKS cluster space B
+  - cluster-b # (continued) EKS cluster space B
+  - cluster-b # (continued) EKS cluster space B
+  - cluster-b # (continued) EKS cluster space B
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused
+  - ~ # Unused

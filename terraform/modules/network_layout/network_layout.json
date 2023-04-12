@@ -24,6 +24,16 @@
             "ipv4-cidr": "100.80.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.80.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.80.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -46,6 +56,16 @@
             "ipv4-cidr": "100.80.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.80.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.80.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -68,6 +88,16 @@
             "ipv4-cidr": "100.80.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.80.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.80.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -90,6 +120,16 @@
             "ipv4-cidr": "100.80.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.80.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.80.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -117,6 +157,16 @@
             "ipv4-cidr": "100.81.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.81.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.81.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -139,6 +189,16 @@
             "ipv4-cidr": "100.81.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.81.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.81.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -161,6 +221,16 @@
             "ipv4-cidr": "100.81.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.81.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.81.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -183,6 +253,16 @@
             "ipv4-cidr": "100.81.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.81.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.81.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -210,6 +290,16 @@
             "ipv4-cidr": "100.82.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.82.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.82.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -232,6 +322,16 @@
             "ipv4-cidr": "100.82.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.82.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.82.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -254,6 +354,16 @@
             "ipv4-cidr": "100.82.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.82.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.82.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -276,6 +386,16 @@
             "ipv4-cidr": "100.82.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.82.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.82.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -303,6 +423,16 @@
             "ipv4-cidr": "100.83.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.83.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.83.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -325,6 +455,16 @@
             "ipv4-cidr": "100.83.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.83.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.83.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -347,6 +487,16 @@
             "ipv4-cidr": "100.83.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.83.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.83.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -369,6 +519,16 @@
             "ipv4-cidr": "100.83.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.83.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.83.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -396,6 +556,16 @@
             "ipv4-cidr": "100.84.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.84.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.84.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -418,6 +588,16 @@
             "ipv4-cidr": "100.84.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.84.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.84.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -440,6 +620,16 @@
             "ipv4-cidr": "100.84.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.84.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.84.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -462,6 +652,16 @@
             "ipv4-cidr": "100.84.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.84.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.84.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -489,6 +689,16 @@
             "ipv4-cidr": "100.85.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.85.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.85.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -511,6 +721,16 @@
             "ipv4-cidr": "100.85.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.85.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.85.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -533,6 +753,16 @@
             "ipv4-cidr": "100.85.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.85.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.85.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -555,6 +785,16 @@
             "ipv4-cidr": "100.85.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.85.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.85.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -582,6 +822,16 @@
             "ipv4-cidr": "100.86.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.86.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.86.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -604,6 +854,16 @@
             "ipv4-cidr": "100.86.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.86.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.86.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -626,6 +886,16 @@
             "ipv4-cidr": "100.86.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.86.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.86.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -648,6 +918,16 @@
             "ipv4-cidr": "100.86.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.86.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.86.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -675,6 +955,16 @@
             "ipv4-cidr": "100.87.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.87.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.87.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -697,6 +987,16 @@
             "ipv4-cidr": "100.87.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.87.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.87.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -719,6 +1019,16 @@
             "ipv4-cidr": "100.87.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.87.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.87.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -741,6 +1051,16 @@
             "ipv4-cidr": "100.87.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.87.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.87.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -768,6 +1088,16 @@
             "ipv4-cidr": "100.88.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.88.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.88.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -790,6 +1120,16 @@
             "ipv4-cidr": "100.88.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.88.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.88.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -812,6 +1152,16 @@
             "ipv4-cidr": "100.88.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.88.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.88.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -834,6 +1184,16 @@
             "ipv4-cidr": "100.88.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.88.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.88.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -861,6 +1221,16 @@
             "ipv4-cidr": "100.89.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.89.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.89.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -883,6 +1253,16 @@
             "ipv4-cidr": "100.89.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.89.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.89.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -905,6 +1285,16 @@
             "ipv4-cidr": "100.89.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.89.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.89.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -927,6 +1317,16 @@
             "ipv4-cidr": "100.89.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.89.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.89.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -954,6 +1354,16 @@
             "ipv4-cidr": "100.90.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.90.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.90.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -976,6 +1386,16 @@
             "ipv4-cidr": "100.90.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.90.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.90.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -998,6 +1418,16 @@
             "ipv4-cidr": "100.90.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.90.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.90.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1020,6 +1450,16 @@
             "ipv4-cidr": "100.90.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.90.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.90.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1050,6 +1490,16 @@
             "ipv4-cidr": "100.96.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.96.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.96.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1072,6 +1522,16 @@
             "ipv4-cidr": "100.96.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.96.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.96.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1094,6 +1554,16 @@
             "ipv4-cidr": "100.96.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.96.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.96.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1116,6 +1586,16 @@
             "ipv4-cidr": "100.96.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.96.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.96.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1143,6 +1623,16 @@
             "ipv4-cidr": "100.97.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.97.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.97.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1165,6 +1655,16 @@
             "ipv4-cidr": "100.97.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.97.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.97.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1187,6 +1687,16 @@
             "ipv4-cidr": "100.97.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.97.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.97.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1209,6 +1719,16 @@
             "ipv4-cidr": "100.97.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.97.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.97.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1236,6 +1756,16 @@
             "ipv4-cidr": "100.98.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.98.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.98.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1258,6 +1788,16 @@
             "ipv4-cidr": "100.98.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.98.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.98.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1280,6 +1820,16 @@
             "ipv4-cidr": "100.98.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.98.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.98.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1302,6 +1852,16 @@
             "ipv4-cidr": "100.98.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.98.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.98.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1329,6 +1889,16 @@
             "ipv4-cidr": "100.99.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.99.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.99.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1351,6 +1921,16 @@
             "ipv4-cidr": "100.99.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.99.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.99.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1373,6 +1953,16 @@
             "ipv4-cidr": "100.99.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.99.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.99.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1395,6 +1985,16 @@
             "ipv4-cidr": "100.99.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.99.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.99.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1422,6 +2022,16 @@
             "ipv4-cidr": "100.100.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.100.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.100.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1444,6 +2054,16 @@
             "ipv4-cidr": "100.100.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.100.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.100.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1466,6 +2086,16 @@
             "ipv4-cidr": "100.100.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.100.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.100.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1488,6 +2118,16 @@
             "ipv4-cidr": "100.100.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.100.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.100.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1515,6 +2155,16 @@
             "ipv4-cidr": "100.101.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.101.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.101.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1537,6 +2187,16 @@
             "ipv4-cidr": "100.101.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.101.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.101.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1559,6 +2219,16 @@
             "ipv4-cidr": "100.101.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.101.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.101.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1581,6 +2251,16 @@
             "ipv4-cidr": "100.101.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.101.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.101.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1608,6 +2288,16 @@
             "ipv4-cidr": "100.102.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.102.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.102.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1630,6 +2320,16 @@
             "ipv4-cidr": "100.102.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.102.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.102.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1652,6 +2352,16 @@
             "ipv4-cidr": "100.102.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.102.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.102.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1674,6 +2384,16 @@
             "ipv4-cidr": "100.102.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.102.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.102.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1701,6 +2421,16 @@
             "ipv4-cidr": "100.103.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.103.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.103.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1723,6 +2453,16 @@
             "ipv4-cidr": "100.103.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.103.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.103.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1745,6 +2485,16 @@
             "ipv4-cidr": "100.103.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.103.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.103.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1767,6 +2517,16 @@
             "ipv4-cidr": "100.103.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.103.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.103.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1794,6 +2554,16 @@
             "ipv4-cidr": "100.104.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.104.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.104.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1816,6 +2586,16 @@
             "ipv4-cidr": "100.104.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.104.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.104.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1838,6 +2618,16 @@
             "ipv4-cidr": "100.104.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.104.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.104.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1860,6 +2650,16 @@
             "ipv4-cidr": "100.104.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.104.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.104.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1887,6 +2687,16 @@
             "ipv4-cidr": "100.105.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.105.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.105.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -1909,6 +2719,16 @@
             "ipv4-cidr": "100.105.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.105.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.105.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -1931,6 +2751,16 @@
             "ipv4-cidr": "100.105.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.105.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.105.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -1953,6 +2783,16 @@
             "ipv4-cidr": "100.105.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.105.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.105.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
@@ -1980,6 +2820,16 @@
             "ipv4-cidr": "100.106.72.0/22",
             "ipv6-netnum": 8,
             "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.106.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.106.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
           }
         },
         "b": {
@@ -2002,6 +2852,16 @@
             "ipv4-cidr": "100.106.88.0/22",
             "ipv6-netnum": 40,
             "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.106.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.106.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
           }
         },
         "c": {
@@ -2024,6 +2884,16 @@
             "ipv4-cidr": "100.106.104.0/22",
             "ipv6-netnum": 72,
             "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.106.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.106.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
           }
         },
         "d": {
@@ -2046,6 +2916,16 @@
             "ipv4-cidr": "100.106.120.0/22",
             "ipv6-netnum": 104,
             "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.106.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.106.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }
         }
       }
