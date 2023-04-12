@@ -54,6 +54,11 @@ jobs:
             mkdir /tmp/test-results
             ./cc-test-reporter before-build
             bundle exec rake spec
+
+      - run:
+          name: Run Lints
+          command: make lint
+
       - run:
           name: Code Climate Test Coverage
           command: |
