@@ -44,19 +44,34 @@ EOM
   exit 0
 }
 
-# Runs the SSM Document 'disable-cloudwatch-kms' or 'enable-cloudwatch-kms' 
-# (based on value of TOGGLE) on all appropriate instances of the environment 
-# via the ssm-command utility. 
-# 'disable' prevents the app servers from pushing KMS Events to CloudWatch.
-# 'enable' restores the ability for the app servers to push KMS events to CloudWatch
-toggle_cloudwatch_logging() {
-  for role in "${ROLES[@]}"; do
-    echo "Running ssm-command for ${ENV}-${role}"
-    ./ssm-command -d "${TOGGLE}"-cloudwatch-kms -e "${ENV}" -r "${role}" -y;
-  done
+# Runs an AWS CLI command to toggle the Subscription filter on the KMS Log Group of the 
+# selected environment. 'disable' will delete the Subscription filter. 'enable' will
+# re-create the Subscription filter. This prevents CloudWatch from pushing Application 
+# KMS logs through Kinesis, thus breaking the KMS Matching pipeline.
+toggle_cloudwatch_subscription_filter() {
+  echo "In CW Sub Filter toggle"
+  local log_group_name filter_name filter_pattern destination_arn role_arn distribution
+
+  log_group_name="${ENV}_/srv/idp/shared/log/kms.log"
+  filter_name="${ENV}-kms-app-log"
+  filter_pattern=''
+  destination_arn=''
+  role_arn=''
+  distribution=''
+
+  if [[ "${TOGGLE}" == "disable" ]]; then
+    aws logs delete-subscription-filter --log-group-name ${log_group_name} --filter-name ${filter_name}
+  elif [[ "${TOGGLE}" == "enable" ]]; then
+    filter_pattern='[type, datetime, info, whitespace, (json = *decrypt* && json = *pii-encryption*) || (json = *decrypt* && json = *password-digest*)]'
+    destination_arn="arn:aws:kinesis:${TERRAFORM_STATE_BUCKET_REGION}:${TF_VAR_account_id}:stream/${ENV}-kms-app-events"
+    role_arn="arn:aws:iam::${TF_VAR_account_id}:role/${ENV}-kms-app-events"
+    distribution="ByLogStream"
+
+    aws logs put-subscription-filter --log-group-name "${log_group_name}" --filter-name "${filter_name}" --filter-pattern "${filter_pattern}" --destination-arn "${destination_arn}" --role-arn "${role_arn}" --distribution "${distribution}"
+  fi
 }
 
-# Runs an AWS CLI command to disable the '<env>-decryption-events' Event Bus rule.
+# Runs an AWS CLI command to toggle the '<env>-decryption-events' Event Bus rule.
 # This prevents CloudWatch from pushing KMS Decryption events to SNS, thus breaking
 # the KMS Matching pipeline.
 toggle_eventbus_rule() {
@@ -121,5 +136,6 @@ load_environment_variables
 strict_environment_restriction
 
 # Toggle the KMS Matching Pipeline
-toggle_cloudwatch_logging
+#toggle_cloudwatch_logging
+toggle_cloudwatch_subscription_filter
 toggle_eventbus_rule
