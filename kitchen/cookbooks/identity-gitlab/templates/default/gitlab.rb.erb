@@ -1891,6 +1891,7 @@ gitlab_kas['private_api_listen_network'] = 'unix'
 gitlab_kas['private_api_listen_address'] = '/var/opt/gitlab/gitlab-kas/sockets/private-api.socket'
 gitlab_kas['env'] = {
   'SSL_CERT_DIR' => "/opt/gitlab/embedded/ssl/certs/",
+  'https_proxy' => "http://obproxy.login.gov.internal:3128",
   'OWN_PRIVATE_API_URL' => 'unix:///var/opt/gitlab/gitlab-kas/sockets/private-api.socket'
 }
 # gitlab_kas['kubernetes_api_listen_address'] = 'localhost:8154'
