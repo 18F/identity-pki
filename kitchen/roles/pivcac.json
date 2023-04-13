@@ -18,7 +18,6 @@
     "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::dhparam]",
     "recipe[identity-pivcac]",
-    "recipe[login_dot_gov::kms_toggle]",
     "recipe[login_dot_gov::common_scripts]"
   ],
   "env_run_lists": {

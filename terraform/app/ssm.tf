@@ -40,21 +40,6 @@ locals {
         "aws s3 cp {{ sourcefile }} {{ destfile }}"
       ]
     }
-    "disable-cloudwatch-kms" = {
-      command     = ["id-disable-cloudwatch-kms"]
-      description = "Disable KMS Logging of CloudWatch Agent via id-disable-cloudwatch-kms"
-      logging     = false
-      use_root    = true
-      parameters  = []
-    }
-    "enable-cloudwatch-kms" = {
-      command     = ["id-enable-cloudwatch-kms"]
-      description = "Enable KMS Logging of CloudWatch Agent via id-enable-cloudwatch-kms"
-      logging     = false
-      use_root    = true
-      parameters  = []
-    }
-
   }
 }
 
