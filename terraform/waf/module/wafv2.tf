@@ -45,7 +45,16 @@ resource "aws_wafv2_web_acl" "alb" {
 
             content {
               action_to_use {
-                count {}
+                count {
+                  # Terraform AWS provider has a bug, using workaround as suggested here:
+                  # https://github.com/hashicorp/terraform-provider-aws/issues/28191#issuecomment-1398853194
+                  custom_request_handling {
+                    insert_header {
+                      name  = "TFWorkaround"
+                      value = "WAF"
+                    }
+                  }
+                }
               }
               name = rule_action_override.value
             }
@@ -314,7 +323,16 @@ resource "aws_wafv2_web_acl" "alb" {
 
           content {
             action_to_use {
-              count {}
+              count {
+                # Terraform AWS provider has a bug, using workaround as suggested here:
+                # https://github.com/hashicorp/terraform-provider-aws/issues/28191#issuecomment-1398853194
+                custom_request_handling {
+                  insert_header {
+                    name  = "TFWorkaround"
+                    value = "WAF"
+                  }
+                }
+              }
             }
             name = rule_action_override.value
           }
@@ -355,7 +373,16 @@ resource "aws_wafv2_web_acl" "alb" {
 
           content {
             action_to_use {
-              count {}
+              count {
+                # Terraform AWS provider has a bug, using workaround as suggested here:
+                # https://github.com/hashicorp/terraform-provider-aws/issues/28191#issuecomment-1398853194
+                custom_request_handling {
+                  insert_header {
+                    name  = "TFWorkaround"
+                    value = "WAF"
+                  }
+                }
+              }
             }
             name = rule_action_override.value
           }
@@ -396,7 +423,16 @@ resource "aws_wafv2_web_acl" "alb" {
 
           content {
             action_to_use {
-              count {}
+              count {
+                # Terraform AWS provider has a bug, using workaround as suggested here:
+                # https://github.com/hashicorp/terraform-provider-aws/issues/28191#issuecomment-1398853194
+                custom_request_handling {
+                  insert_header {
+                    name  = "TFWorkaround"
+                    value = "WAF"
+                  }
+                }
+              }
             }
             name = rule_action_override.value
           }
@@ -437,7 +473,16 @@ resource "aws_wafv2_web_acl" "alb" {
 
           content {
             action_to_use {
-              count {}
+              count {
+                # Terraform AWS provider has a bug, using workaround as suggested here:
+                # https://github.com/hashicorp/terraform-provider-aws/issues/28191#issuecomment-1398853194
+                custom_request_handling {
+                  insert_header {
+                    name  = "TFWorkaround"
+                    value = "WAF"
+                  }
+                }
+              }
             }
             name = rule_action_override.value
           }
@@ -498,7 +543,16 @@ resource "aws_wafv2_web_acl" "alb" {
 
           content {
             action_to_use {
-              count {}
+              count {
+                # Terraform AWS provider has a bug, using workaround as suggested here:
+                # https://github.com/hashicorp/terraform-provider-aws/issues/28191#issuecomment-1398853194
+                custom_request_handling {
+                  insert_header {
+                    name  = "TFWorkaround"
+                    value = "WAF"
+                  }
+                }
+              }
             }
             name = rule_action_override.value
           }
