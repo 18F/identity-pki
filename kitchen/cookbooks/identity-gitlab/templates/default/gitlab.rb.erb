@@ -1851,13 +1851,13 @@ nginx['proxy_custom_buffer_size'] = '5k'
 ################################################################################
 
 ##! Settings used by the GitLab application
-gitlab_rails['gitlab_kas_enabled'] = true
+# gitlab_rails['gitlab_kas_enabled'] = true
 # gitlab_rails['gitlab_kas_external_url'] = 'ws://gitlab.example.com/-/kubernetes-agent/'
 # gitlab_rails['gitlab_kas_internal_url'] = 'grpc://localhost:8153'
 # gitlab_rails['gitlab_kas_external_k8s_proxy_url'] = 'https://gitlab.example.com/-/kubernetes-agent/'
 
 ##! Enable GitLab KAS
-# gitlab_kas['enable'] = true
+gitlab_kas['enable'] = true
 
 ##! Agent configuration for GitLab KAS
 # gitlab_kas['agent_configuration_poll_period'] = 20
