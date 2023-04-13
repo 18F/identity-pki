@@ -13,16 +13,22 @@ variable "opsgenie_key_ready" {
   default = true
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
+  default = "UNSET"
+}
+
+variable "splunk_oncall_newrelic_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source = "../module"
+  source            = "../module"
+  iam_account_alias = "login-secops-dev"
 
-  opsgenie_key_ready     = var.opsgenie_key_ready
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
-  iam_account_alias      = "login-secops-dev"
+  opsgenie_key_ready                = var.opsgenie_key_ready
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
+
   cloudtrail_event_selectors = [
     {
       include_management_events = false

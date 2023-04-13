@@ -9,15 +9,16 @@ terraform {
   }
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source = "../module"
+  source            = "../module"
+  iam_account_alias = "login-sms-sandbox"
 
-  iam_account_alias      = "login-sms-sandbox"
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+
   account_roles_map = {
     iam_analytics_enabled = true
   }

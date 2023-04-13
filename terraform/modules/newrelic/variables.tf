@@ -158,3 +158,17 @@ variable "alert_slack_channel_high" {
   description = "the default slack channel for high level alerts"
   default     = "#login-events"
 }
+
+variable "splunk_oncall_routing_keys" {
+  description = <<EOM
+A map of Splunk On-Call routing keys (key) to description entries.
+These will often match the values in all/module/variables.tf and
+each key must be defined in Splunk OnCall.
+EOM
+  # Consider pulling these up to the stack level instead of having defaults here.
+  type = map(string)
+  default = {
+    "login-platform"    = "Platform On-Call alerts",
+    "login-application" = "AppDev/product engineer alerts"
+  }
+}

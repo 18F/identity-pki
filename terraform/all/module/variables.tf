@@ -136,12 +136,24 @@ EOM
   default     = true
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
   description = <<EOM
 Splunk On-Call AWS CloudWatch routing URI (minus /$routing-key)
 
 The default value of UNSET will prevent creation of SNS subscriptions,
-requiring you to update the /account/splunk_oncall/endpoint SSM Parameter
+requiring you to update the /account/splunk_oncall/cloudwatch_endpoint SSM Parameter
+then re-applying Terraform to create subscriptions.
+EOM
+  type        = string
+  default     = "UNSET"
+}
+
+variable "splunk_oncall_newrelic_endpoint" {
+  description = <<EOM
+Splunk On-Call NewRelic routing URI (minus /$routing-key)
+
+The default value of UNSET will prevent creation of SNS subscriptions,
+requiring you to update the /account/splunk_oncall/newrelic_endpoint SSM Parameter
 then re-applying Terraform to create subscriptions.
 EOM
   type        = string

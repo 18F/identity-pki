@@ -13,19 +13,25 @@ variable "opsgenie_key_ready" {
   default = true
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
+  default = "UNSET"
+}
+
+variable "splunk_oncall_newrelic_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source = "../module"
+  source            = "../module"
+  iam_account_alias = "login-tooling-sandbox"
 
-  dnssec_zone_exists     = true
-  slack_events_sns_topic = "slack-events"
-  opsgenie_key_ready     = var.opsgenie_key_ready
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
-  iam_account_alias      = "login-tooling-sandbox"
-  smtp_user_ready        = true
+  opsgenie_key_ready                = var.opsgenie_key_ready
+  slack_events_sns_topic            = "slack-events"
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
+
+  dnssec_zone_exists = true
+  smtp_user_ready    = true
 
   ssm_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],

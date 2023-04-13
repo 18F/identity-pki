@@ -42,7 +42,7 @@ EOF
             {
                 "title": "Alert Condition Names",
                 "value": "{{#each accumulations.conditionName}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}"
-            },            
+            },
             {
                 "title": "Workflow Name",
                 "value": {{json workflowName}}
@@ -51,6 +51,28 @@ EOF
         "mrkdwn_in": ["text", "pretext"],
         "color": "#29A1E6"
     }]
+}
+EOF
+
+  splunk_oncall_payload_template = <<-EOF
+{
+    "impactedEntities": {{json entitiesData.names}},
+    "totalIncidents": {{json totalIncidents}},
+    "trigger": {{ json triggerEvent }},
+    "isCorrelated": {{ json isCorrelated }},
+    "createdAt": {{ createdAt }},
+    "updatedAt": {{ updatedAt }},
+    "sources": ["newrelic"],
+    "alertPolicyNames":{{ json accumulations.policyName }},
+    "alertConditionNames": {{ json accumulations.conditionName }},
+    "workflowName": {{ json workflowName }},
+    "monitoring_tool":"New Relic",
+    "incident_id":{{ json issueId }},
+    "condition_name" : {{ json accumulations.conditionName }},
+    "details" : {{ json annotations.title.[0] }},
+    "severity" : "CRITICAL",
+    "current_state" : {{#if issueClosedAtUtc}} "CLOSED" {{else if issueAcknowledgedAt}} "ACKNOWLEDGED" {{else}} "OPEN"{{/if}},
+    "event_type": "INCIDENT"
 }
 EOF
 }
@@ -86,11 +108,17 @@ data "aws_s3_object" "slack_high_webhook_url" {
   key    = "common/slack/events_webhook_url"
 }
 
+# See ../splunk_oncall_sns/README.md for information on how this is set.
+# The state lives in all/ACCOUNT.
+data "aws_ssm_parameter" "splunk_oncall_newrelic_endpoint" {
+  name = "/account/splunk_oncall/newrelic_endpoint"
+}
+
 # Logic for notification channels/destinations is as follows:
 # 
 # 1. All alert policies are created, regardless of var.pager_alerts_enabled
 # 2. Slack notification channels/destinations are always created
-# 3. If var.pager_alerts_enabled = true, high / in_person / enduser should all
+# 3. If var.pager_alerts_enabled = true, high / enduser should all
 #    go to the 'high' slack destination; otherwise, they should all go to the 'low' one
 # 4. If var.pager_alerts_enabled = true, then OpsGenie channels/destinations
 #    are also created
@@ -173,6 +201,17 @@ resource "newrelic_notification_destination" "slack_high" {
   }
 }
 
+resource "newrelic_notification_destination" "splunk_oncall" {
+  for_each = (var.enabled + var.pager_alerts_enabled) >= 2 ? var.splunk_oncall_routing_keys : {}
+  name     = "splunk-oncall-${each.key}-${var.env_name}"
+  type     = "WEBHOOK"
+
+  property {
+    key   = "url"
+    value = "${data.aws_ssm_parameter.splunk_oncall_newrelic_endpoint.value}/${each.key}"
+  }
+}
+
 # Notification Channels
 resource "newrelic_notification_channel" "opsgenie_low" {
   count          = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
@@ -191,20 +230,6 @@ resource "newrelic_notification_channel" "opsgenie_low" {
 resource "newrelic_notification_channel" "opsgenie_high" {
   count          = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
   name           = "opsgenie-high-${var.env_name}"
-  type           = "WEBHOOK"
-  destination_id = newrelic_notification_destination.opsgenie_high[count.index].id
-  product        = "IINT"
-
-  property {
-    key   = "payload"
-    value = local.opsgenie_payload_template
-    label = "Payload Template"
-  }
-}
-
-resource "newrelic_notification_channel" "opsgenie_in_person" {
-  count          = (var.enabled + var.in_person_enabled + var.pager_alerts_enabled) >= 3 ? 1 : 0
-  name           = "opsgenie-in-person-${var.env_name}"
   type           = "WEBHOOK"
   destination_id = newrelic_notification_destination.opsgenie_high[count.index].id
   product        = "IINT"
@@ -286,8 +311,21 @@ resource "newrelic_notification_channel" "slack_enduser" {
   }
 }
 
+resource "newrelic_notification_channel" "splunk_oncall" {
+  for_each       = (var.enabled + var.pager_alerts_enabled) >= 2 ? var.splunk_oncall_routing_keys : {}
+  name           = "splunk-oncall-${each.key}-${var.env_name}"
+  type           = "WEBHOOK"
+  destination_id = newrelic_notification_destination.splunk_oncall[each.key].id
+  product        = "IINT"
 
-# Workflows 
+  property {
+    key   = "payload"
+    value = local.splunk_oncall_payload_template
+    label = "Payload Template"
+  }
+}
+
+# Workflows
 resource "newrelic_workflow" "low" {
   count                 = var.enabled
   name                  = "low-${var.env_name}"
@@ -336,6 +374,15 @@ resource "newrelic_workflow" "high" {
       channel_id = newrelic_notification_channel.opsgenie_high[count.index].id
     }
   }
+
+  dynamic "destination" {
+    # Targets both login-application and login-platform Splunk On-Call routing keys
+    for_each = (var.enabled + var.pager_alerts_enabled) >= 2 ? ["login-application", "login-platform"] : []
+
+    content {
+      channel_id = newrelic_notification_channel.splunk_oncall[destination.value].id
+    }
+  }
 }
 
 resource "newrelic_workflow" "in_person" {
@@ -356,14 +403,6 @@ resource "newrelic_workflow" "in_person" {
 
   destination {
     channel_id = newrelic_notification_channel.slack_in_person[count.index].id
-  }
-
-  dynamic "destination" {
-    for_each = (var.enabled + var.in_person_enabled + var.pager_alerts_enabled) >= 3 ? [1] : []
-
-    content {
-      channel_id = newrelic_notification_channel.opsgenie_in_person[count.index].id
-    }
   }
 }
 
@@ -392,6 +431,14 @@ resource "newrelic_workflow" "enduser" {
 
     content {
       channel_id = newrelic_notification_channel.opsgenie_enduser[count.index].id
+    }
+  }
+
+  dynamic "destination" {
+    for_each = (var.enabled + var.pager_alerts_enabled) >= 2 ? ["login-application"] : []
+
+    content {
+      channel_id = newrelic_notification_channel.splunk_oncall[destination.value].id
     }
   }
 }

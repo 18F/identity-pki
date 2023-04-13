@@ -13,16 +13,23 @@ variable "opsgenie_key_ready" {
   default = true
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
+  default = "UNSET"
+}
+
+variable "splunk_oncall_newrelic_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source                 = "../module"
-  opsgenie_key_ready     = var.opsgenie_key_ready
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
-  smtp_user_ready        = true
-  iam_account_alias      = "login-tooling-prod"
+  source            = "../module"
+  iam_account_alias = "login-tooling-prod"
+
+  opsgenie_key_ready                = var.opsgenie_key_ready
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
+
+  smtp_user_ready = true
 
   cloudtrail_event_selectors = [
     {

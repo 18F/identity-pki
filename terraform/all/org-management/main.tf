@@ -13,16 +13,17 @@ variable "opsgenie_key_ready" {
   default = true
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source = "../module"
+  source            = "../module"
+  iam_account_alias = "login-org-management"
 
-  opsgenie_key_ready     = var.opsgenie_key_ready
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
-  iam_account_alias      = "login-org-management"
+  opsgenie_key_ready                = var.opsgenie_key_ready
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+
   account_roles_map = {
     iam_analytics_enabled      = true
     iam_power_enabled          = false

@@ -9,19 +9,26 @@ terraform {
   }
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
+  default = "UNSET"
+}
+
+variable "splunk_oncall_newrelic_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source = "../module"
+  source            = "../module"
+  iam_account_alias = "login-prod"
 
-  slack_events_sns_topic = "slack-events"
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
-  dnssec_zone_exists     = true
-  iam_account_alias      = "login-prod"
-  reports_bucket_arn     = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
-  ses_email_limit        = 500000
+  slack_events_sns_topic            = "slack-events"
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
+
+  dnssec_zone_exists = true
+
+  reports_bucket_arn = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
+  ses_email_limit    = 500000
   account_roles_map = {
     iam_reports_enabled        = true
     iam_kmsadmin_enabled       = true

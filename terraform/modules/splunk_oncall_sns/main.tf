@@ -9,11 +9,11 @@ terraform {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-resource "aws_ssm_parameter" "splunk_oncall_endpoint" {
-  name        = "/account/splunk_oncall/endpoint"
+resource "aws_ssm_parameter" "splunk_oncall_cloudwatch_endpoint" {
+  name        = "/account/splunk_oncall/cloudwatch_endpoint"
   type        = "SecureString"
-  description = "Base URL for Splunk On-Call alerting"
-  value       = var.splunk_oncall_endpoint
+  description = "Base URL for Splunk On-Call alerting from CloudWatch"
+  value       = var.splunk_oncall_cloudwatch_endpoint
   lifecycle {
     ignore_changes = [value]
   }
@@ -112,9 +112,9 @@ resource "aws_sns_topic_policy" "splunk_oncall_policy" {
 
 resource "aws_sns_topic_subscription" "splunk_oncall_alert" {
   # Only create subscriptions if the endpoint is set in the SSM Parameter
-  for_each               = aws_ssm_parameter.splunk_oncall_endpoint.value == "UNSET" ? {} : var.splunk_oncall_routing_keys
+  for_each               = aws_ssm_parameter.splunk_oncall_cloudwatch_endpoint.value == "UNSET" ? {} : var.splunk_oncall_routing_keys
   topic_arn              = aws_sns_topic.splunk_oncall_alert[each.key].arn
   endpoint_auto_confirms = true
   protocol               = "https"
-  endpoint               = "${aws_ssm_parameter.splunk_oncall_endpoint.value}/${each.key}"
+  endpoint               = "${aws_ssm_parameter.splunk_oncall_cloudwatch_endpoint.value}/${each.key}"
 }

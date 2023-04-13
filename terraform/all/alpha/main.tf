@@ -9,15 +9,21 @@ terraform {
   }
 }
 
-variable "splunk_oncall_endpoint" {
+variable "splunk_oncall_cloudwatch_endpoint" {
+  default = "UNSET"
+}
+
+variable "splunk_oncall_newrelic_endpoint" {
   default = "UNSET"
 }
 
 module "main" {
-  source = "../module"
+  source            = "../module"
+  iam_account_alias = "login-alpha"
 
-  opsgenie_key_ready     = false
-  splunk_oncall_endpoint = var.splunk_oncall_endpoint
-  iam_account_alias      = "login-alpha"
+  opsgenie_key_ready                = false
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
+
   #dnssec_zone_exists = true
 }
