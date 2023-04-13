@@ -773,6 +773,10 @@ execute 'oldest_first' do
 end
 
 # enable the kubernetes access server
-directory '/var/opt/gitlab/gitlab-kas/sockets' do
+directory '/var/opt/gitlab/gitlab-kas' do
   recursive true
+end
+
+directory '/var/opt/gitlab/gitlab-kas/sockets' do
+  owner 'git'
 end
