@@ -136,7 +136,8 @@ locals {
           type        = "String"
           default     = "/srv/idp/current/config/application_s3_env.yml /srv/idp/current/config/application.yml"
           description = "List of Configuration Files to fingerprint"
-        }
+        },
+
       ]
     }
   }
