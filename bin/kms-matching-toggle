@@ -124,5 +124,5 @@ load_environment_variables
 strict_environment_restriction
 
 # Toggle the KMS Matching Pipeline
-#toggle_lambda_kenisis_trigger
-#toggle_eventbus_rule
+toggle_lambda_kenisis_trigger
+toggle_eventbus_rule
