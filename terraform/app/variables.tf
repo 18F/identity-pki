@@ -270,6 +270,10 @@ variable "instance_type_idp" {
   default = "t3.medium"
 }
 
+variable "instance_type_env_runner" {
+  default = "t3.medium"
+}
+
 variable "instance_type_migration" {
   default = "t3.medium"
 }

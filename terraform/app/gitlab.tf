@@ -54,6 +54,7 @@ module "env-runner" {
   github_ipv4_cidr_blocks          = local.github_ipv4
   gitlab_lb_interface_cidr_blocks  = [var.gitlab_subnet_cidr_block]
   gitlab_runner_pool_name          = "env-runner"
+  instance_type_gitlab_runner      = var.instance_type_env_runner
   proxy_server                     = "obproxy-env-runner.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
