@@ -771,3 +771,12 @@ execute 'oldest_first' do
   command '/etc/gitlab/oldest_first_resources.sh'
   action :run
 end
+
+# enable the kubernetes access server
+directory '/var/opt/gitlab/gitlab-kas' do
+  recursive true
+end
+
+directory '/var/opt/gitlab/gitlab-kas/sockets' do
+  owner 'git'
+end
