@@ -1,0 +1,128 @@
+#!/bin/bash
+
+#### Disables/Enables KMS Matching Pipeline in selected environment  ####
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh" 
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-h] -e ENVIRONMENT -t TOGGLE
+
+Flags:
+  -e : Environment to enable/disable KMS Matching in
+  -t : Toggle KMS matching
+         "enable"  - Enables KMS matching
+         "disable" - Disables KMS Matching     
+  -h : Detailed help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`
+
+EOM
+}
+
+help_text() {
+  cat >&2 << EOM
+
+Usage: ${0} [-h] -e ENVIRONMENT -t TOGGLE
+
+Runs all necessary commands to enable or disable the KMS Matching Pipeline
+for the selected environment. Designed to run with no specified flags/arguments.
+
+Flags:
+  -e : Environment to enable/disable KMS Matching in
+  -t : Toggle KMS matching
+         "enable"  - Enables KMS matching
+         "disable" - Disables KMS Matching
+  -h : Displays this help
+  
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`
+
+EOM
+  exit 0
+}
+
+# Runs an AWS CLI command to toggle the Kinesis trigger on the cloudwatch-kms  Lambda Function 
+# of the selected environment. This prevents the lambda function from triggering through Kinesis, 
+# thus breaking the KMS Matching pipeline.
+toggle_lambda_kenisis_trigger() {
+  local uuid lambda_toggle
+  uuid=`aws lambda list-event-source-mappings --function-name ${ENV}-cloudwatch-kms --query 'EventSourceMappings[0].UUID' --output text`
+
+  if [[ "${TOGGLE}" == "disable" ]]; then
+    lambda_toggle='--no-enabled'
+  elif [[ "${TOGGLE}" == "enable" ]]; then
+    lambda_toggle='--enabled'
+  fi
+
+  aws lambda update-event-source-mapping --uuid "${uuid}" "${lambda_toggle}"
+}
+
+# Runs an AWS CLI command to toggle the '<env>-decryption-events' Event Bus rule.
+# This prevents CloudWatch from pushing KMS Decryption events to SNS, thus breaking
+# the KMS Matching pipeline.
+toggle_eventbus_rule() {
+  aws events "${TOGGLE}"-rule --name "${ENV}-decryption-events"
+}
+
+# Load Environment Variables specific to the selected environment.
+# Gives access to use the STRICT_ENVIRONMENT environment variable
+load_environment_variables() {
+  local return_dir env_var_dir
+  return_dir="$(pwd)"
+  env_var_dir="${return_dir}/../../identity-devops-private/env/"
+  cd "${env_var_dir}"
+  . "${env_var_dir}${ENV}".sh
+  cd "${return_dir}"
+}
+
+# Check if the environment is considered Strict and require an extra step
+# to purposefully disable KMS Matching in the environment
+strict_environment_restriction() {
+  local strict_check
+  strict_check="${STRICT_ENVIRONMENT-}"
+  [ -z "$strict_check" ] && return
+
+  if [ "$strict_check" == 1 ]; then
+    echo_red >&2 "Error: Strict environment. Cannot toggle KMS Matching in this environment."
+    return 2        
+  fi
+}
+
+while getopts e:t:h opt
+do
+  case $opt in
+    e) ENV="${OPTARG}"           ;;
+    t) TOGGLE="${OPTARG}"        ;;
+    h) help_text                 ;;
+   \?) exit 1                    ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ -z "${ENV:-}" ]] || [[ -z "${TOGGLE:-}" ]]; then
+  raise "Must specify ENVIRONMENT (-e) and TOGGLE (-t)"
+fi
+
+
+ROLES=(app idp pivcac worker)
+cd "$(dirname "$0")"
+
+if [[ "${TOGGLE}" != "enable" ]] && [[ "${TOGGLE}" != "disable" ]]; then
+  raise "Invalid TOGGLE option. Must be \"enable\" or \"disable\""
+fi
+
+# Clear previous environment variables that could impact usage
+unset STRICT_ENVIRONMENT
+
+echo "Utility will ${TOGGLE} the KMS Matching Pipeline in the ${ENV} environment"
+
+# Determine if strict environment and require additional step if so
+load_environment_variables
+strict_environment_restriction
+
+# Toggle the KMS Matching Pipeline
+toggle_lambda_kenisis_trigger
+toggle_eventbus_rule
