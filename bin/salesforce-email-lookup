@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+require_relative '../salesforcelib/lib/salesforcelib.rb'
+
+case_number = ARGV.first
+
+if !case_number
+  puts "Usage: #{$PROGRAM_NAME} case_number"
+  exit 1
+end
+
+puts Salesforcelib::Client.new.email_from_case_number(case_number)

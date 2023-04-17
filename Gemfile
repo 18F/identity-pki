@@ -7,6 +7,11 @@ group :development do
   gem 'colorize'
   gem 'pry'
   gem 'pry-byebug', '~> 3.9'
+
+  # used for salesforcelib
+  gem 'restforce'
+  gem 'ruby-keychain'
+  gem 'sinatra'
 end
 
 gem 'activesupport'
