@@ -656,6 +656,7 @@ users:
     - bots
     - lg
     - lg-all
+    - lg-public
     - devops
     - appdev
     - pm
@@ -675,6 +676,8 @@ groups:
     description: Namespace for Login.gov projects
   lg-all:
     description: Place where anybody can create projects, and they are visible to everybody with an account.
+  lg-public:
+    description: Place where anybody can create projects, and they can be accessed by the public.
   bots:
     description: Gitlab automation accounts
 projects:
