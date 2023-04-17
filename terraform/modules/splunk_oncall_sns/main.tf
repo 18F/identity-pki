@@ -9,11 +9,23 @@ terraform {
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+# This is referenced inline for SNS destination definitions
 resource "aws_ssm_parameter" "splunk_oncall_cloudwatch_endpoint" {
   name        = "/account/splunk_oncall/cloudwatch_endpoint"
   type        = "SecureString"
   description = "Base URL for Splunk On-Call alerting from CloudWatch"
   value       = var.splunk_oncall_cloudwatch_endpoint
+  lifecycle {
+    ignore_changes = [value]
+  }
+}
+
+# This is later used per-application environment by the newrelic module
+resource "aws_ssm_parameter" "splunk_oncall_newrelic_endpoint" {
+  name        = "/account/splunk_oncall/newrelic_endpoint"
+  type        = "SecureString"
+  description = "Base URL for Splunk On-Call alerting from NewRelic"
+  value       = var.splunk_oncall_newrelic_endpoint
   lifecycle {
     ignore_changes = [value]
   }
