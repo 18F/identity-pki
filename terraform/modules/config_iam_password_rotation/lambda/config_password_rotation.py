@@ -19,7 +19,7 @@ account_id = boto3.client("sts").get_caller_identity()["Account"]
 def lambda_handler(event, context):
   #print(event)
   credential_report = get_credential_report()
-  print(credential_report)
+  #print(credential_report)
  
 
   #if(check_password_enabled == "true"): 
@@ -67,7 +67,7 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
   
   sender_email = "noreply@humans.login.gov"
   realemail = user_name + "@gsa.gov"
-  recipient_email = "paul.hirsch" + "@gsa.gov"
+  recipient_email = user_name + "@gsa.gov"
   print("real recipient_email", realemail)
 
   if(recent_password_used_age < 120):
@@ -82,15 +82,15 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 <head> Dear {user_name}, </head>
                 <body>
                 <p>Your AWS Console login access is going to be disabled at {check}. Console access is disabled, if there is missing login activity for more than 120 days or if password is not rotated in every 100 days with active login activity. Please go to <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
-                 Runbook</a> for directions on rotating the password. </p>
+                 Runbook</a> for directions on rotating the password. Please note starting 05/18/2023 we will start enforcing this rule so we kindly request in remediating before reaching the mentioned date if not in compliance.</p>
 
                 <p> If you allow your password to expire, you will loose access to the AWS accounts via console. However, this rule does not check or modify your ability to access AWS Accounts using AWS Access Keys. </p>
                 <p> If you have any questions, feel free to ping @login-platform-help in slack. </p><br>
                 Thank you!<br>
                 
                 <p> Helpful links: <br>
-                <a href='https://aws.amazon.com/sdk-for-python/'>
-                 Runbook</a><br>
+                <a href='https://console.aws.amazon.com/iam/home?#/security_credentials'>
+                 AWS Console link</a><br>
                  Slack: @login-platform-help <br></p>
                 </body>
                 </html>
@@ -105,16 +105,17 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             BODY_HTML = """<html>
                     <head> Dear {user_name}, </head>
                     <body>
-                    <p>Your AWS Console Access has been disabled. </p>
+                    <p>Your AWS Console Password is beyond the required rotation period. </p>
                  
                     <p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
                     
-                    <p>However, if you wish to regain the access please ping @login-platform-help in Slack.</p>
+                    <p> We recommend rotating (updating) AWS Console password in every 100 days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than 120 days or if password is not rotated in every 100 days with active login activity. Please refer <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
+                 Runbook</a> for directions on rotating the password or please reach out @login-platform-help via Slack for any additional information. Please note starting 05/18/2023 we will start enforcing this rule so we kindly request in remediating before reaching the mentioned date.</p>
                     
                     <p>Thank you for your understanding!</p><br>
                
                     <p> Helpful links: <br>
-                    <a href='https://aws.amazon.com/sdk-for-python/'>
+                    <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
                     Runbook</a><br>
                     Slack: @login-platform-help <br></p>
                     </body>
@@ -130,16 +131,17 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
         BODY_HTML = """<html>
                 <head> Dear {user_name}, </head>
                 <body>
-                <p>Your AWS Console Access has been disabled.</p>
+                <p>Your AWS Console Password is beyond the required rotation period. </p>
          
                 <p><p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
                 
-                <p> However, if you wish to regain the access please ping @login-platform-help in Slack to get the back console access.</p>
+                <p> We recommend rotating (updating) AWS Console password in every 100 days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than 120 days or if password is not rotated in every 100 days with active login activity. Please refer <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
+                 Runbook</a> for directions on rotating the password or please reach out @login-platform-help via Slack for any additional information. Please note starting 05/18/2023 we will start enforcing this rule so we kindly request in remediating before reaching the mentioned date.</p>
                 
                 <p>Thank you for your understanding!</p><br>
               
                 <p> Helpful links: <br>
-                <a href='https://aws.amazon.com/sdk-for-python/'>
+                <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
                  Runbook</a><br>
                  Slack: @login-platform-help <br></p>
                 </body>
@@ -203,9 +205,9 @@ def send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET
 ### Generate temporary role credentials ###
 def invoke_console_access(user_name):
     temp_credentials = generate_temp_credentials(user_name)
-    print("Here are the credentials", temp_credentials)
+    #print("Here are the credentials", temp_credentials)
     action = disable_console_access(temp_credentials, user_name)
-    print("Console Access for" + user_name + "disabled")
+    print("Console Access for " + user_name + " disabled")
     return action
 
 ### Assumed role will have permissions that overlap with the policy below and associated with temp_role_arn
