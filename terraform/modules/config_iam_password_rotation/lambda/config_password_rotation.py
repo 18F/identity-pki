@@ -101,7 +101,7 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
         print("Password age older than 100 days so disabling it for user ", user_name)
         action1 = invoke_console_access(user_name)
         if action1 == "Success":
-            SUBJECT = ("Your AWS console password is expired.")
+            SUBJECT = ("Your AWS console password is beyond the required rotation period.")
             BODY_HTML = """<html>
                     <head> Dear {user_name}, </head>
                     <body>
@@ -127,7 +127,7 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
   else:
      action = invoke_console_access(user_name)
      if action == "Success":
-        SUBJECT = ("Your AWS console password is expired." )
+        SUBJECT = ("Your AWS console password is beyond the required rotation period." )
         BODY_HTML = """<html>
                 <head> Dear {user_name}, </head>
                 <body>
