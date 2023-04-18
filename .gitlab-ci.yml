@@ -401,7 +401,57 @@ recycle_runner_gitstaging:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
       when: never
     - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "push"
-  
+
+.run_unallowed_image_template:
+  environment:
+    action: verify
+    url: https://${DOMAIN}/
+    name: ${ENV_NAME}
+  tags:
+    - ${ENV_NAME}-env-runner
+  stage: smoke_test
+  allow_failure: true
+  script:
+    - touch unallowed.txt
+  artifacts:
+    paths:
+      - "*.txt"
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $TRIGGER_BRANCH && $CI_PIPELINE_SOURCE == "push"
+
+run_unallowed_image_gitstaging:
+  extends: .run_unallowed_image_template
+  variables:
+    ENV_NAME: gitstaging
+    DOMAIN: gitlab.gitstaging.gitlab.login.gov
+    TRIGGER_BRANCH: main
+
+.test_unallowed_image_template:
+  environment:
+    action: verify
+    url: https://${DOMAIN}/
+    name: ${ENV_NAME}
+  tags:
+    - test-pool
+  stage: smoke_test
+  script:
+    - test ! -f unallowed.txt
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $TRIGGER_BRANCH && $CI_PIPELINE_SOURCE == "push"
+
+test_unallowed_image_gitstaging:
+  extends: .test_unallowed_image_template
+  variables:
+    ENV_NAME: gitstaging
+    DOMAIN: gitlab.gitstaging.gitlab.login.gov
+    TRIGGER_BRANCH: main
+  needs:
+    - run_unallowed_image_gitstaging
+
 test_gitstaging:
   extends: .test_gitlab_template
   environment:
@@ -420,7 +470,7 @@ test_gitstaging:
 deploygitlabproduction_trigger:
   stage: gitlabproduction_deploy
   resource_group: gitlabproduction
-  needs: 
+  needs:
     - job: test_gitstaging
       optional: true
   when: manual
@@ -652,6 +702,41 @@ test_alpha:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha"
+
+recycle_runner_alpha:
+  extends: .deploy_gitlab_template
+  environment:
+    name: alpha
+    url: https://gitlab.alpha.gitlab.identitysandbox.gov/
+    action: access
+  resource_group: alpha
+  variables:
+    env: alpha
+    url: https://gitlab.alpha.gitlab.identitysandbox.gov/
+    GIT_SUBMODULE_STRATEGY: normal
+    RECYCLE_ENV_RUNNERS_ONLY: "true"
+  stage: post_deploy
+  allow_failure: true
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "stages/gitlabalpha" && $CI_PIPELINE_SOURCE == "push"
+
+run_unallowed_image_alpha:
+  extends: .run_unallowed_image_template
+  variables:
+    ENV_NAME: alpha
+    DOMAIN: gitlab.alpha.gitlab.login.gov
+    TRIGGER_BRANCH: stages/gitlabalpha
+
+test_unallowed_image_alpha:
+  extends: .test_unallowed_image_template
+  variables:
+    ENV_NAME: alpha
+    DOMAIN: gitlab.gitstaging.gitlab.login.gov
+    TRIGGER_BRANCH: stages/gitlabalpha
+  needs:
+    - run_unallowed_image_alpha
 
 include:
   - local: .gitlab-ci-rules.yml
