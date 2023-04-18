@@ -54,7 +54,7 @@ def lambda_handler(event, context):
 def process_user(user_name, force=False):
     lak = iam.list_access_keys(UserName=user_name)
     
-    print("Here are the keys for user_name", lak, user_name)
+    #print("Here are the keys for user_name", lak, user_name)
     #print("Here is the AccessKeyMetadata", lak['AccessKeyMetadata'])
     
     #IAM user can have two access keys at a time and we are sorting the keys based on the creation date
@@ -73,18 +73,18 @@ def process_user(user_name, force=False):
     sender_email = "noreply@humans.login.gov"
     realemail = user_name + "@gsa.gov"
     print("real recipient_email", realemail)
-    recipient_email = "paul.hirsch" + "@gsa.gov"
+    recipient_email = user_name + "@gsa.gov"
     print("recipient_email", recipient_email)
 
 
 
     # Classify all access keys for the current user
     for akm in lak['AccessKeyMetadata']:
-        print("akm", akm)
+        #print("akm", akm)
         num_keys += 1
         if oldest_key is None or oldest_key['CreateDate'] > akm['CreateDate']:
             oldest_key = akm
-            print("oldest_key", oldest_key)
+            #print("oldest_key", oldest_key)
         if akm['Status'] == 'Active':
             active_keys.append(akm)
         else:
@@ -179,8 +179,8 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
     </html>
                 """    
     
-    print("Here is the oldest key from handle_oldest_key function", oldest_key)
-    logger.info("Classification: {}".format(classification))
+    #print("Here is the oldest key from handle_oldest_key function", oldest_key)
+    #logger.info("Classification: {}".format(classification))
     
     print("Here is the masked_access_key from inside handle_oldest_key", masked_access_key)
 
@@ -192,12 +192,12 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
         BODY_HTML = """<html>
                 <head> Dear {user_name}, </head>
                 <body>
-                <p> Your IAM Access key ending on "{masked_access_key}" is going to be made Inactive at {keys_inactivated_at}. IAM Access key older than 100 days will be made inactive if not rotated.  Please go to <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault#rotating-aws-keys'>
+                <p> Your IAM Access key ending on "{masked_access_key}" is going to be made Inactive at {keys_inactivated_at}. IAM Access key older than 90 days will be made inactive if not rotated.  Please go to <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault#rotating-aws-keys'>
                  Runbook</a> for directions on rotating the access keys. </p>
 
-                <p> If you are actively using this key to access AWS api calls, you will lose ability to continue doing so when the key's status is changed to Inactive.</p>
+                <p> If you are actively using this key to access AWS api calls, you will lose ability to continue doing so when the key's status is changed to Inactive. This rule does not check or modify your ability to access AWS Accounts using AWS Console Password.</p>
 
-                <p> Please note, this rule does not check or modify your ability to access AWS Accounts using AWS Console Password. </p>
+                <p> Please note starting 05/18/2023 we will start enforcing this rule so we kindly request in remediating before reaching the mentioned date if the age of key is reaching near 90days. </p>
 
                 <p>Thank you!</p><br>
 
@@ -216,14 +216,14 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
         status = invoke_update_access_keys(user_name,key_to_inactivate,"Inactive")
         if status == "Success":
                 #iam.update_access_key(UserName=user_name, AccessKeyId=key_to_inactivate, Status='Inactive')
-                SUBJECT = ("Your AWS IAM Access key staus has been changed to Inactive")
+                SUBJECT = ("Your AWS IAM Access key is older than the required rotation period. ")
         
                 BODY_HTML = """<html>
                         <head> Dear {user_name}, </head>
                         <body>
-                        <p>Your IAM access key with last 4 digits, "{masked_access_key}" has been made inactive:</p>
+                        <p>Your IAM access key with last 4 digits, "{masked_access_key}" is older than the required rotation period:</p>
                         
-                        <p>No Action needed if you do not use this key. However, if you wish to regain the access please reach out to @login-platform-help oncall via Slack.</p>
+                        <p>No Action needed if you do not use this key. However, access keys if not rotated in every 90days, it can be made inactive and you will lose ability to access AWS api calls using this key when the key's status is changed to Inactive. Please note starting 05/18/2023 we will start enforcing this rule so we kindly request in remediating before reaching the mentioned date if the age of key is reaching near 90days. please reach out to @login-platform-help oncall via Slack for any queries.</p>
                     
                         <p>Thank you for your understanding!</p><br>
 
@@ -244,25 +244,25 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
 def classify_date(akm):
     creation_date = akm['CreateDate'].date()
     if creation_date > rotationDate:
-        print("key is status New", akm['AccessKeyId'])
+        #print("key is status New", akm['AccessKeyId'])
         return "New"
     if  rotationDate > creation_date > inactivationDate:
-        print("key is status Notify", akm['AccessKeyId'])
+        #print("key is status Notify", akm['AccessKeyId'])
         return "Notify"
     if creation_date > inactivationDate:
-        print("key status is Inactivate", akm['AccessKeyId'])
+        #print("key status is Inactivate", akm['AccessKeyId'])
         return "Inactivate"
     if creation_date > deletionDate:
-        print("key status is Delete", akm['AccessKeyId'])
+        #print("key status is Delete", akm['AccessKeyId'])
         return "Inactivate"
     return "Delete"
 
 
 def invoke_update_access_keys(user_name,key_to_inactivate,status):
     temp_credentials = assume_role_restricted(user_name)
-    print("Here are the credentials", temp_credentials)
+    #print("Here are the credentials", temp_credentials)
     action = update_access_keys(temp_credentials, user_name, key_to_inactivate,"Inactive")
-    print("Access keys for" + user_name + "made inactive")
+    print("Access keys for " + user_name + " made inactive")
     return action
     #return "Success"
 
@@ -326,7 +326,7 @@ def update_access_keys(temp_credentials, user_name, key_to_inactivate, status):
             UserName=user_name
         )
 
-        print("Access key " + key_to_inactivate + " is going to be made inactivate for the user " + user_name)
+        #print("Access key " + key_to_inactivate + " is going to be made inactivate for the user " + user_name)
 
         return "Success"
 
