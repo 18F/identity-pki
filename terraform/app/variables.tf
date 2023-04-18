@@ -801,16 +801,10 @@ variable "idp_enduser_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert on enduser idp problems"
   default     = 0
 }
+
 variable "dashboard_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert during business hours on dashboard problems"
   default     = 0
-}
-
-
-variable "opsgenie_key_file" {
-  description = "the name of the file in the secrets/common bucket to use for sending opsgenie alerts in newrelic for this environment"
-  default     = "opsgenie_low_apikey" # This sends alerts during business hours
-  # default = "opsgenie_apikey"   # This sends alerts 7x24
 }
 
 ## CloudWatch Alarm Defaults

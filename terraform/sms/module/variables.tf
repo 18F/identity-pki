@@ -26,17 +26,16 @@ variable "pinpoint_app_name" {
   description = "Name of the pinpoint app"
 }
 
-variable "opsgenie_devops_high_endpoint" {
-  description = "OpsGenie endpoint to use for high priority alerting from SNS"
+variable "sns_topic_alert_critical" {
+  description = "Name of the SNS topic to send critical alerts to"
+  type        = string
+  default     = "slack-otherevents"
 }
 
-variable "sns_topic_arn_slack_events" {
-  description = <<EOM
-ARN of the SNS topic used for sending messages to Slack #login-events.
-
-This is created manually because the subscription itself has to be created
-manually since Terraform does not support creating email subscriptions.
-EOM
+variable "sns_topic_alert_warning" {
+  description = "Name of the SNS topic to send warnings to"
+  type        = string
+  default     = "slack-otherevents"
 }
 
 variable "pinpoint_error_alarm_threshold" {

@@ -1,16 +1,10 @@
-# For now not much is here. Subscriptions of type "email" are not supported
-# in Terraform, because creating one does not create an ARN immediately.
-
-resource "aws_sns_topic" "devops_high_priority_pinpoint" {
-  name = "devops_high_priority_pinpoint"
+# SNS topics used for alarms are expected to be present at the account level
+data "aws_sns_topic" "alert_critical" {
+  name = var.sns_topic_alert_critical
 }
 
-# Subscription that connects the SNS topic to paging.
-resource "aws_sns_topic_subscription" "opsgenie_devops_high" {
-  topic_arn              = aws_sns_topic.devops_high_priority_pinpoint.arn
-  protocol               = "https"
-  endpoint               = var.opsgenie_devops_high_endpoint
-  endpoint_auto_confirms = true
+data "aws_sns_topic" "alert_warning" {
+  name = var.sns_topic_alert_warning
 }
 
 # == Spend limit alarms ==
@@ -36,7 +30,7 @@ EOM
 
   treat_missing_data = "missing"
 
-  alarm_actions = [aws_sns_topic.devops_high_priority_pinpoint.arn]
+  alarm_actions = [data.aws_sns_topic.alert_critical.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_warning" {
@@ -58,7 +52,7 @@ EOM
 
   treat_missing_data = "missing"
 
-  alarm_actions = [var.sns_topic_arn_slack_events]
+  alarm_actions = [data.aws_sns_topic.alert_warning.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_spend_limit_daily_warning" {
@@ -94,7 +88,7 @@ EOM
     }
   }
 
-  alarm_actions = [var.sns_topic_arn_slack_events]
+  alarm_actions = [data.aws_sns_topic.alert_warning.arn]
 }
 
 # == Pinpoint error alarms ==
@@ -118,7 +112,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_temporary_errors" {
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = [var.sns_topic_arn_slack_events]
+  alarm_actions = [data.aws_sns_topic.alert_warning.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
@@ -140,7 +134,7 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_permanent_errors" {
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = [var.sns_topic_arn_slack_events]
+  alarm_actions = [data.aws_sns_topic.alert_warning.arn]
 }
 
 resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
@@ -162,6 +156,6 @@ resource "aws_cloudwatch_metric_alarm" "pinpoint_throttled_errors" {
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = [var.sns_topic_arn_slack_events]
+  alarm_actions = [data.aws_sns_topic.alert_warning.arn]
 }
 

@@ -1,8 +1,3 @@
-variable "opsgenie_key_file" {
-  description = "the name of the file in the secrets/common bucket to use for sending opsgenie alerts for this environment"
-  default     = "opsgenie_low_apikey"
-}
-
 variable "enabled" {
   description = "turn on common newrelic alerting services"
   default     = 0

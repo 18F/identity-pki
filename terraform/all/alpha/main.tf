@@ -21,7 +21,6 @@ module "main" {
   source            = "../module"
   iam_account_alias = "login-alpha"
 
-  opsgenie_key_ready                = false
   splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
   splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
 

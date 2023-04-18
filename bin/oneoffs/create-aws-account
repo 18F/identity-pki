@@ -9,6 +9,7 @@ set -euo pipefail
 BASEPATH="$(dirname "$0")/.."
 . "${BASEPATH}/lib/common.sh"
 . "${BASEPATH}/lib/sandbox-lib.sh"
+. "${BASEPATH}/lib/acct-lib.sh"
 
 howto() { echo "Usage: ${0} [-potbs12345] [-a SRC_ACCT] IAM_USER_PROFILE_NAME" ; }
 usage() { echo -e "\n$(howto)\nUse -h for more info!\n" ; }
@@ -36,19 +37,16 @@ The tasks in this script can also be individually executed as follows:
            subsequent 'terraform apply' operations to work properly,
            and the login-secrets S3 bucket for the account.
            (Step: 1_policies_secrets_buckets)
-  -o, -2 : Copies the 'common/opsgenie_sns_apikey' S3 object from the login-SRC_ACCT
-           account into this account's 'secrets' bucket, required for the SNS topics
-           for alerting to be properly created.
-           (Step: 2_copy_opsgenie_key)
-  -t, -3 : Import the 'terraform_locks' DynamoDB table -- created by ${BASEPATH}/tf-deploy
+  -t, -2 : Import the 'terraform_locks' DynamoDB table -- created by ${BASEPATH}/tf-deploy
            during its first run -- into Terraform state, so that it can be managed
            directly in code.
-           (Step: 3_import_lock_table)
-  -b, -4 : Runs 'terraform apply' in the account as the Terraform role, creating all
+           (Step: 2_import_lock_table)
+  -b, -3 : Runs 'terraform apply' in the account as the Terraform role, creating all
            remaining resources defined in the terraform/all directory.
-           (Step: 4_build_acct)
-  -s, -5 : Copies the /account/slack/webhook/url SSM parameter from login-SRC_ACCT
+           (Step: 3_build_acct)
+  -s, -4 : Copies the /account/slack/webhook/url SSM parameter from login-SRC_ACCT
            to each region, allowing Terraform to send notifications to Slack
+           (Step: 4_slack_webhook_ssm_params)
   -h     : Displays this help
 
 EOM
@@ -64,39 +62,24 @@ EOM
     -target='module.main.module.main_secrets_bucket_ue1.aws_s3_bucket.secrets'
 }
 
-# get opsgenie key from $SRC_ACCT and put it in the new secrets buckets
-2_copy_opsgenie_key() {
-  for REGION in 'us-west-2' 'us-east-1' ; do
-    get_secrets_bucket source ${REGION}
-    OPSGENIE_KEY=$(${BASEPATH}/awsv -x ${AV_PROFILE} \
-      aws s3 cp "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" - \
-        --region "${REGION}")
-    get_secrets_bucket dest ${REGION}
-    printf "${OPSGENIE_KEY}" | ${BASEPATH}/awsv -x ${AV_PROFILE} \
-      aws s3 cp - "s3://${SECRETS_BUCKET}/common/opsgenie_sns_apikey" \
-        --region "${REGION}" \
-        --no-guess-mime-type \
-        --content-type="text/plain" \
-        --metadata-directive="REPLACE"
-  done
-}
-
 # since configure_state_bucket.sh creates the DynamoDB table if it doesn't exist,
 # import it into state so it can be managed within Terraform in subsequent runs
-3_import_lock_table() {
+2_import_lock_table() {
   export AWS_PROFILE=${ADMIN_IAM_ROLE}
   ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" import \
     'module.main.module.tf-state.aws_dynamodb_table.tf-lock-table[0]' 'terraform_locks'
 }
 
 # build the rest of terraform/all infra
-4_build_acct() {
+3_build_acct() {
   export AWS_PROFILE=${ADMIN_IAM_ROLE}
-  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve \
+    -var "splunk_oncall_cloudwatch_endpoint=${SPLUNK_CLOUDWATCH_ENDPOINT}"
+    -var "splunk_oncall_newrelic_endpoint=${SPLUNK_NEWRELIC_ENDPOINT}"
 }
 
 # update the SSM slackwebhook parameters
-5_slack_webhook_ssm_params() {
+4_slack_webhook_ssm_params() {
   local WEBHOOK_URL
   for REGION in 'us-west-2' 'us-east-1' ; do
     switch_creds source
@@ -114,16 +97,27 @@ EOM
   done
 }
 
-declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ADMIN_IAM_ROLE}=
+# get SSM parameters from $SRC_ACCT and hold for later use
+get_ssm_parameters_from_src_account() {
+  SPLUNK_CLOUDWATCH_ENDPOINT=$(${BASEPATH}/awsv -x ${AV_PROFILE} \
+      aws ssm get-parameter --with-decryption \
+      --name /account/splunk_oncall/cloudwatch_endpoint | jq -r '.Parameter.Value'
+  )
+  SPLUNK_NEWRELIC_ENDPOINT=$(${BASEPATH}/awsv -x ${AV_PROFILE} \
+      aws ssm get-parameter --with-decryption \
+      --name /account/splunk_oncall/newrelic_endpoint | jq -r '.Parameter.Value'
+  )
+}
+
+declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ADMIN_IAM_ROLE,SPLUNK_NEWRELIC_ENDPOINT,SPLUNK_CLOUDWATCH_ENDPOINT}=
 SRC_ACCT='sandbox'
 verify_root_repo
 
 TASKS=(
   "1_policies_secrets_buckets"
-  "2_copy_opsgenie_key"
-  "3_import_lock_table"
-  "4_build_acct"
-  "5_slack_webhook_ssm_params"
+  "2_import_lock_table"
+  "3_build_acct"
+  "4_slack_webhook_ssm_params"
 )
 TODO=()
 
@@ -131,10 +125,9 @@ while getopts t1p2r3o4b5s6a:h opt
 do
   case $opt in
     1|p) TODO+=("${TASKS[0]}") ;;
-    2|o) TODO+=("${TASKS[1]}") ;;
-    3|t) TODO+=("${TASKS[2]}") ;;
-    4|b) TODO+=("${TASKS[3]}") ;;
-    5|s) TODO+=("${TASKS[4]}") ;;
+    2|t) TODO+=("${TASKS[2]}") ;;
+    3|b) TODO+=("${TASKS[3]}") ;;
+    4|s) TODO+=("${TASKS[4]}") ;;
     a) SRC_ACCT="${OPTARG}"    ;;
     h) help_me                 ;;
     *) usage && exit 1         ;;
@@ -151,5 +144,9 @@ if [[ ! -z "${ACCOUNT_ALIAS}" ]] && [[ -z "${TODO-}" ]] ; then
   echo_red "Account alias '${ACCOUNT_ALIAS}' already exists for '${TF_ACCT}'."
   raise "Account may already exist; use bin/td for Terraform commands instead!"
 fi
+
+switch_creds source
+get_ssm_parameters_from_src_account
+switch_creds dest
 
 run_tasks

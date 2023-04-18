@@ -19,7 +19,7 @@ resource "aws_lambda_function" "sms_high_count" {
 
   environment {
     variables = {
-      notification_topic = var.sns_topic_arn_slack_events
+      notification_topic = data.aws_sns_topic.alert_warning.arn
       sms_limit          = var.sms_unexpected_country_alarm_threshold
       ignored_countries  = var.ignored_countries
       runbook_url        = var.sms_runbook_url
@@ -78,7 +78,7 @@ resource "aws_iam_policy" "sms_count_lambda_policy" {
           "sns:Publish"
         ]
         Effect   = "Allow"
-        Resource = "${var.sns_topic_arn_slack_events}"
+        Resource = "${data.aws_sns_topic.alert_warning.arn}"
       },
       {
         Action = [

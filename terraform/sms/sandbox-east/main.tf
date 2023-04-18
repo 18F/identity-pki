@@ -12,13 +12,13 @@ terraform {
 module "main" {
   source = "../module"
 
-  env                           = "sandbox"
-  region                        = "us-east-1"
-  pinpoint_app_name             = "identitysandbox.gov"
-  state_lock_table              = "terraform_locks"
-  opsgenie_devops_high_endpoint = "https://api.opsgenie.com/v1/json/amazonsns?apiKey=1b1a2d80-6260-460a-995a-5200876f7372"
-  sns_topic_arn_slack_events    = "arn:aws:sns:us-east-1:035466892286:slack-otherevents"
-  pinpoint_spend_limit          = 100000 # USD monthly
+  env                      = "sandbox"
+  region                   = "us-east-1"
+  pinpoint_app_name        = "identitysandbox.gov"
+  state_lock_table         = "terraform_locks"
+  sns_topic_alert_critical = "slack-events"
+  sns_topic_alert_warning  = "slack-events"
+  pinpoint_spend_limit     = 100000 # USD monthly
 }
 
 output "pinpoint_app_id" {

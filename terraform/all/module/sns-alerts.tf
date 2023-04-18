@@ -165,15 +165,6 @@ module "slack_lambda_usw2" {
   depends_on = [aws_sns_topic.slack_usw2]
 }
 
-module "opsgenie_sns" {
-  count  = var.opsgenie_key_ready ? 1 : 0
-  source = "../../modules/opsgenie_sns"
-  providers = {
-    aws.usw2 = aws.usw2
-    aws.use1 = aws.use1
-  }
-}
-
 module "splunk_oncall_sns_usw2" {
   source                            = "../../modules/splunk_oncall_sns"
   splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint

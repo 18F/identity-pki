@@ -15,7 +15,11 @@ module "main" {
   lambda_audit_github_enabled = 0
   lambda_audit_aws_enabled    = 0
   state_lock_table            = "terraform_locks"
-  slack_sns_name              = "slack-prod-events"
+
+  sns_topic_alert_critical = "splunk-oncall-login-platform"
+  sns_topic_alert_warning  = "slack-events"
+
+  root_domain = "login.gov"
 
   prod_records = [
     {
@@ -152,8 +156,6 @@ module "main" {
     }
   ]
 
-  root_domain = "login.gov"
-
   # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
   dnssec_ksks = {
     # 20211005" = "old",
@@ -170,8 +172,6 @@ module "main" {
   mta_sts_report_mailboxes  = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode              = "enforce"
   lambda_audit_github_debug = 0
-
-  slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:555546682965:slack-events"
 }
 
 module "macie-bucket-scans-prod" {

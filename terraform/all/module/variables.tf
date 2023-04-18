@@ -126,16 +126,6 @@ EOM
   default     = []
 }
 
-variable "opsgenie_key_ready" {
-  description = <<EOM
-Whether or not the OpsGenie API key is present in this account's secrets
-bucket. Defaults to TRUE; set to FALSE only when building from scratch,
-as the key will need to be uploaded into the bucket once it has been created.
-EOM
-  type        = bool
-  default     = true
-}
-
 variable "splunk_oncall_cloudwatch_endpoint" {
   description = <<EOM
 Splunk On-Call AWS CloudWatch routing URI (minus /$routing-key)

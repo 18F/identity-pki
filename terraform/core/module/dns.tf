@@ -19,7 +19,7 @@ module "dnssec" {
   dnssec_errors_alarm_desc          = "${local.dnssec_runbook_prefix}_errors"
   dnssec_zone_name                  = var.root_domain
   dnssec_zone_id                    = module.common_dns.primary_zone_id
-  alarm_actions                     = [module.sns_slack.sns_topic_arn]
+  alarm_actions                     = [data.aws_sns_topic.alert_warning.arn]
   dnssec_ksks                       = var.dnssec_ksks # Require setting explicity for top level zones
   protect_resources                 = true
 }

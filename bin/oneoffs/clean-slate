@@ -62,7 +62,7 @@ EOM
 }
 
 3_tf_destroy_all() {
-  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" destroy -auto-approve -var 'opsgenie_key_ready=false'
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" destroy -auto-approve
 }
 
 # empty + delete buckets not destroyed by Terraform (e.g. s3-access-logs, tf-state);

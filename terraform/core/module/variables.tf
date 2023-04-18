@@ -121,11 +121,6 @@ variable "prod_records" {
   default     = []
 }
 
-variable "slack_sns_name" {
-  description = "Name for SNS topic for Slack notifications."
-  type        = string
-}
-
 variable "bucket_list_uw2" {
   description = "List of us-west-2 buckets to add S3 Inventory Management to."
   type        = list(any)
@@ -136,11 +131,6 @@ variable "bucket_list_ue1" {
   description = "List of us-west-2 buckets to add S3 Inventory Management to."
   type        = list(any)
   default     = []
-}
-
-variable "slack_events_sns_hook_arn" {
-  description = "Slack sns topic"
-  type        = string
 }
 
 variable "cross_account_archive_bucket_access" {
@@ -154,3 +144,17 @@ variable "sandbox_ses_usps_enabled_envs" {
   type        = list(string)
   default     = []
 }
+
+variable "sns_topic_alert_critical" {
+  description = "Name of the SNS topic to send critical alerts to"
+  type        = string
+  default     = "slack-otherevents"
+}
+
+variable "sns_topic_alert_warning" {
+  description = "Name of the SNS topic to send warnings to"
+  type        = string
+  default     = "slack-otherevents"
+}
+
+

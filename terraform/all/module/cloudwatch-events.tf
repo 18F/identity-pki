@@ -26,12 +26,11 @@ resource "aws_cloudwatch_event_target" "slack_root_user_accessed" {
   arn       = aws_sns_topic.slack_use1["soc"].arn
 }
 
-resource "aws_cloudwatch_event_target" "opsgenie_root_user_accessed" {
-  count     = var.opsgenie_key_ready ? 1 : 0
+resource "aws_cloudwatch_event_target" "page_root_user_accessed" {
   provider  = aws.use1
   rule      = aws_cloudwatch_event_rule.root_user_accessed.name
   target_id = "SendToOpsgenie"
-  arn       = module.opsgenie_sns[0].use1_sns_topic_arn
+  arn       = module.splunk_oncall_sns_use1.sns_topic_arns["login-platform"]
 }
 
 # AWS Health Aware (Personal Health Dashboard notification)

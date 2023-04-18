@@ -13,8 +13,11 @@ module "main" {
   source = "../module"
 
   state_lock_table = "terraform_locks"
-  slack_sns_name   = "slack-sandbox-events"
-  root_domain      = "identitysandbox.gov"
+
+  sns_topic_alert_critical = "slack-events"
+  sns_topic_alert_warning  = "slack-events"
+
+  root_domain = "identitysandbox.gov"
 
   # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
   dnssec_ksks = {
@@ -109,8 +112,6 @@ module "main" {
       "pauldoom"
     ]
   }
-
-  slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:894947205914:slack-otherevents"
 }
 
 module "macie-bucket-scans-sandbox" {
