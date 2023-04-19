@@ -51,6 +51,9 @@ repos:
   tspencertest:
     name: "tspencertest"
     <<: *all_write_template
+  tspencertestreview:
+    name: "tspencer/tspencertestreview"
+    <<: *all_write_template
   gitlab-qa:
     name: "gitlab-qa"
     <<: *all_write_template
