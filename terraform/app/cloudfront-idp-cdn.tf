@@ -1,7 +1,3 @@
-data "aws_sns_topic" "cloudfront_alarm" {
-  name = "devops_high_priority"
-}
-
 data "aws_cloudfront_cache_policy" "managed_caching_disabled" {
   name = "Managed-CachingDisabled"
 }
