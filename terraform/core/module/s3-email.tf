@@ -2,9 +2,19 @@ resource "aws_s3_bucket" "email" {
   bucket = "${local.bucket_name_prefix}.email.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
+resource "aws_s3_bucket_ownership_controls" "email" {
+  bucket = aws_s3_bucket.email.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "email" {
   bucket = aws_s3_bucket.email.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.email]
 }
 
 # Policy allowing SES to upload files to the email bucket under /inbound/*

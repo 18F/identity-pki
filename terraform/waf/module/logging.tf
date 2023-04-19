@@ -17,9 +17,19 @@ resource "aws_s3_bucket_versioning" "waf_logs" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "waf_logs" {
   bucket = aws_s3_bucket.waf_logs.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.waf_logs]
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "waf_logs" {

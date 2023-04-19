@@ -12,9 +12,19 @@ resource "aws_s3_bucket" "backups" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "backups" {
+  bucket = aws_s3_bucket.backups.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "backups" {
   bucket = aws_s3_bucket.backups.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.backups]
 }
 
 resource "aws_s3_bucket_versioning" "backups" {
@@ -32,14 +42,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backups" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
-  }
-}
-
-resource "aws_s3_bucket_ownership_controls" "backups" {
-  bucket = aws_s3_bucket.backups.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
   }
 }
 
@@ -80,11 +82,23 @@ resource "aws_s3_bucket" "backups_dr" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "backups_dr" {
+  bucket   = aws_s3_bucket.backups_dr.id
+  provider = aws.dr
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "backups_dr" {
   bucket   = aws_s3_bucket.backups_dr.id
   provider = aws.dr
   acl      = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.backups_dr]
 }
+
 
 resource "aws_s3_bucket_versioning" "backups_dr" {
   bucket   = aws_s3_bucket.backups_dr.id
@@ -103,15 +117,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backups_dr" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
-  }
-}
-
-resource "aws_s3_bucket_ownership_controls" "backups_dr" {
-  bucket   = aws_s3_bucket.backups_dr.id
-  provider = aws.dr
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
   }
 }
 
@@ -138,9 +143,19 @@ resource "aws_s3_bucket" "config" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "config" {
+  bucket = aws_s3_bucket.config.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "config" {
   bucket = aws_s3_bucket.config.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.config]
 }
 
 resource "aws_s3_bucket_versioning" "config" {
@@ -204,9 +219,19 @@ resource "aws_s3_bucket" "cache" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "cache" {
+  bucket = aws_s3_bucket.cache.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "cache" {
   bucket = aws_s3_bucket.cache.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.cache]
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "cache" {
@@ -255,10 +280,21 @@ resource "aws_s3_bucket" "gitlab_buckets" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "gitlab_buckets" {
+  for_each = toset(local.gitlab_buckets)
+  bucket   = each.key
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "gitlab_buckets" {
   for_each = toset(local.gitlab_buckets)
   bucket   = each.key
   acl      = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.gitlab_buckets]
 }
 
 resource "aws_s3_bucket_versioning" "gitlab_buckets" {

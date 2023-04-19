@@ -26,9 +26,19 @@ resource "aws_s3_bucket" "awsmacietrail_dataevent" {
   bucket = local.macie_s3_bucket_name
 }
 
+resource "aws_s3_bucket_ownership_controls" "awsmacietrail_dataevent" {
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "awsmacietrail_dataevent" {
-  bucket = aws_s3_bucket.awsmacietrail_dataevent.bucket
+  bucket = aws_s3_bucket.awsmacietrail_dataevent.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.awsmacietrail_dataevent]
 }
 
 resource "aws_s3_bucket_versioning" "awsmacietrail_dataevent" {

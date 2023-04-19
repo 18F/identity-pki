@@ -161,9 +161,19 @@ resource "aws_s3_bucket" "codepipeline_bucket" {
   bucket = "auto-tf-bucket-${data.aws_caller_identity.current.account_id}"
 }
 
+resource "aws_s3_bucket_ownership_controls" "codepipeline_bucket" {
+  bucket = aws_s3_bucket.codepipeline_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "codepipeline_bucket" {
   bucket = aws_s3_bucket.codepipeline_bucket.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.codepipeline_bucket]
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "codepipeline_bucket" {

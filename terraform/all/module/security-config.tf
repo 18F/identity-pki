@@ -19,9 +19,19 @@ resource "aws_s3_bucket_versioning" "config_recorder" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "config_recorder" {
+  bucket = aws_s3_bucket.config_recorder.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "config_recorder" {
   bucket = aws_s3_bucket.config_recorder.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.config_recorder]
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "config_recorder" {

@@ -18,9 +18,19 @@ resource "aws_s3_bucket" "secrets" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "secrets" {
+  bucket = aws_s3_bucket.secrets.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "secrets" {
   bucket = aws_s3_bucket.secrets.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.secrets]
 }
 
 resource "aws_s3_bucket_versioning" "secrets" {

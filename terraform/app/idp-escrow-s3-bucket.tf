@@ -169,9 +169,19 @@ resource "aws_s3_bucket_versioning" "escrow" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "escrow" {
+  bucket = aws_s3_bucket.escrow.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "escrow" {
   bucket = aws_s3_bucket.escrow.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.escrow]
 }
 
 # Explicit Deny for address not in the VPC or on the GSA network

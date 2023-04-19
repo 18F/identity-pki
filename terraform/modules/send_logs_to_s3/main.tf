@@ -66,9 +66,19 @@ resource "aws_s3_bucket" "kinesis_firehose_stream_bucket" {
   force_destroy = var.destroy_firehose_bucket
 }
 
+resource "aws_s3_bucket_ownership_controls" "kinesis_firehose_stream_bucket" {
+  bucket = aws_s3_bucket.kinesis_firehose_stream_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "kinesis_firehose_stream_bucket" {
   bucket = aws_s3_bucket.kinesis_firehose_stream_bucket.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.kinesis_firehose_stream_bucket]
 }
 
 resource "aws_s3_bucket_versioning" "kinesis_firehose_stream_bucket" {

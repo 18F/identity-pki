@@ -41,7 +41,7 @@ locals {
 }
 
 module "ssm" {
-  source = "github.com/18F/identity-terraform//ssm?ref=fc29b26f07684a901fb0c2a54441677ee25f448c"
+  source = "github.com/18F/identity-terraform//ssm?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
   #source = "../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"

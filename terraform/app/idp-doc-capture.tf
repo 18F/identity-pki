@@ -24,9 +24,19 @@ resource "aws_s3_bucket" "idp_doc_capture" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "idp_doc_capture" {
+  bucket = aws_s3_bucket.idp_doc_capture.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "idp_doc_capture" {
   bucket = aws_s3_bucket.idp_doc_capture.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.idp_doc_capture]
 }
 
 resource "aws_s3_bucket_versioning" "idp_doc_capture" {

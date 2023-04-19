@@ -7,10 +7,21 @@ resource "aws_s3_bucket" "legacy_log_bucket" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_ownership_controls" "legacy_log_bucket" {
+  count  = var.keep_legacy_bucket ? 1 : 0
+  bucket = aws_s3_bucket.legacy_log_bucket[count.index].id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "legacy_log_bucket" {
   count  = var.keep_legacy_bucket ? 1 : 0
   bucket = aws_s3_bucket.legacy_log_bucket[count.index].id
   acl    = "log-delivery-write"
+
+  depends_on = [aws_s3_bucket_ownership_controls.legacy_log_bucket]
 }
 
 resource "aws_s3_bucket_versioning" "legacy_log_bucket" {

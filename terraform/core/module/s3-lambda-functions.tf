@@ -2,9 +2,19 @@ resource "aws_s3_bucket" "lambda_functions" {
   bucket = "${local.bucket_name_prefix}.lambda-functions.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
+resource "aws_s3_bucket_ownership_controls" "lambda_functions" {
+  bucket = aws_s3_bucket.lambda_functions.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "lambda_functions" {
   bucket = aws_s3_bucket.lambda_functions.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.lambda_functions]
 }
 
 # Policy covering uploads to the lambda functions bucket

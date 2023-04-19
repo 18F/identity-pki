@@ -51,10 +51,21 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "transfer_utility_
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "transfer_utility" {
+  bucket = aws_s3_bucket.transfer_utility.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "transfer_utility_acl" {
   bucket = aws_s3_bucket.transfer_utility.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.transfer_utility]
 }
+
 
 resource "aws_s3_bucket_policy" "transfer_utility_policy" {
   bucket = aws_s3_bucket.transfer_utility.id

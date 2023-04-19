@@ -20,9 +20,19 @@ resource "aws_s3_bucket" "quarantine-ec2" {
   bucket = local.quarantine_s3_bucket_name
 }
 
+resource "aws_s3_bucket_ownership_controls" "quarantine-ec2" {
+  bucket = aws_s3_bucket.quarantine-ec2.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "quarantine-ec2" {
   bucket = aws_s3_bucket.quarantine-ec2.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.quarantine-ec2]
 }
 
 resource "aws_s3_bucket_versioning" "quarantine-ec2" {

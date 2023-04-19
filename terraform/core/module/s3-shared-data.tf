@@ -6,9 +6,19 @@ resource "aws_s3_bucket" "shared_data" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_ownership_controls" "shared_data" {
+  bucket = aws_s3_bucket.shared_data.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "shared_data" {
   bucket = aws_s3_bucket.shared_data.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.shared_data]
 }
 
 resource "aws_s3_bucket_policy" "shared_data" {

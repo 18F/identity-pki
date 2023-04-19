@@ -94,9 +94,19 @@ resource "aws_s3_bucket_versioning" "attempts_api" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "attempts_api" {
+  bucket = aws_s3_bucket.attempts_api.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_acl" "attempts_api" {
   bucket = aws_s3_bucket.attempts_api.id
   acl    = "private"
+
+  depends_on = [aws_s3_bucket_ownership_controls.attempts_api]
 }
 
 # <env>_idp_iam_role and <env>_worker_iam_role policy to access Attempts API S3 Bucket

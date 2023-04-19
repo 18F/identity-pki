@@ -17,12 +17,6 @@ resource "aws_s3_bucket_versioning" "partner_logos_bucket" {
   }
 }
 
-resource "aws_s3_bucket_acl" "partner_logos_bucket" {
-  count  = var.apps_enabled
-  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
-  acl    = "public-read"
-}
-
 resource "aws_s3_bucket_website_configuration" "partner_logos_bucket" {
   count  = var.apps_enabled
   bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
@@ -100,3 +94,24 @@ module "partner_logos_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
   block_public_access  = false
 }
+
+resource "aws_s3_bucket_ownership_controls" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "partner_logos_bucket" {
+  count  = var.apps_enabled
+  bucket = aws_s3_bucket.partner_logos_bucket[count.index].id
+  acl    = "public-read"
+
+  depends_on = [
+    aws_s3_bucket_ownership_controls.partner_logos_bucket,
+    module.partner_logos_bucket_config
+  ]
+}
+
