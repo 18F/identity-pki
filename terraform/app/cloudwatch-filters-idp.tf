@@ -376,6 +376,12 @@ locals {
       metric_value = "$.properties.event_properties.duration_seconds"
       dimensions   = {}
     },
+    idp_usps_proofing_results_job_completed_high_error_rate = {
+      name         = "usps-proofing-job-completed-percent-enrollments-errored"
+      pattern      = "{ ($.name = \"GetUspsProofingResultsJob: Job completed\") }"
+      metric_value = "$.properties.event_properties.percent_enrollments_errored"
+      dimensions   = {}
+    },
   }
 
   idp_external_service_filters = {

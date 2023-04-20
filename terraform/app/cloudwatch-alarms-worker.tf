@@ -250,6 +250,32 @@ EOM
   alarm_actions             = local.in_person_alarm_actions
 }
 
+# Send a slack notification if > 10 percent of enrollments have errored in a job of enrollments checked
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_job_completed_high_error_rate" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name          = "${var.env_name}-IDPUSPSProofingWorker-HighErrorRate"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  datapoints_to_alarm = "1"
+  metric_name         = "usps-proofing-job-completed-percent-enrollments-errored"
+  namespace           = "${var.env_name}/idp-in-person-proofing"
+  period              = "1800" # Every 30 minutes
+  statistic           = "Maximum"
+  threshold           = var.in_person_high_usps_proofing_job_error_rate
+
+  alarm_description = <<EOM
+More than 10% of enrollments processed by the USPS get proofing results job encountered errors.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+}
+
+
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {
   count = var.idp_worker_alarms_enabled

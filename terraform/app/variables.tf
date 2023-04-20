@@ -1306,6 +1306,12 @@ variable "long_usps_proofing_job_threshold" {
   default     = 1200 # 20 minutes
 }
 
+variable "in_person_high_usps_proofing_job_error_rate" {
+  description = "Maximum expected error rate for USPS proofing job"
+  type        = number
+  default     = 10 # 10 percent enrollments errored out of enrollments checked
+}
+
 variable "low_sp_oidc_token_enabled_sps" {
   description = "A mapping of client IDs and thresholds for OIDC token success per hour."
   type = map(object({
