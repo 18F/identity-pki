@@ -40,17 +40,10 @@ module "app_artifacts_bucket" {
   bucket_name         = local.bucket_name
   force_destroy       = true
   sse_algorithm       = "AES256"
+  object_ownership    = "BucketOwnerEnforced"
   policy = length(
     var.cross_account_archive_bucket_access
   ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account.json : ""
-}
-
-resource "aws_s3_bucket_ownership_controls" "artifacts_bucket" {
-  bucket = module.app_artifacts_bucket.bucket_name
-
-  rule {
-    object_ownership = "BucketOwnerEnforced"
-  }
 }
 
 output "app_artifacts_bucket" {

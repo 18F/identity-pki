@@ -45,3 +45,22 @@ variable "sse_algorithm" {
   default     = "aws:kms"
   description = "S3 Server-side Encryption Algorithm"
 }
+
+variable "object_ownership" {
+  description = <<EOM
+Object Ownership configuration for aws_s3_bucket_ownership_controls resource.
+Can be set to BucketOwnerPreferred, BucketOwnerEnforced, or ObjectWriter.
+EOM
+  type        = string
+  default     = "BucketOwnerPreferred"
+  validation {
+    condition = contains(
+      ["BucketOwnerPreferred", "BucketOwnerEnforced", "ObjectWriter"],
+      var.object_ownership
+    )
+    error_message = <<EOM
+Object Ownership configuration must be set to one of:
+BucketOwnerPreferred, BucketOwnerEnforced, or ObjectWriter.
+EOM
+  }
+}

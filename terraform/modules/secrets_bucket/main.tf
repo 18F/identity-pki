@@ -22,7 +22,7 @@ resource "aws_s3_bucket_ownership_controls" "secrets" {
   bucket = aws_s3_bucket.secrets.id
 
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = var.object_ownership
   }
 }
 
