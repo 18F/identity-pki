@@ -44,7 +44,7 @@ module "review_app" {
 
 # Add-ons
 module "kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.13.1"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.29.0"
 
   eks_cluster_id = module.review_app.eks_cluster_id
 
@@ -52,10 +52,10 @@ module "kubernetes_addons" {
   enable_amazon_eks_vpc_cni                      = true
   enable_amazon_eks_coredns                      = true
   enable_coredns_cluster_proportional_autoscaler = false
-  # enable_amazon_eks_kube_proxy                   = true
-  enable_argocd            = true
-  argocd_manage_add_ons    = true
-  enable_aws_for_fluentbit = true
+  enable_amazon_eks_kube_proxy                   = true
+  enable_argocd                                  = true
+  argocd_manage_add_ons                          = true
+  enable_aws_for_fluentbit                       = true
   # enable_aws_load_balancer_controller = true
   enable_cluster_autoscaler = true
   enable_external_dns       = true
@@ -68,6 +68,14 @@ module "kubernetes_addons" {
       repo_url        = "https://gitlab.login.gov/lg-public/identity-reviewapps.git"
       type            = "kustomize"
       target_revision = "main"
+    }
+
+    # Below are all magic add-ons that you can see how to configure here:
+    # https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/docs/add-ons
+    addons = {
+      path               = "chart"
+      repo_url           = "https://github.com/aws-samples/eks-blueprints-add-ons.git"
+      add_on_application = true # Indicates the root add-on application.
     }
   }
 }
