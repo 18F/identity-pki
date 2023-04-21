@@ -6,6 +6,8 @@ users:
     - bizops
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   alex.kritikos:
     ec2_username:
     - akrito
@@ -19,11 +21,15 @@ users:
     - devops
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   alexander.bradley:
     aws_groups:
     - apponcall
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     ec2_username:
     - theabrad
   amir.reavis-bey:
@@ -33,6 +39,8 @@ users:
     - amir.reavis-bey
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   amy.walraven:
     aws_groups:
     - fraudops
@@ -40,6 +48,8 @@ users:
     - awalraven
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   andrew.duthie:
     aws_groups:
     - apponcall
@@ -47,11 +57,15 @@ users:
     - aduth
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   andrew.hsieh:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   anthony.barbara:
     aws_groups:
     - secopsnonprod
@@ -59,11 +73,15 @@ users:
     - abarbara
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   benjamin.chait:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
     git_username:
     - benjaminchait
     email:
@@ -73,6 +91,8 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   chris.manger:
     aws_groups:
     - finops
@@ -81,6 +101,8 @@ users:
     - devops
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
     git_username:
     - ConnorPMcCarthy
     ec2_username:
@@ -90,11 +112,15 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   david.dsilva:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
     git_username:
     - daviddsilvanava
     email:
@@ -106,11 +132,15 @@ users:
     - sgtpluck
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   devin.fensterheim:
     aws_groups:
     - analytics
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   devon.johnson:
     aws_groups:
     - supporteng
@@ -118,6 +148,8 @@ users:
     - djohnson
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   diondra.humphries:
     aws_groups:
     - bizops
@@ -126,6 +158,8 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   douglas.price:
     aws_groups:
     - apponcall
@@ -134,6 +168,8 @@ users:
     - solipet
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   eileen.mcfarland:
     aws_groups:
     - apponcall
@@ -141,11 +177,15 @@ users:
     - emcfarland
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   elizabeth.manning:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
     git_username:
     - lizzieamanning
     email:
@@ -155,6 +195,8 @@ users:
     - secopsnonprod
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   eric.gade:
     aws_groups:
     - appdev
@@ -162,11 +204,15 @@ users:
     - egade
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   ero.gray:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   fred.agyepongyeboah:
     aws_groups:
     - soc
@@ -177,16 +223,22 @@ users:
     - gyamada
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   goutham.kommanaboyina:
     aws_groups:
     - analytics
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   harlan.weber:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   henry.richardson:
     aws_groups:
     - devops
@@ -194,9 +246,13 @@ users:
     - henrydrich
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   ifeoma.elekwachi:
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   jack.cody:
     aws_groups:
     - apponcall
@@ -204,6 +260,8 @@ users:
     - jcody
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   jack.ryan:
     aws_groups:
     - appdev
@@ -211,16 +269,22 @@ users:
     - jryan
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   jeff.bordogna:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   jeffrey.holden:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   jeffrey.mcmillan:
     aws_groups:
     - analytics
@@ -229,17 +293,23 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   jenniffier.bieberbach:
     aws_groups:
     - secopsnonprod
     - analytics
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   jeremy.curcio:
     aws_groups:
     - appdev
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     ec2_username:
     - jcurcio
   jessica.dembe:
@@ -249,19 +319,27 @@ users:
     - jmdembe
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   jia.gu:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   jillian.harrigan:
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
     aws_groups:
     - fraudops
   jim.pham:
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   john.maxwell:
     aws_groups:
     - appdev
@@ -269,6 +347,8 @@ users:
     - jmax
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   john.skinner:
     aws_groups:
     - appdev
@@ -276,6 +356,8 @@ users:
     - jskinner
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   jonathan.hooper:
     aws_groups:
     - apponcall
@@ -286,6 +368,8 @@ users:
     gitlab_groups:
     - appdev
     - devops
+    - lg-all
+    - lg-public
   jonathan.pirro:
     aws_groups:
     - devops
@@ -294,14 +378,20 @@ users:
     - bleachbyte
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
     git_username:
     - bleachbyte
   jude.uwazie:
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   julia.elman:
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   julia.l.allen:
     aws_groups:
     - apponcall
@@ -309,6 +399,8 @@ users:
     - jlallen
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   justin.grevich:
     aws_groups:
     - devops
@@ -317,6 +409,8 @@ users:
     - jgrevich
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   keith.wertsching:
     aws_groups:
     - analytics
@@ -325,11 +419,15 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   ken.kato:
     aws_groups:
     - devopsnonprod
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
     git_username:
     - kenk667
     email:
@@ -339,6 +437,8 @@ users:
     - analytics
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   kimball.bighorse:
     aws_groups:
     - appdev
@@ -346,11 +446,15 @@ users:
     - kbighorse
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   leanna.miller:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   louise.hoffman:
     aws_groups:
     - fraudops
@@ -358,6 +462,8 @@ users:
     - lhoffman
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   luis.matos:
     aws_groups:
     - appdev
@@ -365,6 +471,8 @@ users:
     - lmatos
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   malick.diarra:
     aws_groups:
     - apponcall
@@ -372,11 +480,15 @@ users:
     - mdiarra
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   matt.gardner:
     aws_groups:
     - appdev
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     ec2_username:
     - mgardner
   matt.hinz:
@@ -386,6 +498,8 @@ users:
     - mhinz
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   matthew.wagner:
     aws_groups:
     - appdev
@@ -393,11 +507,15 @@ users:
     - mwagner
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   micah.neveu:
     aws_groups:
     - appdev
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     ec2_username:
     - mneveu
   micah.saul:
@@ -405,6 +523,8 @@ users:
     - appdev
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   michael.ambroselli:
     aws_groups:
     - apponcall
@@ -412,6 +532,8 @@ users:
     - magsa
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   michael.fay:
     aws_groups:
     - finops
@@ -422,6 +544,8 @@ users:
     - mww59
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
     git_username:
     - mww59
     email:
@@ -435,6 +559,8 @@ users:
     gitlab_groups:
     - appdev
     - devops
+    - lg-all
+    - lg-public
   mossadeq.zia:
     aws_groups:
     - devops
@@ -446,6 +572,8 @@ users:
     - mzia
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   nadya.primak:
     aws_groups:
     - apponcall
@@ -453,6 +581,8 @@ users:
     - nprimak
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   nathan.wick:
     aws_groups:
     - bizops
@@ -463,11 +593,15 @@ users:
     - nwilley
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   olayemisi.ogunshina:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   osman.latif:
     aws_groups:
     - appdev
@@ -475,6 +609,8 @@ users:
     - olatif
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   patricia.bryan:
     aws_groups:
     - bizops
@@ -489,6 +625,8 @@ users:
     - pauldoom
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
     git_username:
     - pauldoomgov
     email:
@@ -496,11 +634,15 @@ users:
   philip.burke:
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   princess.ojiaku:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   project_21_bot:
     name:
     - Github CI
@@ -513,6 +655,8 @@ users:
     - analytics
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   rebecca.wright:
     aws_groups:
     - fraudops
@@ -520,6 +664,8 @@ users:
     - rwright
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   russel.ngamboassongmo:
     aws_groups:
     - supporteng
@@ -527,6 +673,8 @@ users:
     - nassongmo
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   ryan.d.brown:
     aws_groups:
     - devops
@@ -534,6 +682,8 @@ users:
     - ryandbrown
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   ryan.orear:
     aws_groups:
     - fraudops
@@ -541,9 +691,13 @@ users:
     - rorear
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   sean.porter:
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   shannon.alexander-navarro:
     aws_groups:
     - appdev
@@ -551,11 +705,15 @@ users:
     - svalexander
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   sheldon.bachstein:
     aws_groups:
     - apponcall
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     git_username:
     - sheldon-b
     email:
@@ -570,6 +728,8 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     ec2_username:
     - sconnolly
   stacey.mainero:
@@ -579,6 +739,8 @@ users:
     - smainero
     gitlab_groups:
     - antifraud
+    - lg-all
+    - lg-public
   stephen.shelton:
     aws_groups:
     - devops
@@ -586,6 +748,8 @@ users:
     - sshelton
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   sujana.gurung:
     aws_groups:
     - devops
@@ -593,16 +757,22 @@ users:
     - sujana09
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   sumi.thaiveettil:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   thomas.apodaca:
     aws_groups:
     - appdev
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
     git_username:
     - tomas-nava
     email:
@@ -617,6 +787,8 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
   timothy.bradley:
     aws_groups:
     - apponcall
@@ -624,6 +796,8 @@ users:
     - tbradley
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   timothy.spencer:
     aws_groups:
     - devops
@@ -632,6 +806,8 @@ users:
     - tspencer
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   vivek.chugh:
     aws_groups:
     - devops
@@ -639,6 +815,8 @@ users:
     - vivek
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
   zach.margolis:
     ec2_username:
     - zmargolis
@@ -648,6 +826,8 @@ users:
     - apponcall
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
   root:
     # Note: Gitlab Machine User - don't specify aws_groups for these
     email:
