@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//kms_log?ref=e905c9031b8469160991214f58a56608fc9b42c6"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -20,7 +20,7 @@ module "kms_logging" {
 }
 
 module "kms_keymaker_uw2" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//kms_keymaker?ref=e905c9031b8469160991214f58a56608fc9b42c6"
   #source = "../../../identity-terraform/kms_keymaker"
 
   env_name      = var.env_name
@@ -28,8 +28,9 @@ module "kms_keymaker_uw2" {
   sqs_queue_arn = module.kms_logging.kms-ct-events-queue
 }
 
+# this key is being supersceded by the multi-region keys below
 module "kms_keymaker_ue1" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//kms_keymaker?ref=e905c9031b8469160991214f58a56608fc9b42c6"
   #source = "../../../identity-terraform/kms_keymaker"
   providers = {
     aws = aws.use1
@@ -38,4 +39,26 @@ module "kms_keymaker_ue1" {
   env_name      = var.env_name
   ec2_kms_arns  = local.kms_arns
   sqs_queue_arn = module.kms_logging.kms-ct-events-queue
+}
+
+module "kms_keymaker_multiregion_primary_uw2" {
+  source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_primary?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  #source = "../../../identity-terraform/kms_keymaker_multiregion_primary"
+
+  env_name      = var.env_name
+  ec2_kms_arns  = local.kms_arns
+  sqs_queue_arn = module.kms_logging.kms-ct-events-queue
+}
+
+module "kms_keymaker_multiregion_replica_ue1" {
+  source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_replica?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  #source = "../../../identity-terraform/kms_keymaker_multiregion_replica"
+  providers = {
+    aws = aws.use1
+  }
+
+  env_name        = var.env_name
+  ec2_kms_arns    = local.kms_arns
+  sqs_queue_arn   = module.kms_logging.kms-ct-events-queue
+  primary_key_arn = module.kms_keymaker_multiregion_primary_uw2.multi_region_primary_key_arn
 }
