@@ -27,23 +27,36 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
     ]
   }
 
+  #tfsec:ignore:aws-iam-no-policy-wildcards
   statement {
-    sid    = "AllowEC2Access"
     effect = "Allow"
     actions = [
-      "ec2:DeleteSnapshot",
-      "ec2:DeregisterImage",
       "ec2:DescribeImages",
       "ec2:DescribeImageAttribute",
-      "ec2:DescribeInstances",
+      "ec2:DescribeInstances"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:DeleteSnapshot"
     ]
     resources = [
-      "arn:aws:ec2:*::image/*",
-      "arn:aws:ec2:*::snapshot/*",
-      "arn:aws:ec2:*:*:instance/*",
+      "arn:aws:ec2:*::snapshot/*"
     ]
   }
 
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:DeregisterImage"
+    ]
+    resources = [
+      "arn:aws:ec2:*::image/*"
+    ]
+  }
 }
 
 resource "aws_iam_role" "lambda_ami_cleanup" {
