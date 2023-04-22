@@ -454,22 +454,28 @@ func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 }
 
 func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
-	gitUsers, _, err := gitc.ListUsers(
-		&gitlab.ListUsersOptions{
-			ListOptions: gitlab.ListOptions{
-				PerPage: 100,
-			},
-			ExcludeInternal: func() *bool { b := true; return &b }(),
+	existingUsers := make(map[string]*gitlab.User)
+	opt := 		&gitlab.ListUsersOptions{
+		ListOptions: gitlab.ListOptions{
+			PerPage: 100,
 		},
-	)
-	if err != nil {
-		return nil, err
+		ExcludeInternal: func() *bool { b := true; return &b }(),
 	}
 
-	existingUsers := make(map[string]*gitlab.User)
-	for _, u := range gitUsers {
-		existingUsers[u.Username] = u
-		cache.Users[u.Username] = u
+	for {
+		gitUsers, resp, err := gitc.ListUsers(opt)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, u := range gitUsers {
+			existingUsers[u.Username] = u
+			cache.Users[u.Username] = u
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
 	}
 
 	return existingUsers, nil
@@ -792,16 +798,23 @@ func populateGitLabCache(gitc GitlabClientIface) error {
 }
 
 func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.GroupMember, error) {
-	members, _, err := gitc.ListGroupMembers(
-		group.ID,
-		&gitlab.ListGroupMembersOptions{
-			ListOptions: gitlab.ListOptions{
-				PerPage: 100,
-			},
+	members := []*gitlab.GroupMember{}
+	opt := &gitlab.ListGroupMembersOptions{
+		ListOptions: gitlab.ListOptions{
+			PerPage: 100,
 		},
-	)
-	if err != nil {
-		return nil, err
+	}
+	for {
+		ms, resp, err := gitc.ListGroupMembers(group.ID, opt)
+		if err != nil {
+			return nil, err
+		}
+		for _, m := range ms {
+			members = append(members, m)
+		}
+		if resp.NextPage == 0 {
+			break
+		}
 	}
 
 	return members, nil

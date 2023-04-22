@@ -272,14 +272,37 @@ func TestGitlabCache(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockClient := mocks.NewMockGitlabClientIface(mockCtrl)
+	// Test pagination. It's OK if a page has 0 entries.
 	mockClient.EXPECT().ListUsers(
 		&gitlab.ListUsersOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
 			},
 			ExcludeInternal: gitlab.Bool(true),
-		},
-	)
+		}).
+		Return(
+			[]*gitlab.User{},
+			&gitlab.Response{
+				NextPage: 2,
+			},
+			nil,
+		)
+	mockClient.EXPECT().ListUsers(
+		&gitlab.ListUsersOptions{
+			ListOptions: gitlab.ListOptions{
+				PerPage: 100,
+				Page: 2,
+			},
+			ExcludeInternal: gitlab.Bool(true),
+		}).
+		Return(
+			[]*gitlab.User{},
+			&gitlab.Response{
+				NextPage: 0,
+			},
+			nil,
+		)
+
 	mockClient.
 		EXPECT().
 		ListGroups(
@@ -302,6 +325,7 @@ func TestGitlabCache(t *testing.T) {
 			},
 		},
 	)
+	// Test pagination. Empty pages are OK. 
 	mockClient.EXPECT().
 		ListGroupMembers(
 			1,
@@ -310,7 +334,31 @@ func TestGitlabCache(t *testing.T) {
 					PerPage: 100,
 				},
 			},
+		).
+		Return(
+			[]*gitlab.GroupMember{},
+			&gitlab.Response{
+				NextPage: 2,
+			},
+			nil,
 		)
+	mockClient.EXPECT().
+		ListGroupMembers(
+			1,
+			&gitlab.ListGroupMembersOptions{
+				ListOptions: gitlab.ListOptions{
+					PerPage: 100,
+				},
+			},
+		).
+		Return(
+			[]*gitlab.GroupMember{},
+			&gitlab.Response{
+				NextPage: 0,
+			},
+			nil,
+		)
+	
 	populateGitLabCache(mockClient)
 }
 
