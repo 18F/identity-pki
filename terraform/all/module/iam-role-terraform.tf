@@ -375,6 +375,8 @@ locals {
           "kms:ListAliases",
           "kms:ListResourceTags",
           "kms:PutKeyPolicy",
+          "kms:ReplicateKey",
+          "kms:UpdatePrimaryRegion",
           "kms:ScheduleKeyDeletion",
           "kms:Sign",
           "kms:TagResource",
