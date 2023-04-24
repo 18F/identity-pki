@@ -34,11 +34,11 @@ users:
     - theabrad
   amir.reavis-bey:
     aws_groups:
-    - devopsnonprod
+    - appdev
     ec2_username:
     - amir.reavis-bey
     gitlab_groups:
-    - devops
+    - appdev
     - lg-all
     - lg-public
   amy.walraven:
@@ -132,13 +132,6 @@ users:
     - sgtpluck
     gitlab_groups:
     - appdev
-    - lg-all
-    - lg-public
-  devin.fensterheim:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - antifraud
     - lg-all
     - lg-public
   devon.johnson:
@@ -392,15 +385,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  julia.l.allen:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - jlallen
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   justin.grevich:
     aws_groups:
     - devops
@@ -421,17 +405,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  ken.kato:
-    aws_groups:
-    - devopsnonprod
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
-    git_username:
-    - kenk667
-    email:
-    - ken.kato@gsa.gov
   kevin.peoples:
     aws_groups:
     - analytics
@@ -720,6 +693,9 @@ users:
     - sheldon.bachstein@gsa.gov
     ec2_username:
     - sbachstein
+  shqiponja.hoxhaocumarez:
+    aws_groups:
+    - analytics
   sierra.toler:
     aws_groups:
     - bizops
