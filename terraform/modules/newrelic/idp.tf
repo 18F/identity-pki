@@ -287,7 +287,7 @@ resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
 
   critical {
     operator              = "above"
-    threshold             = 5
+    threshold             = var.proofing_pageview_duration_alert_threshold
     threshold_duration    = 60
     threshold_occurrences = "at_least_once"
   }

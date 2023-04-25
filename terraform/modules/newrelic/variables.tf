@@ -139,6 +139,10 @@ variable "low_memory_alert_enabled" {
   default     = 0
 }
 
+variable "proofing_pageview_duration_alert_threshold" {
+  description = "If pageviews in proofing are too slow, we alert"
+}
+
 variable "alert_slack_channel_in_person" {
   description = "the default slack channel for in-person proofing alerts"
   default     = "#login-in-person-proofing-events"
