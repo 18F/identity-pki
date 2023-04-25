@@ -127,7 +127,7 @@ users:
     - david.dsilva@gsa.gov
   davida.marion:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - sgtpluck
     gitlab_groups:
