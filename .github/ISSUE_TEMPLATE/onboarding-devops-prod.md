@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-### Before granting production access, [TEAM_MEMBER] ***must***:
+### Before granting production access, the team member ***must***:
 
 - [ ] Have a FIPS YubiKey
 - [ ] Be using a GFE laptop
-- [ ] Have completed mandatory GSA Cybersecurity Training
+- [ ] Have completed "YYYY IT Security & Privacy Awareness Training" in OLU (Mandatory GSA Cybersecurity Training)
 
 <!-- Not all items below will be applicable to every team-member. -->
 <!-- Please remove any items that don't apply before submitting this issue. -->
