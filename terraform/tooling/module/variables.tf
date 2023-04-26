@@ -94,3 +94,23 @@ variable "events_sns_topic" {
   description = "name of the sns topic to send events to"
   default     = "slack-otherevents"
 }
+
+variable "privileged_cidr_blocks_v4" {
+  type        = list(string)
+  description = <<EOM
+List of additional IPv4 CIDR blocks that should be allowed access 
+through the WAFv2 web ACL(s) to restricted endpoints.
+EOM
+  default = [
+    "159.142.0.0/16", # GSA VPN IPs
+  ]
+}
+
+variable "privileged_cidr_blocks_v6" {
+  type        = list(string)
+  description = <<EOM
+List of additional IPv6 CIDR blocks that should be allowed access
+through the WAFv2 web ACL(s) to restricted endpoints.
+EOM
+  default     = []
+}

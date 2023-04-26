@@ -1,9 +1,20 @@
 locals {
-  s3_inventory_bucket_arn = "arn:${data.aws_partition.current.partition}:s3:::login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
+  s3_inventory_bucket_arn = join(".", [
+    "arn:aws:s3:::login-gov.s3-inventory",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+  waf_bucket = join(".", [
+    "login-gov.${local.web_acl_name}-logs",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+  access_logs_bucket = join(".", [
+    "login-gov.s3-access-logs",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
 }
 
 resource "aws_s3_bucket" "waf_logs" {
-  bucket = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket = local.waf_bucket
   tags = {
     environment = var.env
   }
@@ -11,7 +22,6 @@ resource "aws_s3_bucket" "waf_logs" {
 
 resource "aws_s3_bucket_versioning" "waf_logs" {
   bucket = aws_s3_bucket.waf_logs.id
-
   versioning_configuration {
     status = "Enabled"
   }
@@ -34,7 +44,6 @@ resource "aws_s3_bucket_acl" "waf_logs" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "waf_logs" {
   bucket = aws_s3_bucket.waf_logs.id
-
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "aws:kms"
@@ -43,10 +52,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "waf_logs" {
 }
 
 resource "aws_s3_bucket_logging" "waf_logs" {
-  bucket = aws_s3_bucket.waf_logs.id
-
-  target_bucket = "login-gov.s3-access-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-  target_prefix = "login-gov.${local.web_acl_name}-logs.${data.aws_caller_identity.current.account_id}-${var.region}/"
+  bucket        = aws_s3_bucket.waf_logs.id
+  target_bucket = local.access_logs_bucket
+  target_prefix = "${local.waf_bucket}/"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "waf_logs" {
@@ -84,7 +92,7 @@ module "waf_log_bucket_config" {
 
 
 resource "aws_cloudwatch_log_group" "cw_waf_logs" {
-  name              = "aws-waf-logs-${local.web_acl_name}" #stream name must start with "aws-waf-logs"
+  name              = "aws-waf-logs-${local.web_acl_name}" # must start w/ "aws-waf-logs"
   retention_in_days = 365
 }
 

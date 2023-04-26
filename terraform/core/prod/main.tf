@@ -172,6 +172,16 @@ module "main" {
   mta_sts_report_mailboxes  = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode              = "enforce"
   lambda_audit_github_debug = 0
+
+  ##### WAF #####
+
+  # Uncomment to use header_block_regex filter
+  #header_block_regex = yamldecode(file("header_block_regex.yml"))
+
+  # commenting this out to free up one of our 10(!) available
+  # per-account per-region regex pattern sets
+  #query_block_regex  = ["ExampleStringToBlock"]
+
 }
 
 module "macie-bucket-scans-prod" {

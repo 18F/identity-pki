@@ -1,17 +1,9 @@
 locals {
+  tf_acct      = trimprefix(data.aws_iam_account_alias.current.account_alias, "login-")
+  web_acl_name = var.lb_name != "" ? "${var.lb_name}-waf" : "${var.env}-${var.app}-waf"
   rule_settings = {
     override_action = var.enforce ? "none" : "count"
   }
-}
-
-data "aws_lb" "alb" {
-  count = var.wafv2_web_acl_scope == "REGIONAL" ? 1 : 0
-  name  = var.lb_name != "" ? var.lb_name : "login-idp-alb-${var.env}"
-}
-
-moved {
-  from = aws_wafv2_web_acl.idp
-  to   = aws_wafv2_web_acl.alb
 }
 
 resource "aws_wafv2_web_acl" "alb" {
@@ -72,7 +64,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   # Only these first 2 rules have the 'allow' action, short-circuiting the other rules.
   dynamic "rule" {
-    for_each = length(aws_wafv2_ip_set.privileged_ips) > 0 ? [1] : []
+    for_each = length(data.aws_wafv2_ip_set.acl["privileged_ips_v4"]) > 0 ? [1] : []
     content {
       name     = "AllowPrivilegedIPs"
       priority = 50
@@ -84,20 +76,20 @@ resource "aws_wafv2_web_acl" "alb" {
           # Support matching in case of direct access or through CDN
           statement {
             ip_set_reference_statement {
-              arn = aws_wafv2_ip_set.privileged_ips[0].arn
+              arn = data.aws_wafv2_ip_set.acl["privileged_ips_v4"].arn
             }
           }
           dynamic "statement" {
-            for_each = length(aws_wafv2_ip_set.privileged_ips_v6) > 0 ? [1] : []
+            for_each = length(data.aws_wafv2_ip_set.acl["privileged_ips_v6"]) > 0 ? [1] : []
             content {
               ip_set_reference_statement {
-                arn = aws_wafv2_ip_set.privileged_ips_v6[0].arn
+                arn = data.aws_wafv2_ip_set.acl["privileged_ips_v6"].arn
               }
             }
           }
           statement {
             ip_set_reference_statement {
-              arn = aws_wafv2_ip_set.privileged_ips[0].arn
+              arn = data.aws_wafv2_ip_set.acl["privileged_ips_v4"].arn
               ip_set_forwarded_ip_config {
                 header_name       = "X-Forwarded-For"
                 position          = "FIRST"
@@ -106,10 +98,10 @@ resource "aws_wafv2_web_acl" "alb" {
             }
           }
           dynamic "statement" {
-            for_each = length(aws_wafv2_ip_set.privileged_ips_v6) > 0 ? [1] : []
+            for_each = length(data.aws_wafv2_ip_set.acl["privileged_ips_v6"]) > 0 ? [1] : []
             content {
               ip_set_reference_statement {
-                arn = aws_wafv2_ip_set.privileged_ips_v6[0].arn
+                arn = data.aws_wafv2_ip_set.acl["privileged_ips_v6"].arn
                 ip_set_forwarded_ip_config {
                   header_name       = "X-Forwarded-For"
                   position          = "FIRST"
@@ -129,7 +121,7 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
-    for_each = length(var.restricted_paths.paths) > 0 ? [1] : []
+    for_each = length(data.aws_wafv2_regex_pattern_set.app["restricted_paths"]) > 0 ? [1] : []
     content {
       name     = "IdpBlockPaths"
       priority = 55
@@ -146,15 +138,16 @@ resource "aws_wafv2_web_acl" "alb" {
       }
       statement {
         dynamic "and_statement" {
-          # Only combine the resticted path AND the exclusion path patterns if both
-          # are present
+          # Only combine the resticted path AND the exclusion path patterns
+          # if both are present
+          # MUST match same variable in terraform/core or terraform/gitlab!
           for_each = length(var.restricted_paths.exclusions) > 0 ? [1] : []
           content {
             statement {
               not_statement {
                 statement {
                   regex_pattern_set_reference_statement {
-                    arn = aws_wafv2_regex_pattern_set.restricted_paths_exclusions[0].arn
+                    arn = data.aws_wafv2_regex_pattern_set.app["restricted_paths_exclusions"].arn
                     field_to_match {
                       uri_path {}
                     }
@@ -168,7 +161,7 @@ resource "aws_wafv2_web_acl" "alb" {
             }
             statement {
               regex_pattern_set_reference_statement {
-                arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+                arn = data.aws_wafv2_regex_pattern_set.app["restricted_paths"].arn
                 field_to_match {
                   uri_path {}
                 }
@@ -182,9 +175,10 @@ resource "aws_wafv2_web_acl" "alb" {
         }
         dynamic "regex_pattern_set_reference_statement" {
           # No AND needed if only a restricted path pattern is set
+          # MUST match same variable in terraform/core or terraform/gitlab!
           for_each = length(var.restricted_paths.exclusions) > 0 ? [] : [1]
           content {
-            arn = aws_wafv2_regex_pattern_set.restricted_paths[0].arn
+            arn = data.aws_wafv2_regex_pattern_set.app["restricted_paths"].arn
             field_to_match {
               uri_path {}
             }
@@ -213,7 +207,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
     statement {
       regex_pattern_set_reference_statement {
-        arn = aws_wafv2_regex_pattern_set.limit_exempt_paths.arn
+        arn = data.aws_wafv2_regex_pattern_set.acct["limit_exempt_paths"].arn
 
         field_to_match {
           uri_path {}
@@ -234,7 +228,7 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
-    for_each = length(aws_wafv2_ip_set.block_list.arn) > 0 ? [1] : []
+    for_each = length(data.aws_wafv2_ip_set.acl["block_list_v4"].arn) > 0 ? [1] : []
     content {
       name     = "IdpBlockIpAddresses"
       priority = 100
@@ -253,20 +247,20 @@ resource "aws_wafv2_web_acl" "alb" {
           # Support matching in case of direct access or through CDN
           statement {
             ip_set_reference_statement {
-              arn = aws_wafv2_ip_set.block_list.arn
+              arn = data.aws_wafv2_ip_set.acl["block_list_v4"].arn
             }
           }
           dynamic "statement" {
-            for_each = length(aws_wafv2_ip_set.block_list_v6) > 0 ? [1] : []
+            for_each = length(data.aws_wafv2_ip_set.acl["block_list_v6"]) > 0 ? [1] : []
             content {
               ip_set_reference_statement {
-                arn = aws_wafv2_ip_set.block_list_v6[0].arn
+                arn = data.aws_wafv2_ip_set.acl["block_list_v6"].arn
               }
             }
           }
           statement {
             ip_set_reference_statement {
-              arn = aws_wafv2_ip_set.block_list.arn
+              arn = data.aws_wafv2_ip_set.acl["block_list_v4"].arn
               ip_set_forwarded_ip_config {
                 header_name       = "X-Forwarded-For"
                 position          = "FIRST"
@@ -275,10 +269,10 @@ resource "aws_wafv2_web_acl" "alb" {
             }
           }
           dynamic "statement" {
-            for_each = length(aws_wafv2_ip_set.block_list_v6) > 0 ? [1] : []
+            for_each = length(data.aws_wafv2_ip_set.acl["block_list_v6"]) > 0 ? [1] : []
             content {
               ip_set_reference_statement {
-                arn = aws_wafv2_ip_set.block_list_v6[0].arn
+                arn = data.aws_wafv2_ip_set.acl["block_list_v6"].arn
                 ip_set_forwarded_ip_config {
                   header_name       = "X-Forwarded-For"
                   position          = "FIRST"
@@ -523,7 +517,7 @@ resource "aws_wafv2_web_acl" "alb" {
           not_statement {
             statement {
               regex_pattern_set_reference_statement {
-                arn = aws_wafv2_regex_pattern_set.relaxed_uri_paths.arn
+                arn = data.aws_wafv2_regex_pattern_set.acct["relaxed_uri_paths"].arn
 
                 field_to_match {
                   uri_path {}
@@ -629,6 +623,7 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
+    # MUST match var.header_block_regex in terraform/core or terraform/gitlab!
     for_each = length(var.header_block_regex) >= 1 ? [1] : []
     content {
       name     = "IdpHeaderRegexBlock"
@@ -651,7 +646,7 @@ resource "aws_wafv2_web_acl" "alb" {
             for_each = var.header_block_regex
             content {
               regex_pattern_set_reference_statement {
-                arn = aws_wafv2_regex_pattern_set.header_blocks[statement.key].arn
+                arn = data.aws_wafv2_regex_pattern_set.header_blocks[statement.key].arn
 
                 field_to_match {
                   single_header {
@@ -677,6 +672,7 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
+    # MUST match var.query_block_regex in terraform/core or terraform/gitlab!
     for_each = length(var.query_block_regex) >= 1 ? [1] : []
     content {
       name     = "IdpQueryRegexBlock"
@@ -695,7 +691,7 @@ resource "aws_wafv2_web_acl" "alb" {
       }
       statement {
         regex_pattern_set_reference_statement {
-          arn = aws_wafv2_regex_pattern_set.query_string_blocks[0].arn
+          arn = data.aws_wafv2_regex_pattern_set.app["query_string_blocks"].arn
 
           text_transformation {
             priority = 2
@@ -948,21 +944,11 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 }
 
-moved {
-  from = aws_wafv2_web_acl_logging_configuration.idp
-  to   = aws_wafv2_web_acl_logging_configuration.alb
-}
-
 resource "aws_wafv2_web_acl_logging_configuration" "alb" {
   log_destination_configs = [
     aws_cloudwatch_log_group.cw_waf_logs.arn
   ]
   resource_arn = aws_wafv2_web_acl.alb.arn
-}
-
-moved {
-  from = aws_wafv2_web_acl_association.idp
-  to   = aws_wafv2_web_acl_association.alb
 }
 
 resource "aws_wafv2_web_acl_association" "alb" {

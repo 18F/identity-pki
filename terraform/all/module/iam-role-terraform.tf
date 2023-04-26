@@ -881,6 +881,8 @@ locals {
           "wafv2:GetRegexPatternSet",
           "wafv2:GetWebACL",
           "wafv2:GetWebACLForResource",
+          "wafv2:ListIPSets",
+          "wafv2:ListRegexPatternSets",
           "wafv2:ListTagsForResource",
           "wafv2:ListWebACLs",
           "wafv2:PutLoggingConfiguration",

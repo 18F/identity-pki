@@ -9,11 +9,6 @@ terraform {
   }
 }
 
-module "waf_data" {
-  source   = "../../modules/waf_data_idp"
-  vpc_name = "login-vpc-int"
-}
-
 module "main" {
   source = "../module"
 
@@ -23,20 +18,11 @@ module "main" {
   enforce_waf_captcha   = false
   enforce_waf_challenge = false
   enforce_rate_limit    = true
-
-  # Uncomment to use header_block_regex filter
-  #header_block_regex = yamldecode(file("header_block_regex.yml"))
-
-  # commenting this out to free up one of our 10(!) available
-  # per-account per-region regex pattern sets
-  #query_block_regex  = ["ExampleStringToBlock"]
+  geo_allow_list        = [] # allow all countries in app WAFv2
 
   waf_alert_actions  = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
   ddos_alert_actions = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
 
-  restricted_paths    = module.waf_data.restricted_paths
-  privileged_cidrs_v4 = flatten([module.waf_data.privileged_cidrs_v4])
-  privileged_cidrs_v6 = module.waf_data.privileged_cidrs_v6
   aws_shield_resources = {
     cloudfront = [
       "arn:aws:cloudfront::894947205914:distribution/E1A8CHVMW6MJUO",
@@ -69,9 +55,6 @@ module "cloudfront-waf" {
   enforce             = true
   soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
   enforce_rate_limit  = true
-
-  # Uncomment to use header_block_regex filter
-  #header_block_regex = yamldecode(file("header_block_regex.yml"))
 
   waf_alert_actions = ["arn:aws:sns:us-east-1:894947205914:slack-otherevents"]
 }

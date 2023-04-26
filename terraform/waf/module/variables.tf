@@ -1,8 +1,5 @@
-locals {
-  web_acl_name = var.lb_name != "" ? "${var.lb_name}-waf" : "${var.env}-idp-waf"
-}
-
 variable "region" {
+  type        = string
   description = "AWS Region"
   default     = "us-west-2"
 }
@@ -12,11 +9,16 @@ variable "fisma_tag" {
 }
 
 variable "env" {
+  type        = string
   description = "Environment name"
 }
 
 variable "app" {
-  description = "Application name like idp or gitlab"
+  type        = string
+  description = <<EOM
+Name of the application (currently 'idp' or 'gitlab') using Load Balancers
+that WAFv2 ACL(s) will be associated with. Used for naming web ACL configs.
+EOM
   default     = "idp"
 }
 
@@ -46,7 +48,8 @@ variable "enforce_waf_challenge" {
   default     = false
 }
 
-# description of rules in bot control rule set: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html
+# description of rules in bot control rule set:
+# https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-bot.html
 variable "bot_control_exclusions" {
   description = <<EOM
 List of rules to /exclude/ for AWSManagedRulesBotControlRuleSet.
@@ -146,28 +149,6 @@ variable "otp_send_rate_limit_per_ip" {
   default     = 100
 }
 
-variable "ip_block_cidrs_v4" {
-  description = "IPv4 addresses with CIDR mask to block"
-  type        = list(string)
-  # !!! REMEMBER THE CIDR MASK!  For a single IPv4 IP just add /32 at the end.
-  default = [
-    #"44.230.151.136/32", # DO NOT ADD!  This is our Nessus scanner and it will scan, as scanners do!
-    "35.164.226.34/32",   # 2022-11-25 - Noisy scanner blocked per GSA IR
-    "45.156.25.223/32",   # 2022-04-29 - Log4j scanner blocked per-GSA IR
-    "141.170.198.141/32", # 2022-05-10 - Noisy scanner from BA generating some 502s
-    "103.114.162.12/32",  # 2022-06-03 - Singapore 502ing with app requests
-    "185.170.235.237/32"  # 2023-04-12 - Cyprus DDoS / feroxbuster-2.9.1
-  ]
-}
-
-variable "ip_block_cidrs_v6" {
-  description = "IPv6 addresses with CIDR mask to block"
-  type        = list(string)
-  # !!! REMEMBER THE CIDR MASK!  For a single IPv6 IP just add /128 at the end.
-  default = [
-  ]
-}
-
 variable "geo_block_list" {
   description = "Geographic Regions to block"
   type        = list(string)
@@ -180,44 +161,40 @@ variable "geo_us_regions" {
   default     = ["US", "AS", "GU", "MP", "PR", "UM", "VI"]
 }
 
-variable "relaxed_uri_paths" {
-  description = "Map of regexes matching paths to use less strict protections on"
-  # Use these sparingly for paths accepting files/other content that triggers
-  # false positives but has a low risk of being exploited.  Document additions!
-  type = map(string)
-  default = {
-    "docauth_image_upload"    = "^/api/verify/images"         # https://github.com/18F/identity-devops/issues/4092
-    "login_form"              = "^/([a-z]{2}/)?$"             # https://github.com/18F/identity-devops/issues/4563
-    "password_screening_flow" = "^/([a-z]{2}/)?verify/review" # https://github.com/18F/identity-devops/issues/4563
-    "OIDC_authorization"      = "^/openid_connect/authorize"  # https://github.com/18F/identity-devops/issues/4563
-    "account_deletion"        = "^/account/delete"            # https://github.com/18F/identity-devops/issues/6127
-  }
-}
-
-variable "limit_exempt_paths" {
-  description = "Set of regexes to exempt from rate-limiting acl rules"
-  type        = list(string)
-  default = [
-    "^/api/.*",
-    "^/\\.well-known/.*"
-  ]
-}
+# TODO: if possible, make more DRY and don't set here as well as
+# in terraform/core and terraform/gitlab.
+# Until then, these values MUST MATCH in the equivalent directories!
 
 variable "header_block_regex" {
-  description = "Map of regexes matching headers to block"
   type = list(object({
     field_name = string
     patterns   = list(string)
     }
     )
   )
-  default = []
+  description = "Map of regexes matching headers to block"
+  default     = []
 }
 
 variable "query_block_regex" {
-  description = "Set of regexes to filter query strings for blocking"
   type        = list(string)
+  description = "Set of regexes to filter query strings for blocking"
   default     = []
+}
+
+variable "restricted_paths" {
+  type        = map(list(string))
+  description = <<EOM
+Map with two keys for WAFv2 configuration: A list of regex matches of paths
+to restrict to privileged IPs, and a list of paths to exclude.
+EOM
+  default = {
+    paths = [
+      "^/api/irs_attempts_api/.*",
+    ]
+    exclusions = [
+    ]
+  }
 }
 
 variable "waf_alert_blocked_period" {
@@ -264,35 +241,24 @@ variable "ship_logs_to_soc" {
   default = true
 }
 
-variable "restricted_paths" {
-  description = "Map with two keys: A list of rexex matches of paths to restrict to privileged IPs, and a list of paths to exclude"
-  type        = map(list(string))
-  default = {
-    paths      = []
-    exclusions = []
-  }
-}
-
 variable "restricted_paths_enforce" {
   description = "Set to false to count instead of block excluded paths - ONLY USE IN SANDBOXES!"
   type        = bool
   default     = true
 }
 
-variable "privileged_cidrs_v4" {
-  description = "List of IPv4 CIDR blocks allowed to privileged paths"
-  type        = list(string)
-  default     = []
-}
-
-variable "privileged_cidrs_v6" {
-  description = "List of IPv6 CIDR blocks allowed to privileged paths"
-  type        = list(string)
-  default     = []
-}
-
 variable "geo_allow_list" {
-  default = []
+  description = "List of codes of countries to permit access to via the WAFv2 ACL."
+  type        = list(string)
+  default = [
+    "AS",
+    "GU",
+    "MP",
+    "PR",
+    "UM",
+    "US",
+    "VI",
+  ]
 }
 
 variable "wafv2_web_acl_scope" {
