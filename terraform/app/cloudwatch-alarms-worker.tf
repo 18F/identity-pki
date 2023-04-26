@@ -299,6 +299,26 @@ EOM
   alarm_actions             = local.low_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "attempts_api_worker_not_run" {
+  alarm_name                = "${var.env_name}-AttemptsAPI-BatchJob-Not-Run"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "attempts-api-batch-job-performed"
+  namespace                 = "${var.env_name}/idp-worker"
+  period                    = "7200"
+  statistic                 = "Maximum"
+  threshold                 = "1"
+  alarm_description         = <<EOM
+${var.env_name}: The IRS Attempts API data Worker batch job has not run in over an hour.
+
+See: https://github.com/18F/identity-devops/wiki/Runbook:-IRS-Attempts-API-BatchJob-Not-Run
+EOM
+  treat_missing_data        = "breaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+}
+
 resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
   count = var.idp_worker_alarms_enabled
 

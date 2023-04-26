@@ -481,6 +481,11 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    attempts_api_batch_job_not_run = {
+      name         = "attempts-api-batch-job-performed"
+      pattern      = "{ $.name = \"perform.active_job\" && $.exception_message NOT EXISTS && $.queue_name = \"*GoodJob*\" && $.job_class = \"IrsAttemptsEventsBatchJob\" }"
+      metric_value = 1
+    },
   }
 
   idp_attempts_api_filters = {
@@ -493,7 +498,7 @@ locals {
       name         = "attempts-api-events-success"
       pattern      = "{ ($.name = \"IRS Attempt API: Events submitted\" ) && ($.properties.event_properties.success is true) }"
       metric_value = 1
-    }
+    },
   }
 }
 
