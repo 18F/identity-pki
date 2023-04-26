@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  source = "github.com/18F/identity-terraform//kms_log?ref=0f7605a740b27b70d72c134ec1c0cd3568b0e9cd"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -20,7 +20,7 @@ module "kms_logging" {
 }
 
 module "kms_keymaker_uw2" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  source = "github.com/18F/identity-terraform//kms_keymaker?ref=0f7605a740b27b70d72c134ec1c0cd3568b0e9cd"
   #source = "../../../identity-terraform/kms_keymaker"
 
   env_name      = var.env_name
@@ -30,7 +30,7 @@ module "kms_keymaker_uw2" {
 
 # this key is being supersceded by the multi-region keys below
 module "kms_keymaker_ue1" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  source = "github.com/18F/identity-terraform//kms_keymaker?ref=0f7605a740b27b70d72c134ec1c0cd3568b0e9cd"
   #source = "../../../identity-terraform/kms_keymaker"
   providers = {
     aws = aws.use1
@@ -42,7 +42,7 @@ module "kms_keymaker_ue1" {
 }
 
 module "kms_keymaker_multiregion_primary_uw2" {
-  source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_primary?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_primary?ref=0f7605a740b27b70d72c134ec1c0cd3568b0e9cd"
   #source = "../../../identity-terraform/kms_keymaker_multiregion_primary"
 
   env_name      = var.env_name
@@ -51,7 +51,7 @@ module "kms_keymaker_multiregion_primary_uw2" {
 }
 
 module "kms_keymaker_multiregion_replica_ue1" {
-  source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_replica?ref=e905c9031b8469160991214f58a56608fc9b42c6"
+  source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_replica?ref=0f7605a740b27b70d72c134ec1c0cd3568b0e9cd"
   #source = "../../../identity-terraform/kms_keymaker_multiregion_replica"
   providers = {
     aws = aws.use1
