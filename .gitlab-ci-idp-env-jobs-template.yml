@@ -120,6 +120,8 @@ run_unallowed_image:
     - ${ENV_NAME}-env-runner
   stage: smoke_test
   allow_failure: true
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine:latest
   script:
     - touch unallowed.txt
   artifacts:
