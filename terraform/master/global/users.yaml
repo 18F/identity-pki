@@ -93,6 +93,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  charles.hazen:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - chazen
+    gitlab_groups:
+    - pm
   chris.manger:
     aws_groups:
     - finops
