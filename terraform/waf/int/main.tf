@@ -55,6 +55,7 @@ module "cloudfront-waf" {
   enforce             = true
   soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
   enforce_rate_limit  = true
+  geo_allow_list      = [] # allow all countries in app WAFv2
 
   waf_alert_actions = ["arn:aws:sns:us-east-1:894947205914:slack-otherevents"]
 }
