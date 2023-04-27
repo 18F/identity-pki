@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Enable the 'monitor' shell option, which allows background jobs to be monitored by the shell.
-# Setup an empty trap for common signals (SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGSTOP, and SIGTSTP) 
+# Setup an empty trap for common signals (SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGSTOP, and SIGTSTP)
 # to prevent being able to drop into a shell from the ssm document
 set -o monitor
 trap '' 1 2 3 15 19 20
@@ -61,7 +61,7 @@ CHANNEL_FILES=(
 )
 <%- end %>
 
-<%- unless @rails_console %>                               
+<%- unless @rails_console %>
 CHANNEL_FILES=(
   /etc/login.gov/keys/slackchannel
 )
@@ -71,7 +71,7 @@ CHANNEL_FILES=(
 for file in "${CHANNEL_FILES[@]}"
 do
   CHANNEL_FILE=$(cat "$file") || ((MISSING_KEYS++))
-done                             
+done
 WEBHOOK=$(cat /etc/login.gov/keys/slackwebhook) || ((MISSING_KEYS++))
 if [ ${MISSING_KEYS} -gt 0 ]; then
   echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
@@ -144,9 +144,9 @@ fi
 ENV_VARS+=("LOGIN_TASK_LOG_LEVEL=$LOGIN_TASK_LOG_LEVEL")
 
 <%- if @rails_console %>
-# Send message to slack first since we dont need console output        
+# Send message to slack first since we dont need console output
 TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'` '"${CONSOLE_INFO[@]:-}"''
-      
+
 # Loop over channel files and send message to each designated channel
 for FILE in "${CHANNEL_FILES[@]}"
 do
@@ -161,8 +161,8 @@ exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "trap '' 1 2 3 15 19 2
 
 <%- unless @rails_console %>
 # Execute command as $APP_USER with env vars, capture output in CMD_OUTPUT and console.
-# Use process substitution to avoid subshell and preserve file descriptors with tee and fd3.      
-{ CMD_OUTPUT=$(exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>" 2>&1 | tee >(cat >&3)); } 3>&1      
+# Use process substitution to avoid subshell and preserve file descriptors with tee and fd3.
+{ CMD_OUTPUT=$(exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>" 2>&1 | tee >(cat >&3)); } 3>&1
 
 # Grab the investigator name, reason, uuid out of the rails task output
 investigator_name=$(echo $CMD_OUTPUT | grep -oP 'investigator name: \K.*' | awk -F 'investigation reason:' '{print $1}' | xargs)
