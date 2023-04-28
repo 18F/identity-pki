@@ -12,9 +12,14 @@ module Salesforcelib
 
     # @param [Salesforcelib::S3ConfigLoader::Config] s3_config
     # @param [Salesforcelib::KeychainConfig] keychain_config
-    def initialize(s3_config: Salesforcelib::S3ConfigLoader.load!, keychain_config: nil)
+    def initialize(s3_config: Salesforcelib::S3ConfigLoader.load!, keychain_config: nil, verbose: false)
       @s3_config = s3_config
       @keychain_config = keychain_config || Salesforcelib::KeychainConfig.new(s3_config.instance_url)
+      @verbose = verbose
+    end
+
+    def verbose?
+      !!@verbose
     end
 
     # Authenticates to Salesforce and returns a Restforce client
@@ -42,16 +47,18 @@ module Salesforcelib
         instance_url: s3_config.instance_url,
         client_id: s3_config.client_id,
         client_secret: s3_config.client_secret,
-        api_version: '41.0',
+        api_version: '57.0',
         authentication_callback: proc do |response|
           keychain_config.update!(
             access_token: response.access_token,
             refresh_token: response.refresh_token,
           )
         end,
-      ).tap do |restforce|
+      ) do |builder|
+        builder.response :logger if verbose?
+      end.tap do |restforce|
         # run a test query to force authentication
-        restforce.query('select Id from Case limit 1')
+        restforce.query('SELECT Id FROM Case LIMIT 1')
       end
     rescue Restforce::AuthenticationError => err
       if err.message.include?('expired access/refresh token')
