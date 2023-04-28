@@ -12,6 +12,7 @@ group :development do
   gem 'restforce'
   gem 'ruby-keychain'
   gem 'sinatra'
+  gem 'warning'
 end
 
 gem 'activesupport'
