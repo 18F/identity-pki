@@ -3,18 +3,18 @@ require 'active_support/core_ext/object/to_query'
 require 'faraday'
 require 'restforce'
 require 'salesforcelib/server'
-require 'salesforcelib/s3_config_loader'
+require 'salesforcelib/ssm_config_loader'
 require 'salesforcelib/keychain_config'
 
 module Salesforcelib
   class Auth
-    attr_reader :s3_config, :keychain_config
+    attr_reader :ssm_config, :keychain_config
 
-    # @param [Salesforcelib::S3ConfigLoader::Config] s3_config
+    # @param [Salesforcelib::SsmConfigLoader::Config] ssm_config
     # @param [Salesforcelib::KeychainConfig] keychain_config
-    def initialize(s3_config: Salesforcelib::S3ConfigLoader.load!, keychain_config: nil, verbose: false)
-      @s3_config = s3_config
-      @keychain_config = keychain_config || Salesforcelib::KeychainConfig.new(s3_config.instance_url)
+    def initialize(ssm_config: Salesforcelib::SsmConfigLoader.load!, keychain_config: nil, verbose: false)
+      @ssm_config = ssm_config
+      @keychain_config = keychain_config || Salesforcelib::KeychainConfig.new(ssm_config.instance_url)
       @verbose = verbose
     end
 
@@ -44,9 +44,9 @@ module Salesforcelib
       Restforce.new(
         oauth_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
-        instance_url: s3_config.instance_url,
-        client_id: s3_config.client_id,
-        client_secret: s3_config.client_secret,
+        instance_url: ssm_config.instance_url,
+        client_id: ssm_config.client_id,
+        client_secret: ssm_config.client_secret,
         api_version: '57.0',
         authentication_callback: proc do |response|
           keychain_config.update!(
@@ -70,10 +70,10 @@ module Salesforcelib
     end
 
     def authorize_url
-      URI.join(s3_config.instance_url, '/services/oauth2/authorize').tap do |uri|
+      URI.join(ssm_config.instance_url, '/services/oauth2/authorize').tap do |uri|
         uri.query = {
           response_type: 'code',
-          client_id: s3_config.client_id,
+          client_id: ssm_config.client_id,
           redirect_uri: Salesforcelib::Server.redirect_uri,
         }.to_query
       end.to_s
@@ -89,11 +89,11 @@ module Salesforcelib
 
     # @return [TokenResponse]
     def load_token(code)
-      response = Faraday.new.post(URI.join(s3_config.instance_url, '/services/oauth2/token')) do |req|
+      response = Faraday.new.post(URI.join(ssm_config.instance_url, '/services/oauth2/token')) do |req|
         req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         req.body = URI.encode_www_form(
-          client_id: s3_config.client_id,
-          client_secret: s3_config.client_secret,
+          client_id: ssm_config.client_id,
+          client_secret: ssm_config.client_secret,
           grant_type: 'authorization_code',
           redirect_uri: Salesforcelib::Server.redirect_uri,
           code: code,

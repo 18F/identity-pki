@@ -17,5 +17,22 @@ module "fraudops-assumerole" {
     var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
   ])
 
-  iam_policies = []
+  iam_policies = [
+    {
+      policy_name        = "FraudOpsReadSsmParameters"
+      policy_description = "Allow FraudOps to read a subset of SSM Parameters"
+      policy_document = [
+        {
+          sid    = "ReadSsmParameters"
+          effect = "Allow"
+          actions = [
+            "ssm:GetParameter"
+          ]
+          resources = [
+            "arn:aws:ssm:::parameter/account/salesforce/*"
+          ]
+        }
+      ]
+    }
+  ]
 }
