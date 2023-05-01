@@ -1350,3 +1350,27 @@ variable "waf_alerts_enabled" {
   type        = number
   default     = 0
 }
+
+# Disaster Recovery
+
+variable "dr_restore_idp_db" {
+  type    = bool
+  default = false
+}
+
+variable "dr_snapshot_identifier" {
+  type        = string
+  description = "Identifier of the database snapshot for snapshot recovery"
+  default     = ""
+}
+
+variable "dr_restore_type" {
+  type    = string
+  default = ""
+}
+
+variable "dr_restore_to_time" {
+  type        = string
+  description = "Timestamp for point-in-time recovery (2023-04-21T12:00:00Z)"
+  default     = ""
+}

@@ -113,3 +113,63 @@ module "idp_aurora_cloudwatch" {
   unvacummed_transactions_count = var.unvacummed_transactions_count
   db_instance_class             = var.rds_instance_class_aurora
 }
+
+
+module "dr_restore_idp_aurora" {
+  count = var.dr_restore_idp_db && (
+    (var.dr_restore_type == "snapshot" && var.dr_snapshot_identifier != "") || (
+  var.dr_restore_type == "point-in-time" && var.dr_restore_to_time != "")) ? 1 : 0
+
+  source = "../modules/rds_aurora"
+
+  dr_snapshot_identifier       = var.dr_snapshot_identifier
+  dr_restore_type              = var.dr_restore_type
+  dr_source_cluster_identifier = local.idp_aurora_name
+  dr_restore_to_time           = var.dr_restore_to_time
+
+  region   = "us-west-2"
+  env_name = var.env_name
+
+  db_identifier = "idp-aurora-restored"
+
+  rds_password = var.rds_password
+  rds_username = var.rds_username
+
+  db_instance_class  = var.rds_instance_class_aurora
+  db_engine          = var.rds_engine_aurora
+  db_engine_mode     = var.rds_engine_mode_aurora
+  db_engine_version  = var.rds_engine_version_aurora
+  db_port            = var.rds_db_port
+  apg_db_pgroup      = module.idp_rds_usw2.aurora_db_pgroup
+  apg_cluster_pgroup = module.idp_rds_usw2.aurora_cluster_pgroup
+
+  db_subnet_group        = aws_db_subnet_group.aurora.id
+  db_security_group      = aws_security_group.db.id
+  db_publicly_accessible = local.nessus_public_access_mode
+
+  retention_period    = var.rds_backup_retention_period
+  backup_window       = var.rds_backup_window
+  maintenance_window  = var.rds_maintenance_window
+  auto_minor_upgrades = false
+  major_upgrades      = true
+
+  storage_encrypted   = true
+  db_kms_key_id       = data.aws_kms_key.rds_alias.arn
+  key_admin_role_name = "KMSAdministrator"
+
+  cw_logs_exports     = ["postgresql"]
+  pi_enabled          = true
+  monitoring_interval = var.rds_enhanced_monitoring_interval
+  monitoring_role = join(":", [
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}",
+    "role/${var.rds_monitoring_role_name}"
+  ])
+
+  internal_zone_id = aws_route53_zone.internal.zone_id
+  route53_ttl      = 300
+
+  primary_cluster_instances = 1
+  enable_autoscaling        = false
+
+  serverlessv2_config = var.idp_aurora_serverlessv2_config
+}

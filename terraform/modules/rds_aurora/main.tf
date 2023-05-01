@@ -9,6 +9,11 @@ data "aws_availability_zones" "region" {
 data "aws_rds_engine_version" "family" {
   engine  = var.db_engine
   version = var.db_engine_version
+
+  filter {
+    name   = "engine-mode"
+    values = [var.db_engine_mode]
+  }
 }
 
 # use aws/rds KMS key for performance insights
@@ -255,6 +260,20 @@ resource "aws_rds_cluster" "aurora" {
     content {
       max_capacity = sv2config.value.max
       min_capacity = sv2config.value.min
+    }
+  }
+
+  snapshot_identifier = (
+    var.dr_restore_type == "snapshot" && var.dr_snapshot_identifier != "" ? (
+    var.dr_snapshot_identifier) : null
+  )
+
+  dynamic "restore_to_point_in_time" {
+    for_each = var.dr_restore_type == "point-in-time" && var.dr_restore_to_time != "" ? [1] : []
+    content {
+      source_cluster_identifier = var.dr_source_cluster_identifier
+      restore_type              = "full-copy"
+      restore_to_time           = var.dr_restore_to_time
     }
   }
 

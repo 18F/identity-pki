@@ -308,3 +308,34 @@ variable "route53_ttl" {
   description = "TTL for the Route53 DNS records for the writer/reader endpoints"
   default     = 300
 }
+
+# Disaster Recovery
+
+variable "dr_snapshot_identifier" {
+  type        = string
+  description = "Identifier of the database snapshot for snapshot recovery"
+  default     = ""
+}
+
+variable "dr_restore_type" {
+  type    = string
+  default = ""
+
+  validation {
+    condition     = can(regex("^$|^(snapshot|point-in-time)$", var.dr_restore_type))
+    error_message = "Invalid input, options: \"snapshot\", \"point-in-time\"."
+  }
+}
+
+variable "dr_source_cluster_identifier" {
+  type        = string
+  description = "Identifier (name) of the source database for point-in-time recovery"
+  default     = ""
+}
+
+variable "dr_restore_to_time" {
+  type        = string
+  description = "Timestamp for point-in-time recovery (2023-04-21T12:00:00Z)"
+  default     = ""
+}
+

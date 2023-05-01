@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} -d DATABASE [-n NUMBER_OF_SNAPSHOTS]
+
+Flags:
+  -n NUMBER_OF_SNAPSHOTS : Number of snapshots to display (defaults to 5)
+  -h                     : Display help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`!
+
+EOM
+}
+
+help_me() {
+    cat >&2 << EOM
+
+For restoring a database from either a point in time or a snapshot.  Given a DATABASE name:
+1. Finds the earliest and latest restore points for \`point-in-time\` recovery
+2. Finds the last n snapshots (defaults to 5) for \`snapshot\` recovery
+
+EOM
+  usage
+  exit 0
+}
+
+NUMBER_OF_SNAPSHOTS=5
+
+while getopts d:n:h opt
+do
+  case $opt in
+    d) DATABASE="$OPTARG"            ;;
+    n) NUMBER_OF_SNAPSHOTS="$OPTARG" ;;
+    h) help_me                       ;;
+    *) usage && exit 1               ;;
+  esac
+done
+
+echo_yellow "POINT-IN-TIME: Getting earliest and latest restore points"
+ave aws rds describe-db-clusters --db-cluster-identifier $DATABASE | jq '.[] | .[] | {"EarliestRestorableTime":.EarliestRestorableTime, "LatestRestorableTime": .LatestRestorableTime}' 
+      
+echo_yellow "SNAPSHOT: Getting last $NUMBER_OF_SNAPSHOTS available snapshots"
+ave aws rds describe-db-cluster-snapshots --db-cluster-identifier $DATABASE  | jq '.DBClusterSnapshots | .[] | .DBClusterSnapshotIdentifier' | tail -n $NUMBER_OF_SNAPSHOTS
+
