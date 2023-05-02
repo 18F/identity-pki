@@ -61,6 +61,11 @@ module "main" {
           "ttl"     = "900",
         },
         {
+          "name"    = "_acme-challenge.design.",
+          "records" = ["_acme-challenge.design.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
           "name"    = "_acme-challenge.developer.",
           "records" = ["_acme-challenge.developer.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
@@ -83,6 +88,11 @@ module "main" {
         {
           "name"    = "data.",
           "records" = ["data.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
+          "name"    = "design.",
+          "records" = ["design.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
         },
         {
@@ -163,7 +173,6 @@ module "main" {
   }
 
   static_cloudfront_name       = "db1mat7gaslfp.cloudfront.net"
-  design_cloudfront_name       = "d28khhcfeuwd3y.cloudfront.net"
   developers_cloudfront_name   = "d26qb7on2m22yd.cloudfront.net"
   google_site_verification_txt = "BFBgpQv37mEYU_cLzUJpctEHAqOeEBw5Drd_V9FLwn0" # associated with peter.chen@gsa.gov
   #google_site_verification_txt = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov

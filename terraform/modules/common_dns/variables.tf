@@ -6,10 +6,6 @@ variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
-variable "design_cloudfront_name" {
-  description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-}
-
 variable "developers_cloudfront_name" {
   description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
@@ -54,7 +50,6 @@ locals {
   cloudfront_aliases = [
     { name = "", alias_name = var.static_cloudfront_name },
     { name = "www.", alias_name = var.static_cloudfront_name },
-    { name = "design.", alias_name = var.design_cloudfront_name },
     { name = "developers.", alias_name = var.developers_cloudfront_name },
   ]
 

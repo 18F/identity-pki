@@ -43,10 +43,6 @@ variable "static_cloudfront_name" {
   description = "Static site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
 
-variable "design_cloudfront_name" {
-  description = "Design site Cloudfront DNS name, e.g. abcd.cloudfront.net"
-}
-
 variable "developers_cloudfront_name" {
   description = "Developers site Cloudfront DNS name, e.g. abcd.cloudfront.net"
 }
@@ -160,7 +156,7 @@ variable "sns_topic_alert_warning" {
 variable "privileged_cidr_blocks_v4" {
   type        = list(string)
   description = <<EOM
-List of additional IPv4 CIDR blocks that should be allowed access 
+List of additional IPv4 CIDR blocks that should be allowed access
 through the WAFv2 web ACL(s) to restricted endpoints.
 EOM
   default = [
