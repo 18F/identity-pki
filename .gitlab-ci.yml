@@ -230,6 +230,12 @@ env-scanners:
     ENV_NAME: scanners
     branch: "stages/stable"
 
+env-aduth:
+  extends: .include_idp_jobs_template
+  variables:
+    ENV_NAME: aduth
+    branch: "stages/stable"
+
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
   environment:
