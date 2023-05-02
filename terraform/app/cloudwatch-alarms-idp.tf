@@ -212,6 +212,28 @@ resource "aws_cloudwatch_metric_alarm" "idp_too_many_healthy_instances_alert" {
   alarm_actions = local.low_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "worker_too_many_healthy_instances_alert" {
+  alarm_name        = "${aws_autoscaling_group.worker.name}-healthy-instances"
+  alarm_description = "${aws_autoscaling_group.worker.name}: Too many healthy instances"
+  namespace         = "AWS/ApplicationELB"
+
+  metric_name = "HealthyHostCount"
+  dimensions = {
+    LoadBalancer = aws_alb.worker.arn_suffix
+    TargetGroup  = aws_alb_target_group.worker_ssl.arn_suffix
+  }
+
+  statistic           = "Maximum"
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.asg_worker_desired
+  period              = 300
+  evaluation_periods  = 12
+
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = local.low_priority_alarm_actions
+}
+
 resource "aws_cloudwatch_metric_alarm" "pii_spill_detector_alarm" {
   alarm_name                = "${var.env_name}-pii-spill-detector-alarm"
   comparison_operator       = "GreaterThanThreshold"
