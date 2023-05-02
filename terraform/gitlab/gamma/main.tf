@@ -10,8 +10,7 @@ terraform {
 }
 
 module "main" {
-  source = "../module"
-
+  source                         = "../module"
   bootstrap_main_git_ref_default = "stages/gitlabgamma"
   dr_region                      = "us-east-2"
   env_name                       = "gamma"
@@ -22,7 +21,7 @@ module "main" {
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   accountids                     = ["894947205914", "034795980528", "217680906704"]
   asg_gitlab_test_runner_desired = 4
-  use_waf_rules                  = true
+  use_waf_rules                  = false
   gitlab_runner_enabled          = true
   env_runner_gitlab_hostname     = "gitlab.login.gov"
   env_runner_config_bucket       = "login-gov-production-gitlabconfig-217680906704-us-west-2"

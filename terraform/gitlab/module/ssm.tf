@@ -8,7 +8,7 @@ module "ssm" {
   env_name           = var.env_name
 
   ssm_doc_map = {
-    "default" = {
+    "default-doc" = {
       command     = "/etc/update-motd.d/00-header ; cd ; /bin/bash"
       description = "Default shell to login as GSA_USERNAME"
       logging     = false

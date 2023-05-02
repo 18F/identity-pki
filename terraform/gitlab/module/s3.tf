@@ -176,6 +176,14 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "config" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "config" {
+  bucket = aws_s3_bucket.config.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_policy" "allow_gitlab_config_access_from_envs" {
   bucket = aws_s3_bucket.config.id
   policy = data.aws_iam_policy_document.allow_gitlab_config_access_from_envs.json
@@ -241,6 +249,14 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cache" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "cache" {
+  bucket = aws_s3_bucket.cache.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
@@ -314,6 +330,15 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "gitlab_buckets" {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "gitlab_buckets" {
+  for_each = toset(local.gitlab_buckets)
+  bucket   = each.key
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
