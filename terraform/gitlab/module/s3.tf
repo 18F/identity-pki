@@ -176,13 +176,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "config" {
   }
 }
 
-resource "aws_s3_bucket_ownership_controls" "config" {
-  bucket = aws_s3_bucket.config.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
 
 resource "aws_s3_bucket_policy" "allow_gitlab_config_access_from_envs" {
   bucket = aws_s3_bucket.config.id
@@ -252,13 +245,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "cache" {
   }
 }
 
-resource "aws_s3_bucket_ownership_controls" "cache" {
-  bucket = aws_s3_bucket.cache.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
 
 resource "aws_s3_bucket_public_access_block" "cache_access_block" {
   bucket                  = aws_s3_bucket.cache.id
@@ -293,15 +279,6 @@ resource "aws_s3_bucket" "gitlab_buckets" {
 
   lifecycle {
     # prevent_destroy = true
-  }
-}
-
-resource "aws_s3_bucket_ownership_controls" "gitlab_buckets" {
-  for_each = toset(local.gitlab_buckets)
-  bucket   = each.key
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
   }
 }
 
