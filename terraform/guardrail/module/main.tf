@@ -51,6 +51,43 @@ data "aws_iam_policy_document" "iam_permission_boundary" {
     ]
   }
   statement {
+    sid    = "KMSDeletePrevent"
+    effect = "Deny"
+    actions = [
+      "kms:Delete*",
+      "kms:DisableKey*",
+      "kms:ReplicateKey",
+      "kms:ScheduleKeyDeletion",
+      "kms:UpdateAlias",
+    ]
+    resources = [
+      "arn:aws:kms:*:*:key/*"
+    ]
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "kms:ResourceAliases"
+
+      values = [
+        "alias/*int-login-dot-gov-keymaker*",
+        "alias/*staging-login-dot-gov-keymaker*",
+        "alias/*prod-login-dot-gov-keymaker*",
+      ]
+    }
+  }
+  statement {
+    sid    = "KMSAliasDeletePrevent"
+    effect = "Deny"
+    actions = [
+      "kms:DeleteAlias",
+      "kms:UpdateAlias",
+    ]
+    resources = [
+      "arn:aws:kms:*:*:alias/*int-login-dot-gov-keymaker*",
+      "arn:aws:kms:*:*:alias/*staging-login-dot-gov-keymaker*",
+      "arn:aws:kms:*:*:alias/*prod-login-dot-gov-keymaker*",
+    ]
+  }
+  statement {
     sid    = "DeleteDNSHostedZonePrevent"
     effect = "Deny"
     actions = [
