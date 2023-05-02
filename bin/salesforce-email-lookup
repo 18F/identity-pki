@@ -3,11 +3,29 @@
 Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
 require_relative '../salesforcelib/lib/salesforcelib.rb'
 
-case_number = ARGV.first
+case_numbers = ARGV.dup
+csv = !!case_numbers.delete('--csv')
+table = !csv
 
-if !case_number
-  puts "Usage: #{$PROGRAM_NAME} case_number"
+if !case_numbers.first
+  puts "Usage: #{$PROGRAM_NAME} [--csv] case_number [case_number2 case_number3...]"
   exit 1
 end
 
-puts Salesforcelib::Client.new.email_from_case_number(case_number)
+cases = Salesforcelib::Client.new.find_cases(case_numbers, include_missing: true)
+
+output = if csv
+  require 'csv'
+  CSV.new(STDOUT)
+else
+  require 'terminal-table'
+  Terminal::Table.new
+end
+
+output << %w[case_number email]
+output << :separator if table
+cases.each do |c|
+  output << [c.case_number, c.customer_email]
+end
+
+puts output if table

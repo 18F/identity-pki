@@ -8,11 +8,40 @@ module Salesforcelib
       @restforce = restforce
     end
 
-    # @return [String]
-    def email_from_case_number(case_number)
-      results = restforce.query("SELECT Id FROM Case WHERE CaseNumber = '#{case_number}'")
-      internal_id = results.first.Id
-      restforce.find('Case', internal_id).Customer_Email_address__c
+    SupportCase = Struct.new(
+      :internal_id,
+      :case_number,
+      :customer_email,
+      keyword_init: true
+    )
+
+    # @param [Array<String>]
+    # @return [Array<SupportCase>]
+    def find_cases(case_numbers, include_missing: false)
+      results = restforce.query(format(<<-SQL, case_numbers: quote(case_numbers)))
+        SELECT Id, CaseNumber, Customer_Email_address__c
+        FROM Case
+        WHERE CaseNumber IN %{case_numbers}
+      SQL
+
+      arr = results.map do |result|
+        SupportCase.new(
+          internal_id: result.Id,
+          case_number: result.CaseNumber,
+          customer_email: result.Customer_Email_address__c,
+        )
+      end
+
+      if include_missing
+        (case_numbers - arr.map(&:case_number)).each do |missing_case_number|
+          arr << SupportCase.new(
+            case_number: missing_case_number,
+            customer_email: '[not found]',
+          )
+        end
+      end
+
+      arr
     end
 
     # @return [String]
@@ -40,6 +69,15 @@ module Salesforcelib
           { includeDetails: true },
           { 'Accept' => accept },
         )
+    end
+
+    # @api private
+    def quote(value)
+      if value.kind_of?(Array)
+        '(' + value.map { |v| quote(v) }.join(', ') + ')'
+      else
+        %|'#{value}'|
+      end
     end
   end
 end
