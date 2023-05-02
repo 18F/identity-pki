@@ -313,7 +313,11 @@ check_release_versioning() {
 
     # Instead of requiring stages/prod, stages/sms-prod, etc we squeeze
     # like-environments together.
-    ENVIRONMENT_CLASS=$(echo $ENVIRONMENT | sed -e 's/^.*-//')
+    if [[ "${ENVIRONMENT}" =~ 'prod' ]] && [[ ! "${ENVIRONMENT}" =~ 'gitlab' ]] ; then
+        ENVIRONMENT_CLASS='prod'
+    else
+        ENVIRONMENT_CLASS=$(echo $ENVIRONMENT | sed -e 's/^.*-//')
+    fi
 
     rev_name="$(git rev-parse --abbrev-ref HEAD)"
     # Reduce name - Accounts like sms-prod and tooling-prod all use stages/prod
