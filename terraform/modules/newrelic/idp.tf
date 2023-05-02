@@ -299,7 +299,7 @@ resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
 }
 
 resource "newrelic_nrql_alert_condition" "proofing_javascript_errors" {
-  count       = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
+  count       = (var.enabled + var.in_person_enabled + var.proofing_javascript_error_alerts_enabled) >= 3 ? 1 : 0
   policy_id   = newrelic_alert_policy.in_person[count.index].id
   type        = "static"
   name        = "Identity Proofing JavaScript Errors"
