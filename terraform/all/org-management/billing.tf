@@ -34,3 +34,34 @@ resource "aws_budgets_budget" "aggregate" {
     subscriber_email_addresses = var.billing_email_list
   }
 }
+
+resource "aws_ce_anomaly_monitor" "aggregate_services" {
+  name              = "AWSServiceMonitor"
+  monitor_type      = "DIMENSIONAL"
+  monitor_dimension = "SERVICE"
+}
+
+resource "aws_ce_anomaly_subscription" "aggregate_services" {
+  name      = "AWSServiceMonitor"
+  frequency = "DAILY"
+
+  monitor_arn_list = [
+    aws_ce_anomaly_monitor.aggregate_services.arn,
+  ]
+
+  dynamic "subscriber" {
+    for_each = var.billing_email_list
+    content {
+      type    = "EMAIL"
+      address = subscriber.value
+    }
+  }
+
+  threshold_expression {
+    dimension {
+      key           = "ANOMALY_TOTAL_IMPACT_ABSOLUTE"
+      values        = ["100.0"]
+      match_options = ["GREATER_THAN_OR_EQUAL"]
+    }
+  }
+}
