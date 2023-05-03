@@ -417,7 +417,7 @@ EOF
   group 'root'
   mode '0755'
   action :create
-  only_if node.chef_environment == 'production'
+  only_if { node.chef_environment == 'production' }
 end
 
 cron_d 'identity_devops_mirror_check' do
@@ -426,7 +426,7 @@ cron_d 'identity_devops_mirror_check' do
   command '/etc/gitlab/repo_mirror_alarm.sh'
   notifies :create, 'file[/etc/gitlab/backup.sh]', :before
   user 'root'
-  only_if node.chef_environment == 'production'
+  only_if { node.chef_environment == 'production' }
 end
 
 file '/etc/gitlab/gitlab_root_api_token' do
