@@ -16,7 +16,7 @@ iam = boto3.client("iam")
 ses = boto3.client("ses")
 
 # TEMP - Till we start enforcing
-ENFORCE_DAY = "July 1st, 2023"
+ENFORCE_DAY = os.environ["ENFORCE_DAY"]
 
 # Environment Variable: RotationPeriod
 # The number of days after which a key should be evaluated either for sending notification or change it's status to Inactive
@@ -222,6 +222,7 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
             user_name=user_name,
             masked_access_key=masked_access_key,
             keys_inactivated_at=keys_inactivated_at,
+            oldKeyInactivationPeriod=oldKeyInactivationPeriod,
             ENFORCE_DAY=ENFORCE_DAY,
         )
 
@@ -257,7 +258,7 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
                         </body>
                         </html>
                                 """.format(
-                user_name=user_name, masked_access_key=masked_access_key
+                user_name=user_name, masked_access_key=masked_access_key,ENFORCE_DAY=ENFORCE_DAY,
             )
 
             send_notification(
