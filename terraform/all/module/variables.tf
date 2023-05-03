@@ -299,10 +299,13 @@ EOM
   default     = false
 }
 
-variable "externalId" {
-  type        = string
-  description = "sts assume role, externalId for Prisma Cloud role"
-  default     = "3b5fe41c-f3f1-4b36-84a5-5d2a665c87c9"
+variable "externalIds" {
+  type        = list(string)
+  description = "sts assume role, externalIds for Prisma Cloud role"
+  default = [
+    "3b5fe41c-f3f1-4b36-84a5-5d2a665c87c9", # Legacy
+    "39522cb7-94a5-4b65-8341-8ea9b08070f2"  # New - 2023-05-03
+  ]
 }
 
 variable "accountNumberPrisma" {

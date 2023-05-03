@@ -34,7 +34,7 @@ data "aws_iam_policy_document" "PrismaCloud-trust" {
     condition {
       test     = "StringEquals"
       variable = "sts:ExternalId"
-      values   = [var.externalId]
+      values   = var.externalIds
     }
 
   }
