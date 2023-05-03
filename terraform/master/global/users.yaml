@@ -446,7 +446,7 @@ users:
     - lg-public
   luis.matos:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - lmatos
     gitlab_groups:
