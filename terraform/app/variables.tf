@@ -832,7 +832,7 @@ variable "proofing_low_alert_threshold" {
 
 variable "proofing_pageview_duration_alert_threshold" {
   description = "If pageviews in proofing are too slow, we alert"
-  default     = 15
+  default     = 10
 }
 
 variable "sms_error_rate_alert_threshold" {

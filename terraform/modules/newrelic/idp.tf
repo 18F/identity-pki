@@ -282,18 +282,18 @@ resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
   violation_time_limit_seconds = 604800
 
   nrql {
-    query = "SELECT percentile(backendDuration,95) from PageView WHERE capture(pageUrl, r'^https://[^/]+/(?P<slugPrefix>[^/]+)(/.*)?$') = 'verify' AND appName = '${var.env_name}.${var.root_domain}'"
+    query = "SELECT percentile(backendDuration,90) from PageView WHERE capture(pageUrl, r'^https://[^/]+/(?P<slugPrefix>[^/]+)(/.*)?$') = 'verify' AND appName = '${var.env_name}.${var.root_domain}'"
   }
 
   critical {
     operator              = "above"
     threshold             = var.proofing_pageview_duration_alert_threshold
-    threshold_duration    = 60
+    threshold_duration    = 300
     threshold_occurrences = "at_least_once"
   }
   fill_option        = "static"
   fill_value         = 0
-  aggregation_window = 60
+  aggregation_window = 300
   aggregation_method = "event_flow"
   aggregation_delay  = 120
 }
