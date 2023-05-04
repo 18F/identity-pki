@@ -740,7 +740,7 @@ users:
     - lg-public
   sujana.gurung:
     aws_groups:
-    - devops
+    - devopsnonprod
     ec2_username:
     - sujana09
     gitlab_groups:
