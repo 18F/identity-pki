@@ -6,16 +6,6 @@ data "aws_availability_zones" "region" {
   state = "available"
 }
 
-data "aws_rds_engine_version" "family" {
-  engine  = var.db_engine
-  version = var.db_engine_version
-
-  filter {
-    name   = "engine-mode"
-    values = [var.db_engine_mode]
-  }
-}
-
 # use aws/rds KMS key for performance insights
 data "aws_kms_key" "insights" {
   key_id = "alias/aws/rds"
