@@ -86,6 +86,9 @@ users:
     - benjaminchait
     email:
     - benjamin.chait@gsa.gov
+  brittany.greaner:
+    aws_groups:
+    - finops
   carrie.mcgrath:
     aws_groups:
     - analytics
