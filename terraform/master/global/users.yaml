@@ -647,6 +647,8 @@ users:
     - lg-all
     - lg-public
   rodolfo.ornelas:
+    aws_groups:
+    - soc
     gitlab_groups:
     - devops
     - lg-all
