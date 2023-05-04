@@ -846,11 +846,9 @@ groups:
   lg:
     description: Namespace for Login.gov projects
   lg-all:
-    description: Place where anybody can create projects, and they are visible to
-      everybody with an account.
+    description: Place where anybody can create projects, and they are visible to everybody with an account.
   lg-public:
-    description: Place where anybody can create projects, and they can be accessed
-      by the public.
+    description: Place where anybody can create projects, and they can be accessed by the public.
   bots:
     description: Gitlab automation accounts
 projects:
