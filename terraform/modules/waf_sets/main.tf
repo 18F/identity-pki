@@ -88,20 +88,6 @@ resource "aws_wafv2_regex_pattern_set" "header_blocks" {
   }
 }
 
-resource "aws_wafv2_regex_pattern_set" "query_string_blocks" {
-  count       = length(var.query_block_regex) >= 1 ? 1 : 0
-  name        = "${local.tf_acct}-${var.app_name}-query-string-blocks"
-  description = "Regex patterns in query strings to block"
-  scope       = var.wafv2_web_acl_scope
-
-  dynamic "regular_expression" {
-    for_each = var.query_block_regex
-    content {
-      regex_string = regular_expression.value
-    }
-  }
-}
-
 resource "aws_wafv2_regex_pattern_set" "restricted_paths" {
   count       = length(var.restricted_paths.paths) > 0 ? 1 : 0
   name        = "${local.tf_acct}-${var.app_name}-restricted-paths"

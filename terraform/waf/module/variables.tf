@@ -1,6 +1,6 @@
 variable "region" {
-  type        = string
   description = "AWS Region"
+  type        = string
   default     = "us-west-2"
 }
 
@@ -9,41 +9,41 @@ variable "fisma_tag" {
 }
 
 variable "env" {
-  type        = string
   description = "Environment name"
+  type        = string
 }
 
 variable "app" {
-  type        = string
   description = <<EOM
 Name of the application (currently 'idp' or 'gitlab') using Load Balancers
 that WAFv2 ACL(s) will be associated with. Used for naming web ACL configs.
 EOM
+  type        = string
   default     = "idp"
 }
 
 variable "enforce" {
-  description = "Set to true to enforce WAF ACL rules or false to just count traffic matching rules"
+  description = "Block (true) or count (false) traffic matching WAF ACL rules."
   type        = bool
   default     = false
 }
 
 variable "enforce_rate_limit" {
-  description = "Set to true to enforce rate-limiting of all traffic based on source IP"
+  description = "Enforce rate-limiting of all traffic based on source IP."
   type        = bool
   default     = false
 }
 
 # WIP not ready for prod deployment
 variable "enforce_waf_captcha" {
-  description = "Set to true to enforce captcha before login page"
+  description = "Enforce captcha before login page."
   type        = bool
   default     = false
 }
 
 # WIP not ready for prod deployment
 variable "enforce_waf_challenge" {
-  description = "Set to true to enforce challenge before login page"
+  description = "Enforce challenge before login page."
   type        = bool
   default     = false
 }
@@ -89,37 +89,46 @@ variable "common_ruleset_exclusions" {
   description = "List of rules to exclude for AWSManagedRulesCommonRuleSet"
   type        = list(string)
   default = [
-    # AWS description: "Inspects the values of the request body and blocks requests attempting to 
-    # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3085
+    # AWS description: "Inspects the values of the request body and blocks requests
+    # attempting to exploit RFI (Remote File Inclusion) in web applications.
+    # Examples include patterns like ://." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3085
     "GenericRFI_BODY",
-    # AWS description: "Inspects the values of all query parameters and blocks requests attempting to 
-    # exploit RFI (Remote File Inclusion) in web applications. Examples include patterns like ://."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    # AWS description: "Inspects the values of all query parameters & blocks requests
+    # attempting to  exploit RFI (Remote File Inclusion) in web applications.
+    # Examples include patterns like ://." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3100
     "GenericRFI_QUERYARGUMENTS",
-    # AWS description: "Verifies that the URI query string length is within the standard boundary for applications."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    # AWS description: "Verifies that the URI query string length is within the
+    # standard boundary for applications." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3100
     "SizeRestrictions_QUERYSTRING",
-    # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request query arguments."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata
+    # from the request query arguments." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3100
     "EC2MetaDataSSRF_QUERYARGUMENTS",
-    # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata from the request cookie."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    # AWS description: "Inspects for attempts to exfiltrate Amazon EC2 metadata
+    # from the request cookie." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3100
     "EC2MetaDataSSRF_BODY",
     # AWS description: "Blocks requests with no HTTP User-Agent header."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3100
+    # For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3100
     "NoUserAgent_HEADER",
-    # AWS description: "Inspects the value of query arguments and blocks common cross-site
-    # scripting (XSS) patterns using the built-in XSS detection rule in AWS WAF.
-    # Example patterns include scripts like <script>alert("hello")</script>."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3117
+    # AWS description: "Inspects the value of query arguments and blocks common
+    # cross-site scripting (XSS) patterns using the built-in XSS detection 
+    # rule in AWS WAF. Example patterns include scripts like
+    # <script>alert("hello")</script>." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3117
     "CrossSiteScripting_QUERYARGUMENTS",
-    # AWS description: "Verifies that the request body size is at most 10,240 bytes."
-    # For request details see issue https://github.com/18F/identity-devops/issues/3178
+    # AWS description: "Verifies that the request body size
+    # is at most 10,240 bytes." For request details see issue:
+    # https://github.com/18F/identity-devops/issues/3178
     "SizeRestrictions_BODY",
-    # AWS description: "Inspects the value of the request body and blocks common cross-site
-    # scripting (XSS) patterns using the built-in XSS detection rule in AWS WAF.
-    # Example patterns include scripts like <script>alert("hello")</script>."
+    # AWS description: "Inspects the value of the request body and blocks common
+    # cross-site scripting (XSS) patterns using the built-in XSS detection
+    # rule in AWS WAF. Example patterns include scripts like
+    # <script>alert("hello")</script>."
     # Added during WAFv2 to prod, 2021-06-23
     "CrossSiteScripting_BODY",
   ]
@@ -156,7 +165,9 @@ variable "geo_block_list" {
 }
 
 variable "geo_us_regions" {
-  description = "Geographic Regions to block"
+  description = <<EOM
+Geographic Regions to block for EnforceCaptcha/EnforceChallenge WAF rules.
+EOM
   type        = list(string)
   default     = ["US", "AS", "GU", "MP", "PR", "UM", "VI"]
 }
@@ -166,35 +177,14 @@ variable "geo_us_regions" {
 # Until then, these values MUST MATCH in the equivalent directories!
 
 variable "header_block_regex" {
+  description = "Map of regexes matching headers to block"
   type = list(object({
     field_name = string
     patterns   = list(string)
     }
     )
   )
-  description = "Map of regexes matching headers to block"
-  default     = []
-}
-
-variable "query_block_regex" {
-  type        = list(string)
-  description = "Set of regexes to filter query strings for blocking"
-  default     = []
-}
-
-variable "restricted_paths" {
-  type        = map(list(string))
-  description = <<EOM
-Map with two keys for WAFv2 configuration: A list of regex matches of paths
-to restrict to privileged IPs, and a list of paths to exclude.
-EOM
-  default = {
-    paths = [
-      "^/api/irs_attempts_api/.*",
-    ]
-    exclusions = [
-    ]
-  }
+  default = []
 }
 
 variable "waf_alert_blocked_period" {
@@ -204,13 +194,13 @@ variable "waf_alert_blocked_period" {
 }
 
 variable "waf_alert_blocked_threshold" {
-  description = "Alert will fire if the number of blocks within the window is >= this value"
+  description = "Alert threshold for number of blocks within waf_alert_blocked_period"
   type        = string
   default     = "5"
 }
 
 variable "rate_limit" {
-  description = "The maximum number of requests from a single IP address that are allowed in a five-minute period"
+  description = "Maximum number of requests from one IP allowed in a 5-minute period"
   type        = string
   default     = "5500"
 }
@@ -242,7 +232,7 @@ variable "ship_logs_to_soc" {
 }
 
 variable "restricted_paths_enforce" {
-  description = "Set to false to count instead of block excluded paths - ONLY USE IN SANDBOXES!"
+  description = "Count instead of Block excluded paths - ONLY USE IN SANDBOXES!"
   type        = bool
   default     = true
 }
@@ -262,19 +252,26 @@ variable "geo_allow_list" {
 }
 
 variable "wafv2_web_acl_scope" {
-  type        = string
   description = "Scope where rules are created, can be either REGIONAL or CLOUDFRONT"
+  type        = string
   default     = "REGIONAL"
 
   validation {
-    condition     = var.wafv2_web_acl_scope == "REGIONAL" || var.wafv2_web_acl_scope == "CLOUDFRONT"
-    error_message = "wafv2_web_acl_scope must be either set to either REGIONAL or CLOUDFRONT"
+    condition = (
+      var.wafv2_web_acl_scope == "REGIONAL" || var.wafv2_web_acl_scope == "CLOUDFRONT"
+    )
+    error_message = <<EOM
+wafv2_web_acl_scope must be either set to either REGIONAL or CLOUDFRONT.
+EOM
   }
 }
 
 variable "aws_shield_resources" {
+  description = <<EOM
+Map that contains resources to enable AWS Shield per environment.
+Accepts a list of resource ARNs per resource type.
+EOM
   type        = map(list(string))
-  description = "Map that contains resources to enable AWS Shield per environment, accepts a list of resource arns per resource type"
   default = {
     cloudfront               = [],
     route53_hosted_zone      = [],
@@ -286,11 +283,20 @@ variable "aws_shield_resources" {
 }
 
 variable "automated_ddos_protection_action" {
-  description = "Value for the Automated Application Layer DDOS Mitigation setting for AWS Shield. Valid values are Disable, Block, or Count"
+  description = <<EOM
+Value for the Automated Application Layer DDOS Mitigation setting for AWS Shield.
+Valid values are Disable, Block, or Count.
+EOM
   type        = string
   default     = "Disable"
   validation {
-    condition     = contains(["Disable", "Block", "Count"], var.automated_ddos_protection_action)
-    error_message = "shield_ddos action is not valid. Valid options are \"Disable\", \"Block\", or \"Count\""
+    condition = contains(
+      ["Disable", "Block", "Count"],
+      var.automated_ddos_protection_action
+    )
+    error_message = <<EOM
+Shield_ddos action is not valid.
+Valid options are 'Disable', 'Block', or 'Count'.
+EOM
   }
 }

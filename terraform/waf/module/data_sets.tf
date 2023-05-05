@@ -1,9 +1,8 @@
 locals {
-  app_regex_sets = compact([
-    length(var.query_block_regex) >= 1 ? "query_string_blocks" : "",
-    length(var.restricted_paths.paths) > 0 ? "restricted_paths" : "",
-    length(var.restricted_paths.exclusions) > 0 ? "restricted_paths_exclusions" : "",
-  ])
+  app_regex_sets = [
+    "restricted_paths",
+    "restricted_paths_exclusions",
+  ]
   acct_regex_sets = [
     "relaxed_uri_paths",
     "limit_exempt_paths",

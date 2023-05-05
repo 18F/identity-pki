@@ -141,7 +141,7 @@ resource "aws_wafv2_web_acl" "alb" {
           # Only combine the resticted path AND the exclusion path patterns
           # if both are present
           # MUST match same variable in terraform/core or terraform/gitlab!
-          for_each = length(var.restricted_paths.exclusions) > 0 ? [1] : []
+          for_each = length(data.aws_wafv2_regex_pattern_set.app["restricted_paths_exclusions"]) > 0 ? [1] : []
           content {
             statement {
               not_statement {
@@ -176,7 +176,7 @@ resource "aws_wafv2_web_acl" "alb" {
         dynamic "regex_pattern_set_reference_statement" {
           # No AND needed if only a restricted path pattern is set
           # MUST match same variable in terraform/core or terraform/gitlab!
-          for_each = length(var.restricted_paths.exclusions) > 0 ? [] : [1]
+          for_each = length(data.aws_wafv2_regex_pattern_set.app["restricted_paths_exclusions"]) > 0 ? [] : [1]
           content {
             arn = data.aws_wafv2_regex_pattern_set.app["restricted_paths"].arn
             field_to_match {
@@ -666,47 +666,6 @@ resource "aws_wafv2_web_acl" "alb" {
       visibility_config {
         cloudwatch_metrics_enabled = true
         metric_name                = "${local.web_acl_name}-HeaderBlock-metric"
-        sampled_requests_enabled   = true
-      }
-    }
-  }
-
-  dynamic "rule" {
-    # MUST match var.query_block_regex in terraform/core or terraform/gitlab!
-    for_each = length(var.query_block_regex) >= 1 ? [1] : []
-    content {
-      name     = "IdpQueryRegexBlock"
-      priority = 900
-
-      action {
-        dynamic "block" {
-          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
-          content {}
-        }
-
-        dynamic "count" {
-          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
-          content {}
-        }
-      }
-      statement {
-        regex_pattern_set_reference_statement {
-          arn = data.aws_wafv2_regex_pattern_set.app["query_string_blocks"].arn
-
-          text_transformation {
-            priority = 2
-            type     = "NONE"
-          }
-
-          field_to_match {
-            query_string {}
-          }
-        }
-      }
-
-      visibility_config {
-        cloudwatch_metrics_enabled = true
-        metric_name                = "${local.web_acl_name}-QueryStringBlock-metric"
         sampled_requests_enabled   = true
       }
     }

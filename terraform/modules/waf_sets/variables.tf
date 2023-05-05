@@ -111,6 +111,7 @@ EOM
       "^/api/irs_attempts_api/.*",
     ]
     exclusions = [
+      "^$"
     ]
   }
 }
