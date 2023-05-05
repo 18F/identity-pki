@@ -309,26 +309,6 @@ See https://github.com/18F/identity-devops/wiki/Runbook:-IRS-Attempts-API-Event-
 EOM
 }
 
-resource "aws_cloudwatch_metric_alarm" "usps_proofing_exception_alarm" {
-  alarm_name                = "${var.env_name}-GetUspsProofingResultsJob-exception"
-  comparison_operator       = "GreaterThanThreshold"
-  evaluation_periods        = "1"
-  datapoints_to_alarm       = "1"
-  metric_name               = "usps-proofing-unexpected-exception"
-  namespace                 = "${var.env_name}/idp-in-person-proofing"
-  period                    = "60"
-  statistic                 = "Sum"
-  threshold                 = "0"
-  alarm_description         = <<EOM
-This alarm is executed when an exception is thrown
-
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
-EOM
-  treat_missing_data        = "missing"
-  insufficient_data_actions = []
-  alarm_actions             = local.in_person_alarm_actions
-}
-
 resource "aws_cloudwatch_metric_alarm" "low-sp-oidc-token-success" {
   for_each            = var.low_sp_oidc_token_enabled_sps
   alarm_name          = "${var.env_name}-${each.key}-low-sp-oidc-token-success"

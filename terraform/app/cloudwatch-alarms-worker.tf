@@ -254,7 +254,7 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_job_completed_high_error_rate" {
   count = var.idp_worker_alarms_enabled
 
-  alarm_name          = "${var.env_name}-IDPUSPSProofingWorker-HighErrorRate"
+  alarm_name          = "${var.env_name}-IDP-Worker-GetUspsProofingResultsJob-HighErrorRate"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
   datapoints_to_alarm = "1"
@@ -265,7 +265,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_job_completed_
   threshold           = var.in_person_high_usps_proofing_job_error_rate
 
   alarm_description = <<EOM
-More than 10% of enrollments processed by the USPS get proofing results job encountered errors.
+More than 10% of enrollments processed by GetUspsProofingResultsJob encountered errors.
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
 EOM
