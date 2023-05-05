@@ -173,6 +173,9 @@ users:
     - appdev
     - lg-all
     - lg-public
+  dustin.spiehler:
+    aws_groups:
+    - finops
   eileen.mcfarland:
     aws_groups:
     - apponcall
