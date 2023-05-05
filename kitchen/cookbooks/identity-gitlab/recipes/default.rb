@@ -41,6 +41,7 @@ root_password = ConfigLoader.load_config(node, 'gitlab_root_password', common: f
 runner_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
 ses_password = ConfigLoader.load_config(node, 'ses_smtp_password', common: true).chomp
 ses_username = ConfigLoader.load_config(node, 'ses_smtp_username', common: true).chomp
+sns_topic_arn = ::File.read('/etc/login.gov/info/sns_topic_arn').chomp
 smtp_address = "email-smtp.#{aws_region}.amazonaws.com"
 metric_namespace = ConfigLoader.load_config(node, 'gitlab_metric_namespace', common: false).chomp
 user_sync_metric_name = ConfigLoader.load_config(node, 'gitlab_user_sync_metric_name', common: false).chomp
@@ -594,6 +595,10 @@ execute 'add_ci_skeleton' do
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
       "#{local_url}/api/v4/admin/ci/variables" \
       --form "key=AWS_REGION" --form "value=#{aws_region}" \
+      --form "masked=true" --form "protected=false"
+    curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
+      "#{local_url}/api/v4/admin/ci/variables" \
+      --form "key=SNS_ALERT_TOPIC_ARN" --form "value=#{sns_topic_arn}" \
       --form "masked=true" --form "protected=false"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?deactivate_dormant_users=true"
