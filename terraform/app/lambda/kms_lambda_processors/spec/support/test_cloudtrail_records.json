@@ -1,0 +1,26 @@
+{
+    "Records": [
+      {
+        "messageId": "c40be4cf-2bf6-44d0-a547-6f299cc8b3ae",
+        "receiptHandle": "AQEBxeE0uur2zD8lX6C1tGYXmamnKs1FGVhDD+1jqQ3edUgsGA7CTO9VO4apaGcM8bVHQvioWxS2x6AVhOH5U7b2GankQLxMN8qSgrKWA6yWM1vLlSdvUh4o9VvXKMUr3ZVtBefY4TqB+hvoRNksCZCaEqbfOvgYioiCyq3WCxOm5mi1T6ZRE7fKHMvP1DkuusB3TjhqQ0A6XpoUKZbT58ewU99WDSJYaTfzmAc5vDgfDLy2P7wJx1OJby/ufH3zaSEo/9G/fXLLnZWlxf5wHW3G6VBjc0t9SktNJGQ6Il1HRuT3pdWGIPX/Cp18s8S4zv7lyyD0aQVSFvPFK+UlZq0CDGb0wJVngg65lnGWwjqXx9tB0oKkzHOLeqa+JMS2CdxEds3uOt375xN7kFqUagyDSw==",
+        "body": "{\"version\":\"0\",\"id\":\"08d4ce92-fe33-dabc-d984-f2c42e078cc8\",\"detail-type\":\"AWS API Call via CloudTrail\",\"source\":\"aws.kms\",\"account\":\"987654321098\",\"time\":\"2019-03-21T23:11:45Z\",\"region\":\"us-west-2\",\"resources\":[],\"detail\":{\"eventVersion\":\"1.05\",\"userIdentity\":{\"type\":\"AssumedRole\",\"principalId\":\"AROAIDWKCUN3FIUUSQZRY:i-0f1ea140d7f145b87\",\"arn\":\"arn:aws:sts::987654321098:assumed-role/logindotgov_idp_iam_role/i-0f1ea140d7f145b87\",\"accountId\":\"987654321098\",\"accessKeyId\":\"ASIA5AXYCUMNOHLFYD26\",\"sessionContext\":{\"attributes\":{\"mfaAuthenticated\":\"false\",\"creationDate\":\"2019-03-21T22:46:52Z\"},\"sessionIssuer\":{\"type\":\"Role\",\"principalId\":\"AROAIDWKCUN3FIUUSQZRY\",\"arn\":\"arn:aws:iam::987654321098:role/logindotgov_idp_iam_role\",\"accountId\":\"987654321098\",\"userName\":\"logindotgov_idp_iam_role\"}}},\"eventTime\":\"2019-03-08T13:32:07Z\",\"eventSource\":\"kms.amazonaws.com\",\"eventName\":\"Decrypt\",\"awsRegion\":\"us-west-2\",\"sourceIPAddress\":\"172.16.33.143\",\"userAgent\":\"aws-sdk-ruby3/3.48.1 ruby/2.7.2 x86_64-linux aws-sdk-kms/1.15.0\",\"requestParameters\":{\"encryptionContext\":{\"user_uuid\":\"ad891a65-1984-0707-b422-b61cd5f9c861\",\"context\":\"password-digest\"}},\"responseElements\":null,\"requestID\":\"f7366cca-63ad-45e8-ba0c-0f0c069d6e0a\",\"eventID\":\"56237e9e-c490-47c3-bdd7-e106041c44f0\",\"readOnly\":true,\"resources\":[{\"ARN\":\"arn:aws:kms:us-west-2:987654321098:key/02be2f6d-4e88-4bd3-84d4-97766993c5b4\",\"accountId\":\"987654321098\",\"type\":\"AWS::KMS::Key\"}],\"eventType\":\"AwsApiCall\",\"vpcEndpointId\":\"vpce-06b36bbcb8fb769a3\"}}",
+        "attributes": {
+          "ApproximateReceiveCount": "1",
+          "SentTimestamp": "1553209923451",
+          "SenderId": "AIDAIE6VAXUQU2DKHA7DK",
+          "ApproximateFirstReceiveTimestamp": "1553209983451"
+        },
+        "messageAttributes": {
+          "RetryCount": {
+            "stringValue": "2",
+            "dataType": "Number"
+          }
+        },
+        "md5OfBody": "d9544125a3422c5960bdd1563017e391",
+        "eventSource": "aws:sqs",
+        "eventSourceARN": "arn:aws:sqs:us-west-2:987654321098:logindotgov-kms-ct-events",
+        "awsRegion": "us-west-2"
+      }
+    ]
+  }
+

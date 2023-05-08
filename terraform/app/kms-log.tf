@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=0f7605a740b27b70d72c134ec1c0cd3568b0e9cd"
+  source = "github.com/18F/identity-terraform//kms_log?ref=96b1157d1de012259c72f237a1657f268eed26cb"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -17,6 +17,30 @@ module "kms_logging" {
   dynamodb_retention_days                 = var.kms_log_dynamodb_retention_days
   kmslog_lambda_debug                     = var.kms_log_kmslog_lambda_debug
   lambda_identity_lambda_functions_gitrev = var.kms_log_lambda_identity_lambda_functions_gitrev
+
+  lambda_kms_cw_processor_zip    = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_ct_processor_zip    = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_event_processor_zip = module.kms_lambda_processors_code.zip_output_path
+}
+
+resource "null_resource" "kms_lambda_processors_build" {
+  provisioner "local-exec" {
+    command     = "./scripts/install-deps.sh"
+    working_dir = "${path.module}/lambda/kms_lambda_processors"
+  }
+}
+
+module "kms_lambda_processors_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
+
+  source_code_filename = "lib/kms_monitor/cloudwatch.rb"
+  source_dir           = "${path.module}/lambda/kms_lambda_processors/"
+  zip_filename         = "${path.module}/lambda/kms_lambda_processors.zip"
+
+
+  depends_on = [null_resource.kms_lambda_processors_build]
+
 }
 
 module "kms_keymaker_uw2" {

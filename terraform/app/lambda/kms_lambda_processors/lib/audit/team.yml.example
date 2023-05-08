@@ -1,0 +1,43 @@
+---
+team_members:
+  - name: Some Person
+    github: sperson
+    subteam: Cat Management
+    responsibilities: Herding Cats
+    email: person@example.com
+    home_orgs: Company
+
+  - name: Many Emails Person
+    github: mep
+    aws: username.differs.from.email
+    subteam: Cat Management
+    responsibilities: VP of Cats
+    email: [one@example.com, two@example.com]
+    home_orgs: Company
+
+alumni:
+  - name: Former Team Member
+    github: ftm
+    subteam: Cat Management
+    email: ftm@example.com
+    home_orgs: Company
+
+audit_config:
+  aws:
+    default_email_domain: example.com
+    machine_users:
+      - splunk
+      - some-bot
+    test_users: []
+    per_account_from_address:
+      "111111111111": no-reply@prod.example.com
+      "222222222222": no-reply@dev.example.com
+    group_cc_address: security@example.com
+
+  github:
+    email_report:
+      from: 'no-reply@example.com'
+      to: 'security-team@example.com, dev-team@example.com'
+    team_yml_team: ['example_github_org', 'read-only-team']
+    core_team: ['example_github_org', 'read-write-team']
+

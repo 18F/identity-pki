@@ -53,3 +53,8 @@ terraform/*/*.scale-in
 # shield_ddos temp files
 terraform/modules/shield_ddos/.aws_shield_*.txt
 terraform/modules/shield_ddos/.aws_webaclid_*.txt
+
+# lambda temp files
+terraform/app/lambda/*/vendor/
+terraform/app/lambda/*/.bundle/
+terraform/app/lambda/*/REVISION.txt
