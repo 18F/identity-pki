@@ -69,6 +69,71 @@ module Cloudlib
       @log ||= Cloudlib.class_log(self, STDERR)
     end
 
+    # @param name_tag_or_id [String] such as +"asg-int-idp"+ or +"i-abcdef"+
+    # @return [Cloudlib::EC2]
+    def get_instance_by_name_or_id(
+      name_tag_or_id,
+      states: ['running'],
+      pick_strategy: nil
+    )
+      if name_tag_or_id =~ /\Ai-[a-f0-9]+\z/
+        instance_id = name_tag_or_id
+        log.debug("Looking up instance ID #{instance_id.inspect}")
+        lookup_instance_by_id(instance_id)
+      else
+        name_tag = name_tag_or_id
+        get_instance_by_name(name_tag, pick_strategy: pick_strategy)
+      end
+    end
+
+    # @param name_tag [String] such as +"asg-int-idp"+
+    # @param pick_strategy [nil,:prompt,:unique,:random,:oldest,:newest]
+    # @return [Cloudlib::EC2]
+    def get_instance_by_name(
+      name_tag,
+      states: ['running'],
+      pick_strategy: nil
+    )
+      filters = [
+        {name: 'tag:Name', values: [name_tag]},
+        {name: 'instance-state-name', values: states},
+      ]
+
+      # Interactively prompt by default iff we're connected to a TTY.
+      if pick_strategy.nil?
+        if STDIN.tty? && STDERR.tty?
+          pick_strategy = :prompt
+        else
+          pick_strategy = :unique
+        end
+      end
+
+      case pick_strategy
+      when :random
+        log.debug("Looking up random instance named #{name_tag.inspect}")
+        get_random_thing(:instances, filters)
+      when :oldest
+        log.debug("Looking up oldest instance named #{name_tag.inspect}")
+        instances = list_things(:instances, filters)
+        instances.min_by(&:launch_time)
+      when :newest
+        log.debug("Looking up newest instance named #{name_tag.inspect}")
+        instances = list_things(:instances, filters)
+        instances.sort_by(&:launch_time).fetch(-1)
+      when :unique
+        log.debug("Looking up instance named #{name_tag.inspect}")
+        get_unique_thing(:instances, filters)
+      when :prompt
+        log.debug("Looking up instances named #{name_tag.inspect}")
+        find_instance_interactive(
+          filters: filters,
+          prompt_text: "Found multiple instances named #{name_tag.inspect}:"
+        )
+      else
+        raise ArgumentError.new("Unknown pick_strategy: #{pick_strategy.inspect}")
+      end
+    end
+
     # @param [String] environment
     # @return [Aws::EC2::Vpc]
     def lookup_vpc_for_env(environment)
