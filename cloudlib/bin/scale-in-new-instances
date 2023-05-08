@@ -13,6 +13,8 @@ def log
 end
 
 def main
+  scale_in_options = {}
+
   basename = File.basename($0)
 
   optparse = OptionParser.new do |opts|
@@ -30,6 +32,10 @@ For example:
   # Remove scale-in protection from NEW staging idp
   #{basename} staging idp
 
+  # Remove scale-in protection from NEW instances in
+  # all Auto Scaling groups in the int environment
+  #{basename} int ALL
+
 Options:
     EOM
 
@@ -45,21 +51,31 @@ Options:
     opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
       Cloudlib.log_level += 1
     end
+
+    opts.on('-f', '--force', "Don't interactively prompt for confirmation") do
+      scale_in_options[:prompt_continue] = false
+    end
   end
 
   args = optparse.parse!
 
-  if args.length != 2
+  if args.length == 2
+    env, role = args
+  else
     STDERR.puts optparse
     exit 1
   end
 
-  asg_name = "#{args.fetch(0)}-#{args.fetch(1)}"
+  scale_in_options[:oldest_first] = false
+  as = Cloudlib::AutoScaling.new
 
-  log.info("Finding newer servers in #{asg_name} to remove scale-in protection")
-
-  Cloudlib::AutoScaling.new.scale_in_instances(asg_name, oldest_first: false)
-
+  if role == 'ALL'
+    as.scale_in_all_instances_in_env(env, scale_in_options: scale_in_options)
+  else
+    asg_name = "#{env}-#{role}"
+    log.info("Finding newer servers in #{asg_name} to remove scale-in protection")
+    as.scale_in_instances(asg_name, **scale_in_options)
+  end
   log.info('All done')
 end
 

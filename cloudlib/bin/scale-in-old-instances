@@ -23,11 +23,17 @@ usage: #{basename} [OPTIONS] ENV ROLE
 
 Remove scale-in protection from older servers in the Auto Scaling Group named
 <ENV>-<ROLE> sufficient to reduce server count to the ASG's desired capacity.
+Specify 'ALL' as the <ROLE> to perform this operation on all Auto Scaling Groups
+in the specified environment.
 
 For example:
 
   # Remove scale-in protection from old staging idp
   #{basename} staging idp
+
+  # Remove scale-in protection from old instances in
+  # all Auto Scaling groups in the int environment
+  #{basename} int ALL
 
 Options:
     EOM
@@ -52,17 +58,22 @@ Options:
 
   args = optparse.parse!
 
-  if args.length != 2
+  if args.length == 2
+    env, role = args
+  else
     STDERR.puts optparse
     exit 1
   end
 
-  asg_name = "#{args.fetch(0)}-#{args.fetch(1)}"
+  as = Cloudlib::AutoScaling.new
 
-  log.info("Finding older servers in #{asg_name} to remove scale-in protection")
-
-  Cloudlib::AutoScaling.new.scale_in_instances(asg_name, **scale_in_options)
-
+  if role == 'ALL'
+    as.scale_in_all_instances_in_env(env, scale_in_options: scale_in_options)
+  else
+    asg_name = "#{env}-#{role}"
+    log.info("Finding older servers in #{asg_name} to remove scale-in protection")
+    as.scale_in_instances(asg_name, **scale_in_options)
+  end
   log.info('All done')
 end
 

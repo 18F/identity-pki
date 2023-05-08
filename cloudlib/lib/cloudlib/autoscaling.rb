@@ -527,6 +527,37 @@ module Cloudlib
       puts pastel.bold.green('All Done')
     end
 
+    # Call `#scale_in_instances` once for each autoscaling group in an environment.
+    #
+    # @param [String] env
+    # @param [Hash] scale_in_options Options passed directly to `#scale_in_instances`
+    # @param [Boolean] interactive Whether to prompt for confirmation
+    #
+    def scale_in_all_instances_in_env(env, scale_in_options: {}, interactive: true)
+      prefix = env + '-'
+      asgs = list_autoscaling_groups(name_prefix: prefix, skip_stateful: true,
+                                     skip_zero: true, skip_utility: true)
+      if asgs.empty?
+        log.error("No ASGs found prefixed #{prefix.inspect} -- wrong account?")
+        raise NotFound.new("No auto scaling groups found for #{env.inspect}")
+      end
+
+      label = scale_in_options[:oldest_first] ? 'old' : 'new'
+      log.info("\nWill scale in #{label} servers in all ASGs in #{env.inspect}:\n  " +
+               asgs.map(&:name).join("\n  "))
+
+      if interactive
+        prompt.ask('Press enter to continue...')
+      end
+
+      asgs.each do |group|
+        if not group.name.match?(/-migration$/)
+          log.info("Finding #{label}er servers in #{group.name} to remove scale-in protection from")
+          Cloudlib::AutoScaling.new.scale_in_instances(group.name, **scale_in_options)
+        end
+      end
+    end
+
     def log
       @log ||= Cloudlib.class_log(self.class, STDERR)
     end
