@@ -2,6 +2,12 @@
 set -eux
 cd "$(dirname "$0")/.."
 
+if [ -d "vendor/bundle/ruby/2.7.0/" ];then
+	echo "Lambda bundle has already been built."
+	echo "Skipping rebuild."
+	exit 0
+fi
+
 current_ruby_version=$(ruby -e 'puts RUBY_VERSION')
 
 expected_ruby_version=$(cat .ruby-version)
