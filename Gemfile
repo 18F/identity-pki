@@ -14,7 +14,6 @@ gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
-gem 'puma', '~> 4.3'
 gem 'redacted_struct', '~> 1.0'
 gem 'rgl'
 
@@ -22,17 +21,22 @@ group :development, :test do
   gem 'bullet', '>= 6.0.2'
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
-  gem 'thin', '>= 1.8.0'
+  gem 'eventmachine',
+      require: 'em/pure_ruby',
+      github: 'eventmachine/eventmachine',
+      # Needed for unreleased fixes in https://github.com/eventmachine/eventmachine/pull/929
+      ref: 'e29ccdefbf4b753dfec513c2df17b3bf1b827425'
+  gem 'thin', '>= 1.8.0', require: false
   gem 'rubocop', require: false
   gem 'rubocop-rails', '>= 2.19.0', require: false
   gem 'rubocop-performance', '~> 1.17', require: false
+  gem 'sorted_set'
 end
 
 group :development do
   gem 'better_errors', '>= 2.5.1'
   gem 'brakeman', require: false
   gem 'bummr', require: false
-  gem 'derailed', '>= 0.1.0'
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
   gem 'rack-mini-profiler', '>= 1.0.2', require: false

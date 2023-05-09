@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+# wrapper around Thin commandline that requires eventmachine's pure ruby implementation
+# before thin can require it
+
+require 'em/pure_ruby'
+
+require 'thin'
+Thin::Runner.new(ARGV).run!
