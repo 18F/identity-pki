@@ -1,7 +1,7 @@
 # Use the official Ruby image because the Rails images have been deprecated
 FROM logindotgov/build as build
 
-# Everything happens here from now on
+# Everything happens here from now on   
 WORKDIR /pivcac
 
 # Simple Gem cache.  Success here creates a new layer in the image.
@@ -25,4 +25,4 @@ COPY --chown=appuser:appuser . .
 USER appuser
 
 EXPOSE 8443
-CMD ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://localhost:8443?key=config/local-certs/server.key&cert=config/local-certs/server.crt"]
+CMD ["thin", "start", "-p", "8443", "--ssl", "--ssl-key-file", "config/local-certs/server.key", "--ssl-cert-file", "config/local-certs/server.crt"]

@@ -22,6 +22,7 @@ group :development, :test do
   gem 'bullet', '>= 6.0.2'
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
+  gem 'thin', '>= 1.8.0'
   gem 'rubocop', require: false
   gem 'rubocop-rails', '>= 2.19.0', require: false
   gem 'rubocop-performance', '~> 1.17', require: false
@@ -31,6 +32,7 @@ group :development do
   gem 'better_errors', '>= 2.5.1'
   gem 'brakeman', require: false
   gem 'bummr', require: false
+  gem 'derailed', '>= 0.1.0'
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
   gem 'rack-mini-profiler', '>= 1.0.2', require: false

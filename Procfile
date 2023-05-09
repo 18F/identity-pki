@@ -1,1 +1,1 @@
-web: bundle exec rackup config.ru --host "ssl://${HOST:-localhost}:${PORT:-8443}?key=config/local-certs/server.key&cert=config/local-certs/server.crt"
+web: bundle exec thin start -p ${PORT:-8443} --ssl --ssl-key-file config/local-certs/server.key --ssl-cert-file config/local-certs/server.crt
