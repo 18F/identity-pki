@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-2.2 - \[catalog\] Automation Support for Accuracy / Currency
@@ -31,6 +32,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-2(2) from the main Login.gov SSP. 
 
 ______________________________________________________________________

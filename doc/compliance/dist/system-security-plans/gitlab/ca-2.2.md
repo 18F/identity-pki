@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 needs-params:
   - ca-2.2_prm_2
   - ca-2.2_prm_3
@@ -41,6 +42,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CA-2(2) from the main Login.gov SSP.
 
 ______________________________________________________________________

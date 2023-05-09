@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cp-2 - \[catalog\] Contingency Plan
@@ -90,48 +91,48 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The GitLab component uses cp-2 from the main Login.gov SSP.
+<!-- Please leave this section blank and enter implementation details in the parts below. -->
 
 ______________________________________________________________________
 
 ## Implementation a.
 
-Add control implementation description here for item cp-2_smt.a
+The GitLab component aligns with CP-2, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Add control implementation description here for item cp-2_smt.b
+The GitLab component aligns with CP-2, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Add control implementation description here for item cp-2_smt.c
+The GitLab component aligns with CP-2, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Add control implementation description here for item cp-2_smt.d
+The GitLab component aligns with CP-2, part D from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Add control implementation description here for item cp-2_smt.e
+The GitLab component aligns with CP-2, part E from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation f.
 
-Add control implementation description here for item cp-2_smt.f
+The GitLab component aligns with CP-2, part F from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-Add control implementation description here for item cp-2_smt.g
+The GitLab component aligns with CP-2, part G from the main Login.gov SSP.
 
 ______________________________________________________________________

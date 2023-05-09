@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-4 - \[catalog\] Security Impact Analysis
@@ -23,9 +24,10 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-4 from the main Login.gov SSP.
 
-In addition, our Container Development wiki page has instructions on
-how to establish trust for a specific image.
+In addition, our Container Development<sup>1</sup> wiki page has instructions on how to establish trust for a specific image.
+
+<sup>1</sup> https://github.com/18F/identity-devops/wiki/Container-Development
 
 ______________________________________________________________________

@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-5.3 - \[catalog\] Signed Components
@@ -27,11 +28,12 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is already documented in the main SSP for the server VMs.
+The GitLab component aligns with CM-5(3) – Infrastructure Components, from the main Login.gov SSP. 
 
-Gitlab packages are signed by gitlab, and verified with a public key.
+GitLab packages are signed by GitLab, and verified with a public key.
 
-Our Container Development wiki page tells us to use Docker
-Content Trust, where possible.
+Our Container Development<sup>1</sup> wiki page tells us to use Docker Content Trust, where possible.
+
+<sup>1</sup> https://github.com/18F/identity-devops/wiki/Container-Development
 
 ______________________________________________________________________

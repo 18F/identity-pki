@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 needs-params:
   - cm-8.3_prm_3
 effort:
@@ -60,12 +61,12 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-8(3), part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-8(3), part B from the main Login.gov SSP.
 
 ______________________________________________________________________

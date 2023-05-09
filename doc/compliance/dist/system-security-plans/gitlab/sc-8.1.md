@@ -31,6 +31,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is documented in the main SSP.
+The GitLab component aligns with SC-8(1) from the main Login.gov SSP.
 
 ______________________________________________________________________

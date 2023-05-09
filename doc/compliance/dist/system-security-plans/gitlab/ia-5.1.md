@@ -69,36 +69,42 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-Security controls for passwords relating to case sensitivity, length, content, and complexity are all managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
+Security controls for passwords relating to case sensitivity, length, content, and complexity are all managed upstream by Login.gov. 
+The GitLab component aligns with IA-5(1), part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Security controls for passwords relating to minimum changes between old and new passwords are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
+Security controls for passwords relating to minimum changes between old and new passwords are managed upstream by Login.gov. 
+The GitLab component aligns with IA-5(1), part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-Security controls for passwords relating to encrypted storage and transmission are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
+Security controls for passwords relating to encrypted storage and transmission are managed upstream by Login.gov. 
+The GitLab component aligns with IA-5(1), part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (d)
 
-Security controls for passwords relating to minimum or maximum lifetimes are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
+Security controls for passwords relating to minimum or maximum lifetimes are managed upstream by Login.gov. 
+The GitLab component aligns with IA-5(1), part D from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (e)
 
-Security controls for passwords relating to generational reuse are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
+Security controls for passwords relating to generational reuse are managed upstream by Login.gov. 
+The GitLab component aligns with IA-5(1), part E from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (f)
 
-Security controls for passwords relating to temporary passwords and required changes are managed upstream by Login.gov. The GitLab component uses ia-5.1 from the main Login.gov SSP.
+Security controls for passwords relating to temporary passwords and required changes are managed upstream by Login.gov. 
+The GitLab component aligns with IA-5(1), part F from the main Login.gov SSP.
 
 ______________________________________________________________________

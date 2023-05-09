@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 ---
 
 # ia-2.2 - \[catalog\] Network Access to Non-privileged Accounts
@@ -18,7 +19,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab user accounts are created using login.gov as an authentication mechanism
-which requires requires MFA.  
+GitLab user accounts are created using login.gov as an authentication mechanism
+which requires MFA.  
 
 ______________________________________________________________________

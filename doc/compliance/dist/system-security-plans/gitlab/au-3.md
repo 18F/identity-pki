@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # au-3 - \[catalog\] Content of Audit Records
@@ -35,6 +36,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-See parent SSP.
+The GitLab component aligns with AU-3 from the main Login.gov SSP.
 
 ______________________________________________________________________

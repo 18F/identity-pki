@@ -22,6 +22,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Protection and classification of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5.6 from the main Login.gov SSP.
+Protection and classification of authenticators is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5(6) from the main Login.gov SSP.
 
 ______________________________________________________________________

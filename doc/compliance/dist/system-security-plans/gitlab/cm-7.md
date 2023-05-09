@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-7 - \[catalog\] Least Functionality
@@ -51,12 +52,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-7, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-7, part B from the main Login.gov SSP.
 
 ______________________________________________________________________

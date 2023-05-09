@@ -92,60 +92,71 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-The identity of the individual, group, role, or device is authenticated upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+The identity of the individual, group, role, or device is authenticated upstream via Login.gov. 
+
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-Any initial authenticator content for authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Any initial authenticator content for authenticators is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-Authenticator strength is controlled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Authenticator strength is controlled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-Administrative procedures for authenticator distribution and handling is controlled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Administrative procedures for authenticator distribution and handling is controlled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-Any change in default content of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Any change in default content of authenticators is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation f.
 
-Lifetime restrictions and reuse conditions for authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Lifetime restrictions and reuse conditions for authenticators is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-Changing/refreshing of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Changing/refreshing of authenticators is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation h.
 
-Authenticator content is protected upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Authenticator content is protected upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation i.
 
-Safeguards for protect authenticators are handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Safeguards for protect authenticators are handled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation j.
 
-Any change of authenticators is handled upstream via Login.gov. The GitLab component uses ia-5 from the main Login.gov SSP.
+Any change of authenticators is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5 from the main Login.gov SSP.
 
 ______________________________________________________________________

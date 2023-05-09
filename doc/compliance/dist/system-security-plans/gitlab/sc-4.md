@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab prevents unauthorized and unintended information transfer via shared system resources by separating the Gitlab source code management system processes from Gitlab runner processes. Specifically, any build, test and other Gitlab runner activities are sequestered from the Gitlab source code management system processes by placing all runner or CICD process on separate virtual machines which use separate security groups, and dedicated web proxies.
+GitLab prevents unauthorized and unintended information transfer via shared system resources by separating the GitLab source code management system processes from GitLab runner processes. Specifically, any build, test and other GitLab runner activities are sequestered from the GitLab source code management system processes by placing all runner or CICD process on separate virtual machines which use separate security groups, and dedicated web proxies.
 
 ______________________________________________________________________

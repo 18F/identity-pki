@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # au-7 - \[catalog\] Audit Reduction and Report Generation
@@ -42,12 +43,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-See parent SSP.
+The GitLab component aligns with AU-7, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-See parent SSP.
+The GitLab component aligns with AU-7, part B from the main Login.gov SSP.
 
 ______________________________________________________________________

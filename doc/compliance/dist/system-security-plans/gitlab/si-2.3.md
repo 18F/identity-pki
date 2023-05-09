@@ -39,12 +39,11 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-This control is documented in the main SSP.
-
+The GitLab component aligns with SI-2(3), part A from the main Login.gov SSP.
 ______________________________________________________________________
 
 ## Implementation (b)
 
-This control is documented in the main SSP.
+The GitLab component aligns with SI-2(3), part B from the main Login.gov SSP.
 
 ______________________________________________________________________

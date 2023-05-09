@@ -1,6 +1,7 @@
 ---
 status:
   - c-documented
+
 ---
 
 # di-1 - \[catalog\] Data Quality
@@ -15,6 +16,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-We do not collect or hold PII in GitLab.
+The GitLab component does not collect or store PII. 
 
 ______________________________________________________________________

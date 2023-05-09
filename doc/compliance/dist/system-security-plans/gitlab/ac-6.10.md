@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 effort:
   - medium
 ---
@@ -30,9 +31,9 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Non-privileged access to Gitlab is limited to AppDev engineers.
+Non-privileged access to GitLab is limited to AppDev Engineers.
 
-Privileged access to Gitlab for the purpose of administration and implementing
+Privileged access to GitLab for the purpose of administration and implementing
 or configuring security safeguards is restricted to only DevOps Engineers, and
 requires PIV-based MFA from the GSA network.
 

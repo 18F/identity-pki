@@ -61,24 +61,25 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-This control is documented in the main SSP.
+
+The GitLab component aligns with SI-5, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-This control is documented in the main SSP.
+The GitLab component aligns with SI-5, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-This control is documented in the main SSP.
+The GitLab component aligns with SI-5, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-This control is documented in the main SSP.
+The GitLab component aligns with SI-5, part D from the main Login.gov SSP.
 
 ______________________________________________________________________

@@ -50,7 +50,7 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-The Gitlab component uses sa-3_smt.a from the main login.gov SSP.
+The Gitlab component aligns with SA-3, part A from the main Login.gov SSP.
 
 ### Note to SSP editor:
 
@@ -63,18 +63,18 @@ ______________________________________________________________________
 
 ## Implementation b.
 
-The Gitlab component uses sa-3_smt.b from the main login.gov SSP.
+The Gitlab component aligns with SA-3, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-The Gitlab component uses sa-3_smt.c from the main login.gov SSP.
+The Gitlab component aligns with SA-3, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-The Gitlab component uses sa-3_smt.d from the main login.gov SSP.
+The Gitlab component aligns with SA-3, part D from the main Login.gov SSP.
 
 ______________________________________________________________________

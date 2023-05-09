@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 effort:
   - medium
 ---
@@ -54,24 +55,24 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-See parent SSP.
+The GitLab component aligns with AU-2, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-See parent SSP.
+The GitLab component aligns with AU-2, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-See parent SSP.
+The GitLab component aligns with AU-2, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-See parent SSP.
+The GitLab component aligns with AU-2, part D from the main Login.gov SSP.
 
 ______________________________________________________________________

@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab limits the number of external network connections; the only access points visible on a public network are AWS load balancers.
+GitLab limits the number of external network connections; the only access points visible on a public network are AWS load balancers.
 
 ______________________________________________________________________

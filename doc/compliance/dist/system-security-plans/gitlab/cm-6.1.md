@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 effort:
   - medium
 ---
@@ -32,7 +33,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab is deployed and tested in a fully automated fashion using
+GitLab is deployed and tested in a fully automated fashion using
 AWS CodePipeline and CodeBuild.
 
 ______________________________________________________________________

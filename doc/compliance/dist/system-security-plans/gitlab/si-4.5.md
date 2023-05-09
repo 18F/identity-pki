@@ -28,6 +28,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is documented in the main SSP.
+The GitLab component aligns with SI-4(5) from the main Login.gov SSP.
 
 ______________________________________________________________________

@@ -74,31 +74,31 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-The Gitlab component uses ra-3.a from the main login.gov SSP.
+The Gitlab component aligns with RA-3, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
 
-The Gitlab component uses ra-3.b from the main login.gov SSP.
+The Gitlab component aligns with RA-3, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-The Gitlab component uses ra-3.c from the main login.gov SSP.
+The Gitlab component aligns with RA-3, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-The Gitlab component uses ra-3.d from the main login.gov SSP.
+The Gitlab component aligns with RA-3, part E from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-The Gitlab component uses ra-3.e from the main login.gov SSP.
+The Gitlab component ailgns with RA-3, part E from the main Login.gov SSP.
 
 ______________________________________________________________________

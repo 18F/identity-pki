@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-8.1 - \[catalog\] Updates During Installations / Removals
@@ -25,6 +26,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-8(1) from the main Login.gov SSP.
 
 ______________________________________________________________________

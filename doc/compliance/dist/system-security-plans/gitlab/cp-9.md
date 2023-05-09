@@ -52,31 +52,29 @@ ______________________________________________________________________
 ## Implementation a.
 
 GitLab user level information is backed up by both a full system
-backup script as well as database snapshot backup using the same schedule as all items
-covered in the parent SSP.
+backup script as well as database snapshot backup using the same schedule as all items covered in the main Login.gov SSP.
 
-See CP-9 control documentation in the main SSP for remaining detail.
+The GitLab component aligns with CP-9, part A from the main Login.gov SSP where additional details can be found.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-GitLab system level information is backed up by both a full system
-backup script as well as database snapshot backup using the same schedule as all items
-covered in the parent SSP.
+GitLab user level information is backed up by both a full system
+backup script as well as database snapshot backup using the same schedule as all items covered in the main Login.gov SSP.
 
-See CP-9 control documentation in the main SSP for remaining detail.
+The GitLab component aligns with CP-9, part B from the main Login.gov SSP where additional details can be found.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CP-9, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CP-9, part D from the main Login.gov SSP.
 
 ______________________________________________________________________

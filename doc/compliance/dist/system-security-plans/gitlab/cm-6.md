@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-6 - \[catalog\] Configuration Settings
@@ -68,29 +69,30 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-This control is already documented in the main SSP for the Gitlab Server.
+The GitLab component aligns with CM-6, part A from the main Login.gov SSP.
 
-Also, our Container Development wiki page gives us recommendations from
-the docker CIS benchmark for us to follow to create secure and minimal images.
+Also, our Container Development<sup>1</sup> wiki page gives us recommendations from the docker CIS benchmark for us to follow to create secure and minimal images.
+
+<sup>1</sup> https://github.com/18F/identity-devops/wiki/Container-Development
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-This control is already documented in the main SSP for the Gitlab Server.
+The GitLab component aligns with CM-6, part B from the main Login.gov SSP.
 
-As much as possible, we have implemented the checklist items in CM-6(a).
+As much as possible, we have implemented the checklist items in CM-6, Part A.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-This control is already documented in the main SSP for the Gitlab Server.
+The GitLab component aligns with CM-6, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-This control is already documented in the main SSP for the Gitlab Server.
+The GitLab component aligns with CM-6, part D from the main Login.gov SSP.
 
 ______________________________________________________________________

@@ -48,24 +48,28 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-PKI-based authentication including verifying certificate paths and trust anchors is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
+PKI-based authentication including verifying certificate paths and trust anchors is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5(2) from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-Enforcing authorized access is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
+Enforcing authorized access is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5(2) from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-Mapping the authenticated identity to the account of the individual or group is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
+Mapping the authenticated identity to the account of the individual or group is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5(2) from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (d)
 
-Implementation of a local cache of revocation data is handled upstream via Login.gov. The GitLab component uses ia-5.2 from the main Login.gov SSP.
+Implementation of a local cache of revocation data is handled upstream via Login.gov. 
+The GitLab component aligns with IA-5(2) from the main Login.gov SSP.
 
 ______________________________________________________________________

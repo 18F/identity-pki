@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 ---
 
 # ia-2.1 - \[catalog\] Network Access to Privileged Accounts
@@ -18,13 +19,13 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-GitLab uses Login.gov for authentication which always requires MFA.  In addition
+GitLab uses Login.gov for authentication which always requires MFA.  Additionally,
 the GitLab integration with Login.gov is configured to require a phishing resistant MFA
 method such as PIV/CAC, face or touch unlock, or hardware key.
 
 Administrative access to GitLab UI/API requires GSA VPN access which also utilizes
 MFA with PIV.
 
-The Gitlab root account password is locked during bootstrapping, but in emergencies can be reset through using AWS SSM, which requires MFA.
+The GitLab root account password is locked during bootstrapping, but in emergencies can be reset through using AWS SSM, which requires MFA.
 
 ______________________________________________________________________

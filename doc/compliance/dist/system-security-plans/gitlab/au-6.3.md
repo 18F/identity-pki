@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # au-6.3 - \[catalog\] Correlate Audit Repositories
@@ -23,6 +24,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Documented in parent SSP.
+The GitLab component aligns with AU-6(3) from the main Login.gov SSP.
 
 ______________________________________________________________________

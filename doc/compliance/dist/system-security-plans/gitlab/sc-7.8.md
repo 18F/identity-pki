@@ -28,6 +28,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab uses a series of proxy servers to provide outgoing access destined for external networks.  Specific network destinations are enabled via an allow list, and all other destinations are disallowed.  All outbound traffic destined for external network that is originated by Gitlab or Gitlab components are routed through proxies.
+GitLab uses a series of proxy servers to provide outgoing access destined for external networks.  Specific network destinations are enabled via an allow list, and all other destinations are disallowed.  All outbound traffic destined for external networks that is originated by Gitlab or Gitlab components are routed through proxies.
 
 ______________________________________________________________________

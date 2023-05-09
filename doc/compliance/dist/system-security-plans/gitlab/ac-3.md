@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 ---
 
 # ac-3 - \[catalog\] Access Enforcement
@@ -38,9 +39,6 @@ ______________________________________________________________________
 
 Gitlab Environment:
 
-Privileged and unprivileged accounts in the Gitlab environment are administred
-with Role-Based Access Control. Users have different abilities depending on the
-role they have in a particular group or project. Users authenticate to Gitlab by
-authenticating to Login.gov.
+Privileged and unprivileged accounts in the GitLab environment are administered with Role-Based Access Control. Users have different abilities depending on the role they have in a particular group or project. Users authenticate to GitLab by authenticating to Login.gov.
 
 ______________________________________________________________________

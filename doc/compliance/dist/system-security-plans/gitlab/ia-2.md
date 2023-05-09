@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 effort:
   - medium
 ---
@@ -24,7 +25,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab access is controlled via a combination of Login.gov authentication, MFA,
+GitLab access is controlled via a combination of Login.gov authentication, MFA,
 assignment of permissions via granting individual Login.gov accounts membership
 in permission groups, GSA VPN access and AWS security groups. 
 

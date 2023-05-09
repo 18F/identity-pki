@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 ---
 
 # ia-4 - \[catalog\] Identifier Management
@@ -90,7 +91,7 @@ ______________________________________________________________________
 
 ## Implementation c.
 
-Groups and roles are assigned for to individuals by Login.gov leads and mangers.
+Groups and roles are assigned to individuals by Login.gov leads and mangers.
 
 ______________________________________________________________________
 
@@ -102,6 +103,6 @@ ______________________________________________________________________
 
 ## Implementation e.
 
-Individual user accounts are disabled in Gitlab after a period of inactivity in order to free up licenses.  
+Individual user accounts are disabled in GitLab after a period of inactivity in order to free up licenses.  
 
 ______________________________________________________________________

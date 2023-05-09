@@ -51,30 +51,30 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-This control is documented in the main SSP.
+The GitLab component aligns with SC-7(4), part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-This control is documented in the main SSP.
+The GitLab component aligns with SC-7(4), part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-This control is documented in the main SSP.
+The GitLab component aligns with SC-7(4), part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (d)
 
-This control is documented in the main SSP.
+The GitLab component aligns with SC-7(4), part D from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (e)
 
-This control is documented in the main SSP.
+The GitLab component aligns with SC-7(4), part E from the main Login.gov SSP.
 
 ______________________________________________________________________

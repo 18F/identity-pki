@@ -91,30 +91,30 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-The Gitlab component uses ra-5_smt.a from the main login.gov SSP.
+The Gitlab component aligns with RA-5, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-The Gitlab component uses ra-5_smt.b from the main login.gov SSP.
+The Gitlab component aligns with RA-5, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-The Gitlab component uses ra-5_smt.c from the main login.gov SSP.
+The Gitlab component aligns with RA-5, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-The Gitlab component uses ra-5_smt.d from the main login.gov SSP.
+The Gitlab component aligns with RA-5, part D from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-The Gitlab component uses ra-5_smt.e from the main login.gov SSP.
+The Gitlab component follows aligns with RA-5, part E from the main Login.gov SSP.
 
 ______________________________________________________________________

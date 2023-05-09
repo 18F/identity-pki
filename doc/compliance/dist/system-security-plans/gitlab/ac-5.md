@@ -4,6 +4,7 @@ status:
   - c-documented
   - c-in-parent-ssp
 
+
 effort:
   - medium
 ---
@@ -55,18 +56,18 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-The Gitlab component uses AC-5, part A from the main login.gov SSP.
+The GitLab component aligns with AC-5, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-The Gitlab component uses AC-5, part B from the main login.gov SSP.
+The GitLab component aligns with AC-5, part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-The Gitlab component uses AC-5, part C from the main login.gov SSP.
+The GitLab component aligns with AC-5, part C from the main Login.gov SSP.
 
 ______________________________________________________________________

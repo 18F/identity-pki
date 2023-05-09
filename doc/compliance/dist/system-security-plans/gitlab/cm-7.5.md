@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-7.5 - \[catalog\] Authorized Software / Whitelisting
@@ -44,18 +45,18 @@ ______________________________________________________________________
 
 ## Implementation (a)
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-7(5), part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (b)
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-7(5), part B from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation (c)
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-7(5), part C from the main Login.gov SSP.
 
 ______________________________________________________________________

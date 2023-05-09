@@ -34,6 +34,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-To maintain service availability, Gitlab uses AWS Availability Zones and Elastic Load Balancing, along with real-time resource monitoring and alerting.
+To maintain service availability, GitLab uses AWS Availability Zones and Elastic Load Balancing, along with real-time resource monitoring and alerting.
 
 ______________________________________________________________________

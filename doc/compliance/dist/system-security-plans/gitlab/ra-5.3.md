@@ -23,6 +23,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The GitLab component uses ra-5.3 from the main login.gov SSP.
+The GitLab component aligns with RA-5(3) from the main Login.gov SSP.
 
 ______________________________________________________________________

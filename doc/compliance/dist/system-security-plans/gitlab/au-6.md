@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # au-6 - \[catalog\] Audit Review, Analysis, and Reporting
@@ -44,12 +45,11 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-See parent SSP.
+The GitLab component aligns with AU-6, part A from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-See parent SSP.
-
+The GitLab component aligns with AU-6, part B from the main Login.gov SSP.
 ______________________________________________________________________

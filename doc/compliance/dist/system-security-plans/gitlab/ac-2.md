@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 ---
 
 # ac-2 - \[catalog\] Account Management
@@ -152,42 +153,30 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-* Gitlab Accounts:
+* GitLab Accounts:
 
-DevOps and AppDev Engineers authenticate to GitLab using the Login.gov identity
-provider. Access is restricted to DevOps and AppDev Engineers.  Group, public,
-guest/anonymous and temporary accounts are not permitted in this
-environment. Accounts are managed with LG-developed scripts.
+DevOps and AppDev Engineers authenticate to GitLab using the Login.gov identity provider. Access is restricted to DevOps and AppDev Engineers.  Group, public, guest/anonymous and temporary accounts are not permitted in this environment. Accounts are managed with LG-developed scripts.
 
-The Gitlab deployment and maintenance workflows are automated with LG-developed
-scripts that may invoke the use of different tools based on the orchestration
-function, such as the delivery of new Infrastructure as Code (IaC) or new Gitlab
-application releases.
+The GitLab deployment and maintenance workflows are automated with LG-developed scripts that may invoke the use of different tools based on the orchestration function, such as the delivery of new Infrastructure as Code (IaC) or new GitLab application releases.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-The DevOps Engineering Lead and DevOps Engineer roles perform account management
-functions. The DevOps Engineering Lead determines which team members should have
-the DevOps Engineering Lead and DevOps Engineer roles.
-
-The AppDev Engineering Lead and AppDev Engineer roles perform account management
-functions. The AppDev Engineering Lead determines which team members should have
-the AppDev Engineering Lead and AppDev Engineer roles.
+The DevOps Engineering Lead and DevOps Engineer roles perform account management functions. The DevOps Engineering Lead determines which team members should have the DevOps Engineering Lead and DevOps Engineer roles.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-DevOps and AppDev team members are granted access to the Gitlab system based on
-conditions A-F in Section 2(c) in the main SSP.
+DevOps and AppDev team members are granted access to the GitLab system based on
+conditions A-F in Section 2(c) included in this security control.
 
-A DevOps Engineer is added to the `devops` group in Gitlab, based on an
-established need to manage Gitlab.
+A DevOps Engineer is added to the `devops` group in GitLab, based on an
+established need to manage GitLab.
 
-An AppDev Engineer is added to the `appdev` group in Gitlab, based on an
-established need to use Gitlab.
+An AppDev Engineer is added to the `appdev` group in GitLab, based on an
+established need to use GitLab.
 
 User group membership is restricted to the least privilege necessary for the
 user to accomplish their assigned duties.
@@ -196,10 +185,7 @@ ______________________________________________________________________
 
 ## Implementation d.
 
-All Gitlab accounts employ Role Based Access Control (RBAC) as the access
-control model. Roles approved to access the LG Gitlab system, along with
-authorized privileges and functions, are described in Section 9.3 of the main
-SSP, Types of Users.
+All GitLab accounts employ Role Based Access Control (RBAC) as the access control model. Roles approved to access the LG GitLab system, along with authorized privileges and functions, are described in Section 9.3 of this SSP document–`Types of Users`.
 
 ______________________________________________________________________
 
@@ -213,27 +199,27 @@ ______________________________________________________________________
 
 * Gitlab Accounts:
 
-Conditions and procedures for creating LG system accounts are described in Parts c and e of this control. LG Supervisors are responsible for notifying the DevOps team of transfers, reassignments, terminations, need-to-know, or clearance changes. Notification occurs through an approved GSA communication method, such as GSA Gmail or 18F Slack, and the request is captured and tracked via a Gitlab issue. Detailed procedures for personnel terminations are described in Control PS-4.
+Conditions and procedures for creating LG system accounts are described in Parts c and e of this control. LG Supervisors are responsible for notifying the DevOps team of transfers, reassignments, terminations, need-to-know, or clearance changes. Notification occurs through an approved GSA communication method, such as GSA Gmail or 18F Slack, and the request is captured and tracked via a GitLab issue. Detailed procedures for personnel terminations are described in Control PS-4.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-All user access is tracked through logs collected by CloudWatch. Credential reports are reviewed monthly by the SOC Engineering team. 
+All user access is tracked through logs collected by CloudWatch. Credential reports are reviewed monthly by the SOC Engineering team.  
 
 ______________________________________________________________________
 
 ## Implementation h.
 
-* Gitlab Accounts:
+* GitLab Accounts:
 
-LG Supervisors are ultimately responsible for notifying DevOps Engineers, or ensuring that DevOps Engineers are notified, regarding transfers, reassignments, terminations, need-to-know, or clearance changes. LG Supervisors notify DevOps Engineering via an approved GSA communication method, such as GSA Gmail or Slack, and the request is captured and tracked via a Gitlab issue. Detailed procedures for personnel terminations are described in PS-4. 
+LG Supervisors are ultimately responsible for notifying DevOps Engineers, or ensuring that DevOps Engineers are notified, regarding transfers, reassignments, terminations, need-to-know, or clearance changes. LG Supervisors notify DevOps Engineering via an approved GSA communication method, such as GSA Gmail or Slack, and the request is captured and tracked via a GitLab issue. Detailed procedures for personnel terminations are described in PS-4. 
 
 ______________________________________________________________________
 
 ## Implementation i.
 
-* Gitlab:
+* GitLab:
 
 The System Owner is responsible for ensuring that non-privileged and privileged user access is granted based on job duties, currently limited to: AppDev Engineers with non-privileged access; DevOps Engineering Lead and DevOps Engineers with privileged access, SOC Engineers with read only access to audit records.
 
@@ -241,7 +227,7 @@ ______________________________________________________________________
 
 ## Implementation j.
 
-* Gitlab Accounts:
+* GitLab Accounts:
 
 The GSA Information Security team and DevOps Engineering team review accounts for compliance with account management requirements quarterly. The DevOps Engineering team maintains a complete list of all authorized users of the information system, via source control.
 

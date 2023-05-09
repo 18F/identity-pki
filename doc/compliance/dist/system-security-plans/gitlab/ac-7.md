@@ -4,6 +4,7 @@ status:
   - c-documented
   - c-in-parent-ssp
 
+
 needs-params:
   - ac-7_prm_3
 ---
@@ -51,14 +52,12 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-As Gitlab uses Login.gov application accounts for its authentication, this is
-covered in the Login.gov SSP, AC-7 Part A, "Application Accounts".
+GitLab uses Login.gov application accounts for its authentication. This implementation is described in the Login.gov SSP, AC-7 Part A, "Application Accounts".
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-As Gitlab uses Login.gov application accounts for its authentication, this is
-covered in the Login.gov SSP, AC-7 Part B, "Application Accounts".
+GitLab uses Login.gov application accounts for its authentication. This implementation is described in the Login.gov SSP, AC-7 Part B, "Application Accounts".
 
 ______________________________________________________________________

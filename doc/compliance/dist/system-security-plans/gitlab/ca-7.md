@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # ca-7 - \[catalog\] Continuous Monitoring
@@ -83,42 +84,40 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CA-7, part A from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CA-7, part B from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CA-7, part C from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-This control is already documented in the main SSP.
-
+The GitLab component aligns with CA-7, part D from the main Login.gov SSP. There are no new Interconnection Agreements.
 ______________________________________________________________________
 
 ## Implementation e.
 
-This control is already documented in the main SSP.
-
+The GitLab component aligns with CA-7, part E from the main Login.gov SSP. There are no new Interconnection Agreements.
 ______________________________________________________________________
 
 ## Implementation f.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CA-7, part F from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation g.
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CA-7, part G from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________

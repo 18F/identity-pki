@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 effort:
   - medium
 ---
@@ -45,9 +46,9 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-DevOps Engineers use CloudWatch logs to view and analyze Gitlab audit logs.
+DevOps Engineers use CloudWatch logs to view and analyze GitLab audit logs.
 
-Administrative Gitlab access is granted on an as-needed basis to DevOps
+Administrative GitLab access is granted on an as-needed basis to DevOps
 engineers via commands executed in the AWS environment.
 
 ______________________________________________________________________

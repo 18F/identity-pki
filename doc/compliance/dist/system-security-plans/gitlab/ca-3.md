@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # ca-3 - \[catalog\] System Interconnections
@@ -48,18 +49,18 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-This control is already documented in the main SSP.  There are no new Interconnection Agreements.
+The GitLab component aligns with CA-3, part A from the main Login.gov SSP.  There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation b.
 
-This control is already documented in the main SSP.  There are no new Interconnection Agreements.
+The GitLab component aligns with CA-3, part B from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________
 
 ## Implementation c.
 
-This control is already documented in the main SSP.  There are no new Interconnection Agreements.
+The GitLab component aligns with CA-3, part C from the main Login.gov SSP. There are no new Interconnection Agreements.
 
 ______________________________________________________________________

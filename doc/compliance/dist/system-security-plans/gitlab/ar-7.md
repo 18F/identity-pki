@@ -17,6 +17,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The Gitlab component uses ar-7 from the main login.gov SSP.
+The Gitlab component follows AR-7 from the main Login.gov SSP.
 
 ______________________________________________________________________

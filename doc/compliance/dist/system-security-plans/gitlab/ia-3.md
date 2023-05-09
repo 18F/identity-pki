@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 needs-params:
   - ia-3_prm_2
 ---
@@ -36,6 +37,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Access to Gitlab is authenticated on a machine-by-machine basis using TCP/IP addresses and AWS security groups to control access to local, remote, and network connections.
+Access to GitLab is authenticated on a machine-by-machine basis using TCP/IP addresses and AWS security groups to control access to local, remote, and network connections.
 
 ______________________________________________________________________

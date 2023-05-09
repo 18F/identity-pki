@@ -32,11 +32,11 @@ Under normal use static passwords stored in GitLab are not used or usable.
 The Login.gov IdP is used for SSO in most cases, reducing the number of actively
 used passwords in the GitLab component.
 
-If Login.gov IdP is unavilable password authentication
+If Login.gov IdP is unavailable password authentication
 with MFA may be enabled in GitLab for registered users after an authorized
 operator has initiated temporary break-glass procedures.
 
 Passwords that are stored in the Gitlab system are stored in a hashed/encrypted format.
-Details on algorithm, streatching, and salting can be found here: https://docs.gitlab.com/ee/security/password_storage.html
+Details on algorithm, stretching, and salting can be found here: https://docs.gitlab.com/ee/security/password_storage.html
 
 ______________________________________________________________________

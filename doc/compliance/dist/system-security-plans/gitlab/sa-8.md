@@ -33,7 +33,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The Gitlab component uses sa-8 from the main login.gov SSP.
+The GitLab component aligns with SA-8 from the main Login.gov SSP.
 
 ### Note to SSP editor:
 

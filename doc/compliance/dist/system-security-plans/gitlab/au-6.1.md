@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # au-6.1 - \[catalog\] Process Integration
@@ -34,6 +35,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-See parent SSP.
+The GitLab component aligns with AU-6(1) from the main Login.gov SSP.
 
 ______________________________________________________________________

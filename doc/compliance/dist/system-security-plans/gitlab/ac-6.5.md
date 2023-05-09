@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 ---
 
 # ac-6.5 - \[catalog\] Privileged Accounts
@@ -26,6 +27,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The Gitlab component uses AC-6.5, from the main login.gov SSP.
+The GitLab component aligns with AC-6.5, from the main Login.gov SSP.
 
 ______________________________________________________________________

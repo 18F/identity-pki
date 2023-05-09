@@ -2,6 +2,7 @@
 status:
   - c-implemented
   - c-documented
+
 effort:
   - medium
 ---
@@ -36,7 +37,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab user accounts are authenticated via Login.gov, which requires MFA.  MFA support is
-documented here -> https://www.login.gov/help/get-started/authentication-options/.
+GitLab user accounts are authenticated via Login.gov, which requires MFA.  MFA support is documented on the Login.gov help site: https://www.login.gov/help/get-started/authentication-options/.
 
 ______________________________________________________________________

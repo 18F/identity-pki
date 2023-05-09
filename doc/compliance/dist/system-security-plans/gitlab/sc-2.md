@@ -22,6 +22,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab provides an information system management functionality and is logically separated from the user functionality of the Login.gov systems.
+GitLab provides information system management functionality and is logically separated from the user functionality of the Login.gov systems.
 
 ______________________________________________________________________

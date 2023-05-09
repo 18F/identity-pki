@@ -26,6 +26,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Password Strength is evaluated and enforced upstream via Login.gov. The GitLab component uses ia-5.4 from the main Login.gov SSP.
+Password Strength is evaluated and enforced upstream via Login.gov. 
+The GitLab component aligns with IA-5(4) from the main Login.gov SSP.
 
 ______________________________________________________________________

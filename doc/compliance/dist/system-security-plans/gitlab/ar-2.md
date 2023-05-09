@@ -19,6 +19,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The Gitlab component uses ar-2 from the main login.gov SSP.
+The GitLab component aligns with AR-2 from the main Login.gov SSP.
 
 ______________________________________________________________________

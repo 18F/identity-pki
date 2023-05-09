@@ -3,6 +3,7 @@ status:
   - c-implemented
   - c-documented
   - c-in-parent-ssp
+
 ---
 
 # cm-2.3 - \[catalog\] Retention of Previous Configurations
@@ -27,10 +28,10 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-This control is already documented in the main SSP.
+The GitLab component aligns with CM-2(3) from the main Login.gov SSP. 
 
-In addition, gitlab implements git, which will be used to configure
-our gitlab infrastructure, and git is a source code control system
+In addition, GitLab implements git, which will be used to configure
+our GitLab infrastructure, and git is a source code control system
 which keeps track of all changes to this data.  It also has
 regular backups that can be restored.
 

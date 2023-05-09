@@ -24,6 +24,6 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-Gitlab implements recent and compliant versions of OpenSSL, Ruby and Golang, and can be configured to achieve FIPS 140-2 or 140-3 per statements made by Gitlab (https://gitlab.com/groups/gitlab-org/-/epics/5104).
+GitLab implements recent and compliant versions of OpenSSL, Ruby and Golang, and can be configured to achieve FIPS 140-2 or 140-3 per statements made by Gitlab (https://gitlab.com/groups/gitlab-org/-/epics/5104).
 
 ______________________________________________________________________

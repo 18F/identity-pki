@@ -85,7 +85,7 @@ ______________________________________________________________________
 
 ## Implementation a.
 
-Gitlab Documentation can be found on the GitLab website: https://docs.gitlab.com/.
+GitLab documentation can be found on the GitLab website: https://docs.gitlab.com/.
 Documentation on login.gov-specific operational and install tasks can be found in our wiki
 and handbook, and the secure config for the application can be found in the
 identity-devops git repo.
@@ -101,18 +101,18 @@ ______________________________________________________________________
 
 ## Implementation c.
 
-The Gitlab component uses sa-5_smt.c from the main login.gov SSP.
+The Gitlab component aligns with SA-5, part C from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation d.
 
-The Gitlab component uses sa-5_smt.d from the main login.gov SSP.
+The Gitlab component aligns with SA-5, part D from the main Login.gov SSP.
 
 ______________________________________________________________________
 
 ## Implementation e.
 
-The Gitlab component uses sa-5_smt.e from the main login.gov SSP.
+The Gitlab component aligns with SA-5, part E from the main Login.gov SSP.
 
 ______________________________________________________________________
