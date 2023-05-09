@@ -11,35 +11,42 @@
                                         },
                                         {
                                                 "file_path": "/var/log/gitlab/nginx/gitlab_access.log",
-                                                "log_group_name": "<%= @environmentName %>_gitlab_access_log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/gitlab/nginx/gitlab_access.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%d/%b/%Y:%H:%M%S %z"
                                         },
                                         {
                                                 "file_path": "/var/log/gitlab/nginx/gitlab_error.log",
-                                                "log_group_name": "<%= @environmentName %>_gitlab_error_log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/gitlab/nginx/gitlab_error.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%d/%b/%Y:%H:%M%S %z"
                                         },
                                         {
                                                 "file_path": "/var/log/gitlab/gitlab-rails/audit_json.log",
-                                                "log_group_name": "<%= @environmentName %>_gitlab_audit_log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/gitlab/gitlab-rails/audit_json.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%Y-%m-%dT%H:%M:%fZ"
                                         },
                                         {
                                                 "file_path": "/var/log/gitlab/gitlab-rails/application_json.log",
-                                                "log_group_name": "<%= @environmentName %>_gitlab_application_log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/gitlab/gitlab-rails/application_json.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%Y-%m-%dT%H:%M:%fZ"
                                         },
                                         {
                                                 "file_path": "/var/log/gitlab/gitlab-rails/backup_json.log",
-                                                "log_group_name": "<%= @environmentName %>_gitlab_backup_log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/gitlab/gitlab-rails/backup_json.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%dT%H:%M:%fZ"
+                                        },
+                                        {
+                                                "file_path": "/var/log/gitlab/gitlab-shell/gitlab-shell.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/gitlab/gitlab-shell/gitlab-shell.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%Y-%m-%dT%H:%M:%fZ"
