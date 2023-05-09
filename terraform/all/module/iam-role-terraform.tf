@@ -777,9 +777,11 @@ locals {
         sid    = "SecurityHub"
         effect = "Allow"
         actions = [
+          "securityhub:DescribeHub",
           "securityhub:DisableSecurityHub",
           "securityhub:EnableSecurityHub",
           "securityhub:GetEnabledStandards",
+          "securityhub:UpdateSecurityHubConfiguration",
         ]
         resources = [
           "*",

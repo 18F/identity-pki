@@ -77,14 +77,20 @@ check_tf_versions() {
 
 # providers lock for all platforms
 tf_providers_lock() {
-  local PROVIDERS_TO_UPDATE=("$@")
+  local VERSIONS=${1:-}
   echo_green "Regenerating and copying lockfile..."
   cd "${LOCKFILE_DIR}"
   [[ -f "${LOCKFILE}" ]] && rm "${LOCKFILE}"
   cp "${GIT_DIR_LOCKFILE}" "${LOCKFILE}"
+  if [[ ${VERSIONS} == 'NEW' ]] ; then
+    ${GIT_DIR}/bin/awsv master terraform init -backend-config=bucket=login-gov.tf-state.340731855345-us-west-2 \
+      -backend-config=key=terraform-master/global.tfstate \
+      -backend-config=dynamodb_table=terraform_locks -backend-config=region=us-west-2 \
+      -upgrade
+  fi
   run terraform providers lock \
     -platform=windows_amd64 -platform=darwin_amd64 -platform=linux_amd64 \
-    -platform=darwin_arm64 -platform=linux_arm64 "${PROVIDERS_TO_UPDATE[@]:-}"
+    -platform=darwin_arm64 -platform=linux_arm64
   mv "${LOCKFILE}" "${GIT_DIR_LOCKFILE}"
   cd - >/dev/null
 }
@@ -131,57 +137,50 @@ else
   PROVIDER_LIST=($(echo "${ALL_PROVIDERS[@]}" | sed -E 's/\//\\\//g'))
 fi
 
-# change = to >= in versions.tf
-echo
-echo_green "Getting version info and adding to the lockfile:"
+echo_green "Will check and attempt to update the following providers:"
 for PROVIDER in "${PROVIDER_LIST[@]:-}" ; do
   echo "- $(dsl ${PROVIDER})"
   sed -i '' -E "/$PROVIDER/{n;s/( version = \")/\1\>\= /;}" "${GIT_DIR}/versions.tf"
 done
 echo
 
-check_tf_versions
-
-tf_providers_lock "$(dsl "${PROVIDER_LIST[@]}")"
-NEW_IN_LOCKFILE=$(diff --normal <(grep 'provider' "${GIT_DIR_LOCKFILE}.bak" | sort) \
-                                <(grep 'provider' "${GIT_DIR_LOCKFILE}" | sort) |
-                                egrep '^[<>]' |
-                                awk -F'/|"' '{print $(NF-2)"/"$(NF-1)}') || true
-[[ ${#NEW_IN_LOCKFILE[@]} -eq 0 ]] || FILES_UPDATED=true
-
-# once lockfile is updated, find provider versions and update version.tf values,
-# then switch >= back to = in versions.tf
+# find new provider versions from registry and update version.tf values,
 echo_green "Finding new provider versions..."
 for PROVIDER in "${PROVIDER_LIST[@]}" ; do
   OLD_VERSION=$(grep -A1 "source  = \"${PROVIDER}\"" "${GIT_DIR}/versions.tf" |
     tail -n+2 | sed -E 's/.+\"\>\= ([0-9\.]+)\"/\1/;s/\./\\\./g')
-  NEW_VERSION=$(grep -A1 "registry\.terraform\.io/$PROVIDER" "${GIT_DIR_LOCKFILE}" |
-                tail -n+2 | sed -E 's/.+\"([0-9\.]+)\"/\1/;s/\./\\\./g')
-  sed -i '' -E "/$PROVIDER/{n;s/>= [0-9\.]+/$NEW_VERSION/;}" "${GIT_DIR}/versions.tf"
+  NEW_VERSION=$(curl -s "https://registry.terraform.io/v1/providers/$(dsl ${PROVIDER})" |
+    jq -r  '.versions[]' | tail -n 1 | sed -E 's/.+\"([0-9\.]+)\"/\1/;s/\./\\\./g')
   if [[ "${OLD_VERSION}" == "${NEW_VERSION}" ]] ; then
     echo_yellow "$(dsl ${PROVIDER}) is already at $(dsl ${NEW_VERSION}); skipping."
   else
-    echo_cyan "Updated $(dsl ${PROVIDER}) from $(dsl ${OLD_VERSION}) to $(dsl ${NEW_VERSION})"
+    sed -i '' -E "/$PROVIDER/{n;s/$OLD_VERSION+/$NEW_VERSION/;}" "${GIT_DIR}/versions.tf"
+    echo_cyan "Will update $(dsl ${PROVIDER}) from $(dsl ${OLD_VERSION}) to $(dsl ${NEW_VERSION})"
     ((UPDATED_PROVIDERS++))
     FILES_UPDATED=true
   fi
 done
 
-if [[ ${FILES_UPDATED} == true ]] ; then
-  echo
-  if [[ "${#NEW_IN_LOCKFILE[@]}" -gt 0 ]] ; then
-    echo_cyan "Providers added to lockfile:"
-    echo_cyan "${NEW_IN_LOCKFILE[@]/#/$'\n'- }" && echo
-  fi
-  if [[ ${UPDATED_PROVIDERS} -gt 0 ]] ; then
-    echo_cyan "${UPDATED_PROVIDERS} provider(s) updated in versions.tf" && echo
-  fi
-
-  # one more providers-lock now that versions.tf is back from >= to =
-  tf_providers_lock $(echo "${ALL_PROVIDERS[@]}" | tr '\n' ' ')
-  
-  echo_cyan "Repo-level .terraform.lock.hcl updated."
+if [[ ${UPDATED_PROVIDERS} -gt 0 ]] ; then
+  echo_cyan "${UPDATED_PROVIDERS} provider(s) updated in versions.tf" && echo
 fi
+
+tf_providers_lock 'NEW'
+NEW_IN_LOCKFILE=($(diff --normal <(grep 'provider' "${GIT_DIR_LOCKFILE}.bak" | sort) \
+                                <(grep 'provider' "${GIT_DIR_LOCKFILE}" | sort) |
+                                egrep '^[<>]' |
+                                awk -F'/|"' '{print $(NF-2)"/"$(NF-1)}')) || true
+if [[ "${#NEW_IN_LOCKFILE[@]}" -gt 0 ]] ; then
+  FILES_UPDATED=true
+  echo_cyan "Providers added to lockfile:"
+  echo_cyan "${NEW_IN_LOCKFILE[@]/#/$'\n'- }" && echo
+fi
+
+# switch >= back to = in versions.tf and re-run tf_providers_lock
+for PROVIDER in "${PROVIDER_LIST[@]}" ; do
+  sed -i '' -E "/$PROVIDER/{n;s/>= ([0-9\.]+)/\1/;}" "${GIT_DIR}/versions.tf"
+done
+tf_providers_lock
 
 # check for new TF version if -t was not set
 check_tf_versions
@@ -214,3 +213,10 @@ if [[ ${FILES_UPDATED} == true ]] || [[ ${TF_UPDATED} == true ]] ; then
     echo
   fi
 fi
+
+# remove .bak files that still exist
+for TFP_FILE in 'versions.tf' '.terraform.lock.hcl' ; do
+  if [[ -f "${GIT_DIR}/${TFP_FILE}.bak" ]] ; then
+    rm "${GIT_DIR}/${TFP_FILE}.bak"
+  fi
+done
