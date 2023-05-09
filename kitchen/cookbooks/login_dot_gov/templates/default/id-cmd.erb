@@ -55,17 +55,9 @@ EOM
 }
 
 MISSING_KEYS=0
-<%- if @rails_console %>
 CHANNEL_FILES=(
   /etc/login.gov/keys/slackchannel
 )
-<%- end %>
-
-<%- unless @rails_console %>
-CHANNEL_FILES=(
-  /etc/login.gov/keys/slackchannel
-)
-<%- end %>
 
 # Check for missing slack settings
 for file in "${CHANNEL_FILES[@]}"
@@ -134,7 +126,7 @@ while true; do
     break
   fi
 done
-CONSOLE_INFO+=(':\n*'"$(echo $USE_CASE | sed 's/"/\\\"/g;s/\&/\&amp\;/g;s/</\&lt\;/g;s/>/\&gt\;/g')"'*')
+CONSOLE_INFO+=($(printf ":\n *%s*" "$USE_CASE"))
 <%- end %>
 
 if [[ ! "${LOGIN_TASK_LOG_LEVEL}" =~ ^(debug|info|warn|error|fatal|unknown)$ ]] ; then
@@ -151,8 +143,7 @@ TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname
 for FILE in "${CHANNEL_FILES[@]}"
 do
   CHANNEL=$(cat "${FILE}")
-  PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
-  curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
+  notify-slack --channel "$CHANNEL" --webhook "$WEBHOOK" --username "<%= @script_name %>" --icon "<%= @slack_icon %>" --text "$TEXT"
 done
 
 # Execute console command
@@ -175,7 +166,6 @@ TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname
 for file in "${CHANNEL_FILES[@]}"
 do
   CHANNEL=$(cat "$file")
-  PAYLOAD='payload={"channel": "'"${CHANNEL}"'", "username": "<%= @script_name %>", "text": "'"${TEXT}"'", "icon_emoji": ":<%= @slack_icon %>:"}'
-  curl -X POST --data-urlencode "${PAYLOAD}" $WEBHOOK
+  notify-slack --channel "$CHANNEL" --webhook "$WEBHOOK" --username "<%= @script_name %>" --icon "<%= @slack_icon %>" --text "$TEXT"
 done
 <%- end %>

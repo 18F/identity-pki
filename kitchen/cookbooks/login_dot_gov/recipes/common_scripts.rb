@@ -56,3 +56,10 @@ template '/usr/local/bin/id-users-review-reject' do
     slack_icon:   'red-x'
   })
 end
+
+template '/usr/local/bin/notify-slack' do
+  source 'notify-slack'
+  owner 'root'
+  group 'root'
+  mode '0755'
+end
