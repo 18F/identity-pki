@@ -1,6 +1,6 @@
 # SSM Docs via module
 module "ssm" {
-  source = "github.com/18F/identity-terraform//ssm?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
+  source = "github.com/18F/identity-terraform//ssm?ref=552c1ed2755c7008469aa6f00ea51e9036951d43"
   # source = "../../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"
@@ -8,17 +8,15 @@ module "ssm" {
   env_name           = var.env_name
 
   ssm_doc_map = {
-    "default-doc" = {
+    "default" = {
       command     = "/etc/update-motd.d/00-header ; cd ; /bin/bash"
       description = "Default shell to login as GSA_USERNAME"
       logging     = false
-      use_root    = false
     },
     "sudo" = {
       command     = "sudo su -"
       description = "Login and change to root user"
       logging     = false
-      use_root    = false
     },
     "tail-cw" = {
       command     = "sudo tail -f /var/log/cloud-init-output.log"
