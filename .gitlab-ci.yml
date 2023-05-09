@@ -32,15 +32,14 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-  DEPLOY_IMAGE_DIGEST: "sha256:29102c46705fe4dbacd0a1d32b01ac4b8e3aa80dcd5277bba8e664bec36ad736"
-  STOP_IMAGE_DIGEST: "sha256:637dd5b75ea662f9881e44d7b085b26d44491f312ea7bd9d5584f4ecf6868dac"
-  TEST_IMAGE_DIGEST: "sha256:f430d6f7f85bc630460fd3221331d7c7a43880c43780032814cf0bec2e0ad193"
-  GITDEPLOY_IMAGE_DIGEST: "sha256:df7af6887feff7e590a90765831a800f322545b290770f703debfccb2a4da493"
-  GITTEST_IMAGE_DIGEST: "sha256:d463d245e4952ecce3170e46651ba2fcb240cd40749d72fe93e706944cb85e70"
-  CI_IMAGE_DIGEST: "sha256:d2bd829d74c7c61303a24a64d18469ffc2a8c0e6d7ad9d15407dc94a7bbdae01"
-  TERRAFORM_APPLY_IMAGE_DIGEST: "sha256:cc5e31c3cb34d1d4fd16ffba7873391ba6c401a0c79772465eab84fc02e73d64"
-  TERRAFORM_PLAN_IMAGE_DIGEST: "sha256:0578c7ff10a3045213639d82302c4c7fe7161bf3eae0008f34171b1f38e85348"
-
+  DEPLOY_IMAGE_DIGEST: "sha256:c6bea2848d90ef9792d59f37a620403b41acd87388880e62054dd193957186d5"
+  STOP_IMAGE_DIGEST: "sha256:4d2e5c80e9a678b54fd0e13d13b35dbab0eef3d9aa811a0b60ada8cb602ab555"
+  TEST_IMAGE_DIGEST: "sha256:c0e8c2d4122a3527864273a459cb8c2385e4aa2662f7be75e123e70ff8c6f0a2"
+  GITDEPLOY_IMAGE_DIGEST: "sha256:03fa15e38791f95d50c11c7b7c9546554b434ae2368da7dcf0b82c0c20d64091"
+  GITTEST_IMAGE_DIGEST: "sha256:7073ea63ce759cce2b3b799b455a3f6cb1e710dc31bf7226f1a9985e5c2d0f5a"
+  CI_IMAGE_DIGEST: "sha256:25334d98653764823d8d7730e168692174aaed861053edc5a4d431b0b3e40a89"
+  TERRAFORM_APPLY_IMAGE_DIGEST: "sha256:89e28ee76e0d4ec13e5b884334c9ece2ee94368f8260b8f6651b3891922d3065"
+  TERRAFORM_PLAN_IMAGE_DIGEST: "sha256:2f010d3a3f9e5b962d4978cd1ecafd390accd3c3689d2ce2159ab6cae21fbd63"
 
 # TODO(LG-6069): Use an image from ECR
 .build_template:
@@ -56,14 +55,9 @@ variables:
       when: never
     # Build when the daily pipeline runs, but not for other scheduled pipelines.
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_CRON_SCHEDULE == "daily"'
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: never
     # Otherwise, only build on PRs, not new branches ...
-    - if: '$CI_PIPELINE_SOURCE != "merge_request_event" && $CI_PIPELINE_SOURCE != "external_pull_request_event"'
-      when: never
-    # Use 'changes:' variable in jobs that inherit this template to further restrict when the job runs
     - changes:
-      - $changes
+      - dockerfiles/*
       - versions.tf
   script:
     - mkdir -p /kaniko/.docker
@@ -89,56 +83,48 @@ build_gitlab_deploy_container:
   variables:
     dockerfile: gitlab_deploy.Dockerfile
     ecr_repo: cd/gitlab_deploy
-    changes: dockerfiles/gitlab_deploy*
 
 build_gitlab_test_container:
   extends: .build_template
   variables:
     dockerfile: gitlab_test.Dockerfile
     ecr_repo: cd/gitlab_test
-    changes: dockerfiles/gitlab_test*
 
 build_env_deploy_container:
   extends: .build_template
   variables:
     dockerfile: env_deploy.Dockerfile
     ecr_repo: cd/env_deploy
-    changes: dockerfiles/env_deploy*
 
 build_env_stop_container:
   extends: .build_template
   variables:
     dockerfile: env_stop.Dockerfile
     ecr_repo: cd/env_stop
-    changes: dockerfiles/env_stop*
 
 build_env_test_container:
   extends: .build_template
   variables:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
-    changes: dockerfiles/env_test*
 
 build_idp_ci_container:
   extends: .build_template
   variables:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
-    changes: dockerfiles/idp_ci*
 
 build_terraform_apply_container:
   extends: .build_template
   variables:
     dockerfile: terraform_apply.Dockerfile
     ecr_repo: cd/terraform_apply
-    changes: dockerfiles/terraform_apply*
 
 build_terraform_plan_container:
   extends: .build_template
   variables:
     dockerfile: terraform_plan.Dockerfile
     ecr_repo: cd/terraform_plan
-    changes: dockerfiles/terraform_plan*
 
 # IDP environments and their jobs
 .include_idp_jobs_template:
