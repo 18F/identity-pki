@@ -5,5 +5,14 @@
 
 require 'em/pure_ruby'
 
+# Monkeypatch EventMachine cause :[
+module EventMachine
+  class Selectable
+    def get_sockname
+      io.getsockname
+    end
+  end
+end
+
 require 'thin'
 Thin::Runner.new(ARGV).run!

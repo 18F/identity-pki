@@ -25,7 +25,7 @@ group :development, :test do
       require: 'em/pure_ruby',
       github: 'eventmachine/eventmachine',
       # Needed for unreleased fixes in https://github.com/eventmachine/eventmachine/pull/929
-      ref: 'e29ccdefbf4b753dfec513c2df17b3bf1b827425'
+      ref: 'df4ab0068e5e9f504096584093a74510d0dac6c8'
   gem 'thin', '>= 1.8.0', require: false
   gem 'rubocop', require: false
   gem 'rubocop-rails', '>= 2.19.0', require: false
