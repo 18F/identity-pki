@@ -82,7 +82,7 @@ test:
 
 production:
   aws_region:
-  ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com'
+  ca_issuer_host_allow_list: 'repo.fpki.gov,crl.disa.mil,http.fpki.gov,ssp-aia.symauth.com,pki.treasury.gov,rootweb.managed.entrust.com,aia1.ssp-strong-id.net,pki.treas.gov,crls.pki.state.gov,sspweb.managed.entrust.com,crl-server.orc.com'
   certificate_store_directory: 'config/certs'
   client_cert_escaped: 'true'
   identity_idp_host: ''

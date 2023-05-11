@@ -3,6 +3,7 @@ require 'open3'
 namespace :certs do
   desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
+    CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
     remove_expiring = (ENV['EXPIRING'] == 'true')
     deadline = 30.days.from_now
 
