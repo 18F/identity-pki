@@ -23,13 +23,4 @@ module "main" {
   waf_alert_actions = ["arn:aws:sns:us-west-2:034795980528:slack-otherevents"]
   lb_name           = "alpha-gitlab-waf"
   ship_logs_to_soc  = false
-  restricted_paths = {
-    paths = [
-      "^/api.*",
-      "^/admin.*",
-    ]
-    exclusions = [
-      "^/api/graphql.*",
-    ]
-  }
 }
