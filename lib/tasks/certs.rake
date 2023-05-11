@@ -130,6 +130,7 @@ namespace :certs do
   desc 'Find certs issued by existing certs'
   task find_new: :environment do
     root_keys = IdentityConfig.store.trusted_ca_root_identifiers
+    CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
     root_keys.each do |key_id|
       root_cert = CertificateStore.instance[key_id]
       repository_certs = IssuingCaService.fetch_ca_repository_certs_for_cert(root_cert)
@@ -166,18 +167,19 @@ namespace :certs do
   # ex: rake cert:find_missing_intermediate_certs[/my/path/to/cert.pem]
   desc 'Find missing intermediate_certs certs for a specific cert'
   task :find_missing_intermediate_certs, [:cert_path] => [:environment] do |t, args|
+    CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
     cert = Certificate.new(OpenSSL::X509::Certificate.new(File.read(args[:cert_path])))
     missing_certs = CertificateChainService.new.missing(cert).uniq(&:key_id)
     missing_certs.reverse.each do |missing_cert|
       signing_cert = CertificateStore.instance[missing_cert.signing_key_id]
       unless signing_cert
-        put 'Could not find signing certificate for missing certificate'
+        puts 'Could not find signing certificate for missing certificate'
         next
       end
 
       found_cert = IssuingCaService.fetch_ca_repository_certs_for_cert(signing_cert).find { |x| x.key_id == missing_cert.key_id }
       unless found_cert
-        put 'Could not find missing certificate in signing key issued certificate'
+        puts 'Could not find missing certificate in signing key issued certificate'
         next
       end
 
