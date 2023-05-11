@@ -16,6 +16,48 @@ locals {
       logging     = false
       parameters  = []
     }
+    "data-pull" = {
+      description = "Calls the data-pull script in the IDP repo"
+      parameters = [
+        {
+          name        = "subcommand"
+          type        = "String"
+          default     = "null"
+          description = "data-pull subcommand and its arguments, MUST BE SHELLESCAPED"
+        },
+        {
+          name        = "reason"
+          type        = "String"
+          default     = "null"
+          description = "reason for the pull, MUST BE SHELLESCAPED"
+        },
+        {
+          name        = "investigator"
+          type        = "String"
+          default     = "null"
+          description = "name of investigator, MUST BE SHELLESCAPED"
+        },
+        {
+          name        = "awsusername"
+          type        = "String"
+          default     = "null"
+          description = "AWS username of script runner, MUST BE SHELLESCAPED"
+        }
+      ]
+      logging = false
+      command = [
+        "audit_message_path=$(mktemp)",
+        "command_output_path=$(mktemp)",
+        # The {{ parameters }} here rely on control characters being shellescaped by the calling script!
+        # The * and ` are for markdown formatting of the audit message that we post to Slack
+        "echo \\*AWS_USER@Box\\*: \\`{{ awsusername }}\\` @ \\`$(hostname)\\` >> $audit_message_path",
+        "echo \\*Investigator\\*: {{ investigator }} >> $audit_message_path",
+        "echo \\*Reason\\*: {{ reason }} >> $audit_message_path",
+        "cd /srv/idp/current; ./bin/data-pull {{ subcommand }} 2>> $audit_message_path > $command_output_path",
+        "cat $audit_message_path | notify-slack --username data-pull --text - --icon terminal --channel \"$(cat /etc/login.gov/keys/slackchannel)\" --webhook \"$(cat /etc/login.gov/keys/slackwebhook)\" --raise 1>&2 || exit 1",
+        "cat $command_output_path",
+      ]
+    }
     "scp-s3-cp" = {
       description = "Part of the scp-s3 devops script, runs an aws s3 cp command on the box"
       parameters = [
@@ -41,7 +83,7 @@ locals {
 }
 
 module "ssm" {
-  source = "github.com/18F/identity-terraform//ssm?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
+  source = "github.com/18F/identity-terraform//ssm?ref=16554935ff6fe92b77a29a3bcd4b04072d65e264"
   #source = "../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"

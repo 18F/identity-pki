@@ -22,7 +22,7 @@ gem 'aws-sdk-secretsmanager', '~> 1.20'
 gem 'rake'
 
 gem 'rest-client', '~> 2.0'
-
+gem 'ruby-progressbar'
 gem 'semantic'
 gem 'subprocess'
 gem 'terminal-table', '~> 3.0'

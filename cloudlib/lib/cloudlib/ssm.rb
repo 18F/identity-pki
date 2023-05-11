@@ -2,6 +2,7 @@
 
 require 'subprocess'
 require 'active_support/json'
+require 'ruby-progressbar'
 
 module Cloudlib
   module SSM
@@ -79,8 +80,10 @@ module Cloudlib
 
       # Runs SSM command, waits for it synchronously
       # Future work: maybe an async option?
+      # @param show_progress_bar [Boolean] prints a progress bar to STDERR while waiting
+      # @param raise_on_failure [Boolean] when true, throws on errors. when false, returns failure result
       # @return [Aws::SSM::Types::GetCommandInvocationResult]
-      def ssm_send_command
+      def ssm_send_command(show_progress_bar: false, raise_on_failure: true)
         ssm_client = Aws::SSM::Client.new
 
         document_name = "#{@cl.env}-ssm-cmd-#{@document}"
@@ -105,15 +108,44 @@ module Cloudlib
 
         log.debug('send_command result: ' + command.to_s)
 
-        command_result = ssm_client.wait_until(
-          :command_executed,
-          command_id: command.command.command_id,
-          instance_id: instance.instance_id
-        )
+        if show_progress_bar
+          bar = ProgressBar.create(
+            title: 'Running command',
+            total: nil,
+            format: '[ %t ] %B %a',
+            output: STDERR,
+          )
+          thread = Thread.new do
+            loop do
+              sleep 0.1
+              bar.increment
+            end
+          end
+        end
+
+        command_result = if raise_on_failure
+          ssm_client.wait_until(
+            :command_executed,
+            command_id: command.command.command_id,
+            instance_id: instance.instance_id,
+          )
+        else
+          loop do
+            sleep 1
+            intermediate_result = ssm_client.get_command_invocation(
+              command_id: command.command.command_id,
+              instance_id: instance.instance_id,
+            )
+            break intermediate_result if %w[Success Cancelled TimedOut Failed].include?(intermediate_result.status)
+          end
+        end
 
         log.debug('command result: ' + command_result.to_s)
 
         command_result
+      ensure
+        thread&.kill
+        bar&.stop
       end
     end
   end

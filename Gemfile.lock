@@ -1777,6 +1777,7 @@ DEPENDENCIES
   restforce
   rspec (~> 3.10)
   ruby-keychain
+  ruby-progressbar
   semantic
   sinatra
   subprocess

@@ -121,6 +121,6 @@ module "main" {
     "PowerUser"         = [{ "*" = ["*"] }],
     "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
-    "FraudOps" = [{ "*" = ["uuid-lookup", "review-pass", "review-reject"] }],
+    "FraudOps" = [{ "*" = ["data-pull", "review-pass", "review-reject", "uuid-lookup"] }],
   }
 }
