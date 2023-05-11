@@ -3,7 +3,6 @@ require 'open3'
 namespace :certs do
   desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
-    CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
     remove_expiring = (ENV['EXPIRING'] == 'true')
     deadline = 30.days.from_now
 
@@ -131,7 +130,6 @@ namespace :certs do
   desc 'Find certs issued by existing certs'
   task find_new: :environment do
     root_keys = IdentityConfig.store.trusted_ca_root_identifiers
-    CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
     root_keys.each do |key_id|
       root_cert = CertificateStore.instance[key_id]
       repository_certs = IssuingCaService.fetch_ca_repository_certs_for_cert(root_cert)
@@ -168,7 +166,6 @@ namespace :certs do
   # ex: rake cert:find_missing_intermediate_certs[/my/path/to/cert.pem]
   desc 'Find missing intermediate_certs certs for a specific cert'
   task :find_missing_intermediate_certs, [:cert_path] => [:environment] do |t, args|
-    CertificateStore.instance.load_certs!(dir: Rails.root.join('config/certs'))
     cert = Certificate.new(OpenSSL::X509::Certificate.new(File.read(args[:cert_path])))
     missing_certs = CertificateChainService.new.missing(cert).uniq(&:key_id)
     missing_certs.reverse.each do |missing_cert|
