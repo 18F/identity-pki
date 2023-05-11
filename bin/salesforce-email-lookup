@@ -2,30 +2,138 @@
 
 Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
 require_relative '../salesforcelib/lib/salesforcelib.rb'
+require 'csv'
+require 'terminal-table'
+require 'optparse'
 
-case_numbers = ARGV.dup
-csv = !!case_numbers.delete('--csv')
-table = !csv
+output_format = :table
+include_uuids = true
+host_group = 'asg-prod-idp'
+redact_emails = false
 
-if !case_numbers.first
-  puts "Usage: #{$PROGRAM_NAME} [--csv] case_number [case_number2 case_number3...]"
+parser = OptionParser.new do |opts|
+  opts.banner = <<~EOM
+    Usage: #{File.basename($PROGRAM_NAME)} [OPTIONS] case_number [case_number2 case_number3...]
+
+    Options:
+  EOM
+
+  opts.on('--csv', 'Output as CSV format (defaults to table)') do
+    output_format = :csv
+  end
+
+  opts.on('--md', '--markdown', 'Output as Markdown-formatted text (defaults to table)') do
+    output_format = :markdown
+  end
+
+  opts.on('--[no-]uuids', 'Whether or not to include user UUIDs (defaults to including)') do |uuids_v|
+    include_uuids = uuids_v
+  end
+
+  opts.on('--host HOST', 'Host group to use (defaults to "asg-prod-idp")') do |host_v|
+    host_group = host_v
+  end
+
+  opts.on('--redact', 'Redact emails when printing') do
+    redact_emails = true
+  end
+
+  opts.on('--help', 'Print this help message') do
+    puts opts
+    exit 0
+  end
+end
+
+case_numbers = parser.parse!(ARGV)
+
+if case_numbers.empty?
+  puts parser
   exit 1
 end
 
 cases = Salesforcelib::Client.new.find_cases(case_numbers, include_missing: true)
 
-output = if csv
-  require 'csv'
-  CSV.new(STDOUT)
+email_to_uuid = {}
+
+if include_uuids
+  emails = cases.select(&:found?).map(&:customer_email)
+
+  # Maybe redo so there is a .rb file that we can use "require" with?
+  load File.expand_path('./data-pull', __dir__)
+
+  begin
+    response = DataPull.new(
+      config: DataPull::Config.new(
+        pick_strategy: :newest,
+        host: host_group,
+        subcommand: ['uuid-lookup', '--csv', *emails],
+        reason: "Salesforce cases #{case_numbers.join(', ')}",
+        investigator: Etc.getpwuid(Process.euid).name,
+      ),
+    ).run
+
+    if response.status == 'Success'
+      CSV.parse(response.standard_output_content, headers: true).each do |row|
+        email_to_uuid[row['email']] = row['uuid']
+      end
+    end
+  rescue => err
+    STDERR.puts err
+  end
+end
+
+# Optionally redacts emails
+# @example
+#   format_email(email: "foobar123@example.com", redact: true)
+#   => "f........@example.com"
+# @return [String]
+def format_email(email:, redact:)
+  return email if !redact
+  return email if !email.include?('@') # just render "not founds" unredacted
+
+  user, domain = email.split('@', 2)
+
+  "#{user.chars.first}#{'.' * (user.size - 1)}@#{domain}"
+end
+
+# @return [String]
+def backticks_or_not_found(str)
+  if str =~ /not found/i || str.blank?
+    str
+  else
+    "`#{str}`"
+  end
+end
+
+header = ['case_number', 'email', *(include_uuids ? 'uuid' : nil)]
+rows = cases.map do |c|
+  [
+    c.case_number,
+    format_email(email: c.customer_email, redact: redact_emails),
+    *(include_uuids ? email_to_uuid.fetch(c.customer_email, '[not found]') : nil),
+  ]
+end
+
+case output_format
+when :csv
+  CSV.instance(STDOUT) do |csv|
+    csv << header
+    rows.each do |row|
+      csv << row
+    end
+  end
+when :markdown
+  rows.each do |(case_number, email, uuid)|
+    puts "- *#{case_number}*: #{backticks_or_not_found(email)} #{backticks_or_not_found(uuid.to_s)}"
+  end
 else
-  require 'terminal-table'
-  Terminal::Table.new
+  Terminal::Table.new do |table|
+    table << header
+    table << :separator
+    rows.each do |row|
+      table << row
+    end
+  end.tap do |table|
+    puts table
+  end
 end
-
-output << %w[case_number email]
-output << :separator if table
-cases.each do |c|
-  output << [c.case_number, c.customer_email]
-end
-
-puts output if table

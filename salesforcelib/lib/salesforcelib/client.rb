@@ -12,8 +12,11 @@ module Salesforcelib
       :internal_id,
       :case_number,
       :customer_email,
+      :found,
       keyword_init: true
-    )
+    ) do
+      alias_method :found?, :found
+    end
 
     # @param [Array<String>]
     # @return [Array<SupportCase>]
@@ -29,6 +32,7 @@ module Salesforcelib
           internal_id: result.Id,
           case_number: result.CaseNumber,
           customer_email: result.Customer_Email_address__c,
+          found: true,
         )
       end
 
@@ -37,6 +41,7 @@ module Salesforcelib
           arr << SupportCase.new(
             case_number: missing_case_number,
             customer_email: '[not found]',
+            found: false,
           )
         end
       end

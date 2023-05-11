@@ -115,15 +115,13 @@ class DataPull
       config.reason = stdin.gets.chomp
     end
 
-    new(config: config, stdout: stdout, stderr: stderr)
+    new(config: config)
   end
 
-  attr_reader :config, :stdout, :stderr
+  attr_reader :config
 
-  def initialize(config:, stdout:, stderr:)
+  def initialize(config:)
     @config = config
-    @stdout = stdout
-    @stderr = stderr
   end
 
   # @return [Aws::SSM::Types::GetCommandInvocationResult]
@@ -135,7 +133,7 @@ class DataPull
 
     awsusername = Aws::STS::Client.new.get_caller_identity.user_id.split(':').last
 
-    response = Cloudlib::SSM::Single.new(
+    Cloudlib::SSM::Single.new(
       instance: instance,
       document: 'data-pull',
       parameters: {
@@ -147,19 +145,17 @@ class DataPull
     ).ssm_send_command(show_progress_bar: true, raise_on_failure: false)
   end
 
-  def output!
+  def output!(stdout:, stderr:)
     response = run
 
     if response.status == 'Success'
       stdout.puts response.standard_output_content
-    else
-      stderr.puts response.status_details
-      stderr.puts response.standard_error_content
       exit 1
     end
   end
 end
 
 if $PROGRAM_NAME == __FILE__
-  DataPull.parse!(argv: ARGV, stdin: STDIN, stdout: STDOUT, stderr: STDERR).output!
+  DataPull.parse!(argv: ARGV, stdin: STDIN, stdout: STDOUT, stderr: STDERR).
+    output!(stdout: STDOUT, stderr: STDERR)
 end
