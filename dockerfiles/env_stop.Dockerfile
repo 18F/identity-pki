@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM public.ecr.aws/docker/library/alpine:3
 
 COPY dockerfiles/env_stop.sh /usr/local/bin/env_stop.sh
 

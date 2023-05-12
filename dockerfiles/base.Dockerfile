@@ -1,5 +1,5 @@
 # Base for all IdP images
-FROM ruby:2.7-slim
+FROM public.ecr.aws/docker/library/ruby:2.7-slim
 
 # Enable package fetch over https and add a few core tools
 RUN apt-get update \

@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM public.ecr.aws/docker/library/alpine:3
 
 COPY dockerfiles/env_test.sh /usr/local/bin/env_test.sh
 

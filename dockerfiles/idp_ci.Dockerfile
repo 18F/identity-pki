@@ -1,4 +1,4 @@
-FROM ruby:3.2.2
+FROM public.ecr.aws/docker/library/ruby:3.2.2
 
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 

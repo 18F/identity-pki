@@ -1,4 +1,4 @@
-FROM alpine:3
+FROM public.ecr.aws/docker/library/alpine:3
 
 COPY dockerfiles/gitlab_test.sh /usr/local/bin/gitlab_test.sh
 
