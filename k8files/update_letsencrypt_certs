@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Rerun this recipe from cron.
+#
+set -eu
+[ -e /root/letsencrypt.reviewapp.tar.gz ] && rm -f /root/letsencrypt.reviewapp.tar.gz
+
+#aws s3 cp s3://login-gov-pivcac-reviewapp.894947205914-us-west-2/letsencrypt.pt.tar.gz /root/letsencrypt.reviewapp.tar.gz
+
+cd /etc/letsencrypt
+
+#[ -s /root/letsencrypt.reviewapp.tar.gz ] && tar zxf /root/letsencrypt.reviewapp.tar.gz || certbot certonly --agree-tos -n --dns-route53 -d *.pivcac.reviewapp.identitysandbox.gov --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook /usr/local/bin/push_letsencrypt_certs.sh --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
+
+certbot renew -n --deploy-hook /usr/local/bin/push_letsencrypt_certs.sh --preferred-chain 'ISRG Root X1' --key-type rsa --rsa-key-size 2048

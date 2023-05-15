@@ -1,0 +1,9 @@
+#!/bin/bash
+# 
+# Rerun this recipe from cron.
+#
+set -eu
+
+sleep $[ ( $RANDOM % 3600 ) + 1 ]s \
+  && cd /srv/pki-rails/current \
+  && bundle exec rake crls:update 2>&1 >> /srv/pki-rails/shared/log/cron.log
