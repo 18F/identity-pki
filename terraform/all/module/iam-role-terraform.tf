@@ -221,6 +221,7 @@ locals {
         sid    = "Ec2"
         effect = "Allow"
         actions = [
+          "ec2:AcceptVpcPeeringConnection",
           "ec2:AllocateAddress",
           "ec2:AssociateRouteTable",
           "ec2:AssociateVpcCidrBlock",
@@ -244,6 +245,7 @@ locals {
           "ec2:CreateVpc",
           "ec2:CreateVolume",
           "ec2:CreateVpcEndpoint",
+          "ec2:CreateVpcPeeringConnection",
           "ec2:DeleteFlowLogs",
           "ec2:DeleteInternetGateway",
           "ec2:DeleteLaunchTemplate",
@@ -260,6 +262,7 @@ locals {
           "ec2:DeleteVpc",
           "ec2:DeleteVolume",
           "ec2:DeleteVpcEndpoints",
+          "ec2:DeleteVpcPeeringConnection",
           "ec2:DescribeAccountAttributes",
           "ec2:DescribeAddresses",
           "ec2:DescribeAvailabilityZones",
@@ -282,6 +285,7 @@ locals {
           "ec2:DescribeVpcClassicLink",
           "ec2:DescribeVpcClassicLinkDnsSupport",
           "ec2:DescribeVpcEndpoint*",
+          "ec2:DescribeVpcPeeringConnections",
           "ec2:DescribeVpcs",
           "ec2:DetachInternetGateway",
           "ec2:DetachNetworkInterface",
@@ -294,6 +298,7 @@ locals {
           "ec2:ModifySubnetAttribute",
           "ec2:ModifyVpcAttribute",
           "ec2:ModifyVpcEndpoint*",
+          "ec2:ModifyVpcPeeringConnectionOptions",
           "ec2:ReleaseAddress",
           "ec2:ReplaceNetworkAclAssociation",
           "ec2:ReplaceRoute",
