@@ -31,8 +31,8 @@ resource "aws_ssm_document" "config_access_key_rotation_ssm_doc" {
             Type: String
       - name: publishMessage
         action: "aws:executeAutomation"
-        maxAttempts: 1
-        timeoutSeconds: 30
+        maxAttempts: 3
+        timeoutSeconds: 120
         onFailure: Abort
         inputs:
           DocumentName: AWS-PublishSNSNotification
