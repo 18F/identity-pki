@@ -46,10 +46,10 @@ locals {
     ]])))
   )
   # for future expansion
-  privileged_cidrs_v6 = sort(compact(concat(
+  privileged_cidrs_v6 = sort([for ip in compact(concat(
     var.privileged_cidr_blocks_v6,
     [for vpc in data.aws_vpc.default : vpc.ipv6_cidr_block]
-  )))
+  )) : cidrsubnet(ip, 0, 0)])
 }
 
 # regex pattern sets -- can have a maximum of 10, per account, per region
