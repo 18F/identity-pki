@@ -18,11 +18,15 @@ parser = OptionParser.new do |opts|
     Options:
   EOM
 
-  opts.on('--csv', 'Output as CSV format (defaults to table)') do
+  opts.on('--table', 'Output as ASCII table (default)') do
+    output_format = :table
+  end
+
+  opts.on('--csv', 'Output as CSV format') do
     output_format = :csv
   end
 
-  opts.on('--md', '--markdown', 'Output as Markdown-formatted text (defaults to table)') do
+  opts.on('--md', '--markdown', 'Output as Slack-friendly Markdown-formatted text') do
     output_format = :markdown
   end
 
@@ -34,8 +38,13 @@ parser = OptionParser.new do |opts|
     host_group = host_v
   end
 
-  opts.on('--redact', 'Redact emails when printing') do
+  opts.on('--[no-]redact', 'Whether or not to redact when printing (defaults to unredacted)') do |redact_v|
+    redact_emails = redact_v
+  end
+
+  opts.on('--slack', 'Shorthand for --markdown --redact') do
     redact_emails = true
+    output_format = :markdown
   end
 
   opts.on('--help', 'Print this help message') do
@@ -98,7 +107,7 @@ end
 
 # @return [String]
 def backticks_or_not_found(str)
-  if str =~ /not found/i || str.blank?
+  if str =~ /not found/i || str.empty?
     str
   else
     "`#{str}`"
@@ -124,7 +133,7 @@ when :csv
   end
 when :markdown
   rows.each do |(case_number, email, uuid)|
-    puts "- *#{case_number}*: #{backticks_or_not_found(email)} #{backticks_or_not_found(uuid.to_s)}"
+    puts "- *#{case_number}*: #{backticks_or_not_found(email)} #{backticks_or_not_found(uuid.to_s)}".rstrip
   end
 else
   Terminal::Table.new do |table|
