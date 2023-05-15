@@ -7,16 +7,24 @@ if [[ ! $(brew list --formula | grep hub) ]] ; then
 fi
 
 ######## aliases ########
-alias gs="run git status"
-alias gl="run git log --pretty=oneline --no-abbrev-commit -n 10"
-alias gpom="run git pull origin main"
-alias gom="run git checkout main && gpom"
-alias gcm="git commit -m"
-alias bc="git rev-parse HEAD | tr -d '\n' | pbcopy"
-alias gil="run open https://github.com/issues/assigned"
+alias gs='run git status'
+alias gl='run git log --pretty=oneline --no-abbrev-commit -n 10'
+alias gpom='run git pull origin main'
+alias gom='run git checkout main && gpom'
+alias gcm='run git commit -m'
+alias bc='run git rev-parse HEAD | tr -d '\n' | pbcopy'
+alias gil='run open https://github.com/issues/assigned'
 alias gbi="run open https://github.com/orgs/18F/projects/5?card_filter_query=assignee%3A${GSA_USERNAME}"
-alias gpl="run hub pr list"
-alias gi="run hub issue"
+alias gpl='run hub pr list'
+alias gi='run hub issue'
+alias gb='run git branch'
+alias gbr='git branch --remote'
+alias gma='run git merge --abort'
+alias grbi='run git rebase -i'
+alias grbc='run git rebase --continue'
+alias grba='run git rebase --abort'
+alias grhh='run git reset --hard'
+alias gpf='run git push --force-with-lease'
 
 ######## functions ########
 
@@ -24,6 +32,18 @@ alias gi="run hub issue"
 newb() {
   gom
   run git checkout -b "${1}"
+}
+
+#### rename both local and remote branch ####
+gbm() {
+  local OLD_BRANCH=${1}
+  local NEW_BRANCH=${2}
+
+  run git branch -m ${OLD_BRANCH} ${NEW_BRANCH} && \
+  run git push origin --delete ${OLD_BRANCH} && \
+  run git branch --unset-upstream ${NEW_BRANCH} && \
+  run git push origin ${NEW_BRANCH} && \
+  run git push origin -u ${NEW_BRANCH}
 }
 
 #### cd to ${GITHUB_PARENT_DIR}/identity-${1} ####
@@ -51,43 +71,43 @@ gpb() {
 
 #### delete either current branch or branch name = ${1}; end on main ####
 delb() {
-  local branch=$1
-  [ -z ${1} ] && branch=$(git_current_branch)
+  local BRANCH=$1
+  [ -z ${1} ] && BRANCH=$(git_current_branch)
   gom
-  run git branch -d $branch
+  run git branch -d ${BRANCH}
 }
 
 #### merge/close PR, delete current/specified branch unless -n is set ####
 gmpr () {
-  local branch=$(git_current_branch)
-  local save_branch=false
-  if [[ "${branch}" == 'main' ]] ; then
+  local BRANCH=$(git_current_branch)
+  local SAVE_BRANCH=false
+  if [[ "${BRANCH}" == 'main' ]] ; then
     echo "Cannot be run from main branch!"
     break 1
   fi
   while getopts n opt ; do
     case "${opt}" in
-      n) save_branch=true ;;
+      n) SAVE_BRANCH=true ;;
     esac
   done
   run git checkout main && \
   run git pull origin main && \
-  run git checkout $branch && \
+  run git checkout ${BRANCH} && \
   run git rebase main && \
   run git push --force-with-lease && \
   run git merge main --no-edit && \
   run git checkout main && \
-  run git merge --no-edit --no-ff $branch && \
+  run git merge --no-edit --no-ff ${BRANCH} && \
   run git push origin main
-  [[ "${save_branch}" == 'true' ]] || delb $branch
+  [[ "${SAVE_BRANCH}" == 'true' ]] || delb ${BRANCH}
 }
 
 #### add>commit>push -u>open PR with $msg ####
 gpr() {
   gh_revs
-  local msg=("${@}")
-  gpb "${msg[@]}"
-  run hub pull-request -p -r "${GH_REVS}" -m "${msg[@]}" -e
+  local MSG=("${@}")
+  gpb "${MSG[@]}"
+  run hub pull-request -p -r "${GH_REVS}" -m "${MSG[@]}" -e
 }
 
 #### create issues ####
@@ -118,7 +138,7 @@ grff() {
 
 #### create private gist from clipboard ####
 ggc() {
-  local file="${1}"
-  local desc=("${@:2}")
-  run gist -oPp -d "${desc[@]}" -f ${file}
+  local FILE="${1}"
+  local DESC=("${@:2}")
+  run gist -oPp -d "${DESC[@]}" -f ${FILE}
 }
