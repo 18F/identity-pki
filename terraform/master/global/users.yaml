@@ -144,6 +144,15 @@ users:
     - appdev
     - lg-all
     - lg-public
+  dawei.wang:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - daweiwang
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   devon.johnson:
     aws_groups:
     - supporteng
