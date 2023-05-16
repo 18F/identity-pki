@@ -97,6 +97,7 @@ variable "relaxed_uri_paths" {
     "password_screening_flow" = "^/([a-z]{2}/)?verify/review" # https://github.com/18F/identity-devops/issues/4563
     "OIDC_authorization"      = "^/openid_connect/authorize"  # https://github.com/18F/identity-devops/issues/4563
     "account_deletion"        = "^/account/delete"            # https://github.com/18F/identity-devops/issues/6127
+    "reauthn"                 = "^/reauthn"                   # https://github.com/18F/identity-devops/issues/6221
   }
 }
 
