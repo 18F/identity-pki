@@ -41,7 +41,7 @@ resource "aws_iam_role_policy" "obproxy-auto-eip" {
 
 # Conditionally create ssm policy, for backwards compatibility with non kubernetes environments
 resource "aws_iam_role_policy" "obproxy-ssm-access" {
-  count  = var.ssm_policy != "" ? 1 : 0
+  count  = var.ssm_access_enabled ? 1 : 0
   name   = "${var.env_name}-obproxy-ssm-access"
   role   = aws_iam_role.obproxy.id
   policy = var.ssm_policy

@@ -41,7 +41,7 @@ resource "aws_iam_role_policy" "pivcac-cloudwatch-agent" {
 
 # Conditionally create ssm policy, for backwards compatibility with non kubernetes environments
 resource "aws_iam_role_policy" "pivcac-ssm-access" {
-  count  = var.ssm_policy != "" ? 1 : 0
+  count  = var.ssm_access_enabled ? 1 : 0
   name   = "${var.env_name}-pivcac-ssm-access"
   role   = aws_iam_role.pivcac.id
   policy = var.ssm_policy

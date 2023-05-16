@@ -1076,6 +1076,15 @@ EOM
   default     = 15
 }
 
+variable "ssm_access_enabled" {
+  description = <<EOM
+Whether or not to attach SSM access policies to IAM roles.
+Can set to 'false' for testing in EKS-based environments.
+EOM
+  type        = bool
+  default     = true
+}
+
 variable "enable_usps_status_updates" {
   type        = bool
   description = <<EOM

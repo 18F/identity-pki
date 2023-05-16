@@ -57,6 +57,15 @@ variable "attempts_api_bucket_arn" {
   type        = string
 }
 
+variable "ssm_access_enabled" {
+  description = <<EOM
+Whether or not to attach SSM access policies to IAM roles.
+Can set to 'false' for testing in EKS-based environments.
+EOM
+  type        = bool
+  default     = true
+}
+
 variable "ssm_policy" {
   description = "The policy to attach to the IAM role. If empty, the resource will not be created."
   type        = string

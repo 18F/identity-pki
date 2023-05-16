@@ -24,7 +24,10 @@ module "application_iam_roles" {
   enable_usps_status_updates     = var.enable_usps_status_updates
   identity_sms_iam_role_name_idp = var.identity_sms_iam_role_name_idp
   ssm_policy                     = module.ssm.ssm_access_role_policy
+  ssm_access_enabled             = var.ssm_access_enabled
   ipv4_secondary_cidr            = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+
+  depends_on = [module.ssm]
 }
 
 moved {

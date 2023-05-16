@@ -120,7 +120,7 @@ resource "aws_iam_role_policy" "app-cloudwatch-agent" {
 
 # Conditionally create ssm policy, for backwards compatibility with non kubernetes environments
 resource "aws_iam_role_policy" "app-ssm-access" {
-  count  = var.apps_enabled == 1 && var.ssm_policy != "" ? 1 : 0
+  count  = var.apps_enabled == 1 && var.ssm_access_enabled ? 1 : 0
   name   = "${var.env_name}-app-ssm-access"
   role   = aws_iam_role.app[count.index].id
   policy = var.ssm_policy
