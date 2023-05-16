@@ -96,8 +96,8 @@ data "aws_iam_policy_document" "public_reporting_data_policy" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.idp.arn,
-        aws_iam_role.worker.arn,
+        module.application_iam_roles.idp_iam_role_arn,
+        module.application_iam_roles.worker_iam_role_arn,
       ]
     }
     resources = [

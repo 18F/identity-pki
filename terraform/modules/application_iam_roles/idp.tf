@@ -49,12 +49,6 @@ resource "aws_iam_role_policy_attachment" "escrow_write" {
   policy_arn = aws_iam_policy.escrow_write.arn
 }
 
-# Explicit Deny for address not in the VPC or on the GSA network
-resource "aws_s3_bucket_policy" "escrow" {
-  bucket = var.escrow_bucket_id
-  policy = data.aws_iam_policy_document.escrow_deny.json
-}
-
 resource "aws_iam_policy" "escrow_write" {
   name   = "${var.env_name}-escrow-s3-policy"
   policy = data.aws_iam_policy_document.escrow_write.json

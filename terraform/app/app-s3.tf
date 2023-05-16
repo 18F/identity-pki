@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "partner_logos_bucket_policy" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.app[count.index].arn,
+        module.application_iam_roles.app_iam_role_arn,
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser",
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator",
       ]

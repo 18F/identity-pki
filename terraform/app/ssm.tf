@@ -157,7 +157,7 @@ module "ssm" {
 # Base role required for all instances
 resource "aws_iam_role" "ssm-access" {
   name               = "${var.env_name}-ssm-access"
-  assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
+  assume_role_policy = module.application_iam_roles.assume_role_from_vpc_json
 }
 
 # Role policy that associates it with the ssm_access_role_policy

@@ -101,52 +101,6 @@ module "idp_doc_capture_bucket_config" {
   inventory_bucket_arn = local.inventory_bucket_arn
 }
 
-#Worker Role access to S3 bucket and KMS key
-resource "aws_iam_role_policy" "worker_doc_capture" {
-  name   = "${var.env_name}-worker-doc-capture"
-  role   = aws_iam_role.worker.id
-  policy = data.aws_iam_policy_document.idp_doc_capture.json
-}
-
-#IDP Role access to S3 bucket and KMS key
-resource "aws_iam_role_policy" "idp_doc_capture" {
-  name   = "${var.env_name}-idp-doc-capture"
-  role   = aws_iam_role.idp.id
-  policy = data.aws_iam_policy_document.idp_doc_capture.json
-}
-
-data "aws_iam_policy_document" "idp_doc_capture" {
-  statement {
-    sid    = "KMSDocCaptureKeyAccess"
-    effect = "Allow"
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:DescribeKey",
-      "kms:GenerateDataKey*",
-      "kms:ReEncrypt*"
-    ]
-    resources = [
-      aws_kms_key.idp_doc_capture.arn,
-    ]
-  }
-
-  statement {
-    sid    = "S3DocCaptureUploadAccess"
-    effect = "Allow"
-    actions = [
-      "s3:DeleteObject",
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:ListBucket",
-    ]
-    resources = [
-      aws_s3_bucket.idp_doc_capture.arn,
-      "${aws_s3_bucket.idp_doc_capture.arn}/*"
-    ]
-  }
-}
-
 resource "aws_ssm_parameter" "kms_key_alias" {
   name  = "${local.doc_capture_ssm_parameter_prefix}kms/alias"
   type  = "String"

@@ -1,5 +1,5 @@
 locals {
-  kms_arns = concat([aws_iam_role.idp.arn, aws_iam_role.worker.arn], var.db_restore_role_arns)
+  kms_arns = concat([module.application_iam_roles.idp_iam_role_arn, module.application_iam_roles.worker_iam_role_arn], var.db_restore_role_arns)
 }
 
 module "kms_logging" {

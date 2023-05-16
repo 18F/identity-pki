@@ -180,66 +180,12 @@ resource "aws_glue_catalog_table" "athena_events_log_database" {
 
 }
 
-data "aws_iam_policy_document" "glue-assume-role-policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["glue.amazonaws.com"]
-    }
-  }
-}
-
-resource "aws_iam_role" "events_log_glue_crawler" {
-  name               = "${var.env_name}_events_log_glue_crawler"
-  assume_role_policy = data.aws_iam_policy_document.glue-assume-role-policy.json
-}
-
-resource "aws_iam_role_policy_attachment" "glue_crawler_service_role" {
-  role       = aws_iam_role.events_log_glue_crawler.id
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-}
-
-data "aws_iam_policy_document" "glue_crawler_policy" {
-  statement {
-    sid    = "AllowGlue"
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-    ]
-    resources = [
-      "${module.kinesis-firehose.kinesis_firehose_stream_bucket.arn}/athena/*",
-    ]
-  }
-
-  statement {
-    sid    = "AllowDecryptFromKMS"
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-      "kms:GenerateDataKey",
-      "kms:DescribeKey"
-    ]
-    resources = [module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn]
-  }
-
-}
-
-resource "aws_iam_role_policy" "glue_crawler_policy" {
-  name   = "${var.env_name}-events-log-glue-crawler"
-  role   = aws_iam_role.events_log_glue_crawler.id
-  policy = data.aws_iam_policy_document.glue_crawler_policy.json
-}
-
 resource "aws_glue_crawler" "log_crawler" {
   database_name = aws_glue_catalog_table.athena_events_log_database.name
   // set cron to once a week on Friday after business hours
   schedule = "cron(30 19 ? * 5 *)"
   name     = "${var.env_name}_events_log_crawler"
-  role     = aws_iam_role.events_log_glue_crawler.arn
+  role     = module.application_iam_roles.events_log_glue_crawler_iam_role_arn
 
   configuration = jsonencode(
     {

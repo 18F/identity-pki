@@ -42,8 +42,8 @@ data "aws_iam_policy_document" "attempts_api_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.idp.arn,
-        aws_iam_role.worker.arn
+        module.application_iam_roles.idp_iam_role_arn,
+        module.application_iam_roles.worker_iam_role_arn
       ]
     }
   }
@@ -107,58 +107,4 @@ resource "aws_s3_bucket_acl" "attempts_api" {
   acl    = "private"
 
   depends_on = [aws_s3_bucket_ownership_controls.attempts_api]
-}
-
-# <env>_idp_iam_role and <env>_worker_iam_role policy to access Attempts API S3 Bucket
-data "aws_iam_policy_document" "attempts_api" {
-  statement {
-    sid    = "AllowKMSUse"
-    effect = "Allow"
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey",
-    ]
-    resources = [
-      aws_kms_key.attempts_api_kms.arn
-    ]
-  }
-  statement {
-    sid    = "AllowAttemptsBucketList"
-    effect = "Allow"
-    actions = [
-      "s3:ListBucket"
-    ]
-    resources = [
-      aws_s3_bucket.attempts_api.arn
-    ]
-  }
-  statement {
-    sid    = "AllowAttemptsBucketGetPut"
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:DeleteObject",
-      "s3:PutObject"
-    ]
-    resources = [
-      "${aws_s3_bucket.attempts_api.arn}/*"
-    ]
-  }
-}
-
-resource "aws_iam_policy" "attempts_api" {
-  name   = "${var.env_name}-attempts-api-s3-policy"
-  policy = data.aws_iam_policy_document.attempts_api.json
-}
-
-resource "aws_iam_role_policy_attachment" "attempts_api" {
-  for_each = toset([
-    aws_iam_role.idp.name,
-    aws_iam_role.worker.name
-  ])
-  role       = each.key
-  policy_arn = aws_iam_policy.attempts_api.arn
 }

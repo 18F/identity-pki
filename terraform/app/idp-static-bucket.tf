@@ -118,8 +118,8 @@ data "aws_iam_policy_document" "idp_static_bucket_policy" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.idp.arn,
-        aws_iam_role.migration.arn,
+        module.application_iam_roles.idp_iam_role_arn,
+        module.application_iam_roles.migration_iam_role_arn,
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser"
       ]
     }

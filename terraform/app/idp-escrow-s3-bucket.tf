@@ -1,13 +1,3 @@
-locals {
-  # Need this because prod doesn't have an AutoTerraform role at the moment
-  key_management_roles = var.gitlab_enabled ? [
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform",
-    module.env-runner[0].runner_role_arn
-    ] : [
-    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
-  ]
-}
-
 data "aws_eips" "all" {
 }
 
@@ -16,7 +6,7 @@ resource "aws_kms_key" "escrow_kms" {
   description             = "${var.env_name} KMS key for the escrow s3 bucket"
   deletion_window_in_days = 10
 
-  policy = data.aws_iam_policy_document.escrow_kms.json
+  policy = module.application_iam_roles.escrow_kms_policy_document_json
   tags = {
     Name        = "${var.env_name}-escrow-s3"
     Environment = "${var.env_name}"
@@ -26,97 +16,6 @@ resource "aws_kms_key" "escrow_kms" {
 resource "aws_kms_alias" "escrow_kms" {
   name          = "alias/${var.env_name}-escrow-s3"
   target_key_id = aws_kms_key.escrow_kms.key_id
-}
-
-data "aws_iam_policy_document" "escrow_kms" {
-  statement {
-    sid    = "KeyManagement"
-    effect = "Allow"
-    actions = [
-      "kms:CancelKeyDeletion",
-      "kms:CreateAlias",
-      "kms:CreateGrant",
-      "kms:CreateKey",
-      "kms:DeleteAlias",
-      "kms:DeleteCustomKeyStore",
-      "kms:DescribeKey",
-      "kms:EnableKey",
-      "kms:GetKeyPolicy",
-      "kms:GetKeyRotationStatus",
-      "kms:ListGrants",
-      "kms:PutKeyPolicy",
-      "kms:RevokeGrant",
-      "kms:ScheduleKeyDeletion",
-      "kms:ListResourceTags",
-      "kms:TagResource",
-      "kms:UntagResource",
-      "kms:UpdateAlias",
-      "kms:UpdateKeyDescription"
-    ]
-    resources = ["*"]
-
-    principals {
-      type        = "AWS"
-      identifiers = local.key_management_roles
-    }
-  }
-  statement {
-    sid    = "ViewKey"
-    effect = "Allow"
-    actions = [
-      "kms:DescribeKey",
-      "kms:GetKeyPolicy",
-      "kms:GetKeyRotationStatus",
-      "kms:ListGrants",
-      "kms:ListResourceTags"
-    ]
-    resources = ["*"]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "*"
-      ]
-    }
-  }
-  # Allow encrypt from worker/idp instances
-  statement {
-    sid    = "ApplicationEncrypt"
-    effect = "Allow"
-    actions = [
-      "kms:Encrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey"
-    ]
-    resources = ["*"]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        aws_iam_role.idp.arn,
-        aws_iam_role.worker.arn
-      ]
-    }
-  }
-  # Allow decrypt from Escrow Read role
-  statement {
-    sid    = "EscrowReadDecrypt"
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey"
-    ]
-    resources = ["*"]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/EscrowRead"
-      ]
-    }
-  }
 }
 
 # Escrow S3 Bucket Setup
@@ -225,8 +124,8 @@ data "aws_iam_policy_document" "escrow_deny" {
     principals {
       type = "AWS"
       identifiers = [
-        aws_iam_role.idp.arn,
-        aws_iam_role.worker.arn,
+        module.application_iam_roles.idp_iam_role_arn,
+        module.application_iam_roles.worker_iam_role_arn,
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/EscrowRead"
       ]
     }
@@ -276,18 +175,4 @@ data "aws_iam_policy_document" "escrow_deny" {
       values   = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
     }
   }
-}
-
-resource "aws_iam_policy" "escrow_write" {
-  name   = "${var.env_name}-escrow-s3-policy"
-  policy = data.aws_iam_policy_document.escrow_write.json
-}
-
-resource "aws_iam_role_policy_attachment" "escrow_write" {
-  for_each = toset([
-    aws_iam_role.idp.name,
-    aws_iam_role.worker.name
-  ])
-  role       = each.key
-  policy_arn = aws_iam_policy.escrow_write.arn
 }
