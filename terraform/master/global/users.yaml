@@ -590,7 +590,7 @@ users:
     - lg-public
   osman.latif:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - olatif
     gitlab_groups:
