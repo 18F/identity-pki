@@ -84,8 +84,6 @@ package "etc" {
 }
 
 /'
- ' object "nodes/common/kitchen.cloud.yml" as kitchen_cloud_yml
- ' 
  ' object "identity-cookbooks/identity_base_config/recipes/ruby.rb" as ruby_rb
  '/
 

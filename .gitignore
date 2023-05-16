@@ -33,9 +33,6 @@ Vagrantfile
 /terraform/*/.terraform.lock.hcl
 /terraform/*/*/.terraform.lock.hcl
 
-/nodes/*/Gemfile.lock
-/nodes/*/Berksfile.lock
-
 # pycache and dist-info directories
 **/__pycache__/
 **.dist-info/
