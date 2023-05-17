@@ -11,6 +11,14 @@ production:
   error_collector:
     capture_source: true
     enabled: true
+    ignore_errors: "<%= %w[
+      ActionController::BadRequest
+      ActionController::ParameterMissing
+      ActionController::RoutingError
+      ActionController::UnknownHttpMethod
+      ActionDispatch::Http::MimeNegotiation::InvalidType
+      ActionDispatch::Http::Parameters::ParseError
+    ].join(',') %>"
   license_key: <%= IdentityConfig.store.newrelic_license_key %>
   log_level: info
   monitor_mode: true
