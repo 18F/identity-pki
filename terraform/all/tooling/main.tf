@@ -28,7 +28,13 @@ module "main" {
   dnssec_zone_exists = true
   smtp_user_ready    = true
 
-  ssm_access_map = {
+  ssm_document_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+  }
+
+  ssm_command_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],

@@ -314,9 +314,15 @@ variable "accountNumberPrisma" {
   default     = "188619942792"
 }
 
-variable "ssm_access_map" {
+variable "ssm_document_access_map" {
   type        = map(list(map(list(string))))
   description = "Map of SSM docs available to specific roles"
+  default     = {}
+}
+
+variable "ssm_command_access_map" {
+  type        = map(list(map(list(string))))
+  description = "Map of SSM commands available to specific roles"
   default     = {}
 }
 

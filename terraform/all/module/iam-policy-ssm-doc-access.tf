@@ -1,7 +1,7 @@
 # only allow ssm:StartSession if an SSM document is provided with --document-name
 locals {
-  ssm_access_arns = {
-    for group, perms in var.ssm_access_map : group => flatten([
+  ssm_document_access_arns = {
+    for group, perms in var.ssm_document_access_map : group => flatten([
       for perm in perms : flatten([
         for pair in setproduct(keys(perm), flatten([values(perm)])) : join(
           "", [
@@ -13,6 +13,25 @@ locals {
         )
       ])
     ])
+  }
+
+  ssm_command_access_arns = {
+    for group, perms in var.ssm_command_access_map : group => flatten([
+      for perm in perms : flatten([
+        for pair in setproduct(keys(perm), flatten([values(perm)])) : join(
+          "", [
+            "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:document/",
+            pair[0],
+            "-ssm-cmd-",
+            pair[1]
+          ]
+        )
+      ])
+    ])
+  }
+
+  ssm_access_arns = {
+    for role in keys(local.ssm_document_access_arns) : role => concat(local.ssm_document_access_arns[role], local.ssm_command_access_arns[role])
   }
 }
 
@@ -36,6 +55,29 @@ data "aws_iam_policy_document" "ssm_command_access" {
       ]
     }
   }
+
+  statement {
+    sid    = "${each.key}SSMCmdInvocation"
+    effect = "Allow"
+    actions = [
+      "ssm:GetCommandInvocation",
+    ]
+    resources = [
+      join(":", [
+        "arn:aws:ssm:${var.region}",
+        "${data.aws_caller_identity.current.account_id}",
+        "*"]
+      )
+    ]
+    condition {
+      test     = "BoolIfExists"
+      variable = "ssm:SessionDocumentAccessCheck"
+      values = [
+        "true",
+      ]
+    }
+  }
+
 
   statement {
     sid    = "${each.key}SSMCmdAccess"

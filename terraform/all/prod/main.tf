@@ -116,11 +116,19 @@ module "main" {
     },
   ]
 
-  ssm_access_map = {
+  ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
-    "FraudOps" = [{ "*" = ["data-pull", "review-pass", "review-reject", "uuid-lookup"] }],
+    "FraudOps" = [{ "*" = ["review-pass", "review-reject", "uuid-lookup"] }],
+  }
+
+  ssm_command_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "SupportEngineer"   = [],
+    # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
+    "FraudOps" = [{ "*" = ["data-pull"] }],
   }
 }
