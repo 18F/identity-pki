@@ -34,6 +34,8 @@ ______________________________________________________________________
 ## What is the solution and how is it implemented?
 
 GitLab is deployed and tested in a fully automated fashion using
-AWS CodePipeline and CodeBuild.
+GitLab.  The production cluster deploys the staging cluster, and
+once approved, the staging cluster will deploy the production
+cluster.
 
 ______________________________________________________________________
