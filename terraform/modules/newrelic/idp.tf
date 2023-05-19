@@ -197,10 +197,10 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   policy_id                    = newrelic_alert_policy.enduser[count.index].id
   name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
-  description                  = "Alerting when errors in controller action name get above 0.5% for the past 2 minutes"
+  description                  = "Alerting when errors in controller action name get above 0.5% for the past 10 minutes"
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-controller-action-error-rate"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 60
+  aggregation_window           = 120
   aggregation_method           = "event_flow"
   aggregation_delay            = 60
 
@@ -211,7 +211,7 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   critical {
     operator              = "above"
     threshold             = 0.5
-    threshold_duration    = 120
+    threshold_duration    = 600
     threshold_occurrences = "ALL"
   }
 }
@@ -221,11 +221,11 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   policy_id   = newrelic_alert_policy.enduser[count.index].id
   name        = "${var.env_name}: high rate of errors for service provider"
   enabled     = true
-  description = "Alerting when errors for individual service provider get above 0.5% for the past 2 minutes"
+  description = "Alerting when errors for individual service provider get above 0.5% for the past 10 minutes"
 
   runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-service-provider-error-rate"
   violation_time_limit_seconds = 43200
-  aggregation_window           = 60
+  aggregation_window           = 120
   aggregation_method           = "event_flow"
   aggregation_delay            = 60
 
@@ -236,7 +236,7 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   critical {
     operator              = "above"
     threshold             = 0.5
-    threshold_duration    = 120
+    threshold_duration    = 600
     threshold_occurrences = "ALL"
   }
 }
