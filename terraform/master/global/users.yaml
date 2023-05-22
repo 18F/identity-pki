@@ -914,3 +914,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-pki:
+    groups:
+      appdev:
+        access: maintainer
+      devops:
+        access: developer
+      pm:
+        access: reporter
