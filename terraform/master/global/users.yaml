@@ -88,7 +88,13 @@ users:
     - benjamin.chait@gsa.gov
   brittany.greaner:
     aws_groups:
-    - finops
+    - appdev
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - appdev
+    ec2_username:
+    - bgreaner
   carrie.mcgrath:
     aws_groups:
     - analytics
