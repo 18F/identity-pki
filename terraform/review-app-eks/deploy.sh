@@ -20,6 +20,12 @@ BUCKET="login-gov.tf-state.${ACCOUNT}-${TF_VAR_region}"
 SCRIPT_BASE=$(dirname "$0")
 RUN_BASE=$(pwd)
 
+# make sure we are all using the same modules
+if [ ! -L .terraform.lock.hcl ] ; then
+	rm -f .terraform.lock.hcl
+	ln -s ../../.terraform.lock.hcl .
+fi
+
 # set it up with the s3 backend
 # cd "$RUN_BASE/$SCRIPT_BASE"
 terraform init -backend-config="bucket=$BUCKET" \
