@@ -761,6 +761,15 @@ users:
     - devops
     - lg-all
     - lg-public
+  sudheer.dandamudi:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - sdandamudi
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-public
   sujana.gurung:
     aws_groups:
     - devopsnonprod
