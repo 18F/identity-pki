@@ -789,7 +789,7 @@ variable "idp_newrelic_alerts_enabled" {
 variable "new_relic_pager_alerts_enabled" {
   default     = 0
   type        = number
-  description = "Enables OpsGenie alerts for NewRelic alarms"
+  description = "Enables paging alerts for NewRelic alarms"
 
 }
 variable "idp_in_person_newrelic_alerts_enabled" {
@@ -954,7 +954,7 @@ variable "slack_oncall_groups" {
   type        = list(string)
   description = <<EOM
 Slack group handle(s) for 'prod'-environment Oncall response. Add to the Description
-of a CloudWatch alert to ping said handle(s) via an OpsGenie message in Slack.
+of a CloudWatch alert to ping said handle(s) via a message in Slack.
 
 NOTE: Must be added AFTER a valid 'Runbook:' line (e.g. with a URL attached)
 to prevent the SNSToSlackNotifier from triggering a duplicate notification.

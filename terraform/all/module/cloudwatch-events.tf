@@ -29,7 +29,7 @@ resource "aws_cloudwatch_event_target" "slack_root_user_accessed" {
 resource "aws_cloudwatch_event_target" "page_root_user_accessed" {
   provider  = aws.use1
   rule      = aws_cloudwatch_event_rule.root_user_accessed.name
-  target_id = "SendToOpsgenie"
+  target_id = "SendToSplunkOncall"
   arn       = module.splunk_oncall_sns_use1.sns_topic_arns["login-platform"]
 }
 

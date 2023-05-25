@@ -93,7 +93,7 @@ data "aws_ssm_parameter" "splunk_oncall_newrelic_endpoint" {
 # 2. Slack notification channels/destinations are always created
 # 3. If var.pager_alerts_enabled = true, high / enduser should all
 #    go to the 'high' slack destination; otherwise, they should all go to the 'low' one
-# 4. If var.pager_alerts_enabled = true, then OpsGenie channels/destinations
+# 4. If var.pager_alerts_enabled = true, then on-call paging channels/destinations
 #    are also created
 # 
 
