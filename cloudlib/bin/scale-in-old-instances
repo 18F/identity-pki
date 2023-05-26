@@ -65,6 +65,7 @@ Options:
     exit 1
   end
 
+  scale_in_options[:oldest_first] = true
   as = Cloudlib::AutoScaling.new
 
   if role == 'ALL'

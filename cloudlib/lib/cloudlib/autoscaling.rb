@@ -543,7 +543,7 @@ module Cloudlib
       end
 
       label = scale_in_options[:oldest_first] ? 'old' : 'new'
-      log.info("\nWill scale in #{label} servers in all ASGs in #{env.inspect}:\n  " +
+      log.info("\nWill remove #{label} servers in all ASGs in #{env.inspect}:\n  " +
                asgs.map(&:name).join("\n  "))
 
       if interactive
