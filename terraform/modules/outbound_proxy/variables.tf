@@ -227,7 +227,7 @@ variable "ssm_access_policy" {
 
 variable "cloudwatch_treat_missing_data" {
   type    = string
-  default = "missing"
+  default = "notBreaching"
 }
 
 variable "s3_secrets_bucket_name" {

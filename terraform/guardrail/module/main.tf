@@ -134,7 +134,24 @@ data "aws_iam_policy_document" "iam_permission_boundary" {
       "arn:aws:cloudtrail:*:*:trail/login-gov-cloudtrail",
     ]
   }
-
+  statement {
+    sid    = "KMSMultiRegion"
+    effect = "Deny"
+    actions = [
+      "kms:*",
+    ]
+    resources = [
+      "*",
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:RequestedRegion"
+      values = [
+        "us-west-2",
+        "us-east-1",
+      ]
+    }
+  }
 }
 
 
