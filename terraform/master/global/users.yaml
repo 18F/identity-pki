@@ -21,6 +21,7 @@ users:
     - devops
     gitlab_groups:
     - devops
+    - appdev # for maintainer access to identity-idp
     - lg-all
     - lg-public
   alexander.bradley:

@@ -47,3 +47,6 @@ repos:
   terraform_plan:
     name: "cd/terraform_plan"
     <<: *all_write_template
+  identity_idp_review:
+    name: "identity-idp/review"
+    <<: *all_write_template
