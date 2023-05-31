@@ -120,6 +120,7 @@ variable "root_domain" {
 variable "gitlab_env_runner_role_arn" {
   description = "ARN of the GitLab environment runner role"
   type        = string
+  default     = null
 }
 
 variable "gitlab_enabled" {
@@ -131,4 +132,23 @@ variable "gitlab_enabled" {
 variable "usps_updates_sqs_arn" {
   description = "ARN of the SQS queue that will receive USPS status updates"
   type        = string
+  default     = null
+}
+
+variable "eks_oidc_provider_arn" {
+  description = "ARN of the OIDC provider for the EKS cluster"
+  type        = string
+  default     = null
+}
+
+variable "eks_oidc_provider" {
+  description = "ARN of the OIDC provider for the EKS cluster"
+  type        = string
+  default     = null
+}
+
+variable "service_accounts" {
+  description = "Service accounts allowed to assume the role"
+  type        = list(string)
+  default     = []
 }
