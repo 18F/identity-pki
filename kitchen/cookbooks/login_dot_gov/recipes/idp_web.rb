@@ -104,10 +104,5 @@ file '/etc/init.d/passenger' do
   only_if { ::File.exist?('/etc/init.d/passenger') && !node['login_dot_gov']['setup_only'] }
 end
 
-# allow other execute permissions on all directories within the application folder
-# TODO: check that this is needed
-# https://www.phusionpassenger.com/library/admin/nginx/troubleshooting/ruby/#upon-accessing-the-web-app-nginx-reports-a-permission-denied-error
-execute "chmod o+X -R /srv"
-
-# need this now that passenger runs as nobody
-execute "chown -R #{node[:passenger][:production][:user]} /srv/idp/shared/log"
+# Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
+include_recipe 'login_dot_gov::fix_permissions'

@@ -8,6 +8,14 @@ directory '/var/run/postgresql' do
   mode '0755'
 end
 
+# Also seems to lose permissions when baked in, resetting
+directory '/var/log/postgresql' do
+  owner 'postgres'
+  group 'postgres'
+  mode '0755'
+end
+
+
 # Override default pgbouncer.ini with any tuning adjustments
 template '/etc/pgbouncer/pgbouncer.ini' do
   source 'pgbouncer.ini.erb'
