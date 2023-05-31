@@ -15,9 +15,9 @@ assignees: ''
 
 | Account | ID | Date | Description |
 | :---: | :---: | :---: | :---: |
-| sandbox | ami-XXXXXXXXXXXXXXXXX | <DATE> | base image Ubuntu 18.04 |
-| prod | ami-XXXXXXXXXXXXXXXXX | <DATE> | base image Ubuntu 18.04 |
-| sandbox | ami-XXXXXXXXXXXXXXXXX | <DATE> | rails image Ubuntu 18.04 |
-| prod | ami-XXXXXXXXXXXXXXXXX | <DATE> | rails image Ubuntu 18.04 |
+| sandbox | ami-XXXXXXXXXXXXXXXXX | <DATE> | base image Ubuntu 20.04 |
+| prod | ami-XXXXXXXXXXXXXXXXX | <DATE> | base image Ubuntu 20.04 |
+| sandbox | ami-XXXXXXXXXXXXXXXXX | <DATE> | rails image Ubuntu 20.04 |
+| prod | ami-XXXXXXXXXXXXXXXXX | <DATE> | rails image Ubuntu 20.04 |
 
 <!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
