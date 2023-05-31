@@ -468,3 +468,8 @@ variable "job_queue_depth_alert_threshold" {
   description = "The depth of a Gitlab project's job queue at which to alert."
   default     = 40
 }
+
+variable "ubuntu_os_version_string" {
+  type    = string
+  default = "Ubuntu 20.04"
+}
