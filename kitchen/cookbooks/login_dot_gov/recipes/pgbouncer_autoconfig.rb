@@ -21,7 +21,9 @@ template '/etc/pgbouncer/pgbouncer.ini' do
   source 'pgbouncer.ini.erb'
   variables({
     auth_type:            node['login_dot_gov']['pgbouncer']['auth_type'],
+    client_login_timeout: node['login_dot_gov']['pgbouncer']['client_login_timeout'],
     default_pool_size:    node['login_dot_gov']['pgbouncer']['default_pool_size'],
+    dns_max_ttl:          node['login_dot_gov']['pgbouncer']['dns_max_ttl'],
     max_client_conn:      node['login_dot_gov']['pgbouncer']['max_client_conn'],
     max_db_connections:   node['login_dot_gov']['pgbouncer']['max_db_connections'],
     max_user_connections: node['login_dot_gov']['pgbouncer']['max_user_connections'],
@@ -30,6 +32,9 @@ template '/etc/pgbouncer/pgbouncer.ini' do
     reserve_pool_size:    node['login_dot_gov']['pgbouncer']['reserve_pool_size'],
     reserve_pool_timeout: node['login_dot_gov']['pgbouncer']['reserve_pool_timeout'],
     server_check_delay:   node['login_dot_gov']['pgbouncer']['server_check_delay'],
+    server_idle_timeout:  node['login_dot_gov']['pgbouncer']['server_idle_timeout'],
+    server_lifetime:      node['login_dot_gov']['pgbouncer']['server_lifetime'],
+    server_login_retry:   node['login_dot_gov']['pgbouncer']['server_login_retry'],
     server_reset_query:   node['login_dot_gov']['pgbouncer']['server_reset_query'],
   })
   owner 'postgres'
