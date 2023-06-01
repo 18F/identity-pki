@@ -103,18 +103,18 @@ max_user_connections = <%= @max_user_connections %>
 ;;;
 
 ;; Close server connection if its been connected longer.
-;server_lifetime = 3600
+server_lifetime = <%= @server_lifetime %>
 
 ;; Close server connection if its not been used in this time.
 ;; Allows to clean unnecessary connections from pool after peak.
-;server_idle_timeout = 600
+server_idle_timeout = <%= @server_idle_timeout %>
 
 ;; Cancel connection attempt if server does not answer takes longer.
 ;server_connect_timeout = 15
 
 ;; If server login failed (server_connect_timeout or auth failure)
 ;; then wait this many second.
-;server_login_retry = 15
+server_login_retry = <%= @server_login_retry %>
 
 ;; Dangerous.  Server connection is closed if query does not return
 ;; in this time.  Should be used to survive network problems,
@@ -132,7 +132,7 @@ max_user_connections = <%= @max_user_connections %>
 
 ;; Disconnect clients who have not managed to log in after connecting
 ;; in this many seconds.
-;client_login_timeout = 60
+client_login_timeout = <%= @client_login_timeout %>
 
 ;; Clean automatically created database entries (via "*") if they
 ;; stay unused in this many seconds.
@@ -188,7 +188,7 @@ max_user_connections = <%= @max_user_connections %>
 ;tcp_keepintvl = 0
 
 ;; DNS lookup caching time
-;dns_max_ttl = 15
+dns_max_ttl = <%= @dns_max_ttl %>
 
 ;; DNS zone SOA lookup period
 ;dns_zone_check_period = 0

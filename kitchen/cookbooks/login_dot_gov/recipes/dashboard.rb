@@ -149,6 +149,8 @@ directory "#{base_dir}/shared/log" do
     recursive true
 end
 
+# Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
+include_recipe 'login_dot_gov::fix_permissions'
 
 # After doing the full deploy, we want to ensure that passenger is up and
 # running before the ELB starts trying to health check it. We've seen some

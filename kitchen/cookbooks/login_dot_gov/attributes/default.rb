@@ -148,14 +148,19 @@ default['login_dot_gov']['worker_count'] = node.fetch('cpu').fetch('total')
 
 # pgbouncer tunables - See https://www.pgbouncer.org/config.html
 default['login_dot_gov']['pgbouncer']['auth_type']            = 'md5'          # See https://www.pgbouncer.org/config.html#auth_type
+default['login_dot_gov']['pgbouncer']['client_login_timeout'] = 60
 default['login_dot_gov']['pgbouncer']['config_prefix']        = 'database_'    # Prefix in application.yml for host, name, username. and password attributes
-default['login_dot_gov']['pgbouncer']['pool_mode']            = 'transaction'  # session, transaction, or statement
-default['login_dot_gov']['pgbouncer']['server_reset_query']   = ''             # Use 'DISCARD ALL' if using the session pool_mode
-default['login_dot_gov']['pgbouncer']['server_check_delay']   = 30
-default['login_dot_gov']['pgbouncer']['max_client_conn']      = 500
 default['login_dot_gov']['pgbouncer']['default_pool_size']    = 20
-default['login_dot_gov']['pgbouncer']['min_pool_size']        = 0
-default['login_dot_gov']['pgbouncer']['reserve_pool_size']    = 0
-default['login_dot_gov']['pgbouncer']['reserve_pool_timeout'] = 5
+default['login_dot_gov']['pgbouncer']['dns_max_ttl']          = 10
+default['login_dot_gov']['pgbouncer']['max_client_conn']      = 500
 default['login_dot_gov']['pgbouncer']['max_db_connections']   = 0
 default['login_dot_gov']['pgbouncer']['max_user_connections'] = 0
+default['login_dot_gov']['pgbouncer']['min_pool_size']        = 0
+default['login_dot_gov']['pgbouncer']['pool_mode']            = 'transaction'  # session, transaction, or statement
+default['login_dot_gov']['pgbouncer']['reserve_pool_size']    = 0
+default['login_dot_gov']['pgbouncer']['reserve_pool_timeout'] = 5
+default['login_dot_gov']['pgbouncer']['server_check_delay']   = 30
+default['login_dot_gov']['pgbouncer']['server_idle_timeout']  = 600
+default['login_dot_gov']['pgbouncer']['server_lifetime']      = 3600
+default['login_dot_gov']['pgbouncer']['server_login_retry']   = 15
+default['login_dot_gov']['pgbouncer']['server_reset_query']   = ''             # Use 'DISCARD ALL' if using the session pool_mode

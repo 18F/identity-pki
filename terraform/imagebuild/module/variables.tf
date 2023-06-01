@@ -64,9 +64,9 @@ DESC
     deregister_existing_ami = "false"
     delete_ami_snapshots    = "false"
     chef_version            = "17.5.22" # also passed to CFN as ChefVersion parameter
-    os_version              = "Ubuntu 18.04"
+    os_version              = "Ubuntu 20.04"
     ami_owner_id            = "679593333241",
-    ami_filter_name         = "ubuntu-pro-fips/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server*"
+    ami_filter_name         = "ubuntu-pro-fips-server/images/hvm-ssd/ubuntu-focal-20.04-amd64*"
   }
 }
 
@@ -78,7 +78,7 @@ Passed into CloudFormation template as UbuntuVersion parameter. MUST match numbe
 in os_version and ami_filter_name values in var.packer_config above.
 DESC
   type        = string
-  default     = "18"
+  default     = "20"
 }
 
 variable "trigger_source" {

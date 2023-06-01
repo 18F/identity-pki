@@ -94,3 +94,6 @@ maximum_object_size 1024 MB
 cache_dir ufs /var/spool/squid 10000 16 256
 coredump_dir /var/spool/squid
 cache_mem 2048 MB
+
+# Increase max file descriptors for process
+max_filedesc 32768

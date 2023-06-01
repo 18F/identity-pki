@@ -10,9 +10,16 @@ include_recipe 'filesystem'
 # https://packages.gitlab.com/runner/gitlab-runner
 gitlab_runner_version = '15.11.0'
 
+# On 18.04 the device is nvme1, on 20.04 the device is nvme2
+if node['platform_version'].to_f == 18.04
+  docker_device = '/dev/nvme1n1'
+elsif node['platform_version'].to_f == 20.04
+  docker_device = '/dev/nvme2n1'
+end
+
 filesystem 'docker' do
   fstype 'ext4'
-  device '/dev/nvme1n1'
+  device docker_device
   mount '/var/lib/docker'
   action [:create, :enable, :mount]
 end
@@ -93,11 +100,16 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   #
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
-  allowed_images = ConfigLoader.load_config_or_nil(node, 'gitlab_env_runner_allowed_images')
-  if allowed_images.nil?
-    node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split()
+  if node['identity_gitlab']['allowed_images'] == true
+    allowed_images = ConfigLoader.load_config_or_nil(node, 'gitlab_env_runner_allowed_images')
+    if allowed_images.nil?
+      node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split()
+    else
+      node.run_state['allowed_images'] = allowed_images.chomp.split()
+    end
   else
-    node.run_state['allowed_images'] = allowed_images.chomp.split()
+    # allowed images feature is turned off, so allow everything.
+    node.run_state['allowed_images'] = []
   end
   node.run_state['allowed_services'] = ['']
 else
@@ -110,7 +122,11 @@ else
 end
 
 # get the repos from allowed_images and make a list to be used with the ecr-helper stuff
-repohosts = []
+repohosts = [
+  '034795980528.dkr.ecr.us-west-2.amazonaws.com',
+  '217680906704.dkr.ecr.us-west-2.amazonaws.com',
+  '894947205914.dkr.ecr.us-west-2.amazonaws.com',
+]
 reporegex = /[0-9]*.dkr.ecr.*.amazonaws.com/
 node.run_state['allowed_images'].each do |repo|
   if repo =~ reporegex
@@ -191,7 +207,7 @@ end
 execute 'configure_gitlab_runner' do
   command '/etc/gitlab-runner/runner-register.sh'
   action :nothing
-  sensitive true
+  sensitive false
   notifies :run, 'execute[restart_runner]', :immediately
 end
 
@@ -232,7 +248,7 @@ end
 
 # Get the unsigned image killer script going.
 file '/root/image_signing.pub' do
-  content ConfigLoader.load_config(node, node['identity_gitlab']['image_signing_pubkey'], common: node['identity_gitlab']['image_signing_pubkey_common'])
+  content ConfigLoader.load_config_or_nil(node, node['identity_gitlab']['image_signing_pubkey'], common: node['identity_gitlab']['image_signing_pubkey_common'])
   mode '0644'
   owner 'root'
   group 'root'

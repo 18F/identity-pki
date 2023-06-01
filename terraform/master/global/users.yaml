@@ -96,6 +96,11 @@ users:
     - appdev
     ec2_username:
     - bgreaner
+  cale.rubenstein:
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - pm
   carrie.mcgrath:
     aws_groups:
     - analytics

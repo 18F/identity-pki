@@ -5,7 +5,7 @@ when '16.04'
     command 'pip install certbot certbot_dns_route53'
     not_if 'pip show certbot && pip show certbot_dns_route53'
   end
-when '18.04'
+when '18.04', '20.04'
     execute 'set http proxy' do
       command "snap set system proxy.http=http://obproxy.login.gov.internal:3128"
     end
@@ -190,3 +190,6 @@ cron_d 'update_cert_revocations' do
   user production_user
   command update_revocations_with_lock
 end
+
+# Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
+include_recipe 'login_dot_gov::fix_permissions'

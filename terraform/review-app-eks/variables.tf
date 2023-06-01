@@ -15,3 +15,9 @@ variable "dnszone" {
   type        = string
   default     = "review-app.identitysandbox.gov"
 }
+
+variable "ecr_repo_names" {
+  description = "list of ecr repos to create"
+  type        = list(string)
+  default     = ["idp", "worker", "pivcac", "app"]
+}

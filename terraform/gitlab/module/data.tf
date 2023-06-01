@@ -69,7 +69,7 @@ data "aws_ami" "base" {
 
   filter {
     name   = "tag:OS_Version"
-    values = ["Ubuntu 18.04"]
+    values = [var.ubuntu_os_version_string]
   }
 }
 

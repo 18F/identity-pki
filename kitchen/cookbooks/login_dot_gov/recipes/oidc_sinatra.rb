@@ -104,3 +104,6 @@ login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
   owner node.fetch('login_dot_gov').fetch('system_user')
   branch branch_name
 end
+
+# Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
+include_recipe 'login_dot_gov::fix_permissions'

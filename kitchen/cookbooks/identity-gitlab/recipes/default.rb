@@ -188,6 +188,17 @@ package 'gitlab-ee' do
   version gitlab_version
 end
 
+# Loosen permissions on gitaly data directory on 20.04
+if node['platform_version'].to_f == 20.04
+  directory '/var/opt/gitlab/git-data' do
+    owner 'git'
+    group 'git'
+    mode '0750'
+    recursive true
+    action :create
+  end
+end
+
 execute 'restore_ssh_keys' do
   command 'tar zxvf /etc/gitlab/etc_ssh.tar.gz'
   cwd '/etc'
@@ -692,11 +703,34 @@ end
 
 # Run PlantUML service
 plantuml_version = 'v1.2020.10'
-package 'tomcat8'
+# Tomcat8 is able to apt install in 18.04
+if node['platform_version'].to_f == 18.04
+  tomcat_version = '8'
+  tomcat_user = 'tomcat8'
+  tomcat_group = 'tomcat8'
+# Tomcat8 is not a package in 20.04, need to migrate to tomcat9
+elsif node['platform_version'].to_f == 20.04
+  tomcat_version = '9'
+  tomcat_user = 'tomcat'
+  tomcat_group = 'tomcat'
+  # Tomcat9 package install fails if tomcat user:group isn't created
+  group 'tomcat' do
+    action :create
+  end
+
+  user 'tomcat' do
+    comment 'Tomcat user'
+    gid 'tomcat'
+    shell '/bin/false'
+    home '/opt/tomcat'
+    action :create
+  end
+end
+package "tomcat#{tomcat_version}"
 package 'openjdk-8-jdk'
 package 'graphviz'
 
-service 'tomcat8' do
+service "tomcat#{tomcat_version}" do
   action :nothing
   supports({
     restart: true,
@@ -707,30 +741,30 @@ service 'tomcat8' do
 end
 
 remote_file 'plantuml.war' do
-  path '/var/lib/tomcat8/webapps/plantuml.war'
+  path "/var/lib/tomcat#{tomcat_version}/webapps/plantuml.war"
   source "https://github.com/plantuml/plantuml-server/releases/download/#{plantuml_version}/plantuml-#{plantuml_version}.war"
-  owner 'tomcat8'
-  group 'tomcat8'
+  owner tomcat_user
+  group tomcat_group
   mode '600'
-  notifies :restart, 'service[tomcat8]', :delayed
+  notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
 end
 
 cookbook_file 'tomcat server.xml' do
-  path '/etc/tomcat8/server.xml'
+  path "/etc/tomcat#{tomcat_version}/server.xml"
   source 'server.xml'
   owner 'root'
-  group 'tomcat8'
+  group tomcat_group
   mode '640'
-  notifies :restart, 'service[tomcat8]', :delayed
+  notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
 end
 
 cookbook_file 'tomcat env vars' do
-  path '/etc/default/tomcat8'
-  source 'tomcat8'
+  path "/etc/default/tomcat#{tomcat_version}"
+  source "tomcat#{tomcat_version}"
   owner 'root'
   group 'root'
   mode '644'
-  notifies :restart, 'service[tomcat8]', :delayed
+  notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
 end
 
 # random gitlab maintenance tasks

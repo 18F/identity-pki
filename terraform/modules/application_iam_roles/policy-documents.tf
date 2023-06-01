@@ -26,14 +26,41 @@ data "aws_iam_policy_document" "pivcac_route53_modification" {
 
 # This policy can be used to allow the EC2 service to assume the role.
 data "aws_iam_policy_document" "assume_role_from_vpc" {
-  statement {
-    sid = "allowVPC"
-    actions = [
-      "sts:AssumeRole",
-    ]
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
+  dynamic "statement" {
+    for_each = var.eks_oidc_provider_arn == null ? [1] : []
+    content {
+      sid = "allowVPC"
+      actions = [
+        "sts:AssumeRole",
+      ]
+      principals {
+        type        = "Service"
+        identifiers = ["ec2.amazonaws.com"]
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.eks_oidc_provider_arn != null ? [1] : []
+    content {
+      sid = "AllowAssumeRoleFromOIDC"
+      actions = [
+        "sts:AssumeRoleWithWebIdentity",
+      ]
+      principals {
+        type        = "Federated"
+        identifiers = [var.eks_oidc_provider_arn]
+      }
+      condition {
+        test     = "StringLike"
+        variable = "${var.eks_oidc_provider}:sub"
+        values   = [for sa in var.service_accounts : "system:serviceaccount:${sa}"]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "${var.eks_oidc_provider}:aud"
+        values   = ["sts.amazonaws.com"]
+      }
     }
   }
 }

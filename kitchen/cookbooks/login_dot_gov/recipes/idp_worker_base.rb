@@ -223,6 +223,9 @@ template '/etc/systemd/system/idp-workers.target' do
   variables(worker_service_descriptors: worker_service_descriptors.strip)
 end
 
+# Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
+include_recipe 'login_dot_gov::fix_permissions'
+
 execute 'reload daemon to pickup the target file' do
   command 'systemctl daemon-reload'
 end
