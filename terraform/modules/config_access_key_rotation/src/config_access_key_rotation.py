@@ -397,8 +397,7 @@ def send_notification(
     BODY_HTML,
     CHARSET,
 ):
-    # TODO - Pull this line to send to the end users
-    recipient_email = "paul.hirsch@gsa.gov"
+
     try:
         response = ses.send_email(
             Destination={
