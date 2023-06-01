@@ -65,3 +65,9 @@ resource "aws_iam_role_policy" "pivcac-transfer-utility" {
   role   = aws_iam_role.pivcac.id
   policy = data.aws_iam_policy_document.transfer_utility_policy.json
 }
+
+resource "aws_iam_role_policy" "pivcac-s3-cert-buckets" {
+  name   = "${var.env_name}-pivcac-s3-cert-buckets"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.pivcac_cert_buckets_role_policy.json
+}
