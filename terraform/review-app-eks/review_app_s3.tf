@@ -1,5 +1,3 @@
-data "aws_caller_identity" "current" {}
-
 data "aws_s3_bucket" "inventory" {
   bucket = "login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
@@ -46,11 +44,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pivcac_public_cer
       sse_algorithm = "AES256"
     }
   }
-}
-
-resource "aws_s3_bucket_policy" "pivcac_public_cert_bucket" {
-  bucket = aws_s3_bucket.pivcac_public_cert_bucket.id
-  policy = data.aws_iam_policy_document.pivcac_public_cert_bucket_policy.json
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "pivcac_public_cert_bucket" {
