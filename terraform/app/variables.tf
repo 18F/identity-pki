@@ -1359,6 +1359,12 @@ variable "enable_redis_ratelimit_instance" {
   default     = false
 }
 
+variable "enable_redis_notifications" {
+  description = "Enables elasticache notification on all redis instances"
+  type        = bool
+  default     = false
+}
+
 variable "waf_alerts_enabled" {
   description = "set this to true if you want to alert on WAF problems"
   type        = number

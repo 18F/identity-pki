@@ -5,6 +5,8 @@ locals {
     attempts = local.idp_attempts_redis_clusters
   })
 
+  elasticache_notification_arn = var.enable_redis_notifications ? var.slack_events_sns_hook_arn : ""
+
 }
 
 # Clean up once Redis 7 is deployed
@@ -62,6 +64,8 @@ resource "aws_elasticache_replication_group" "idp" {
   at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
   transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
 
+  notification_topic_arn = local.elasticache_notification_arn
+
   log_delivery_configuration {
     destination      = aws_cloudwatch_log_group.elasticache_redis_log.name
     destination_type = "cloudwatch-logs"
@@ -86,6 +90,8 @@ resource "aws_elasticache_replication_group" "idp_attempts" {
   # note that t2.* instances don't support automatic failover
   multi_az_enabled           = true
   automatic_failover_enabled = true
+
+  notification_topic_arn = local.elasticache_notification_arn
 
   #Enable data tiering if using a data tier enabled node.
   data_tiering_enabled = length(regexall("r6gd", var.elasticache_redis_attempts_api_node_type)) != 0 ? true : false
@@ -137,6 +143,8 @@ resource "aws_elasticache_replication_group" "cache" {
   at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
   transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
 
+  notification_topic_arn = local.elasticache_notification_arn
+
   log_delivery_configuration {
     destination      = aws_cloudwatch_log_group.elasticache_redis_log.name
     destination_type = "cloudwatch-logs"
@@ -165,6 +173,8 @@ resource "aws_elasticache_replication_group" "ratelimit" {
 
   at_rest_encryption_enabled = var.elasticache_redis_encrypt_at_rest
   transit_encryption_enabled = var.elasticache_redis_encrypt_in_transit
+
+  notification_topic_arn = local.elasticache_notification_arn
 
   log_delivery_configuration {
     destination      = aws_cloudwatch_log_group.elasticache_redis_log.name
