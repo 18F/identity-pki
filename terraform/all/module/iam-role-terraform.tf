@@ -768,6 +768,7 @@ locals {
           "sns:ListSubscriptionsByTopic",
           "sns:ListTagsForResource",
           "sns:ListTopics",
+          "sns:SetSubscriptionAttributes",
           "sns:SetTopicAttributes",
           "sns:Subscribe",
           "sns:TagResource",
