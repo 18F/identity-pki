@@ -1093,6 +1093,12 @@ EOM
   default     = false
 }
 
+variable "allowed_usps_status_update_source_email_addresses" {
+  type        = list(string)
+  description = "The allowed source email addresses. If empty, allows all email addresses."
+  default     = []
+}
+
 variable "privatedir" {
   description = "where identity-devops-private lives.  Used for the version_info.sh script"
   default     = ""
