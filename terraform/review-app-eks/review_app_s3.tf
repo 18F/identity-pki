@@ -2,6 +2,10 @@ data "aws_s3_bucket" "inventory" {
   bucket = "login-gov.s3-inventory.${data.aws_caller_identity.current.account_id}-${var.region}"
 }
 
+data "aws_s3_bucket" "secrets" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+}
+
 resource "aws_s3_bucket" "pivcac_cert_bucket" {
   bucket = "login-gov-pivcac-reviewapp.${data.aws_caller_identity.current.account_id}-${var.region}"
 
@@ -82,4 +86,10 @@ module "pivcac_public_cert_bucket_config" {
   bucket_name_override = aws_s3_bucket.pivcac_public_cert_bucket.id
   region               = var.region
   inventory_bucket_arn = data.aws_s3_bucket.inventory.arn
+}
+
+resource "aws_s3_object" "review_app_dhparam_folder" {
+  bucket = data.aws_s3_bucket.secrets.id
+  key = "reviewapp/"
+  source = "/dev/null"
 }
