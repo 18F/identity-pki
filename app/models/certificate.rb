@@ -65,10 +65,10 @@ class Certificate
       'self-signed cert'
     elsif !signature_verified?
       'unverified'
-    elsif revoked?
-      'revoked'
     elsif is_leaf && !signing_key_in_store? && !valid_policies?
       'bad policy'
+    elsif revoked?
+      'revoked'
     else
       'valid'
     end
