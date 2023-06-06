@@ -67,19 +67,18 @@ email_to_uuid = {}
 if include_uuids
   emails = cases.select(&:found?).map(&:customer_email)
 
-  # Maybe redo so there is a .rb file that we can use "require" with?
-  load File.expand_path('./data-pull', __dir__)
+  require_relative '../cloudlib/lib/cloudlib/idp_command.rb'
 
   begin
-    response = DataPull.new(
-      config: DataPull::Config.new(
+    response = IDPCommand.new(
+      config: IDPCommand::Config.new(
         pick_strategy: :newest,
         host: host_group,
         subcommand: ['uuid-lookup', '--csv', *emails],
         reason: "Salesforce cases #{case_numbers.join(', ')}",
         investigator: Etc.getpwuid(Process.euid).name,
       ),
-    ).run
+    ).run(command: 'data-pull')
 
     if response.status == 'Success'
       CSV.parse(response.standard_output_content, headers: true).each do |row|

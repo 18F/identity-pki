@@ -6,4 +6,4 @@ require_relative '../cloudlib/lib/cloudlib/idp_command.rb'
 require 'optparse'
 require 'shellwords'
 
-IDPCommand.parse!.output!(command: 'data-pull')
+IDPCommand.parse!.output!(command: 'action-account')

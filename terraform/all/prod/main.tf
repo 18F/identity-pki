@@ -129,6 +129,6 @@ module "main" {
     "PowerUser"         = [{ "*" = ["*"] }],
     "SupportEngineer"   = [],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
-    "FraudOps" = [{ "*" = ["data-pull"] }],
+    "FraudOps" = [{ "*" = ["data-pull", "action-account"] }],
   }
 }

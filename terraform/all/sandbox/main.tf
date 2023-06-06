@@ -171,6 +171,6 @@ module "main" {
     "PowerUser"         = [{ "*" = ["*"] }],
     "SupportEngineer"   = [],
     "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"          = [{ "*" = ["data-pull"] }],
+    "FraudOps"          = [{ "*" = ["data-pull", "action-account"] }],
   }
 }

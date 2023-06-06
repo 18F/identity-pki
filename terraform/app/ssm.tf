@@ -2,6 +2,48 @@
 
 locals {
   ssm_cmds = {
+    "action-account" = {
+      description = "Calls the action-account script in the IDP repo"
+      parameters = [
+        {
+          name        = "subcommand"
+          type        = "String"
+          default     = "null"
+          description = "action-account subcommand and its arguments, MUST BE SHELLESCAPED"
+        },
+        {
+          name        = "reason"
+          type        = "String"
+          default     = "null"
+          description = "reason for the action, MUST BE SHELLESCAPED"
+        },
+        {
+          name        = "investigator"
+          type        = "String"
+          default     = "null"
+          description = "name of investigator, MUST BE SHELLESCAPED"
+        },
+        {
+          name        = "awsusername"
+          type        = "String"
+          default     = "null"
+          description = "AWS username of script runner, MUST BE SHELLESCAPED"
+        }
+      ]
+      logging = false
+      command = [
+        "audit_message_path=$(mktemp)",
+        "command_output_path=$(mktemp)",
+        # The {{ parameters }} here rely on control characters being shellescaped by the calling script!
+        # The * and ` are for markdown formatting of the audit message that we post to Slack
+        "echo \\*AWS_USER@Box\\*: \\`{{ awsusername }}\\` @ \\`$(hostname)\\` >> $audit_message_path",
+        "echo \\*Investigator\\*: {{ investigator }} >> $audit_message_path",
+        "echo \\*Reason\\*: {{ reason }} >> $audit_message_path",
+        "cd /srv/idp/current; ./bin/action-account {{ subcommand }} 2>> $audit_message_path > $command_output_path",
+        "cat $audit_message_path | notify-slack --username action-account --text - --icon terminal --channel \"$(cat /etc/login.gov/keys/slackchannel)\" --webhook \"$(cat /etc/login.gov/keys/slackwebhook)\" --raise 1>&2 || exit 1",
+        "cat $command_output_path",
+      ]
+    }
     "work-restart" = {
       command     = ["sudo systemctl restart idp-workers.target"]
       description = "Restart idp-worker service via systemctl"
