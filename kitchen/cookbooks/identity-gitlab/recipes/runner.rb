@@ -7,9 +7,6 @@ require 'aws-sdk-ec2'
 
 include_recipe 'filesystem'
 
-# https://packages.gitlab.com/runner/gitlab-runner
-gitlab_runner_version = '15.11.0'
-
 # On 18.04 the device is nvme1, on 20.04 the device is nvme2
 if node['platform_version'].to_f == 18.04
   docker_device = '/dev/nvme1n1'
@@ -30,7 +27,7 @@ packagecloud_repo 'runner/gitlab-runner' do
 end
 
 package 'gitlab-runner' do
-  version gitlab_runner_version
+  version node['identity_gitlab']['gitlab_runner_version']
 end
 
 # install docker-credential-ecr-login so we can auth to ECR

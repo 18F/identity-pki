@@ -33,7 +33,6 @@ gitlab_qa_api_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20
 gitlab_qa_password = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
 gitlab_real_device = '/dev/nvme3n1'
 gitlab_root_api_token = shell_out('openssl rand -base64 32 | sha256sum | head -c20').stdout
-gitlab_version = '15.11.2-ee.0' # https://packages.gitlab.com/gitlab/gitlab-ee
 local_url = 'https://localhost:443'
 postgres_version = '13'
 redis_host = ConfigLoader.load_config(node, 'gitlab_redis_endpoint', common: false).chomp
@@ -185,7 +184,7 @@ file 'gitlab_ee_license_file' do
 end
 
 package 'gitlab-ee' do
-  version gitlab_version
+  version node['identity_gitlab']['gitlab_version']
 end
 
 # Loosen permissions on gitaly data directory on 20.04
@@ -232,7 +231,7 @@ file '/etc/gitlab/backup.sh' do
   content <<-EOF
 #!/bin/bash
 DATE=$(date +%Y%m%d%H%M)
-BACKUP_FILENAME=${DATE}_ee_gitlab_#{gitlab_version}
+BACKUP_FILENAME=${DATE}_ee_gitlab_#{node['identity_gitlab']['gitlab_version']}
 CONFIG_FILENAME=${DATE}_config_backup.tar.gz
 SNS_TOPIC_ARN=$(cat "/etc/login.gov/info/sns_topic_arn")
 AWS_REGION=#{aws_region}
