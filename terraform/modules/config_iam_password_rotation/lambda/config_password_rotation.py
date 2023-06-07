@@ -84,9 +84,7 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
     realemail = user_name + "@gsa.gov"
     print("real recipient_email", realemail)
     
-    #TODO - Remove the line mapping recipient email to Paul's email and unhash the line following to send to the end users
-    recipient_email = "paul.hirsch@gsa.gov"
-    #recipient_email = user_name + "@gsa.gov"
+    recipient_email = user_name + "@gsa.gov"
   
 
     if recent_password_used_age < oldPasswordDeletionPeriod:
