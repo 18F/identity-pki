@@ -5,6 +5,8 @@ resource "aws_s3_object" "packer_config" {
   key          = "packer_config/${local.aws_alias}/${each.key}.${var.os_number}.var.hcl"
   content      = <<HCL
 aws_region = "${var.region}"
+aws_delay_seconds = "${var.packer_config["aws_delay_seconds"]}"
+aws_max_attempts = "${var.packer_config["aws_max_attempts"]}"
 encryption = "${var.packer_config["encryption"]}"
 root_vol_size = "${var.packer_config["root_vol_size"]}"
 data_vol_size = "${var.packer_config["data_vol_size"]}"

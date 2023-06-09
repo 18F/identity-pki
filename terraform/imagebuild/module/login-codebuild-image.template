@@ -17,7 +17,9 @@
                         "ChefVersion",
                         "BerkshelfVersion",
                         "UbuntuVersion",
-                        "SourceFileName"
+                        "SourceFileName",
+                        "DelaySeconds",
+                        "MaxAttempts"
                     ]
                 },
                 {
@@ -70,6 +72,12 @@
                 },
                 "SourceFileName": {
                     "default": "SourceFileName"
+                },
+                "DelaySeconds": {
+                    "default": "AWS polling delay (seconds) *"
+                },
+                "MaxAttempts": {
+                    "default": "AWS max attempts *"
                 }
             }
         }
@@ -141,7 +149,17 @@
         "UbuntuVersion": {
             "Description": "Required: Main version number of Ubuntu Pro FIPS used in buildspec.yml file from identity-base-image repo.",
             "Type": "String",
-            "Default": "18"
+            "Default": "20"
+        },
+        "DelaySeconds": {
+            "Description": "Required: Packer env var: How many seconds to wait in between status update requests.",
+            "Type": "String",
+            "Default": "60"
+        },
+        "MaxAttempts": {
+            "Description": "Required: Packer env var: How many times to re-send a status update request.",
+            "Type": "String",
+            "Default": "50"
         }
     },
     "Conditions": {
@@ -697,6 +715,14 @@
                     {
                         "Name": "PACKER_AWS_ROLE",
                         "Value": {"Ref": "CodeBuildPackerProfile"}
+                    },
+                    {
+                        "Name": "AWS_POLL_DELAY_SECONDS",
+                        "Value": {"Ref": "DelaySeconds"}
+                    },
+                    {
+                        "Name": "AWS_MAX_ATTEMPTS",
+                        "Value": {"Ref": "MaxAttempts"}
                     }
                     ]
                 },
@@ -706,7 +732,7 @@
                 },
                 "ServiceRole": { "Ref": "CodeBuildRole" },
                 "Tags": [],
-                "TimeoutInMinutes": "90",
+                "TimeoutInMinutes": "120",
                 "VpcConfig": {
                     "VpcId": {"Fn::ImportValue": {"Fn::Sub": "${NetworkStackName}-VPCID"}},
                     "Subnets": [
