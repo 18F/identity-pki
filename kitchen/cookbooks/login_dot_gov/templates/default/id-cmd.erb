@@ -143,7 +143,7 @@ TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname
 for FILE in "${CHANNEL_FILES[@]}"
 do
   CHANNEL=$(cat "${FILE}")
-  notify-slack --channel "$CHANNEL" --webhook "$WEBHOOK" --username "<%= @script_name %>" --icon "<%= @slack_icon %>" --text "$TEXT"
+  sudo -u "$APP_USER" notify-slack --channel "$CHANNEL" --webhook "$WEBHOOK" --username "<%= @script_name %>" --icon "<%= @slack_icon %>" --text "$TEXT"
 done
 
 # Execute console command
@@ -151,14 +151,17 @@ exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "trap '' 1 2 3 15 19 2
 <%- end %>
 
 <%- unless @rails_console %>
-# Execute command as $APP_USER with env vars, capture output in CMD_OUTPUT and console.
-# Use process substitution to avoid subshell and preserve file descriptors with tee and fd3.
-{ CMD_OUTPUT=$(exec sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>" 2>&1 | tee >(cat >&3)); } 3>&1
+# Execute command as $APP_USER with env vars, capture output in output-$TIMESTAMP.txt and then parsed into slack webhook
+TIMESTAMP=$(date +%s)
+sudo -H -u "$APP_USER" env "${ENV_VARS[@]}" sh -euxc "cd '/srv/$app/current'; bundle exec rails <%= @rails_task %>" 2>&1 | tee /tmp/output-$TIMESTAMP.txt      
 
 # Grab the investigator name, reason, uuid out of the rails task output
-investigator_name=$(echo $CMD_OUTPUT | grep -oP 'investigator name: \K.*' | awk -F 'investigation reason:' '{print $1}' | xargs)
-investigation_reason=$(echo $CMD_OUTPUT | grep -oP 'investigation reason: \K.*' | awk -F 'uuid:' '{print $1}' | xargs)
-uuid=$(echo $CMD_OUTPUT | grep -oP 'uuid: \K\S+.*' | sed 's/uuid: //')
+investigator_name=$(cat /tmp/output-$TIMESTAMP.txt | grep -oP 'investigator name: \K.*' | awk -F 'investigation reason:' '{print $1}' | xargs)
+investigation_reason=$(cat /tmp/output-$TIMESTAMP.txt | grep -oP 'investigation reason: \K.*' | awk -F 'uuid:' '{print $1}' | xargs)
+uuid=$(cat /tmp/output-$TIMESTAMP.txt | grep -oP 'uuid: \K\S+.*' | sed 's/uuid: //')
+
+# Cleanup output file
+rm /tmp/output-$TIMESTAMP.txt
 
 # Construct and send message to slack
 TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'`'"${CONSOLE_INFO[@]:-}"' Investigator: `'"${investigator_name}"'` Reason: `'"${investigation_reason}"'` UUID: `'"${uuid}"'`'
@@ -166,6 +169,6 @@ TEXT=':rails: _<%= @rails_task %>_ :rails: for `'"${ID_USER}"'` on `'"$(hostname
 for file in "${CHANNEL_FILES[@]}"
 do
   CHANNEL=$(cat "$file")
-  notify-slack --channel "$CHANNEL" --webhook "$WEBHOOK" --username "<%= @script_name %>" --icon "<%= @slack_icon %>" --text "$TEXT"
+  sudo -u "$APP_USER" notify-slack --channel "$CHANNEL" --webhook "$WEBHOOK" --username "id-rails-console" --icon "dopetopus" --text "$TEXT"
 done
 <%- end %>
