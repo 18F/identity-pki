@@ -35,12 +35,15 @@ module "main" {
       "472911866628", # login-sms-prod
       "217680906704", # login-tooling-prod
       "461353137281"  # login-analytics - In-ATO so included in Prod list
+      # "" # login-archive-prod - TODO
     ],
     "Sandbox" = [
       "894947205914", # login-sandbox
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
       "034795980528", # login-tooling-sandbox
+      "487317109730", # login-analytics-sandbox
+      "221972985980", # login-archive-sandbox
       "917793222841"  # login-alpha
     ]
   }

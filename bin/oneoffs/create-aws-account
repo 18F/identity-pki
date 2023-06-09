@@ -74,7 +74,7 @@ EOM
 3_build_acct() {
   export AWS_PROFILE=${ADMIN_IAM_ROLE}
   ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve \
-    -var "splunk_oncall_cloudwatch_endpoint=${SPLUNK_CLOUDWATCH_ENDPOINT}"
+    -var "splunk_oncall_cloudwatch_endpoint=${SPLUNK_CLOUDWATCH_ENDPOINT}" \
     -var "splunk_oncall_newrelic_endpoint=${SPLUNK_NEWRELIC_ENDPOINT}"
 }
 
@@ -125,9 +125,9 @@ while getopts t1p2r3o4b5s6a:h opt
 do
   case $opt in
     1|p) TODO+=("${TASKS[0]}") ;;
-    2|t) TODO+=("${TASKS[2]}") ;;
-    3|b) TODO+=("${TASKS[3]}") ;;
-    4|s) TODO+=("${TASKS[4]}") ;;
+    2|t) TODO+=("${TASKS[1]}") ;;
+    3|b) TODO+=("${TASKS[2]}") ;;
+    4|s) TODO+=("${TASKS[3]}") ;;
     a) SRC_ACCT="${OPTARG}"    ;;
     h) help_me                 ;;
     *) usage && exit 1         ;;
