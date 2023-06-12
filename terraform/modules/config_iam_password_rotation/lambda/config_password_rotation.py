@@ -58,8 +58,10 @@ def lambda_handler(event, context):
                 )
                 # print("Returned value from function compare_time()", action)
 
+
 # https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_getting-report.html
 # Check the age of password and number of days from last login
+
 
 def compare_time(user_name, lastchanged, lastlogin, account_id):
     password_age = ((datetime.datetime.now()).date() - lastchanged).days
@@ -83,9 +85,8 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
     sender_email = "noreply@humans.login.gov"
     realemail = user_name + "@gsa.gov"
     print("real recipient_email", realemail)
-    
+
     recipient_email = user_name + "@gsa.gov"
-  
 
     if recent_password_used_age < oldPasswordDeletionPeriod:
         if rotationPeriod <= password_age <= oldPasswordInactivationPeriod:
@@ -109,23 +110,27 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 + "day(s)"
             )
             BODY_HTML = """<html>
-                <head> Dear {user_name}, </head>
+                <head>Dear {user_name},</head>
                 <body>
-                <p> <strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
-                <p>Your AWS Console login access is going to be disabled at {check}. Console access is disabled, if there is missing login activity for more than {oldPasswordDeletionPeriod} days or if password is not rotated in every {oldPasswordInactivationPeriod} days with active login activity. Please go to <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
-                 Runbook</a> for directions on rotating the password. We kindly request in remediating before reaching the mentioned date if not in compliance.</p>
-
-                <p> If you allow your password to expire, you will loose access to the AWS accounts via console. However, this rule does not check or modify your ability to access AWS Accounts using AWS Access Keys. </p>
-                <p> If you have any questions, reach out to @login-platform-help oncall in Slack. </p><br>
-                Thank you!<br>
-                
-                <p> Helpful links: <br>
-                <a href='https://console.aws.amazon.com/iam/home?#/security_credentials'>
-                 AWS Console link</a><br>
-                 Slack : #login-platform-support channel and @login-platform-help<br></p>
+                    <p><strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+                    <p>
+                        Your AWS Console login access is going to be disabled at {check}. Console access is disabled
+                        if there is missing login activity for more than {oldPasswordDeletionPeriod} days or if password is
+                        not rotated in every {oldPasswordInactivationPeriod} days with active login activity.
+                    </p>
+                    <p>
+                        Please see <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
+                        for directions on rotating the password.
+                    </p>
+                    <p>
+                        If you allow your password to expire, you will lose access to the AWS accounts via console.
+                        However, this rule does not check or modify your ability to access AWS Accounts using AWS Access Keys.
+                    </p>
+                    <p>Thank you!</p>
+                    <p>Support: Ask @login-platform-help for help in the #login-platform-support Slack channel<br></p>
                 </body>
-                </html>
-                        """.format(
+            </html>
+            """.format(
                 user_name=user_name,
                 check=check,
                 ENFORCE_DAY=ENFORCE_DAY,
@@ -149,25 +154,26 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                     "[TEST] Your expired AWS console password has been deactivated."
                 )
                 BODY_HTML = """<html>
-                    <head> Dear {user_name}, </head>
+                    <head>Dear {user_name},</head>
                     <body>
-                    <p> <strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
-                    <p>Your AWS Console Password is beyond the required rotation period. </p>
-                 
-                    <p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
-                    
-                    <p> We recommend rotating (updating) AWS Console password in every {oldPasswordInactivationPeriod} days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than {oldPasswordDeletionPeriod} days or if password is not rotated in every {oldPasswordInactivationPeriod} days with active login activity. Please refer <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
-                 Runbook</a> for directions on rotating the password or reach out to @login-platform-help oncall in Slack for any additional information. </p>
-                    
-                    <p>Thank you for your understanding!</p><br>
-               
-                    <p> Helpful links: <br>
-                    <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
-                    Runbook</a><br>
-                    Slack : #login-platform-support channel and @login-platform-help<br></p>
+                        <p><strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+                        <p>Your AWS Console password is disabled.</p>
+                        <p>
+                            We recommend updating your AWS Console password every {oldPasswordInactivationPeriod}
+                            days in order to be able to continue to log into the AWS console.
+                            AWS Console access is disabled if there is missing login activity for more than {oldPasswordDeletionPeriod}
+                            days or if password is not rotated in every {oldPasswordInactivationPeriod} days with active login activity.
+                        </p>
+                        <p>
+                            Please see
+                            <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
+                            for directions on rotating the password.
+                        </p>
+                        <p>Thank you!</p>
+                        <p>Support: Ask @login-platform-help for help in the #login-platform-support Slack channel<br></p>
                     </body>
-                    </html>
-                            """.format(
+                </html>
+                """.format(
                     user_name=user_name,
                     ENFORCE_DAY=ENFORCE_DAY,
                     oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
@@ -233,6 +239,7 @@ def get_credential_report():
 
 
 ### SES function to send notification ###
+
 
 def send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET):
     try:
