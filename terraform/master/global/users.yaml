@@ -448,7 +448,7 @@ users:
     - lg-public
   kimball.bighorse:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - kbighorse
     gitlab_groups:
