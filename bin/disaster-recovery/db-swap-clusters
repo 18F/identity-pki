@@ -1,0 +1,220 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+Usage: ${0} -e ENVIRONMENT -d DATABASE [-r DATABASE_RESTORED]
+
+Required:
+  -e ENVIRONMENT         : Environment for the database swap
+  -d DATABASE            : RDS Cluster Identifier for the original database cluster
+
+Flags:
+  -r DATABASE_RESTORED   : RDS Cluster Identifier for the restored database cluster
+  -h                     : Display help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`!
+
+EOM
+}
+
+help_me() {
+  cat >&2 <<EOM
+
+For swapping out a disaster recovery database cluster.  Given a DATABASE name and ENVIRONMENT:
+1. Rename original cluster and instances to \`cluster-original\`
+2. Rename disaster recovery cluster and instances to original cluster name
+
+EOM
+  usage
+  exit 0
+}
+
+DATABASE_RESTORED=
+
+while getopts d:e:r:h opt; do
+  case $opt in
+  d) DATABASE="$OPTARG" ;;
+  r) DATABASE_RESTORED="$OPTARG" ;;
+  e) TF_ENV="$OPTARG" ;;
+  h) help_me ;;
+  *) usage && exit 1 ;;
+  esac
+done
+
+[[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
+
+wait_for_db() {
+  local DB_TO_WAIT=${1}
+  local WAIT_ACT=${2}
+  local SCOPE=${3:-"cluster"}
+  local DB_READY=0
+
+  echo_yellow "Waiting for ${DB_TO_WAIT} to be ${WAIT_ACT}. This may take a few minutes..."
+  DB_READY=0
+  until ave -r aws rds wait "db-${SCOPE}-${WAIT_ACT}" \
+    --filters Name=db-${SCOPE}-id,Values=${DB_TO_WAIT}; do
+    sleep 5
+  done
+
+  echo_green "${DB_TO_WAIT} is ${WAIT_ACT}"
+}
+
+rename_cluster() {
+  local DATABASE_FROM=${1}
+  local DATABASE_TO=${2}
+
+  echo_yellow "Renaming '$DATABASE_FROM' to '$DATABASE_TO'"
+  ave -r aws rds modify-db-cluster --db-cluster-identifier $DATABASE_FROM \
+    --new-db-cluster-identifier $DATABASE_TO --apply-immediately 1>/dev/null
+  wait_for_db $DATABASE_TO 'available' 'cluster'
+}
+
+rename_cluster_instances() {
+  local DATABASE_TO=${1}
+
+  echo_yellow "Renaming instances in $DATABASE_TO cluster"
+  for DB_INSTANCE in $(aws rds describe-db-clusters --db-cluster-identifier $DATABASE_TO | jq -r '.[] | .[] .DBClusterMembers | .[] .DBInstanceIdentifier '); do
+    NEW_INSTANCE="$DATABASE_TO-$(echo $DB_INSTANCE | grep -o '[0-9]\+$')"
+
+    ave -r aws rds modify-db-instance --db-instance-identifier $DB_INSTANCE \
+      --new-db-instance-identifier $NEW_INSTANCE --apply-immediately 1>/dev/null
+    wait_for_db $NEW_INSTANCE 'available' 'instance'
+  done
+
+}
+
+cluster_list() {
+  local DATABASE_FROM=${1}
+  local DATABASE_TO=${2}
+
+  ave -r aws rds describe-db-clusters \
+    --filters "Name=db-cluster-id,Values=${DATABASE_FROM},${DATABASE_TO}" \
+    --query "DBClusters[].DBClusterIdentifier | length(@)"
+}
+
+cluster_instance_list() {
+  local DATABASE_CLUSTER=${1}
+  local DATABASE_INSTANCE=${2}
+
+  ave -r aws rds describe-db-clusters \
+    --filters "Name=db-cluster-id,Values=${DATABASE_CLUSTER}" \
+    --query "DBClusters[].DBClusterMembers[?DBInstanceIdentifier.contains(@, '${DATABASE_INSTANCE}')].DBInstanceIdentifier[] | length(@)"
+}
+
+tf_state_juggle() {
+  STATE_LIST=$(ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app state list)
+
+  if [[ $(echo $STATE_LIST | grep 'module.idp_aurora_from_rds[0].aws_rds_cluster.aurora') ]]; then
+    echo_yellow "Removing original cluster from tfstate"
+    ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app state rm module.idp_aurora_from_rds[0].aws_rds_cluster.aurora
+  fi
+
+  if [[ $(echo $STATE_LIST | grep 'module.idp_aurora_from_rds[0].aws_rds_cluster_instance.aurora') ]]; then
+    echo_yellow "Removing original cluster instances from tfstate"
+    ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app state rm module.idp_aurora_from_rds[0].aws_rds_cluster_instance.aurora
+  fi
+
+  if [[ $(echo $STATE_LIST | grep 'module.dr_restore_idp_aurora[0].aws_rds_cluster.aurora') ]]; then
+    echo_yellow "Removing disater recovery cluster from tfstate"
+    ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app state rm module.dr_restore_idp_aurora[0].aws_rds_cluster.aurora
+  fi
+
+  if [[ $(echo $STATE_LIST | grep 'module.dr_restore_idp_aurora[0].aws_rds_cluster_instance.aurora') ]]; then
+    echo_yellow "Removing disater recovery cluster inastances from tfstate"
+    ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app state rm module.dr_restore_idp_aurora[0].aws_rds_cluster_instance.aurora
+  fi
+
+  echo_yellow "Importing new cluster from tfstate"
+  ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app import module.idp_aurora_from_rds[0].aws_rds_cluster.aurora ${DATABASE}
+
+  echo_yellow "Importing new cluster instance from tfstate"
+  ave -r ${BASEPATH}/tf-deploy ${TF_ENV} app import module.idp_aurora_from_rds[0].aws_rds_cluster_instance.aurora[0] ${DATABASE}-1
+}
+
+
+if [ -z $DATABASE_RESTORED ]; then
+  DATABASE_RESTORED="$DATABASE-restored"
+fi
+DATABASE_ORIGINAL="$DATABASE-original"
+
+echo_red "
+###############################################################################
+#                      DISASTER-RECOVERY / DB-SWAP-CLUSTERS                   #
+###############################################################################
+
+This script will rename the ${DATABASE} database cluster and instances
+to ${DATABASE_ORIGINAL}, then rename the ${DATABASE_RESTORED} database cluster
+and instances to ${DATABASE}.  MAKE SURE the IdP is in maintenance mode before
+running!
+"
+
+if ! prompt_yn "Are you sure you want to swap database clusters?"; then
+  echo_yellow "Cancelling."
+  echo && exit 0
+fi
+
+echo "Checking that environment is in maintenance mode"
+
+
+if [[ "prod staging dm" =~ "${TF_ENV}" ]] ; then
+  ROOT_DOMAIN="login.gov"
+else
+  ROOT_DOMAIN="identitysandbox.gov"
+fi
+
+if [[ $TF_ENV =~ 'prod' ]] ; then
+  ENV_NAME='secure'
+else
+  ENV_NAME=$TF_ENV
+fi
+
+if [[ $(curl -sIX GET "https://${ENV_NAME}.${ROOT_DOMAIN}/" | grep -c 503) -eq 0 ]]; then
+  echo_red "${TF_ENV} is not in maintenance mode. Exiting..."
+  exit 1
+fi
+
+echo "Checking for required clusters"
+if [[ $(cluster_list $DATABASE_RESTORED $DATABASE_ORIGINAL) -eq 0 ]]; then
+  echo_red "'${DATABASE_RESTORED}' and '${DATABASE_ORIGINAL}' are missing. At least one must exist to continue. Exiting..."
+  exit 1
+fi
+
+echo && echo_blue "Stage 1: Renaming \`${DATABASE}\` to \`${DATABASE_ORIGINAL}\`"
+if [[ $(cluster_list $DATABASE $DATABASE_RESTORED) -eq 2 ]]; then
+  rename_cluster $DATABASE $DATABASE_ORIGINAL
+fi
+
+echo && echo_blue "Stage 2: Renaming \`${DATABASE_ORIGINAL}\` db instances"
+if [[ $(cluster_instance_list $DATABASE_ORIGINAL $DATABASE_ORIGINAL) -eq 0 ]]; then
+  rename_cluster_instances $DATABASE_ORIGINAL
+fi
+
+echo && echo_blue "Stage 3: Renaming \`${DATABASE_RESTORED}\` to \`${DATABASE}\`"
+if [[ $(cluster_list $DATABASE_ORIGINAL $DATABASE_RESTORED) -eq 2 ]]; then
+  rename_cluster $DATABASE_RESTORED $DATABASE
+fi
+
+echo && echo_blue "Stage 4: Renaming \`${DATABASE}\` db instances"
+if [[ $(cluster_instance_list $DATABASE $DATABASE_RESTORED) -gt 0 ]]; then
+  rename_cluster_instances $DATABASE
+fi
+
+echo && echo_blue "Stage 5: Fixing Terraform state"
+if [[ $(cluster_list $DATABASE $DATABASE_ORIGINAL) -eq 2 && $(cluster_instance_list $DATABASE "${DATABASE}-1") -eq 1 ]] ; then
+  tf_state_juggle
+
+  echo_green "Database clusters have been swapped"
+  echo "
+    NEXT STEPS
+    - Remove the \`dr_\` variables from the .tfvars file.
+    - Terraform- review and apply changes to the ${TF_ENV} environment
+  "
+
+fi
+

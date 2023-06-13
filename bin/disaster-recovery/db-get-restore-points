@@ -2,13 +2,16 @@
 
 set -euo pipefail
 
-BASEPATH="$(dirname "$0")/."
+BASEPATH="$(dirname "$0")/.."
 . "${BASEPATH}/lib/common.sh"
 
 usage() {
   cat >&2 << EOM
 
 Usage: ${0} -d DATABASE [-n NUMBER_OF_SNAPSHOTS]
+
+Required:
+  -d DATABASE            : RDS Cluster Identifier to search for snapshots
 
 Flags:
   -n NUMBER_OF_SNAPSHOTS : Number of snapshots to display (defaults to 5)
@@ -43,9 +46,12 @@ do
   esac
 done
 
-echo_yellow "POINT-IN-TIME: Getting earliest and latest restore points"
-ave aws rds describe-db-clusters --db-cluster-identifier $DATABASE | jq '.[] | .[] | {"EarliestRestorableTime":.EarliestRestorableTime, "LatestRestorableTime": .LatestRestorableTime}' 
-      
-echo_yellow "SNAPSHOT: Getting last $NUMBER_OF_SNAPSHOTS available snapshots"
-ave aws rds describe-db-cluster-snapshots --db-cluster-identifier $DATABASE  | jq '.DBClusterSnapshots | .[] | .DBClusterSnapshotIdentifier' | tail -n $NUMBER_OF_SNAPSHOTS
+[[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
 
+echo_yellow "POINT-IN-TIME: Getting earliest and latest restore points"
+ave aws rds describe-db-clusters --db-cluster-identifier $DATABASE \
+  --query "DBClusters[0].{EarliestRestorableTime: EarliestRestorableTime, LatestRestorableTime: LatestRestorableTime}"
+
+echo_yellow "SNAPSHOT: Getting last $NUMBER_OF_SNAPSHOTS available snapshots"
+ave aws rds describe-db-cluster-snapshots --db-cluster-identifier $DATABASE  \
+  --query "reverse(sort_by(DBClusterSnapshots, &SnapshotCreateTime))[:${NUMBER_OF_SNAPSHOTS}].DBClusterSnapshotIdentifier"
