@@ -74,6 +74,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
       http_port              = "80"
       https_port             = "443"
       origin_protocol_policy = "https-only"
+      origin_read_timeout    = 60
       origin_ssl_protocols = [
         "TLSv1.2"
       ]
