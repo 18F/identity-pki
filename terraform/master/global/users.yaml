@@ -101,6 +101,9 @@ users:
     - lg-all
     - lg-public
     - pm
+  carmen.lopez:
+    aws_groups:
+    - analytics
   carrie.mcgrath:
     aws_groups:
     - analytics
