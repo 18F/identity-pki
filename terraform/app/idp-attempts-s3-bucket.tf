@@ -3,6 +3,8 @@ resource "aws_kms_key" "attempts_api_kms" {
   description             = "${var.env_name} KMS key for attempts api s3 bucket"
   deletion_window_in_days = 10
 
+  enable_key_rotation = true
+
   policy = data.aws_iam_policy_document.attempts_api_kms.json
   tags = {
     Name        = "${var.env_name}-attempts-api-s3"

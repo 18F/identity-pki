@@ -570,7 +570,8 @@ data "aws_iam_policy_document" "escrow_kms" {
       "kms:TagResource",
       "kms:UntagResource",
       "kms:UpdateAlias",
-      "kms:UpdateKeyDescription"
+      "kms:UpdateKeyDescription",
+      "kms:EnableKeyRotation"
     ]
     resources = ["*"]
 
