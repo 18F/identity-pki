@@ -131,10 +131,14 @@ RUN groupadd --system appinstall; \
     useradd --gid websrv --system -d /home/websrv --create-home --shell /usr/sbin/nologin websrv; \
     chmod 755 /home/websrv; chown websrv: /home/websrv
 
+
+
 RUN mkdir -p /srv/pki-rails/shared; chown -R appinstall: /srv/pki-rails/shared
 RUN mkdir -p /srv/pki-rails/releases; chown -R appinstall: /srv/pki-rails/releases
 WORKDIR /srv/pki-rails/releases
 COPY --chown=appinstall --chmod=755 . .
+COPY --chown=appinstall --chmod=755 ./k8files/application.yml.default.docker ./config/application.yml
+
 RUN mkdir -p /usr/local/share/aws; chmod -R 755 /usr/local/share/aws; \
     wget -P /usr/local/share/aws/ https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem; chmod 755 /usr/local/share/aws/rds-combined-ca-bundle.pem; \
     mkdir -p /srv/pki-rails/shared/config/certs; \
@@ -173,9 +177,6 @@ WORKDIR /srv/pki-rails/current
 #RUN rbenv exec bundle exec rake db:create db:migrate:monitor_concurrent --trace
 
 USER root
-RUN touch /srv/pki-rails/current/config/application.yml; \
-    chgrp websrv /srv/pki-rails/current/config/application.yml
-RUN chown -R websrv /srv/pki-rails/shared/log
 
 RUN mkdir -p /srv/pki-rails/current/public/api; chown -R appinstall /srv/pki-rails/current/public/api
 # THIS IS A STAND-IN deploy.json UNTIL A REAL ONE CAN BE WIRED IN
@@ -199,3 +200,5 @@ RUN echo '* */4 * * * websrv flock -n /tmp/update_cert_revocations.lock -c /usr/
     chmod 700 /etc/cron.d/update_cert_revocations
 
 COPY --chown=root:root --chmod=755 ./k8files/configure_environment.sh /usr/local/bin
+
+EXPOSE 3001
