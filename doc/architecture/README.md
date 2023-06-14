@@ -13,7 +13,7 @@ It is a standalone rails app that runs on ec2 hosts.  It will be used to generat
 artifacts which will be deployed to our various environments.  This is our first stab
 at documenting how it is laid out.
 
-![Gitlab Diagram!](ec2-gitlab.png)
+![Gitlab Diagram!](GitLab.png)
 
 ## Artifact Build Pipeline
 
