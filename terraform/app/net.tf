@@ -1064,7 +1064,7 @@ module "create_vpc" {
   providers = {
     aws = aws.use1
   }
-  source                   = "module/vpc_module"
+  source                   = "../modules/vpc_module"
   vpc_cidr_block           = var.us_east_1_vpc_cidr_block
   region                   = "us-east-1"
   secondary_cidr_block     = local.network_layout["us-east-1"][var.env_type]._network
