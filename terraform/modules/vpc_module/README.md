@@ -19,7 +19,7 @@ This module performs the following:
         - Database/App Subnets with CIDR calculated from network_layout module can be passed when calling this module
         - Separate Route table, Network Acls is associated with these subnets(not default)
         - A Security Group along with default null security group is created
-        - VPC flow logs is created with destination as cloudwatch logs
+        - VPC flow log is created with destination as cloudwatch logs
 
 ## Architecture Diagram:
 ![vpc](./diagrams/va.png)
@@ -40,19 +40,21 @@ module "create_vpc" {
     providers = {
           aws = aws.use1
         }
-    source = "../modules/vpc_module"
-    vpc_cidr_block = var.vpc_cidr_block
-    region = "us-east-1"
-    secondary_cidr_block = local.network_layout["us-east-1"][var.env_type]._network
-    az = local.network_layout["us-east-1"][var.env_type]._zones
-    env_name = var.env_name
-    env_type = var.env_type
-    enable_data_services = "true"
-    enable_apps = "true"
-    db_inbound_acl_rules = var.db_inbound_acl_rules
-    db_outbound_acl_rules = var.db_outbound_acl_rules
-    db_security_group_ingress = var.db_security_group_ingress
-    db_security_group_egress = var.db_security_group_egress
+    source                     = "../modules/vpc_module"
+    vpc_cidr_block             = var.us_east_1_vpc_cidr_block
+    region                     = "us-east-1"
+    secondary_cidr_block       = local.network_layout["us-east-1"][var.env_type]._network
+    az                         = local.network_layout["us-east-1"][var.env_type]._zones
+    vpc_ssm_parameter_prefix   = "${local.net_ssm_parameter_prefix}vpc/id"
+    env_name                   = var.env_name
+    env_type                   = var.env_type
+    enable_data_services       = "true"
+    enable_app                 = "true"
+    flow_log_iam_role_arn      = module.application_iam_roles.flow_role_iam_role_arn
+    db_inbound_acl_rules       = var.db_inbound_acl_rules
+    db_outbound_acl_rules      = var.db_outbound_acl_rules
+    db_security_group_ingress  = var.db_security_group_ingress
+    db_security_group_egress   = var.db_security_group_egress
 }
 
 ```
