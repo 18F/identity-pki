@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=96b1157d1de012259c72f237a1657f268eed26cb"
+  source = "github.com/18F/identity-terraform//kms_log?ref=8d46acecb5de09c9c1de9fdf1e04580006f7bcc6"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -18,9 +18,10 @@ module "kms_logging" {
   kmslog_lambda_debug                     = var.kms_log_kmslog_lambda_debug
   lambda_identity_lambda_functions_gitrev = var.kms_log_lambda_identity_lambda_functions_gitrev
 
-  lambda_kms_cw_processor_zip    = module.kms_lambda_processors_code.zip_output_path
-  lambda_kms_ct_processor_zip    = module.kms_lambda_processors_code.zip_output_path
-  lambda_kms_event_processor_zip = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_cw_processor_zip      = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_ct_processor_zip      = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_event_processor_zip   = module.kms_lambda_processors_code.zip_output_path
+  lambda_slack_batch_processor_zip = module.kms_slack_batch_processor_code.zip_output_path
 }
 
 resource "null_resource" "kms_lambda_processors_build" {
@@ -40,7 +41,15 @@ module "kms_lambda_processors_code" {
 
 
   depends_on = [null_resource.kms_lambda_processors_build]
+}
 
+module "kms_slack_batch_processor_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
+
+  source_code_filename = "kms_slack_batch_processor.py"
+  source_dir           = "${path.module}/lambda/kms_slack_batch_processor/"
+  zip_filename         = "${path.module}/lambda/kms_slack_batch_processor.zip"
 }
 
 module "kms_keymaker_uw2" {
