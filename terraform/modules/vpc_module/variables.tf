@@ -33,12 +33,12 @@ variable "flow_log_iam_role_arn" {
 }
 
 variable "enable_data_services" {
-  description = "Purpose type for the subnets to be built using CIDR range from network_layout module"
+  description = "Condition to build subnets using CIDR range from network_layout module for data_services"
   type        = bool
 }
 
 variable "enable_app" {
-  description = "Purpose type for the subnets to be built using CIDR range from network_layout module"
+  description = "Condition to build subnets using CIDR range from network_layout module for app"
   type        = bool
 }
 
