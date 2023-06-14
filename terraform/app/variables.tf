@@ -1400,3 +1400,14 @@ variable "dr_restore_to_time" {
   description = "Timestamp for point-in-time recovery (2023-04-21T12:00:00Z)"
   default     = ""
 }
+
+variable "create_vpc" {
+  type        = bool
+  default     = "false"
+  description = "Condition to create vpc in additional region"
+}
+
+variable "us_east_1_vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
+  default     = "172.17.32.0/22"
+  description = "Primary CIDR for the new vpc in us-east-1 region"
+}

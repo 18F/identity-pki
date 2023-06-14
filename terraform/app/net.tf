@@ -1056,3 +1056,23 @@ resource "aws_subnet" "public-ingress" {
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
+
+### Calling vpc module for us-east-1 ###
+
+module "create_vpc" {
+  count = var.create_vpc ? 1 : 0
+  providers = {
+    aws = aws.use1
+  }
+  source                   = "module/vpc_module"
+  vpc_cidr_block           = var.us_east_1_vpc_cidr_block
+  region                   = "us-east-1"
+  secondary_cidr_block     = local.network_layout["us-east-1"][var.env_type]._network
+  az                       = local.network_layout["us-east-1"][var.env_type]._zones
+  vpc_ssm_parameter_prefix = "${local.net_ssm_parameter_prefix}vpc/id"
+  env_name                 = var.env_name
+  env_type                 = var.env_type
+  enable_data_services     = "true"
+  enable_app               = "true"
+  flow_log_iam_role_arn    = module.application_iam_roles.flow_role_iam_role_arn
+}
