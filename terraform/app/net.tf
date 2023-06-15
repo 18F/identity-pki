@@ -1059,7 +1059,7 @@ resource "aws_subnet" "public-ingress" {
 
 ### Calling vpc module for us-east-1 ###
 
-module "create_vpc" {
+module "network_us_east_1" {
   count = var.create_vpc ? 1 : 0
   providers = {
     aws = aws.use1
