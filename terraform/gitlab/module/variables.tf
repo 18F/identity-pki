@@ -469,6 +469,16 @@ variable "job_queue_depth_alert_threshold" {
   default     = 40
 }
 
+variable "send_cw_to_soc" {
+  type    = string
+  default = "0"
+}
+
+variable "soc_destination_arn" {
+  type    = string
+  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
+}
+
 variable "ubuntu_os_version_string" {
   type    = string
   default = "Ubuntu 20.04"
