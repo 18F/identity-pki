@@ -12,7 +12,7 @@ variable "env_name" {
 variable "env_type" {
 }
 
-variable "vpc_cidr_block" { # 172.17.32.0 - 172.17.35.255
+variable "vpc_cidr_block" {
   description = "Primary CIDR for the new vpc"
 }
 
