@@ -21,7 +21,7 @@ users:
     - devops
     gitlab_groups:
     - devops
-    - appdev # for maintainer access to identity-idp
+    - appdev
     - lg-all
     - lg-public
   alexander.bradley:
@@ -440,6 +440,15 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
+  kevin.masters:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - kmasters
+    gitlab_groups:
+    - appdev
     - lg-all
     - lg-public
   kevin.peoples:
