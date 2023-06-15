@@ -38,7 +38,4 @@ module "main" {
     iam_supporteng_enabled     = false
     iam_terraform_enabled      = true
   }
-
-  # Temporary till SOCaaS is ready to accept logs
-  soc_logs_enabled = false
 }

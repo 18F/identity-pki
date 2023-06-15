@@ -9,7 +9,6 @@ terraform {
   }
 }
 
-
 variable "splunk_oncall_cloudwatch_endpoint" {
   default = "UNSET"
 }
@@ -36,9 +35,6 @@ module "main" {
     iam_supporteng_enabled = true
     iam_fraudops_enabled   = true
   }
-
-  guardduty_usw2_soc_enabled = true  # previously created in terraform/core
-  guardduty_use1_soc_enabled = false # confirm destination exists before enabling
 
   # TODO: Remove this as soon as service provider logos no longer
   # require a public bucket

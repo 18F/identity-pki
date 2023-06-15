@@ -465,7 +465,7 @@ Whether or not to create the CloudWatch Subscription Filter that sends
 GuardDuty logs to SOC. Must be set to 'false' until the SOCaaS team
 confirms the elp-guardduty-lg destination for us-west-2.
 EOM
-  default     = false
+  default     = true
 }
 
 variable "guardduty_use1_soc_enabled" {
@@ -475,5 +475,5 @@ Whether or not to create the CloudWatch Subscription Filter that sends
 GuardDuty logs to SOC. Must be set to 'false' until the SOCaaS team
 confirms the elp-guardduty-lg destination for us-east-1.
 EOM
-  default     = false
+  default     = true
 }
