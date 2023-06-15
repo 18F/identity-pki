@@ -1407,7 +1407,7 @@ variable "enable_us_east_1_vpc" {
   description = "Whether or not to create the VPC module for us-east-1"
 }
 
-variable "us_east_1_vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
+variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
   default     = "172.17.32.0/22"
   description = "Primary CIDR for the new vpc in us-east-1 region"
 }
