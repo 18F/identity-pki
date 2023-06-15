@@ -344,9 +344,16 @@ resource "aws_security_group" "null" {
 ### S3 Gateway endpoint ###
 
 resource "aws_vpc_endpoint" "private-s3" {
+  count = var.enable_data_services || var.enable_app ? 1 : 0
+
   vpc_id          = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
   service_name    = "com.amazonaws.${var.region}.s3"
-  route_table_ids = [aws_route_table.database[0].id, aws_route_table.app[0].id]
+  route_table_ids = compact(
+    [
+      var.enable_data_services ? aws_route_table.database[0].id : null,
+      var.enable_app ? aws_route_table.app[0].id : null,
+    ]
+  )
 }
 
 ### Get vpc flow logs going into cloudwatch ###
