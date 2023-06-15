@@ -90,8 +90,10 @@ resource "aws_route_table" "database" {
 }
 
 resource "aws_route_table_association" "database" {
+  count = var.enable_data_services ? 1 : 0
+
   for_each       = aws_subnet.data-services
-  route_table_id = aws_route_table.database[0].id
+  route_table_id = aws_route_table.database[count.index].id
   subnet_id      = each.value.id
 }
 
