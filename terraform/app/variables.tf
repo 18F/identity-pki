@@ -1175,6 +1175,22 @@ EOM
   default     = false
 }
 
+variable "cloudfront_read_timeout" {
+  description = "Specifies the amount of seconds CloudFront will wait for a response from the idp"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.cloudfront_read_timeout >= 1
+    error_message = "The minimum cloudfront read timeout is 1 second."
+  }
+
+  validation {
+    condition     = var.cloudfront_read_timeout <= 60
+    error_message = "The default maximum cloudfront read timeout is 60 seconds. To exceed this, please contact AWS Support Center."
+  }
+}
+
 variable "cloudfront_custom_pages" {
   description = <<EOM
 List of custom pages to populate into the static S3 bucket used by CloudFront for
