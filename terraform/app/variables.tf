@@ -1401,10 +1401,10 @@ variable "dr_restore_to_time" {
   default     = ""
 }
 
-variable "create_vpc" {
+variable "enable_us_east_1_vpc" {
   type        = bool
-  default     = "false"
-  description = "Condition to create vpc in additional region"
+  default     = false
+  description = "Whether or not to create the VPC module for us-east-1"
 }
 
 variable "us_east_1_vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
