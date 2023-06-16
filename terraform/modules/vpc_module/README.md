@@ -1,7 +1,7 @@
 # vpc_module
 This module performs the following:
 
-- Creates a vpc when create_vpc flag set to true. To leave out the legacy space and avoid polluting another block of private address space that could prevent future peering, the module is using ip address range 172.17.32.0/22 for us-east-1. It is recommended to use a similar non overlapping range from 172.16/12 prefix for other regions as well. While passing the primary CIDR to new VPC and if this vpc is intended to use for vpc peering please ensure the following, more info [here](https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html): 
+- Creates a vpc when network_us_east_1 flag set to true. To leave out the legacy space and avoid polluting another block of private address space that could prevent future peering, the module is using ip address range 172.17.32.0/22 for us-east-1. It is recommended to use a similar non overlapping range from 172.16/12 prefix for other regions as well. While passing the primary CIDR to new VPC and if this vpc is intended to use for vpc peering please ensure the following, more info [here](https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html): 
 
         - You cannot create a VPC peering connection between VPCs that have matching or overlapping IPv4 
         CIDR blocks.
@@ -35,8 +35,8 @@ module "network_layout" {
     source = "../identity-devops/terraform/modules/network_layout"
   }
 
-module "create_vpc" {
-    count = var.create_vpc ? 1 : 0
+module "network_us_east_1" {
+    count = var.enable_us_east_1_vpc ? 1 : 0
     providers = {
           aws = aws.use1
         }
