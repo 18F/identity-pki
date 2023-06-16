@@ -39,6 +39,12 @@ resource "aws_iam_role_policy" "migration-idp-application-secrets" {
   policy = data.aws_iam_policy_document.application_secrets_role_policy.json
 }
 
+resource "aws_iam_role_policy" "migration-idp-ses-email" {
+  name   = "${var.env_name}-migration-ses-email"
+  role   = aws_iam_role.migration.id
+  policy = data.aws_iam_policy_document.ses_email_role_policy.json
+}
+
 resource "aws_iam_role_policy" "migration-cloudwatch-logs" {
   name   = "${var.env_name}-migration-cloudwatch-logs"
   role   = aws_iam_role.migration.id
