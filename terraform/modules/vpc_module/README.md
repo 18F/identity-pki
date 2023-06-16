@@ -45,7 +45,6 @@ module "network_us_east_1" {
     region                     = "us-east-1"
     secondary_cidr_block       = local.network_layout["us-east-1"][var.env_type]._network
     az                         = local.network_layout["us-east-1"][var.env_type]._zones
-    vpc_ssm_parameter_prefix   = "${local.net_ssm_parameter_prefix}vpc/id"
     env_name                   = var.env_name
     env_type                   = var.env_type
     enable_data_services       = "true"
