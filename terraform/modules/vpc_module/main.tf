@@ -1,17 +1,3 @@
-data "aws_vpc" "default_vpc" {
-  id = aws_vpc.default.id
-}
-
-data "aws_subnet" "db_subnets" {
-  for_each = aws_subnet.data-services
-  id       = each.value.id
-}
-
-data "aws_subnet" "app" {
-  for_each = aws_subnet.app
-  id       = each.value.id
-}
-
 ### VPC ###
 resource "aws_vpc" "default" {
   cidr_block = var.vpc_cidr_block
@@ -90,10 +76,9 @@ resource "aws_route_table" "database" {
 }
 
 resource "aws_route_table_association" "database" {
-  count = var.enable_data_services ? 1 : 0
+  for_each = var.enable_data_services ? aws_subnet.data-services : {}
 
-  for_each       = aws_subnet.data-services
-  route_table_id = aws_route_table.database[count.index].id
+  route_table_id = aws_route_table.database[0].id
   subnet_id      = each.value.id
 }
 
@@ -106,10 +91,9 @@ resource "aws_route_table" "app" {
 }
 
 resource "aws_route_table_association" "app" {
-  count = var.enable_app ? 1 : 0
+  for_each = var.enable_app ? aws_subnet.app : {}
 
-  for_each       = aws_subnet.app
-  route_table_id = aws_route_table.app[count.index].id
+  route_table_id = aws_route_table.app[0].id
   subnet_id      = each.value.id
 }
 
@@ -346,8 +330,8 @@ resource "aws_security_group" "null" {
 resource "aws_vpc_endpoint" "private-s3" {
   count = var.enable_data_services || var.enable_app ? 1 : 0
 
-  vpc_id          = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-  service_name    = "com.amazonaws.${var.region}.s3"
+  vpc_id       = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+  service_name = "com.amazonaws.${var.region}.s3"
   route_table_ids = compact(
     [
       var.enable_data_services ? aws_route_table.database[0].id : null,
@@ -360,10 +344,9 @@ resource "aws_vpc_endpoint" "private-s3" {
 
 resource "aws_flow_log" "flow_log" {
   log_destination = aws_cloudwatch_log_group.flow_log_group.arn
-  #iam_role_arn    = module.application_iam_roles.flow_role_iam_role_arn
-  iam_role_arn = var.flow_log_iam_role_arn
-  vpc_id       = aws_vpc.default.id
-  traffic_type = "ALL"
+  iam_role_arn    = var.flow_log_iam_role_arn
+  vpc_id          = aws_vpc.default.id
+  traffic_type    = "ALL"
 }
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
