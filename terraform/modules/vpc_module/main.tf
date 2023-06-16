@@ -24,12 +24,6 @@ resource "aws_route" "default" {
   gateway_id             = aws_internet_gateway.default.id
 }
 
-resource "aws_ssm_parameter" "net_vpcid" {
-  name  = var.vpc_ssm_parameter_prefix
-  type  = "String"
-  value = aws_vpc.default.id
-}
-
 ### Secondary Cidr Attachment and Subnets from Secondary CIDR range###
 
 resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {

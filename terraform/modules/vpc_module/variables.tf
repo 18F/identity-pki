@@ -24,10 +24,6 @@ variable "az" {
   description = "Availability Zones in the provided region from network_layout module"
 }
 
-variable "vpc_ssm_parameter_prefix" {
-  description = "SSM parameter prefix for vpc id"
-}
-
 variable "flow_log_iam_role_arn" {
   description = "IAM role arn for pushing vpc flow logs to cloudwatch"
 }
