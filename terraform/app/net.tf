@@ -1072,7 +1072,7 @@ module "network_us_east_1" {
   vpc_ssm_parameter_prefix = "${local.net_ssm_parameter_prefix}vpc/id"
   env_name                 = var.env_name
   env_type                 = var.env_type
-  enable_data_services     = "false"
-  enable_app               = "false"
+  enable_data_services     = "true"
+  enable_app               = "true"
   flow_log_iam_role_arn    = module.application_iam_roles.flow_role_iam_role_arn
 }
