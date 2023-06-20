@@ -67,7 +67,7 @@ variable "sms_unexpected_country_alarm_threshold" {
 variable "ignored_countries" {
   type        = string
   description = "Countries (in ISO format) that should be excluded from the query for high usage"
-  default     = "US,PR,MX,CA"
+  default     = "US,PR,MX,CA,GU"
 }
 
 
