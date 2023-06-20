@@ -467,13 +467,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  leanna.miller:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
   louise.hoffman:
     aws_groups:
     - fraudops
