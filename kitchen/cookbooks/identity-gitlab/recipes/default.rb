@@ -757,13 +757,30 @@ cookbook_file 'tomcat server.xml' do
   notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
 end
 
-cookbook_file 'tomcat env vars' do
-  path "/etc/default/tomcat#{tomcat_version}"
-  source "tomcat#{tomcat_version}"
-  owner 'root'
-  group 'root'
-  mode '644'
-  notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+if node['platform_version'].to_f == 18.04
+  cookbook_file 'tomcat env vars' do
+    path "/etc/default/tomcat#{tomcat_version}"
+    source "tomcat#{tomcat_version}"
+    owner 'root'
+    group 'root'
+    mode '644'
+    notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+  end
+elsif node['platform_version'].to_f == 20.04
+  cookbook_file 'tomcat systemd unit' do
+    path "/usr/lib/systemd/system/tomcat#{tomcat_version}.service"
+    source "tomcat#{tomcat_version}.service"
+    owner 'root'
+    group 'root'
+    mode '644'
+    notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+  end
+
+  execute 'reload_systemctl_units' do
+    command 'systemctl daemon-reload'
+    action :run
+    notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+  end
 end
 
 # random gitlab maintenance tasks

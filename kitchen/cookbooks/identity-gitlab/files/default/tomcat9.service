@@ -1,0 +1,44 @@
+#
+# Systemd unit file for Apache Tomcat
+#
+
+[Unit]
+Description=Apache Tomcat 9 Web Application Server
+Documentation=https://tomcat.apache.org/tomcat-9.0-doc/index.html
+After=network.target
+RequiresMountsFor=/var/log/tomcat9 /var/lib/tomcat9
+
+[Service]
+
+# Configuration
+Environment="CATALINA_HOME=/usr/share/tomcat9"
+Environment="CATALINA_BASE=/var/lib/tomcat9"
+Environment="CATALINA_TMPDIR=/tmp"
+Environment="JAVA_OPTS=-Djava.awt.headless=true"
+Environment="CATALINA_OPTS=-Dhttp.proxyHost=obproxy.login.gov.internal -Dhttp.proxyPort=3128 -Dhttps.proxyHost=obproxy.login.gov.internal -Dhttps.proxyPort=3128"
+
+# Lifecycle
+Type=simple
+ExecStartPre=+/usr/libexec/tomcat9/tomcat-update-policy.sh
+ExecStart=/bin/sh /usr/libexec/tomcat9/tomcat-start.sh
+SuccessExitStatus=143
+Restart=on-abort
+
+# Logging
+SyslogIdentifier=tomcat9
+
+# Security
+User=tomcat
+Group=tomcat
+PrivateTmp=yes
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+CacheDirectory=tomcat9
+CacheDirectoryMode=750
+ProtectSystem=strict
+ReadWritePaths=/etc/tomcat9/Catalina/
+ReadWritePaths=/var/lib/tomcat9/webapps/
+ReadWritePaths=/var/log/tomcat9/
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: identity-gitlab
+# Cookbook:: identity-gitlab
 # Attributes:: default
 #
 
