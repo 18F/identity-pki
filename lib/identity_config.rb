@@ -9,7 +9,7 @@ class IdentityConfig
     # database_host: ['env', 'DATABASE_HOST']
     # To use a string value directly, you can specify a string explicitly:
     # database_host: 'localhost'
-    system_environment_or_string: proc do |value|
+    string: proc do |value|
       if value.is_a?(Array) && value.length == 2 && value.first == 'env'
         ENV.fetch(value[1])
       elsif value.is_a?(String)
@@ -18,7 +18,6 @@ class IdentityConfig
         raise 'invalid system environment configuration value'
       end
     end,
-    string: proc { |value| value.to_s },
     comma_separated_string_list: proc do |value|
       value.split(',')
     end,
@@ -62,20 +61,20 @@ class IdentityConfig
     config.add(:ca_issuer_host_allow_list, type: :comma_separated_string_list)
     config.add(:certificate_store_directory)
     config.add(:client_cert_escaped, type: :boolean)
-    config.add(:client_cert_logger_s3_bucket_name, type: :system_environment_or_string)
-    config.add(:database_host, type: :system_environment_or_string)
-    config.add(:database_name, type: :system_environment_or_string)
-    config.add(:database_password, type: :system_environment_or_string)
+    config.add(:client_cert_logger_s3_bucket_name, type: :string)
+    config.add(:database_host, type: :string)
+    config.add(:database_name, type: :string)
+    config.add(:database_password, type: :string)
     config.add(:database_sslmode, type: :string)
     config.add(:database_statement_timeout, type: :integer)
     config.add(:database_timeout, type: :integer)
-    config.add(:database_username, type: :system_environment_or_string)
-    config.add(:domain_name, type: :system_environment_or_string)
+    config.add(:database_username, type: :string)
+    config.add(:domain_name, type: :string)
     config.add(:openssl_verify_enabled, type: :boolean)
     config.add(:ficam_certificate_bundle_file, type: :string)
     config.add(:http_open_timeout, type: :integer)
     config.add(:http_read_timeout, type: :integer)
-    config.add(:identity_idp_host, type: :system_environment_or_string)
+    config.add(:identity_idp_host, type: :string)
     config.add(:login_certificate_bundle_file, type: :string)
     config.add(:newrelic_license_key)
     config.add(:nonce_bloom_filter_enabled, type: :boolean)
