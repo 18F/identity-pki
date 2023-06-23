@@ -26,7 +26,7 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
       RotationPeriod   = 80,
       InactivePeriod   = 90,
       RetentionPeriod  = 100,
-      ENFORCE_DAY      = "July 10th, 2023",
+      ENFORCE_DAY      = "July 5th, 2023",
       lambda_temp_role = "${aws_iam_role.assumeRole_lambda.arn}"
     }
   }

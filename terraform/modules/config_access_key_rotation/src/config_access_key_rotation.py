@@ -317,8 +317,6 @@ def invoke_update_access_keys(user_name, key_to_inactivate, status):
     )
     print("Access keys for " + user_name + " made inactive")
     return action
-    # return "Success"
-
 
 def assume_role_restricted(user_name):
     sts = boto3.client("sts")
@@ -376,6 +374,11 @@ def update_access_keys(temp_credentials, user_name, key_to_inactivate, status):
         access_keys = iam.list_access_keys(UserName=user_name)
 
         # print("Access key " + key_to_inactivate + " is going to be made inactivate for the user " + user_name)
+        # response = iam.update_access_key(
+        #            UserName=user_name,
+        #            AccessKeyId=key_to_inactivate,
+        #            Status='Inactive'
+        #        )
 
         return "Success"
 
@@ -385,15 +388,6 @@ def update_access_keys(temp_credentials, user_name, key_to_inactivate, status):
     except Exception as err:
         print(err)
         return err
-
-    # response = iam.update_access_key(
-    #            UserName=user_name,
-    #            AccessKeyId=key_to_inactivate,
-    #            Status='Inactive'
-    #        )
-
-    # return response
-
 
 def mask_access_key(access_key):
     return access_key[-4:]
