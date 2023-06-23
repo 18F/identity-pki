@@ -44,21 +44,22 @@ deletionDate = (
     datetime.datetime.now() - datetime.timedelta(days=oldKeyDeletionPeriod)
 ).date()
 
-
 def lambda_handler(event, context):
-    logger.info("Event: " + json.dumps(event))
-    print("Event in raw format", event)
-    print("Current time", datetime.datetime.now())
-
-    event = json.loads(event["Records"][0]["Sns"]["Message"])
-
-    account_id = event["Account"]
-    user_name = event["User"]
-    reason = event["Reason"]
-
-    if user_name:
-        process_user(user_name)
-
+    marker = None    
+    
+    while True:
+        if marker:
+             response = iam.list_users(Marker=marker)
+        else:
+            response = iam.list_users()
+    
+        for user in response['Users']:
+           process_user(user['UserName'])
+         
+        if not response['IsTruncated']:
+            break
+        
+        marker = response['Marker']
 
 def process_user(user_name, force=False):
     lak = iam.list_access_keys(UserName=user_name)
@@ -268,6 +269,7 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
                 user_name=user_name,
                 masked_access_key=masked_access_key,
                 ENFORCE_DAY=ENFORCE_DAY,
+                oldKeyInactivationPeriod=oldKeyInactivationPeriod,
             )
 
             send_notification(
