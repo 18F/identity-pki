@@ -55,7 +55,7 @@ module "kubernetes_addons" {
   enable_amazon_eks_kube_proxy                   = true
   enable_argocd                                  = true
   argocd_manage_add_ons                          = true
-  enable_aws_for_fluentbit                       = true
+  enable_aws_for_fluentbit                       = false
   enable_aws_load_balancer_controller            = true
   enable_cluster_autoscaler                      = true
   enable_external_dns                            = true
@@ -69,7 +69,31 @@ module "kubernetes_addons" {
       type            = "kustomize"
       target_revision = "main"
     }
-
+    # Helm based app of apps for easier value passing from terraform
+    infra-charts = {
+      path            = "applications"
+      repo_url        = "https://gitlab.login.gov/lg-public/identity-eks-charts.git"
+      type            = "helm"
+      target_revision = "main"
+      values = {
+        region = var.region,
+        awsForFluentBit = {
+          serviceAccount = {
+            create = true
+            annotations = {
+              "eks.amazonaws.com/role-arn" = module.fluentbit_irsa.iam_role_arn
+            }
+          }
+          enabled = true
+          cloudWatch = {
+            region = var.region
+          }
+          cloudWatchLogs = {
+            region = var.region
+          }
+        }
+      }
+    }
     # Below are all magic add-ons that you can see how to configure here:
     # https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/docs/add-ons
     addons = {
