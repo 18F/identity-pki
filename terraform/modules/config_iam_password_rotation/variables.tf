@@ -17,7 +17,7 @@ variable "config_password_rotation_code" {
 
 variable "lambda_timeout" {
   type        = number
-  default     = "180"
+  default     = "900"
   description = "Timeout Value for Lambda"
 }
 
