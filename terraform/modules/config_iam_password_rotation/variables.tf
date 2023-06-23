@@ -30,5 +30,5 @@ variable "lambda_runtime" {
 variable "schedule" {
   type        = string
   description = "Cron expression for cloudwatch event rule schedule"
-  default     = "cron(0 22 * * ? *)"
+  default     = "cron(0 21 * * ? *)"
 }
