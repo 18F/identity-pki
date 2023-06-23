@@ -18,8 +18,8 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
 
   source_code_hash = module.config_access_key_rotation_code.zip_output_base64sha256
   memory_size      = "3008"
-  runtime          = "python3.9"
-  timeout          = "300"
+  runtime          = var.lambda_runtime
+  timeout          = var.lambda_timeout
 
   environment {
     variables = {

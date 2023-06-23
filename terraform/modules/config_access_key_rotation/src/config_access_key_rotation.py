@@ -132,8 +132,9 @@ def process_user(user_name, force=False):
         else:
             # Both keys older than retention date. Delete oldest key(Can be used for future implementation)
             key_to_delete = oldest_key["AccessKeyId"]
-            logger.info("Delete Key(s): {}".format(key_to_delete))
+            #logger.info("Delete Key(s): {}".format(key_to_delete))
             # iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete)
+            handle_oldest_key(user_name, recipient_email, sender_email, oldest_key)
 
     elif num_active == 1 and num_inactive == 1:
         print("There are 1 active and 1 inactive keys")
@@ -156,8 +157,8 @@ def process_user(user_name, force=False):
     elif num_active == 0 and num_inactive > 0:
         print("There is no active key")
         # If no active keys, delete all inactive keys
-        for key_to_delete in inactive_keys:
-            logger.info("Delete Key(s): {}".format(key_to_delete))
+        #for key_to_delete in inactive_keys:
+        #    logger.info("Delete Key(s): {}".format(key_to_delete))
             # Can be enabled in future implementation
             # iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete['AccessKeyId'])
 
