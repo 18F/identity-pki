@@ -185,18 +185,6 @@ variable "config_access_key_rotation_name" {
   default     = "cfg-access-key-rotation"
 }
 
-variable "config_access_key_rotation_frequency" {
-  type        = string
-  description = "The frequency that you want AWS Config to run evaluations for the rule."
-  default     = "TwentyFour_Hours"
-}
-
-variable "config_access_key_rotation_max_key_age" {
-  type        = string
-  description = "Maximum number of days without rotation. Default 90."
-  default     = 90
-}
-
 variable "config_access_key_rotation_code" {
   type        = string
   description = "Path of the compressed lambda source code."
