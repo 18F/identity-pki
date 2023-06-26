@@ -19,6 +19,7 @@ users:
     - alex.kritikos@gsa.gov
     aws_groups:
     - devops
+    - orgadmin
     gitlab_groups:
     - devops
     - appdev
@@ -177,16 +178,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  diondra.humphries:
-    aws_groups:
-    - bizops
-  doran.steele:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
   douglas.price:
     aws_groups:
     - apponcall
@@ -221,19 +212,8 @@ users:
     email:
     - elizabeth.manning@gsa.gov
   eric.evans:
-    aws_groups:
-    - secopsnonprod
     gitlab_groups:
     - devops
-    - lg-all
-    - lg-public
-  eric.gade:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - egade
-    gitlab_groups:
-    - appdev
     - lg-all
     - lg-public
   ero.gray:
@@ -251,13 +231,6 @@ users:
     - appdev
     ec2_username:
     - gyamada
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-  goutham.kommanaboyina:
-    aws_groups:
-    - analytics
     gitlab_groups:
     - appdev
     - lg-all
@@ -315,9 +288,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  jeffrey.mcmillan:
-    aws_groups:
-    - analytics
   jenna.hansen:
     aws_groups:
     - analytics
@@ -379,15 +349,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  john.skinner:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - jskinner
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   jonathan.hooper:
     aws_groups:
     - apponcall
@@ -432,9 +393,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  keith.wertsching:
-    aws_groups:
-    - analytics
   kelli.ho:
     aws_groups:
     - analytics
@@ -552,6 +510,7 @@ users:
   michael.w.ward:
     aws_groups:
     - devops
+    - orgadmin
     ec2_username:
     - mww59
     gitlab_groups:
@@ -595,9 +554,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  nathan.wick:
-    aws_groups:
-    - bizops
   nicholas.willey:
     aws_groups:
     - secops
@@ -608,8 +564,6 @@ users:
     - lg-all
     - lg-public
   olayemisi.ogunshina:
-    aws_groups:
-    - analytics
     gitlab_groups:
     - pm
     - lg-all
@@ -623,12 +577,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  patricia.bryan:
-    aws_groups:
-    - bizops
-  patrick.carberry:
-    aws_groups:
-    - bizops
   paul.hirsch:
     aws_groups:
     - devops
@@ -662,13 +610,6 @@ users:
     - project21_bot@noreply.gitlab.login.gov
     gitlab_project_bot:
     - true
-  rahul.kamarouthu:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   rebecca.wright:
     aws_groups:
     - fraudops
@@ -742,9 +683,6 @@ users:
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
-  sierra.toler:
-    aws_groups:
-    - bizops
   sonia.connolly:
     aws_groups:
     - apponcall
@@ -814,8 +752,6 @@ users:
     aws_groups:
     - analytics
   tiffanyj.andrews:
-    aws_groups:
-    - analytics
     gitlab_groups:
     - pm
     - lg-all

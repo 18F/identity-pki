@@ -20,6 +20,9 @@ Vagrantfile
 **.zip
 *.zip
 
+# Don't track ASDF tool versions for now
+.tool-versions
+
 # Terraform State and Whatnot
 /terraform/*/.terraform
 /terraform/*/.deploy/
