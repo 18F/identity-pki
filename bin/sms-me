@@ -1,0 +1,82 @@
+#!/bin/bash
+
+#### A very simple very hard coded PinPoint tester for Production ####
+
+set -eou pipefail
+
+PINPOINT_ACCOUNT_ALIAS="login-sms-prod"
+SHORT_CODE_UW2="78008"
+SHORT_CODE_UE1="41986"
+APPLICATION_ID_UW2="f370a48a7de040ed85a1acd67fc14a63"
+APPLICATION_ID_UE1="7775ac720c3245d0a610201231f092bc"
+
+usage() {
+  cat >&2 << EOM
+Send an SMS to your phone number from the production SMS short code in each
+region.
+
+Usage: ${0} PHONE_NUMBER
+
+"PHONE_NUMBER" must be a valid phone number. You do not need to prepend
+the +1 country code. It will use it if provided or add it if not provided.
+
+THIS SCRIPT ASSUMES YOU ARE USING A ROLE IN THE "${PINPOINT_ACCOUNT_ALIAS}" ACCOUNT!
+
+A test message will sent from:
+* us-west-2 using the number ${SHORT_CODE_UW2}
+* us-east-1 using the number ${SHORT_CODE_UE1}
+EOM
+  exit 0
+}
+
+send_test() {
+    region=$1
+    application_id=$2
+    short_code=$3
+    phone_number=$4
+
+    now=$(date -Iseconds)
+
+    echo "Testing from ${region} with short code ${short_code}"
+    aws --region "${region}" pinpoint send-messages --application-id "${application_id}" --message-request "{
+    \"Addresses\": {
+        \"${phone_number}\": {
+            \"ChannelType\": \"SMS\"
+        }
+    },
+    \"MessageConfiguration\": {
+        \"SMSMessage\": {
+            \"Body\": \"sms-me test from ${region} sent at ${now}\",
+            \"MessageType\": \"TRANSACTIONAL\",
+            \"OriginationNumber\": \"${short_code}\"
+        }
+    }
+}"
+}
+
+# Strip common noise
+PHONE_NUMBER=$(echo ${1-} | tr -d '()- ')
+
+if [[ -z ${PHONE_NUMBER} ]]; then
+    usage
+fi
+
+if [[ ${PHONE_NUMBER} =~ ^[[:digit:]]{10}$ ]]; then
+    PHONE_NUMBER="+1${PHONE_NUMBER}"
+elif [[ ${PHONE_NUMBER} =~ ^\+1[[:digit:]]{10}$ ]]; then
+    :
+else
+    echo "Invalid phone number!"
+    usage
+fi
+
+ACCOUNT_ALIAS=$(aws iam list-account-aliases --query AccountAliases --output text)
+if [[ ${ACCOUNT_ALIAS} != ${PINPOINT_ACCOUNT_ALIAS} ]]; then
+    echo "WRONG AWS ACCOUNT!"
+    echo "Please re-run with an active session in the \"${PINPOINT_ACCOUNT_ALIAS}\" account"
+    exit 1
+fi
+
+send_test "us-west-2" $APPLICATION_ID_UW2 $SHORT_CODE_UW2 $PHONE_NUMBER
+send_test "us-east-1" $APPLICATION_ID_UE1 $SHORT_CODE_UE1 $PHONE_NUMBER
+

@@ -254,6 +254,7 @@ module "poweruser-assumerole" {
           actions = [
             "mobiletargeting:Get*",
             "mobiletargeting:List*",
+            "mobiletargeting:SendMessages",
             "pinpoint:Get*",
             "pinpoint:List*",
             "pinpoint:PhoneNumberValidate",
