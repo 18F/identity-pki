@@ -17,7 +17,7 @@ variable "config_password_rotation_code" {
 
 variable "lambda_timeout" {
   type        = number
-  default     = "180"
+  default     = "900"
   description = "Timeout Value for Lambda"
 }
 
@@ -30,5 +30,5 @@ variable "lambda_runtime" {
 variable "schedule" {
   type        = string
   description = "Cron expression for cloudwatch event rule schedule"
-  default     = "cron(0 22 * * ? *)"
+  default     = "cron(0 21 * * ? *)"
 }

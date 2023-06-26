@@ -44,21 +44,22 @@ deletionDate = (
     datetime.datetime.now() - datetime.timedelta(days=oldKeyDeletionPeriod)
 ).date()
 
-
 def lambda_handler(event, context):
-    logger.info("Event: " + json.dumps(event))
-    print("Event in raw format", event)
-    print("Current time", datetime.datetime.now())
-
-    event = json.loads(event["Records"][0]["Sns"]["Message"])
-
-    account_id = event["Account"]
-    user_name = event["User"]
-    reason = event["Reason"]
-
-    if user_name:
-        process_user(user_name)
-
+    marker = None    
+    
+    while True:
+        if marker:
+             response = iam.list_users(Marker=marker)
+        else:
+            response = iam.list_users()
+    
+        for user in response['Users']:
+           process_user(user['UserName'])
+         
+        if not response['IsTruncated']:
+            break
+        
+        marker = response['Marker']
 
 def process_user(user_name, force=False):
     lak = iam.list_access_keys(UserName=user_name)
@@ -131,8 +132,9 @@ def process_user(user_name, force=False):
         else:
             # Both keys older than retention date. Delete oldest key(Can be used for future implementation)
             key_to_delete = oldest_key["AccessKeyId"]
-            logger.info("Delete Key(s): {}".format(key_to_delete))
+            #logger.info("Delete Key(s): {}".format(key_to_delete))
             # iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete)
+            handle_oldest_key(user_name, recipient_email, sender_email, oldest_key)
 
     elif num_active == 1 and num_inactive == 1:
         print("There are 1 active and 1 inactive keys")
@@ -155,8 +157,8 @@ def process_user(user_name, force=False):
     elif num_active == 0 and num_inactive > 0:
         print("There is no active key")
         # If no active keys, delete all inactive keys
-        for key_to_delete in inactive_keys:
-            logger.info("Delete Key(s): {}".format(key_to_delete))
+        #for key_to_delete in inactive_keys:
+        #    logger.info("Delete Key(s): {}".format(key_to_delete))
             # Can be enabled in future implementation
             # iam.delete_access_key(UserName=user_name, AccessKeyId=key_to_delete['AccessKeyId'])
 
@@ -268,6 +270,7 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
                 user_name=user_name,
                 masked_access_key=masked_access_key,
                 ENFORCE_DAY=ENFORCE_DAY,
+                oldKeyInactivationPeriod=oldKeyInactivationPeriod,
             )
 
             send_notification(
@@ -314,8 +317,6 @@ def invoke_update_access_keys(user_name, key_to_inactivate, status):
     )
     print("Access keys for " + user_name + " made inactive")
     return action
-    # return "Success"
-
 
 def assume_role_restricted(user_name):
     sts = boto3.client("sts")
@@ -373,6 +374,11 @@ def update_access_keys(temp_credentials, user_name, key_to_inactivate, status):
         access_keys = iam.list_access_keys(UserName=user_name)
 
         # print("Access key " + key_to_inactivate + " is going to be made inactivate for the user " + user_name)
+        # response = iam.update_access_key(
+        #            UserName=user_name,
+        #            AccessKeyId=key_to_inactivate,
+        #            Status='Inactive'
+        #        )
 
         return "Success"
 
@@ -382,15 +388,6 @@ def update_access_keys(temp_credentials, user_name, key_to_inactivate, status):
     except Exception as err:
         print(err)
         return err
-
-    # response = iam.update_access_key(
-    #            UserName=user_name,
-    #            AccessKeyId=key_to_inactivate,
-    #            Status='Inactive'
-    #        )
-
-    # return response
-
 
 def mask_access_key(access_key):
     return access_key[-4:]
