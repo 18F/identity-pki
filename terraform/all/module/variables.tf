@@ -413,6 +413,18 @@ variable "ses_email_limit" {
   description = "This is the limit of emails per 6 hour period. Default is 1 per second, only prod should override."
 }
 
+variable "ses_bounce_rate_threshold" {
+  type        = number
+  default     = 0
+  description = "This is the threshold for the rate of emails we send that bounce"
+}
+
+variable "ses_complaint_rate_threshold" {
+  type        = number
+  default     = 0
+  description = "This is the threshold for the rate of emails we send that receive complaints"
+}
+
 variable "permission_boundary_policy_name" {
   type        = string
   description = <<EOM

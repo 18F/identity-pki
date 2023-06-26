@@ -28,6 +28,10 @@ module "main" {
   dnssec_zone_exists = true
   reports_bucket_arn = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
   ses_email_limit    = 500000
+
+  ses_bounce_rate_threshold    = 0.04
+  ses_complaint_rate_threshold = 0.003
+
   account_roles_map = {
     iam_reports_enabled        = true
     iam_kmsadmin_enabled       = true
