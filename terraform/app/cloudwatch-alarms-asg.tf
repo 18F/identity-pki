@@ -3,7 +3,7 @@ locals {
     aws_autoscaling_group.idp.name,
     aws_autoscaling_group.migration.name,
     aws_autoscaling_group.pivcac.name,
-    aws_autoscaling_group.outboundproxy.name,
+    module.outboundproxy_uw2.proxy_asg_name,
     aws_autoscaling_group.worker.name,
     var.apps_enabled == 1 ? aws_autoscaling_group.app[0].name : "",
     var.enable_loadtesting ? aws_autoscaling_group.locust_leader[0].name : "",

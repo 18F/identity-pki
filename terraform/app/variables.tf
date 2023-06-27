@@ -1,9 +1,3 @@
-variable "ci_sg_ssh_cidr_blocks" {
-  type        = list(string)
-  default     = ["127.0.0.1/32"] # hack to allow an empty list, which terraform can't handle
-  description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
-}
-
 variable "enable_idp_static_bucket" {
   description = "Create public S3 bucket for storing IdP static assets"
   type        = bool

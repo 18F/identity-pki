@@ -661,7 +661,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "height": 6,
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${aws_autoscaling_group.outboundproxy.name}", { "color": "#2ca02c", "label": "InService" } ],
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${module.outboundproxy_uw2.proxy_asg_name}", { "color": "#2ca02c", "label": "InService" } ],
                     [ ".", "GroupTerminatingInstances", ".", ".", { "color": "#d62728", "label": "Terminating" } ],
                     [ ".", "GroupPendingInstances", ".", ".", { "color": "#ff7f0e", "label": "Pending" } ]
                 ],

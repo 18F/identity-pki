@@ -103,7 +103,7 @@ resource "aws_autoscaling_group" "migration" {
   }
 
   depends_on = [
-    aws_autoscaling_group.outboundproxy,
+    module.outboundproxy_uw2.proxy_asg_name,
     aws_cloudwatch_log_group.nginx_access_log
   ]
 }

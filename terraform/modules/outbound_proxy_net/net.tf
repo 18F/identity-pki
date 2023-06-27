@@ -1,14 +1,6 @@
-data "aws_ip_ranges" "route53" {
-  regions  = ["global"]
-  services = ["route53"]
-}
-
-locals {
-  net_ssm_parameter_prefix = "/${var.env_name}/network/"
-}
-
 resource "aws_security_group" "obproxy" {
-  name_prefix = "${var.name}-obproxy-${var.env_name}"
+  name        = var.use_prefix ? null : "${var.name}-obproxy-${var.env_name}"
+  name_prefix = var.use_prefix ? "${var.name}-obproxy-${var.env_name}" : null
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
   # TODO: limit this to what is actually needed
@@ -60,6 +52,16 @@ resource "aws_security_group" "obproxy" {
     cidr_blocks = [var.nessusserver_ip]
   }
 
+  # Allow egress to GSA Public Bigfix Relay Server
+  egress {
+    from_port = 52311
+    to_port   = 52311
+    protocol  = "tcp"
+    cidr_blocks = [
+      "3.209.219.136/32"
+    ]
+  }
+
   # Allow egress to AAMVA
   egress {
     from_port = 18449
@@ -88,14 +90,7 @@ resource "aws_security_group" "obproxy" {
     from_port   = 3128
     to_port     = 3128
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block, "100.106.0.0/16"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ci_sg_ssh_cidr_blocks
+    cidr_blocks = compact([var.vpc_cidr_block, var.app_cidr_block])
   }
 
   lifecycle {

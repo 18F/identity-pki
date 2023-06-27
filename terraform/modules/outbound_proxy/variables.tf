@@ -1,3 +1,26 @@
+variable "use_prefix" {
+  type        = bool
+  description = <<EOM
+Whether or not to use a name_prefix (vs. a name) for resource naming.
+EOM
+  default     = true
+}
+
+variable "external_role" {
+  type        = string
+  description = <<EOM
+Name of an externally-created IAM role for outboundproxy hosts.
+Will skip creation of aws_iam_role.obproxy resource if set.
+EOM
+  default     = ""
+}
+
+variable "create_cpu_policy" {
+  type        = bool
+  description = "Whether or not to create the obproxy-cpu Auto Scaling Policy."
+  default     = true
+}
+
 variable "ami_id_map" {
   type        = map(string)
   description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
@@ -5,14 +28,6 @@ variable "ami_id_map" {
 }
 
 # Auto scaling group desired counts
-variable "asg_gitlab_desired" {
-  default = 1
-}
-
-variable "asg_gitlab_runner_desired" {
-  default = 1
-}
-
 variable "asg_outboundproxy_desired" {
   default = 1
 }
@@ -104,17 +119,7 @@ variable "chef_download_sha256" {
   default = ""
 }
 
-variable "ci_sg_ssh_cidr_blocks" {
-  type        = list(string)
-  default     = ["127.0.0.1/32"] # hack to allow an empty list, which terraform can't handle
-  description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
-}
-
 variable "env_name" {
-}
-
-variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
-  default = "172.16.32.0/22"
 }
 
 variable "root_domain" {
@@ -122,11 +127,14 @@ variable "root_domain" {
 }
 
 variable "default_ami_id" {
-  description = "default AMI ID for environments in the tooling account"
+  description = "default AMI ID for environments in the account"
 }
 
 variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+  description = <<EOM
+ARN of SNS topic that will notify the appropriate channel
+(#identity-events / #identity-otherevents) in Slack.
+EOM
 }
 
 variable "name" {
@@ -141,28 +149,8 @@ variable "fisma_tag" {
   default = "Q-LG"
 }
 
-variable "nessusserver_ip" {
-  description = "Nessus server's public IP"
-  default     = "44.230.151.136/32"
-}
-
-variable "proxy_server" {
-  default = "obproxy.login.gov.internal"
-}
-
-variable "proxy_port" {
-  default = "3128"
-}
-
-variable "s3_prefix_list_id" {
-}
-
 variable "instance_type_outboundproxy" {
   default = "t3.medium"
-}
-
-variable "no_proxy_hosts" {
-  default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com"
 }
 
 variable "proxy_enabled_roles" {
@@ -192,15 +180,14 @@ variable "proxy_subnet_ids" {
   description = "List of public subnets to use for the outbound proxy ASG"
 }
 
+variable "proxy_security_group_id" {
+  type        = string
+  description = "Main security group (created separately!) for outbound proxy"
+}
+
 variable "base_security_group_id" {
   type        = string
   description = "security group used on client side for outbound proxy"
-}
-
-variable "github_ipv4_cidr_blocks" {
-  type        = list(string)
-  description = "List of GitHub's IPv4 CIDR ranges."
-  default     = []
 }
 
 variable "hostname" {
@@ -212,12 +199,6 @@ variable "proxy_for" {
   type        = string
   description = "What the proxy is for, e.g. idp, gitlab, gitlab-runner-test-pool."
   default     = "default"
-}
-
-variable "client_security_group_ids" {
-  type        = list(string)
-  description = "security group allowed to communicate with the proxy"
-  default     = []
 }
 
 variable "ssm_access_policy" {
@@ -233,4 +214,38 @@ variable "cloudwatch_treat_missing_data" {
 variable "s3_secrets_bucket_name" {
   description = "Name of bucket used to track user_data"
   default     = ""
+}
+
+# Automatic recycling and/or zeroing-out of Auto Scaling Groups on scheduled basis
+# See identity-terraform//asg_recycle/schedule.tf for detailed timetables
+variable "autoscaling_time_zone" {
+  description = "IANA time zone to use with cron schedules. Uses UTC by default."
+  type        = string
+  default     = "Etc/UTC"
+}
+
+variable "autoscaling_schedule_name" {
+  description = <<EOM
+Name of one of the blocks defined in var.outboundproxy_rotation_schedules, which
+defines the cron schedules for recycling and/or 'autozero' scheduled actions.
+MUST match one of the key names in var.outboundproxy_rotation_schedules.
+EOM
+  type        = string
+  default     = "nozero_norecycle"
+}
+
+variable "outboundproxy_rotation_schedules" {
+  description = <<EOM
+Customized set of cron jobs for recycling (up/down) and/or zeroing out hosts.
+MUST follow the defined format as shown for the default value!
+EOM
+  type        = any
+  default = {
+    #   "custom_schedule" = {
+    #     recycle_up    = ["0 11 * * 1-5"]
+    #     recycle_down  = ["15 11 * * 1-5"]
+    #     autozero_up   = ["0 5 * * 1-5"]
+    #     autozero_down = ["0 17 * * 1-5"]
+    #   }
+  }
 }
