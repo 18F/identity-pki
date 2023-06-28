@@ -6,6 +6,10 @@ output "secondary_cidr" {
   value = var.secondary_cidr_block
 }
 
+output "s3_prefix_list_id" {
+  value = aws_vpc_endpoint.private-s3[0].prefix_list_id
+}
+
 output "db_security_group" {
   value = var.enable_data_services ? aws_security_group.db[*].id : null
 }
