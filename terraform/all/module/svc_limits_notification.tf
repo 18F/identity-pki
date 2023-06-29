@@ -134,7 +134,7 @@ EOM
 
 resource "aws_cloudwatch_metric_alarm" "ses_email_complaint_rate" {
   count               = var.ses_complaint_rate_threshold > 0 ? 1 : 0
-  alarm_name          = "ses_complaint_rate_threshold "
+  alarm_name          = "ses_complaint_rate_threshold"
   alarm_description   = <<EOM
 Our SES email bounce rate has exceeded ${format("%.1f", var.ses_complaint_rate_threshold * 100)}% in the last 2 hours.
 Account: ${data.aws_caller_identity.current.account_id}
