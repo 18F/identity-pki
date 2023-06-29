@@ -50,3 +50,6 @@ repos:
   identity_idp_review:
     name: "identity-idp/review"
     <<: *all_write_template
+  identity_idp_review_cache:
+    name: "identity-idp/review/cache"
+    <<: *all_write_template
