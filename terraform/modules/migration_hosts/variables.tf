@@ -206,7 +206,7 @@ variable "rails_ami_id_prod" {
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
-variable "var.slack_events_sns_hook_arn" {
+variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
   default     = ""
 }
