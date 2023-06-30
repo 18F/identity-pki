@@ -133,7 +133,7 @@ resource "aws_autoscaling_group" "pivcac" {
 
   depends_on = [
     module.outboundproxy_uw2.proxy_asg_name,
-    aws_autoscaling_group.migration,
+    module.migration_usw2.migration_asg_name,
     aws_cloudwatch_log_group.nginx_access_log
   ]
 }
