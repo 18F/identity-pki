@@ -65,12 +65,9 @@ module "migration_launch_template" {
   ami_id_map     = var.ami_id_map
   default_ami_id = var.default_ami_id
 
-  instance_type = var.instance_type_migration
-  #iam_instance_profile_name = aws_iam_instance_profile.migration.name
+  instance_type             = var.instance_type_migration
   iam_instance_profile_name = var.migration_instance_profile
-  #security_group_ids        = [aws_security_group.migration.id, aws_security_group.base.id]
-  #security_group_ids        = var.security_group_ids
-  security_group_ids = [aws_security_group.migration.id, var.base_security_group_id]
+  security_group_ids        = [aws_security_group.migration.id, var.base_security_group_id]
 
 
   user_data = module.migration_user_data.rendered_cloudinit_config
@@ -96,8 +93,7 @@ module "migration_recycle" {
   normal_desired = 1
   time_zone      = var.autoscaling_time_zone
 
-  scale_schedule = var.autoscaling_schedule_name
-  #custom_schedule = local.migration_rotation_schedules # migration-schedule.tf
+  scale_schedule  = var.autoscaling_schedule_name
   custom_schedule = var.migration_rotation_schedules
 
   # Hard set 1 instance for spin up and none for spin down
@@ -121,7 +117,6 @@ resource "aws_autoscaling_group" "migration" {
 
   target_group_arns = []
 
-  #vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
   vpc_zone_identifier = var.migration_subnet_ids
 
   # possible choices: EC2, ELB
@@ -159,10 +154,4 @@ resource "aws_autoscaling_group" "migration" {
     value               = var.fisma_tag
     propagate_at_launch = true
   }
-
-  # Check this dependency later once module is tested[TEST]
-  #  depends_on = [
-  #    aws_autoscaling_group.outboundproxy,
-  #    aws_cloudwatch_log_group.nginx_access_log
-  #  ]
 }
