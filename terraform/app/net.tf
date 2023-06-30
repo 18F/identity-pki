@@ -222,7 +222,7 @@ resource "aws_security_group" "db" {
     protocol  = "tcp"
     security_groups = compact([
       aws_security_group.idp.id,
-      module.migration_usw2.migration_asg_name,
+      module.migration_usw2.migration_sg_id,
       aws_security_group.pivcac.id,
       aws_security_group.worker.id,
       var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
