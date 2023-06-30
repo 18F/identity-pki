@@ -577,20 +577,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  paul.hirsch:
-    aws_groups:
-    - devops
-    - orgadmin
-    ec2_username:
-    - pauldoom
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
-    git_username:
-    - pauldoomgov
-    email:
-    - paul.hirsch@gsa.gov
   philip.burke:
     gitlab_groups:
     - antifraud
