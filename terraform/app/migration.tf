@@ -49,6 +49,37 @@ module "migration_usw2" {
   vpc_secondary_cidr_block         = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
 
+##### moved blocks, remove once state moves are complete
+
+moved {
+  from = aws_security_group.migration
+  to   = module.migration_usw2.aws_security_group.migration
+}
+
+moved {
+  from = aws_autoscaling_group.migration
+  to   = module.migration_usw2.aws_autoscaling_group.migration
+}
+
+moved {
+  from = module.migration_lifecycle_hooks
+  to   = module.migration_usw2.module.migration_lifecycle_hooks
+}
+
+moved {
+  from = module.migration_user_data
+  to   = module.migration_usw2.module.migration_user_data
+}
+
+moved {
+  from = module.migration_launch_template
+  to   = module.migration_usw2.module.migration_launch_template
+}
+
+moved {
+  from = module.migration_recycle
+  to   = module.migration_usw2.module.migration_recycle
+}
 
 module "migration_use1" {
   providers = {

@@ -222,7 +222,7 @@ resource "aws_security_group" "db" {
     protocol  = "tcp"
     security_groups = compact([
       aws_security_group.idp.id,
-      aws_security_group.migration.id,
+      module.migration_usw2.migration_asg_name,
       aws_security_group.pivcac.id,
       aws_security_group.worker.id,
       var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
@@ -442,59 +442,6 @@ resource "aws_security_group" "cloudhsm" {
     to_port         = -1
     protocol        = "icmp"
     security_groups = [aws_security_group.idp.id]
-  }
-}
-
-resource "aws_security_group" "migration" {
-  name = "${var.env_name}-migration"
-
-  tags = {
-    Name = "${var.env_name}-migration"
-    role = "migration"
-  }
-
-  vpc_id      = aws_vpc.default.id
-  description = "Security group for migration server role"
-
-  # TODO: limit this to what is actually needed
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  # github
-  egress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = local.github_ipv4
-  }
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
-  }
-
-  #s3 gateway
-  egress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
-  }
-
-  # need 8834 to comm with Nessus Server
-  ingress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
   }
 }
 
