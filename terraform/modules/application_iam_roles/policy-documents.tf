@@ -912,3 +912,33 @@ data "aws_iam_policy_document" "usps_queue_policy" {
   }
 }
 
+data "aws_iam_policy_document" "pivcac_cert_buckets_role_policy" {
+  statement {
+    sid = "AccessPIVCACBucket"
+    actions = [
+      "s3:List*",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+    ]
+
+    resources = [
+      "arn:aws:s3:::login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-*",
+      "arn:aws:s3:::login-gov-pivcac-${var.env_name}.${data.aws_caller_identity.current.account_id}-*/*",
+    ]
+  }
+
+  statement {
+    sid = "AccessPIVCACPublicBucket"
+    actions = [
+      "s3:List*",
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::login-gov-pivcac-public-cert-${var.env_name}.${data.aws_caller_identity.current.account_id}-*",
+      "arn:aws:s3:::login-gov-pivcac-public-cert-${var.env_name}.${data.aws_caller_identity.current.account_id}-*/*",
+    ]
+  }
+}
+
