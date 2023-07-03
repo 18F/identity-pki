@@ -6,6 +6,8 @@ resource "aws_kms_key" "escrow_kms" {
   description             = "${var.env_name} KMS key for the escrow s3 bucket"
   deletion_window_in_days = 10
 
+  enable_key_rotation = true
+
   policy = module.application_iam_roles.escrow_kms_policy_document_json
   tags = {
     Name        = "${var.env_name}-escrow-s3"

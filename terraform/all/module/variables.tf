@@ -185,18 +185,6 @@ variable "config_access_key_rotation_name" {
   default     = "cfg-access-key-rotation"
 }
 
-variable "config_access_key_rotation_frequency" {
-  type        = string
-  description = "The frequency that you want AWS Config to run evaluations for the rule."
-  default     = "TwentyFour_Hours"
-}
-
-variable "config_access_key_rotation_max_key_age" {
-  type        = string
-  description = "Maximum number of days without rotation. Default 90."
-  default     = 90
-}
-
 variable "config_access_key_rotation_code" {
   type        = string
   description = "Path of the compressed lambda source code."
@@ -413,6 +401,18 @@ variable "ses_email_limit" {
   description = "This is the limit of emails per 6 hour period. Default is 1 per second, only prod should override."
 }
 
+variable "ses_bounce_rate_threshold" {
+  type        = number
+  default     = 0
+  description = "This is the threshold for the rate of emails we send that bounce"
+}
+
+variable "ses_complaint_rate_threshold" {
+  type        = number
+  default     = 0
+  description = "This is the threshold for the rate of emails we send that receive complaints"
+}
+
 variable "permission_boundary_policy_name" {
   type        = string
   description = <<EOM
@@ -465,7 +465,7 @@ Whether or not to create the CloudWatch Subscription Filter that sends
 GuardDuty logs to SOC. Must be set to 'false' until the SOCaaS team
 confirms the elp-guardduty-lg destination for us-west-2.
 EOM
-  default     = false
+  default     = true
 }
 
 variable "guardduty_use1_soc_enabled" {
@@ -475,5 +475,5 @@ Whether or not to create the CloudWatch Subscription Filter that sends
 GuardDuty logs to SOC. Must be set to 'false' until the SOCaaS team
 confirms the elp-guardduty-lg destination for us-east-1.
 EOM
-  default     = false
+  default     = true
 }

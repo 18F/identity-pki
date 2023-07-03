@@ -52,7 +52,7 @@ module "outboundproxy_user_data" {
 module "outboundproxy_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../../identity-terraform/launch_template"
-  role           = "${var.proxy_for}-outboundproxy"
+  role           = var.proxy_for == "" ? "outboundproxy" : "${var.proxy_for}-outboundproxy"
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
@@ -61,10 +61,10 @@ module "outboundproxy_launch_template" {
   instance_type             = var.instance_type_outboundproxy
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.obproxy.name
-  security_group_ids        = [aws_security_group.obproxy.id, var.base_security_group_id]
+  security_group_ids        = [var.proxy_security_group_id, var.base_security_group_id]
   user_data                 = module.outboundproxy_user_data.rendered_cloudinit_config
 
-  instance_tags = {
+  instance_tags = var.proxy_for == "" ? null : {
     proxy_for = var.proxy_for
   }
 
@@ -79,6 +79,21 @@ module "obproxy_lifecycle_hooks" {
   asg_name = aws_autoscaling_group.outboundproxy.name
 }
 
+module "outboundproxy_recycle" {
+  count  = length(var.outboundproxy_rotation_schedules) == 0 ? 0 : 1
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/asg_recycle"
+
+  asg_name       = aws_autoscaling_group.outboundproxy.name
+  normal_min     = var.asg_outboundproxy_min
+  normal_max     = var.asg_outboundproxy_max
+  normal_desired = var.asg_outboundproxy_desired
+  time_zone      = var.autoscaling_time_zone
+
+  scale_schedule  = var.autoscaling_schedule_name
+  custom_schedule = var.outboundproxy_rotation_schedules
+}
+
 resource "aws_route53_record" "obproxy" {
   zone_id = var.route53_internal_zone_id
   name    = var.hostname
@@ -88,7 +103,8 @@ resource "aws_route53_record" "obproxy" {
 }
 
 resource "aws_autoscaling_group" "outboundproxy" {
-  name_prefix = "${var.env_name}-${var.proxy_for}-obproxy"
+  name_prefix = var.use_prefix ? "${var.env_name}-${var.proxy_for}-obproxy" : null
+  name        = var.use_prefix ? null : "${var.env_name}-outboundproxy"
 
   min_size         = var.asg_outboundproxy_min
   max_size         = var.asg_outboundproxy_max
@@ -138,6 +154,8 @@ resource "aws_autoscaling_group" "outboundproxy" {
 }
 
 resource "aws_autoscaling_policy" "outboundproxy" {
+  count = var.create_cpu_policy ? 1 : 0
+
   name                      = "${var.env_name}-obproxy-cpu"
   autoscaling_group_name    = aws_autoscaling_group.outboundproxy.name
   estimated_instance_warmup = 360

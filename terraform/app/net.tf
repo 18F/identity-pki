@@ -69,7 +69,7 @@ resource "aws_security_group" "base" {
     protocol        = "tcp"
     from_port       = var.proxy_port
     to_port         = var.proxy_port
-    security_groups = [aws_security_group.obproxy.id]
+    security_groups = [module.outboundproxy_net_uw2.security_group_id]
   }
 
   # allow ICMP to/from the whole VPC
@@ -745,109 +745,6 @@ resource "aws_route53_resolver_dnssec_config" "vpc" {
   resource_id = aws_vpc.default.id
 }
 
-resource "aws_security_group" "obproxy" {
-  description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
-
-  # TODO: limit this to what is actually needed
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # need 80/443 to get packages/gems/etc
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # allow github access to their static cidr block
-  egress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = local.github_ipv4
-  }
-
-  #s3 gateway
-  egress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
-  }
-
-  # need 8834 to comm with Nessus Server
-  egress {
-    from_port   = 8834
-    to_port     = 8834
-    protocol    = "tcp"
-    cidr_blocks = [var.nessusserver_ip]
-  }
-
-  # Allow egress to AAMVA
-  egress {
-    from_port = 18449
-    to_port   = 18449
-    protocol  = "tcp"
-    cidr_blocks = [
-      "66.227.17.192/26",
-      "66.16.0.0/16",
-      "66.192.89.112/32",
-      "66.192.89.94/32",
-      "207.67.47.0/24",
-    ] # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
-  }
-
-  # Allow egress to GSA Public Bigfix Relay Server
-  egress {
-    from_port = 52311
-    to_port   = 52311
-    protocol  = "tcp"
-    cidr_blocks = [
-      "3.209.219.136/32"
-    ]
-  }
-
-  # Allow egress to Experian
-  egress {
-    from_port = 8443
-    to_port   = 8443
-    protocol  = "tcp"
-    cidr_blocks = [
-      "167.107.58.9/32",
-    ]
-  }
-
-  ingress {
-    from_port   = 3128
-    to_port     = 3128
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-obproxy-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-obproxy-${var.env_name}"
-    role = "outboundproxy"
-  }
-
-  vpc_id = aws_vpc.default.id
-}
-
 resource "aws_security_group" "worker" {
   description = "Worker role"
 
@@ -1055,4 +952,23 @@ resource "aws_subnet" "public-ingress" {
   }
 
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+}
+
+### Calling vpc module for us-east-1 ###
+
+module "network_us_east_1" {
+  count = var.enable_us_east_1_vpc ? 1 : 0
+  providers = {
+    aws = aws.use1
+  }
+  source                = "../modules/vpc_module"
+  vpc_cidr_block        = var.us_east_1_vpc_cidr_block
+  region                = "us-east-1"
+  secondary_cidr_block  = local.network_layout["us-east-1"][var.env_type]._network
+  az                    = local.network_layout["us-east-1"][var.env_type]._zones
+  env_name              = var.env_name
+  env_type              = var.env_type
+  enable_data_services  = "true"
+  enable_app            = "true"
+  flow_log_iam_role_arn = module.application_iam_roles.flow_role_iam_role_arn
 }

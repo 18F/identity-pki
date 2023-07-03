@@ -1,6 +1,6 @@
 FROM public.ecr.aws/docker/library/ruby:3.2.2
 
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
@@ -11,7 +11,10 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 RUN apt-get update -qq
 
 # Install aws cli
-RUN apt-get install -y python3 python3-pip
+RUN apt-get install -y python3 python3-pip python3-venv
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install awscli
 
 RUN apt-get install -y --no-install-recommends nodejs \

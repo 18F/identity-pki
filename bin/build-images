@@ -17,86 +17,82 @@ each type of AMI in the login-\$AWS_ACCOUNT account.
 Flags:
 
   -b BRANCH : Update the identity-base-image branch used for builds to \$BRANCH,
-              via tf-deploy and AWS CloudFormation
+              via aws ssm put-parameter and AWS CloudFormation
   -t TYPE   : Only update stacks/build project/pipeline for \$TYPE AMIs (base/rails)
-  -v        : Verify imagebuild branch in \`login-\$ACCOUNT\`, but do not update/build
+  -v        : Only verify branch in \`login-\$ACCOUNT\`; do not update/build
   -h        : Display this help
 
 EOM
 }
 
 get_build_branch() {
-  echo -e "\nVerifying current imagebuild branch in \`login-${ACCOUNT}\`..."
+  echo -e "\nGetting SSM parameter for imagebuild branch in \`login-${ACCOUNT}\`..."
   CURRENT_BRANCH=$(ave -r aws ssm get-parameter \
     --name ImageCreationSourceFile --output text --with-decryption --query 'Parameter.Value' |
     sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\.\/-]+)\/18F_identity-base-image\.zip/\1/')
-  echo_cyan "- Branch: ${CURRENT_BRANCH}"
-  echo
 }
 
-run_terraform() {
-  $(dirname "$0")/td -d imagebuild -e ${ACCOUNT} -at ${TF_APPLY_CMD}
-  if ! [[ ${?} == 0 ]] ; then
-    raise "Terraform deploy failed; investigate!"
-  fi
+verify_cfn_branches() {
+  echo "Verifying that CloudFormation stack values match SSM parameter..."
+  for STACK in ${STACKS} ; do
+    STACK_BRANCH=$(ave -r aws cloudformation describe-stacks \
+      --output text --stack-name ${STACK} \
+      --query 'Stacks[].Parameters[?ParameterKey==`SourceFileName`].ResolvedValue[]' |
+      sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\.\/-]+)\/18F_identity-base-image\.zip/\1/')
+    if [[ "${STACK_BRANCH}" != "${CURRENT_BRANCH}" ]] ; then
+      echo_yellow "Stack ${STACK} is using branch \`${STACK_BRANCH}\`;"
+      echo_yellow "updating to use \`${CURRENT_BRANCH}\` instead."
+      update_stack ${STACK}
+      echo_green "Stack ${STACK} updated to use \`${CURRENT_BRANCH}\` branch."
+    fi
+  done
+}
+
+update_stack() {
+  local STACK_TO_UPDATE=${1}
+  STACK_PARAMS=$(ave -r aws cloudformation describe-stacks \
+                  --stack-name ${STACK_TO_UPDATE} \
+                  --query 'Stacks[].Parameters[].ParameterKey' \
+                  --output text)                 
+  PARAM_ARG=$(for PARAM in $(echo "${STACK_PARAMS}" | tr -s '\t' ' '); do
+                echo "ParameterKey=$PARAM,UsePreviousValue=true"
+              done | tr '\n' ' ')
+  ave -r aws cloudformation update-stack \
+    --stack-name ${STACK_TO_UPDATE} \
+    --use-previous-template \
+    --capabilities CAPABILITY_IAM \
+    --parameters ${PARAM_ARG} --output text || true
 }
 
 update_build_branch() {
-  local STACKS=()
-  local CONFIRM='no'
-  echo -e "Ready to update imagebuild/${ACCOUNT} via tf-deploy."
+  local NEW_BRANCH="18F/identity-base-image/${BUILD_BRANCH}/18F_identity-base-image.zip"
+  echo -e "\nReady to update imagebuild/${ACCOUNT} build branch."
+  echo_cyan "- Current branch: ${CURRENT_BRANCH}"
   echo_cyan "- Desired branch: ${BUILD_BRANCH}"
   echo
   if prompt_yn "Continue?" ; then
-    CONFIRM='yes'
-    TF_APPLY_CMD="var 'code_branch=${BUILD_BRANCH}'"
-    run_terraform
-    if ! [[ ${CURRENT_BRANCH} == ${BUILD_BRANCH} ]] ; then
-      echo
-      echo_green "\`ImageCreationSourceFile\` parameter in \`login-${ACCOUNT}\` updated to \`${BUILD_BRANCH}\`."
-      echo "Updating CloudFormation stacks to pull in new parameter value; StackIDs specified below."
-      for TYPE in ${TYPE_LIST} ; do
-        STACKS+=$(ave -r aws cloudformation list-stacks |
-                        jq -r '.StackSummaries[]|select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
-                        grep -i ${TYPE}Role | tr '\n' ' ')
-      done
-      for STACK in ${STACKS} ; do
-        STACK_PARAMS=$(ave -r aws cloudformation describe-stacks \
-                        --stack-name ${STACK} \
-                        --query 'Stacks[].Parameters[].ParameterKey' \
-                        --output text)                 
-        PARAM_ARG=$(for PARAM in $(echo "${STACK_PARAMS}" | tr -s '\t' ' '); do
-                      echo "ParameterKey=$PARAM,UsePreviousValue=true"
-                    done | tr '\n' ' ')
-        ave -r aws cloudformation update-stack \
-          --stack-name ${STACK} \
-          --use-previous-template \
-          --capabilities CAPABILITY_IAM \
-          --parameters ${PARAM_ARG} --output text || true
-      done
-      echo -e "\nWaiting for stack updates to complete..."
-      for STACK in ${STACKS} ; do
-        ave aws cloudformation wait stack-update-complete --stack-name ${STACK}
-      done
-      echo_green "CloudFormation stacks updated."
-    fi
-  fi
-  if [[ ${ACCOUNT} == 'sandbox' ]] && [[ ${CONFIRM} == 'yes' ]] ; then
-    echo_green "Pipeline execution(s) started in \`login-${ACCOUNT}\`!"
-    echo "Check the AWS CodePipeline/CodeBuild console for build progress."
-    exit 0
+    ave aws ssm put-parameter --overwrite --name ImageCreationSourceFile \
+                              --value "${NEW_BRANCH}" --type String
+    echo
+    echo_green "\`ImageCreationSourceFile\` parameter in \`login-${ACCOUNT}\` updated to \`${BUILD_BRANCH}\`."
+    echo "Updating CloudFormation stacks to pull in new parameter value..."
+    for STACK in ${STACKS} ; do update_stack "${STACK}" ; done
+    for STACK in ${STACKS} ; do
+      ave aws cloudformation wait stack-update-complete --stack-name ${STACK}
+    done
+    echo_green "CloudFormation stacks updated."
   fi
 }
 
-declare {ACCOUNT,BUILD_BRANCH,TF_APPLY_CMD,CURRENT_BRANCH,AV_PROFILE,VERIFY_ONLY}=
-TYPE_LIST='base rails'
+declare {ACCOUNT,BUILD_BRANCH,CURRENT_BRANCH,AV_PROFILE,VERIFY_ONLY}=
+TYPE_LIST=('base' 'rails')
 
 verify_root_repo
 while getopts :a:t:b:vh opt
 do
   case $opt in
     a) ACCOUNT="${OPTARG}"      ;;
-    t) TYPE_LIST="${OPTARG}"    ;;
+    t) TYPE_LIST=("${OPTARG}")  ;;
     b) BUILD_BRANCH="${OPTARG}" ;;
     v) VERIFY_ONLY=true         ;;
     h) usage && exit 0          ;;
@@ -107,16 +103,25 @@ shift $((OPTIND-1))
 
 if [[ -z ${ACCOUNT} ]] ; then
   raise 'AWS account must be specified with -a flag'
-elif ! [[ "${TYPE_LIST}" =~ (base|rails) ]] ; then
+fi
+if ! [[ "${TYPE_LIST[@]}" =~ (base|rails) ]] ; then
   raise "TYPE must be \`base\` or \`rails\`; remove -t flag to use both"
 fi
 
 get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
 get_build_branch
+for TYPE in "${TYPE_LIST[@]}" ; do
+  STACKS+=$(ave -r aws cloudformation list-stacks |
+            jq -r '.StackSummaries[]|
+            select(.StackStatus == "DELETE_COMPLETE"|not).StackName' |
+            grep -i ${TYPE}Role | tr '\n' ' ')
+done
+
 [[ ${VERIFY_ONLY} == true ]] && exit 0
 
 if ! [[ -z ${BUILD_BRANCH} ]] ; then
   if [[ ${CURRENT_BRANCH} == ${BUILD_BRANCH} ]] ; then
+    verify_cfn_branches
     echo_yellow "Current imagebuild branch already set to \`${BUILD_BRANCH}\`;"
     echo_yellow "skipping update operation."
   else
@@ -133,22 +138,31 @@ else
       update_build_branch
     else
       echo_green "Continuing with imagebuild branch \`${CURRENT_BRANCH}\`."
+      verify_cfn_branches
     fi
+  else
+    verify_cfn_branches
   fi
 fi
 
 echo -e "\nReady to build new AMI(s) for:"
-for TYPE in ${TYPE_LIST} ; do
+for TYPE in "${TYPE_LIST[@]}" ; do
   echo_cyan "- ${ACCOUNT}-${TYPE}"
 done
+echo -n "Using imagebuild branch: "
+if ! [[ -z ${BUILD_BRANCH} ]] ; then
+  echo_cyan "${BUILD_BRANCH}"
+else
+  echo_cyan "${CURRENT_BRANCH}"
+fi
 echo
 if prompt_yn "Continue?" ; then
-  for TYPE in ${TYPE_LIST} ; do
-    PIPELINE=$(ave -r aws codepipeline list-pipelines |
-                    jq -r '.pipelines[].name' | grep -i ${TYPE})
+  for TYPE in "${TYPE_LIST[@]}" ; do
+    PIPELINE=$(ave -r aws codepipeline list-pipelines | jq -r '.pipelines[].name' |
+                grep -i "CodePipeline-Image${TYPE}Role-CodePipeline" | head -n1)
     ave aws codepipeline start-pipeline-execution --name ${PIPELINE} >/dev/null
   done
   echo_green "Pipeline execution(s) started in \`login-${ACCOUNT}\`!"
   echo "Check the AWS CodePipeline/CodeBuild console for build progress."
-  echo
 fi
+echo

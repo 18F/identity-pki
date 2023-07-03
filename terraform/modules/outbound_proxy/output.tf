@@ -5,3 +5,4 @@ output "proxy_lb_cidr_blocks" {
 output "proxy_asg_name" {
   value = aws_autoscaling_group.outboundproxy.name
 }
+

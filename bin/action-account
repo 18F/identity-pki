@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+Dir.chdir(File.dirname(__FILE__)) { require 'bundler/setup' }
+require_relative '../cloudlib/lib/cloudlib/idp_command.rb'
+require 'optparse'
+require 'shellwords'
+
+IDPCommand.parse!.output!(command: 'action-account')

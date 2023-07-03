@@ -12,20 +12,26 @@ variable "fisma_tag" {
   default = "Q-LG"
 }
 
-variable "config_access_key_rotation_frequency" {
-  type        = string
-  description = "The frequency that you want AWS Config to run evaluations for the rule."
-  default     = "TwentyFour_Hours"
-}
-
-variable "config_access_key_rotation_max_key_age" {
-  type        = string
-  description = "Maximum number of days without rotation. Default 90."
-  default     = 90
-}
-
 variable "config_access_key_rotation_code" {
   type        = string
   description = "Path of the compressed lambda source code."
   default     = "src/config-access-key-rotation.zip"
+}
+
+variable "lambda_timeout" {
+  type        = number
+  default     = "900"
+  description = "Timeout Value for Lambda"
+}
+
+variable "lambda_runtime" {
+  type        = string
+  default     = "python3.9"
+  description = "Runtime for Lambda"
+}
+
+variable "schedule" {
+  type        = string
+  description = "Cron expression for cloudwatch event rule schedule"
+  default     = "cron(0 22 * * ? *)"
 }

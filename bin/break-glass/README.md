@@ -1,6 +1,6 @@
 This repo has a set of Utilities which can be classified as the "Break Glass Utilities"
 
-**quarantine-instance**
+### `quarantine-instance`
 
 quarantine-instance is a python script that quarantines a compromised EC2 instance. It does the following
 - Removes instance from ASG, if the instance is part of an Auto Scaling Group
@@ -9,7 +9,7 @@ quarantine-instance is a python script that quarantines a compromised EC2 instan
 - Gets instance's console screenshot and puts them into an S3 bucket
 - Sets termination protection for the instance (excluding spot instances as that is not supported on spot instances)
 - Gets instance metadata
-- Attaches instance to isolation security group. If isolation security group is not specified, it creates an isolation security group. 
+- Attaches instance to isolation security group. If isolation security group is not specified, it creates an isolation security group.
 - Creates a tag notifying that the instance is quarantined
 
 The script takes the following arguments:
@@ -25,22 +25,24 @@ The script takes the following arguments:
 '-t' -> SNS topic arn, required=False default=arn:aws:sns:"+us-west-2+":"+ACCOUNT_ID+":slack-events
 
 
-Usage:
+#### Usage
 
 ./quarantine-instance [-h] -i IID -g SGID [-r REGION] [-b BUCKET] [-t TOPIC]
 ./quarantine-instance: The following arguments are required: -i/--iid, -g/--sgid
 
 **PLEASE NOTE: You need to be logged in as the admin of your environment to run the script**
 
-Example:
-*$ aws-vault exec sandbox-admin*
-*$ ./quarantine-instance -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a* 
+**Example:**
+```
+aws-vault exec sandbox-admin
+./quarantine-instance -i i-06a0c710b7a697e82 -g sg-05075f7fe14d76a9a
+```
 
-**VPC Kill Switch** 
+### `vpc-kill-switch`
 
 VPC kill switch, cuts the connectivity of the VPC to the Internet. This is the BIG RED BUTTON utility, that should only be used when VPC needs to be disconnected from the Big I in case of a major catastrophe. PLEASE USE THIS UTILITY IN WORST CASE SCENARIO ONLY.
 
-Usage:
+#### Usage
 
 vpc-kill-switch [-h] [-v VPCID] [-vn vpcname] [-r REGION]
 
@@ -48,28 +50,28 @@ vpc-kill-switch [-h] [-v VPCID] [-vn vpcname] [-r REGION]
 -vn is the VPC Name whose connectivity you want to disconnect from the Big I
 -r is the Region which defaults to us-west-2
 
-You can specify either the VPC ID or VPC Name 
+You can specify either the VPC ID or VPC Name
 
 **PLEASE NOTE: You need to be logged in as the admin of your environment to run the script**
-*$ aws-vault exec sandbox-admin* 
+*$ aws-vault exec sandbox-admin*
 
 **Example:**
-*./vpc-kill-switch -v vpc-1234567890123*
-*./vpc-kill-switch -vn login-acme-vpc*
+```
+./vpc-kill-switch -v vpc-1234567890123
+./vpc-kill-switch -vn login-acme-vpc
+```
 
-**Emergency-Stop Utility** 
+`emergrncy-maintenance-mode`
+Uses the awscli to set a temporary 503 rule on idp load balancer, shutting off traffic into the idp within 10-20 seconds. Updates tfvars file for the environment with \`enable_cloudfront_maintenance_page = true\`, and then does a targeted terraform apply to create the maintenance page and reset the temporary rule.
 
-The Emergency Stop, queries route tables in a VPC and removes the quad zero entry in those route tables pointing to the Internet Gateway. This will effectively cut on publically facing subnets access to the Big I. You need to be an admin for the environment to be able to run the utility. You can re-add the route table entry by running the Terraform apply again and it will restore the quad zero entries. 
 
-Usage:
+#### Usage
+emergrncy-maintenance-mode [-e ENVIRONMENT]
 
-emergency-stop [-v VPCID] [-r REGION]
-
--v is the VPC ID whose connectivity you want to disconnect from the Big I
--r is the Region which defaults to us-west-2
-
-**PLEASE NOTE: You need to be logged in as the admin of your environment to run the script**
-*$ aws-vault exec sandbox-admin* 
+-e is the environment to put into maintenance mode.
 
 **Example:**
-*./emergency-stop -v vpc-1234567890123*
+```
+./emergrncy-maintenance-mode -e dev
+
+```

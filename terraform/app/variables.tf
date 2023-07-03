@@ -1,9 +1,3 @@
-variable "ci_sg_ssh_cidr_blocks" {
-  type        = list(string)
-  default     = ["127.0.0.1/32"] # hack to allow an empty list, which terraform can't handle
-  description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
-}
-
 variable "enable_idp_static_bucket" {
   description = "Create public S3 bucket for storing IdP static assets"
   type        = bool
@@ -595,22 +589,22 @@ variable "bootstrap_private_git_clone_url" {
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
 variable "default_ami_id_sandbox" {
-  default     = "ami-0c34713763ee063d6" # 2023-05-31 Ubuntu 20.04
+  default     = "ami-086dd2b82fa0f8ff5" # 2023-06-27 Ubuntu 20.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-0ee8d13849148f862" # 2023-05-30 Ubuntu 18.04
+  default     = "ami-03220fc9cb4307e66" # 2023-06-27 Ubuntu 20.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-01e66ec5704f31ad5" # 2023-05-31 Ubuntu 20.04
+  default     = "ami-02b874cd78b390eff" # 2023-06-27 Ubuntu 20.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-013405c20e46e1cc0" # 2023-05-30 Ubuntu 18.04
+  default     = "ami-06a6612f04f667223" # 2023-06-27 Ubuntu 20.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 
@@ -848,6 +842,12 @@ variable "sms_mfa_low_alert_threshold" {
 
 variable "sms_mfa_low_success_alert_threshold" {
   description = "Minimum success rate of SMS MFA sign ins per 10 minutes"
+  type        = number
+  default     = 0
+}
+
+variable "sms_mfa_low_success_alert_critical_threshold" {
+  description = "Minimum success rate of SMS MFA sign ins per 10 minutes to page on-callers for"
   type        = number
   default     = 0
 }
@@ -1093,6 +1093,12 @@ EOM
   default     = false
 }
 
+variable "allowed_usps_status_update_source_email_addresses" {
+  type        = list(string)
+  description = "The allowed source email addresses. If empty, allows all email addresses."
+  default     = []
+}
+
 variable "privatedir" {
   description = "where identity-devops-private lives.  Used for the version_info.sh script"
   default     = ""
@@ -1167,6 +1173,22 @@ and routes all traffic to that until disabled
 EOM
   type        = bool
   default     = false
+}
+
+variable "cloudfront_read_timeout" {
+  description = "Specifies the amount of seconds CloudFront will wait for a response from the idp"
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.cloudfront_read_timeout >= 1
+    error_message = "The minimum cloudfront read timeout is 1 second."
+  }
+
+  validation {
+    condition     = var.cloudfront_read_timeout <= 60
+    error_message = "The default maximum cloudfront read timeout is 60 seconds. To exceed this, please contact AWS Support Center."
+  }
 }
 
 variable "cloudfront_custom_pages" {
@@ -1304,7 +1326,7 @@ variable "attempts_api_low_success_alarm_threshold" {
 variable "minutes_since_ipp_enrollment_established_alarm_threshold" {
   description = "Maximum number of minutes after which an established USPS IPP enrollment is expected to expire"
   type        = number
-  default     = 43560 # 30 days + 6 hours
+  default     = 45360 # 31 days and 12 hours
 }
 
 variable "minutes_since_ipp_enrollment_status_check_completed_alarm_threshold" {
@@ -1393,4 +1415,15 @@ variable "dr_restore_to_time" {
   type        = string
   description = "Timestamp for point-in-time recovery (2023-04-21T12:00:00Z)"
   default     = ""
+}
+
+variable "enable_us_east_1_vpc" {
+  type        = bool
+  default     = false
+  description = "Whether or not to create the VPC module for us-east-1"
+}
+
+variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
+  default     = "172.17.32.0/22"
+  description = "Primary CIDR for the new vpc in us-east-1 region"
 }

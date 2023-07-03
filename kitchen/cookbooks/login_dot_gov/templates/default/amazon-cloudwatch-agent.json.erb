@@ -249,6 +249,18 @@
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/telephony.log",
                                                 "log_stream_name": "{local_hostname}"
 
+                                        },
+                                        {
+                                                "file_path": "/var/log/besclient/202*.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/besclient/besclient.log",
+                                                "log_stream_name": "{local_hostname}"
+
+                                        },
+                                        {
+                                                "file_path": "/var/log/endgame_install.log",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/endgame_install.log",
+                                                "log_stream_name": "{local_hostname}"
+
                                         }
                                 ]
                         }

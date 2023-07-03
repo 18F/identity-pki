@@ -34,15 +34,23 @@ data "aws_iam_policy_document" "usps_topic_policy" {
 }
 
 resource "aws_iam_role" "usps_SNSSuccessFeedback" {
-  name                = "usps_${var.env_name}_SNSSuccessFeedback"
-  assume_role_policy  = data.aws_iam_policy_document.sns_assume_role_policy.json
-  managed_policy_arns = [aws_iam_policy.usps_SNSFeedback_policy.arn]
+  name               = "usps_${var.env_name}_SNSSuccessFeedback"
+  assume_role_policy = data.aws_iam_policy_document.sns_assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "usps_SNSSuccessFeedback" {
+  role       = aws_iam_role.usps_SNSSuccessFeedback.name
+  policy_arn = aws_iam_policy.usps_SNSFeedback_policy.arn
 }
 
 resource "aws_iam_role" "usps_SNSFailureFeedback" {
-  name                = "usps_${var.env_name}_SNSFailureFeedback"
-  assume_role_policy  = data.aws_iam_policy_document.sns_assume_role_policy.json
-  managed_policy_arns = [aws_iam_policy.usps_SNSFeedback_policy.arn]
+  name               = "usps_${var.env_name}_SNSFailureFeedback"
+  assume_role_policy = data.aws_iam_policy_document.sns_assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "usps_SNSFailureFeedback" {
+  role       = aws_iam_role.usps_SNSFailureFeedback.name
+  policy_arn = aws_iam_policy.usps_SNSFeedback_policy.arn
 }
 
 data "aws_iam_policy_document" "sns_assume_role_policy" {
@@ -57,7 +65,7 @@ data "aws_iam_policy_document" "sns_assume_role_policy" {
 }
 
 resource "aws_iam_policy" "usps_SNSFeedback_policy" {
-  name   = "uspsSNSFeedbackPolicy"
+  name   = "usps_${var.env_name}_SNSFeedbackPolicy"
   policy = data.aws_iam_policy_document.usps_SNSFeedback_policy_document.json
 }
 

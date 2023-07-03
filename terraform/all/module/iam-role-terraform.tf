@@ -815,6 +815,7 @@ locals {
           "ses:SetIdentityNotificationTopic",
           "ses:VerifyDomainDkim",
           "ses:VerifyDomainIdentity",
+          "ses:UpdateReceiptRule",
         ]
         resources = [
           "*",

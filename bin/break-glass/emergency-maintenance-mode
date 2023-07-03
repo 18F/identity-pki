@@ -1,0 +1,104 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+Usage: ${0} -e ENVIRONMENT
+
+Required:
+  -e ENVIRONMENT         : Environment to put into maintenance mode
+
+Flags:
+  -h                     : Display help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`!
+
+EOM
+}
+
+help_me() {
+  cat >&2 <<EOM
+
+Fast switchover into maintenance mode
+1. Temporary 503 rule on idp load balancer
+2. Update tfvars \`enable_cloudfront_maintenance_page = true\`
+3. Targeted terraform apply to create the maintenance page and reset the temporary rule
+
+EOM
+  usage
+  exit 0
+}
+
+while getopts e:h opt; do
+  case $opt in
+  e) TF_ENV="$OPTARG" ;;
+  h) help_me ;;
+  *) usage && exit 1 ;;
+  esac
+done
+
+[[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
+
+echo_red "
+
+###############################################################################
+#                    BREAK-GLASS / EMERGENCY MAINTENANCE MODE                 #
+###############################################################################
+"
+
+echo_yellow "
+This script will put the ${TF_ENV} environment into maintenance mode. It
+should be used to take the IdP offline quickly in a non-PII leak situation.
+"
+
+if ! prompt_yn "Are you sure you want to put ${TF_ENV} into maintenance mode?"; then
+  echo_yellow "Cancelling."
+  echo && exit 0
+fi
+
+
+echo_cyan "Starting emergency maintenance mode"
+
+# Get listener rule arn for the environment's idp load balancer and modify listener rule to
+# return a 503 response.
+
+ave -r aws elbv2 modify-rule \
+  --rule-arn $(
+    ave -r aws elbv2 describe-rules \
+      --listener-arn $(
+        ave -r aws elbv2 describe-listeners \
+          --load-balancer-arn $(
+            ave -r aws elbv2 describe-load-balancers \
+              --names login-idp-alb-${TF_ENV} \
+              --query LoadBalancers[0].LoadBalancerArn \
+              --output text
+          ) --query Listeners[0].ListenerArn \
+          --output text
+      ) --query 'Rules[?!IsDefault].RuleArn' \
+      --output text
+  ) \
+  --actions Type='fixed-response',FixedResponseConfig="{MessageBody='Temporarily Down for Maintenance',StatusCode=503,ContentType='text/plain'}"
+
+echo_cyan "Emergency maintenance mode engaged.  Updating CloudFront maintenance message"
+
+TF_VARS="${BASEPATH}/../../identity-devops-private/vars/${TF_ENV}.tfvars"
+
+if [[ $(grep "enable_cloudfront_maintenance_page" ${TF_VARS}) ]]; then
+  sed -i '' -E "s/enable_cloudfront_maintenance_page[ ]*=[ ]*false/enable_cloudfront_maintenance_page = true/g w /dev/stdout" ${TF_VARS}
+else
+  echo "enable_cloudfront_maintenance_page = true" >>${TF_VARS}
+fi
+
+# Targeted apply to update cloudfront maintenance page
+ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app apply -auto-approve \
+  -target='aws_cloudfront_distribution.idp_static_cdn' \
+  -target='aws_lb_listener_rule.idp_ssl_maintenance'
+
+# Change the aws_lb_listener_rule back to its original state after the maintenance page is in place
+ave ${BASEPATH}/tf-deploy -t ${TF_ENV} app apply -auto-approve \
+  -target='aws_lb_listener_rule.idp_ssl'

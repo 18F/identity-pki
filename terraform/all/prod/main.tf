@@ -26,9 +26,12 @@ module "main" {
   splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
 
   dnssec_zone_exists = true
-
   reports_bucket_arn = "arn:aws:s3:::login-gov.reports.555546682965-us-west-2"
   ses_email_limit    = 500000
+
+  ses_bounce_rate_threshold    = 0.04
+  ses_complaint_rate_threshold = 0.003
+
   account_roles_map = {
     iam_reports_enabled        = true
     iam_kmsadmin_enabled       = true
@@ -37,9 +40,6 @@ module "main" {
     iam_supporteng_enabled     = true
     iam_fraudops_enabled       = true
   }
-
-  guardduty_usw2_soc_enabled = true  # previously created in terraform/core
-  guardduty_use1_soc_enabled = false # confirm destination exists before enabling
 
   legacy_bucket_list = [
     "login-gov-logs-prod.555546682965-us-west-2",
@@ -129,6 +129,6 @@ module "main" {
     "PowerUser"         = [{ "*" = ["*"] }],
     "SupportEngineer"   = [],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
-    "FraudOps" = [{ "*" = ["data-pull"] }],
+    "FraudOps" = [{ "*" = ["data-pull", "action-account"] }],
   }
 }

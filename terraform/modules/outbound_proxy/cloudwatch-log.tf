@@ -1,5 +1,6 @@
 resource "aws_cloudwatch_log_group" "squid_access_log" {
-  name_prefix = "${var.env_name}_/var/log/squid/access.log"
+  name        = var.use_prefix ? null : "${var.env_name}_/var/log/squid/access.log"
+  name_prefix = var.use_prefix ? "${var.env_name}_/var/log/squid/access.log" : null
 
   tags = {
     environment = var.env_name

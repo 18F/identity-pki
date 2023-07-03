@@ -1,6 +1,6 @@
 {
-  "name": "johnskinner",
-  "description": "John Skinner at work here",
+  "name": "dskgsa",
+  "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {

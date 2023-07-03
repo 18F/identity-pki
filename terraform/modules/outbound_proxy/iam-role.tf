@@ -1,5 +1,8 @@
 resource "aws_iam_role" "obproxy" {
-  name_prefix        = "${var.env_name}_obproxy_iam_role"
+  count       = var.external_role == "" ? 1 : 0
+  name_prefix = var.use_prefix ? "${var.env_name}_obproxy_iam_role" : null
+  name        = var.use_prefix ? null : "${var.env_name}_obproxy_iam_role"
+
   assume_role_policy = <<-EOM
     {
       "Version": "2012-10-17",

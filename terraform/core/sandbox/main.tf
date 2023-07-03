@@ -51,7 +51,7 @@ module "main" {
   mx_provider                   = "amazon-ses-inbound.us-west-2"
   sandbox_ses_inbound_enabled   = 1
   sandbox_ses_email_users       = ["smoketest-dev", "smoketest-int", "smoketest-staging", "smoketest-prod"]
-  sandbox_ses_usps_enabled_envs = ["joy"]
+  sandbox_ses_usps_enabled_envs = ["joy", "dev"]
   mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode                  = "enforce"
 
@@ -102,13 +102,11 @@ module "main" {
   cross_account_archive_bucket_access = {
     "arn:aws:iam::217680906704:role/production-build-pool_gitlab_runner_role" = [
       "mhenke",
-      "pauldoom",
       "int",
       "dev"
     ],
     "arn:aws:iam::034795980528:role/alpha-build-pool_gitlab_runner_role" = [
-      "mhenke",
-      "pauldoom"
+      "mhenke"
     ]
   }
 }

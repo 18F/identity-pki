@@ -180,12 +180,6 @@ variable "chef_download_sha256" {
   default = ""
 }
 
-variable "ci_sg_ssh_cidr_blocks" {
-  type        = list(string)
-  default     = ["127.0.0.1/32"] # hack to allow an empty list, which terraform can't handle
-  description = "List of CIDR blocks to allow into all NACLs/SGs.  Only use in the CI VPC."
-}
-
 variable "env_name" {
 }
 
@@ -467,6 +461,16 @@ variable "job_queue_depth_alert_threshold" {
   type        = number
   description = "The depth of a Gitlab project's job queue at which to alert."
   default     = 40
+}
+
+variable "send_cw_to_soc" {
+  type    = string
+  default = "0"
+}
+
+variable "soc_destination_arn" {
+  type    = string
+  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
 }
 
 variable "ubuntu_os_version_string" {

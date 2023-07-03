@@ -60,6 +60,8 @@ resource "aws_cloudformation_stack" "image_codebuild_stack" {
     PackerVersion      = var.packer_version
     BerkshelfVersion   = var.berkshelf_version
     UbuntuVersion      = var.os_number
+    DelaySeconds       = var.packer_config["aws_delay_seconds"]
+    MaxAttempts        = var.packer_config["aws_max_attempts"]
   }
   capabilities = ["CAPABILITY_IAM"]
 }

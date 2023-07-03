@@ -29,7 +29,7 @@ module "fraudops-assumerole" {
             "ssm:GetParameter"
           ]
           resources = [
-            "arn:aws:ssm:::parameter/account/salesforce/*"
+            "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/account/salesforce/*"
           ]
         }
       ]

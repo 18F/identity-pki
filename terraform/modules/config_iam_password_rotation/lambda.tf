@@ -24,10 +24,10 @@ resource "aws_lambda_function" "password_rotation_lambda" {
   environment {
     variables = {
       temp_role_arn  = "${aws_iam_role.assumeRole_lambda.arn}",
-      RotationPeriod = 90,
-      InactivePeriod = 100,
-      DeletionPeriod = 120,
-      ENFORCE_DAY    = "July 1st, 2023",
+      RotationPeriod = 80,
+      InactivePeriod = 90,
+      DeletionPeriod = 100,
+      ENFORCE_DAY    = "July 5th, 2023",
     }
   }
 

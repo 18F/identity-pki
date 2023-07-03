@@ -58,6 +58,8 @@ Main number for os_version and ami_filter_name MUST be the same as var.os_number
 DESC
   type        = map(string)
   default = {
+    aws_delay_seconds       = "60"
+    aws_max_attempts        = "50"
     encryption              = "true"
     root_vol_size           = "40"
     data_vol_size           = "100"

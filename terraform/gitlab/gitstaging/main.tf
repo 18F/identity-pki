@@ -35,6 +35,7 @@ module "main" {
   gitlab_servicename              = "com.amazonaws.vpce.us-west-2.vpce-svc-0270024908d73003b"
   rds_engine_version              = "13.7"
   cloudwatch_treat_missing_data   = "missing"
+  send_cw_to_soc                  = 1
 }
 
 output "gitlab_db_host" {
