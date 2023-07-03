@@ -3,7 +3,7 @@ This module monitors the IAM User's password used for Console Login. It performs
 - Disables console login if the user has never logged in the past 100 days(with active password)
 - Sends a notification to the specific user via email using SES identity email address(noreply@humans.login.gov), when the password age is between 80 and 90 days
 - Disables the console login for users with password age more than 90 days(with active login activity) and sends email to the user.
-- Ignores the users with that have password enabled but never logged in via Console(Assuming these are new users that have not onboarded yet).
+- Ignores the users that have password enabled but never logged in via Console(Assuming these are new users that have not onboarded yet).
 
 ## Architecture Diagram: IAM Password Rotation Diagram
 
