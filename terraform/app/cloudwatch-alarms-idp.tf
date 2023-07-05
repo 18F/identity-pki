@@ -1,11 +1,12 @@
 # IdP specific alarms
 module "elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=01b4d597ba7bf6097d3ab2f7320099dbee181cdf"
   #source = "../../../identity-terraform/elb_http_alerts"
 
-  env_name = var.env_name
-  lb_name  = aws_alb.idp.name
-  lb_type  = "ALB"
+  env_name      = var.env_name
+  lb_name       = aws_alb.idp.name
+  lb_arn_suffix = aws_alb.idp.arn_suffix
+  lb_type       = "ALB"
 
   // These are defined in variables.tf
   alarm_actions = local.high_priority_alarm_actions

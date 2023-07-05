@@ -1,16 +1,3 @@
-# PIVCAC
-module "pivcac_elb_http_alerts" {
-  source = "github.com/18F/identity-terraform//elb_http_alerts?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../identity-terraform/elb_http_alerts"
-
-  env_name = var.env_name
-  lb_name  = aws_elb.pivcac.name
-  lb_type  = "ELB"
-
-  // These are defined in variables.tf
-  alarm_actions = local.high_priority_alarm_actions
-}
-
 module "pivcac_insufficent_instances_alerts" {
   source = "../modules/asg_insufficent_instances_alerts"
 
