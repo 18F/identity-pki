@@ -791,6 +791,11 @@ variable "idp_in_person_newrelic_alerts_enabled" {
   default     = 0
 }
 
+variable "idp_no_healthy_hosts_alarm_enabled" {
+  description = "set this to 1 if you want to a high alert when there are no healthy IDP hosts"
+  default     = 0
+}
+
 variable "idp_proofing_javascript_error_new_relic_alerts_enabled" {
   description = "set this to 1 if you want to enable proofing javascript error alerting"
   default     = 0

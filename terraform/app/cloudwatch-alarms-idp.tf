@@ -20,6 +20,35 @@ module "idp_insufficent_instances_alerts" {
   alarm_actions = local.high_priority_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_no_healthy_idp_hosts" {
+  count = var.idp_no_healthy_hosts_alarm_enabled
+
+  alarm_name        = "${var.env_name}-no_healthy_idp_hosts"
+  alarm_description = <<EOM
+There are no healthy IDP hosts, this could be due to a denial of service attack or hardware problems in an availability zone.
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook%3A-Denial-of-Service-(DoS-or-DDoS)
+EOM
+
+  namespace = "AWS/ApplicationELB"
+
+  metric_name = "HealthyHostCount"
+
+  dimensions = {
+    LoadBalancer = aws_alb.idp.arn_suffix
+    TargetGroup  = aws_alb_target_group.idp-ssl.arn_suffix
+  }
+
+  statistic           = "Minimum"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  threshold           = 0
+  period              = 60
+  evaluation_periods  = 1
+
+  treat_missing_data = "breaching"
+
+  alarm_actions = local.high_priority_alarm_actions
+}
+
 module "idp_unhealthy_instances_alerts" {
   source = "../modules/alb_unhealthy_instances_alerts"
 
