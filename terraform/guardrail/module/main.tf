@@ -56,7 +56,6 @@ data "aws_iam_policy_document" "iam_permission_boundary" {
     actions = [
       "kms:Delete*",
       "kms:DisableKey*",
-      "kms:ReplicateKey",
       "kms:ScheduleKeyDeletion",
       "kms:UpdateAlias",
     ]
@@ -68,9 +67,12 @@ data "aws_iam_policy_document" "iam_permission_boundary" {
       variable = "kms:ResourceAliases"
 
       values = [
-        "alias/*int-login-dot-gov-keymaker*",
-        "alias/*staging-login-dot-gov-keymaker*",
-        "alias/*prod-login-dot-gov-keymaker*",
+        "alias/int-login-dot-gov-keymaker",
+        "alias/staging-login-dot-gov-keymaker",
+        "alias/prod-login-dot-gov-keymaker",
+        "alias/int-login-dot-gov-keymaker-multi-region",
+        "alias/staging-login-dot-gov-keymaker-multi-region",
+        "alias/prod-login-dot-gov-keymaker-multi-region",
       ]
     }
   }
@@ -82,9 +84,12 @@ data "aws_iam_policy_document" "iam_permission_boundary" {
       "kms:UpdateAlias",
     ]
     resources = [
-      "arn:aws:kms:*:*:alias/*int-login-dot-gov-keymaker*",
-      "arn:aws:kms:*:*:alias/*staging-login-dot-gov-keymaker*",
-      "arn:aws:kms:*:*:alias/*prod-login-dot-gov-keymaker*",
+      "arn:aws:kms:*:*:alias/int-login-dot-gov-keymaker",
+      "arn:aws:kms:*:*:alias/staging-login-dot-gov-keymaker",
+      "arn:aws:kms:*:*:alias/prod-login-dot-gov-keymaker",
+      "arn:aws:kms:*:*:alias/int-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/staging-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/prod-login-dot-gov-keymaker-multi-region",
     ]
   }
   statement {
