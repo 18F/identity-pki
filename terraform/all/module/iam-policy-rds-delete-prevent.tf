@@ -84,24 +84,52 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
     actions = [
       "kms:Delete*",
       "kms:DisableKey*",
-      "kms:ReplicateKey",
       "kms:ScheduleKeyDeletion",
       "kms:UpdateAlias",
     ]
     resources = [
-      "arn:aws:kms:*:*:key/*"
+      "arn:aws:kms:us-west-2:*:key/*"
     ]
     condition {
       test     = "ForAnyValue:StringLike"
       variable = "kms:ResourceAliases"
 
       values = [
-        "alias/*int-login-dot-gov-keymaker*",
-        "alias/*staging-login-dot-gov-keymaker*",
-        "alias/*prod-login-dot-gov-keymaker*",
+        "alias/int-login-dot-gov-keymaker",
+        "alias/staging-login-dot-gov-keymaker",
+        "alias/prod-login-dot-gov-keymaker",
+        "alias/int-login-dot-gov-keymaker-multi-region",
+        "alias/staging-login-dot-gov-keymaker-multi-region",
+        "alias/prod-login-dot-gov-keymaker-multi-region",
       ]
     }
   }
+  ######################################################################
+  #### TEMPORARY, remove once old kms_keymaker_ue1 keys are removed ####
+  statement {
+    sid    = "KMSMRDeletePrevent"
+    effect = "Deny"
+    actions = [
+      "kms:Delete*",
+      "kms:DisableKey*",
+      "kms:ScheduleKeyDeletion",
+      "kms:UpdateAlias",
+    ]
+    resources = [
+      "arn:aws:kms:us-east-1:*:key/*"
+    ]
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "kms:ResourceAliases"
+
+      values = [
+        "alias/int-login-dot-gov-keymaker-multi-region",
+        "alias/staging-login-dot-gov-keymaker-multi-region",
+        "alias/prod-login-dot-gov-keymaker-multi-region",
+      ]
+    }
+  }
+  ######################################################################
   statement {
     sid    = "KMSAliasDeletePrevent"
     effect = "Deny"
@@ -110,9 +138,12 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
       "kms:UpdateAlias",
     ]
     resources = [
-      "arn:aws:kms:*:*:alias/*int-login-dot-gov-keymaker*",
-      "arn:aws:kms:*:*:alias/*staging-login-dot-gov-keymaker*",
-      "arn:aws:kms:*:*:alias/*prod-login-dot-gov-keymaker*",
+      "arn:aws:kms:us-west-2:*:alias/int-login-dot-gov-keymaker",
+      "arn:aws:kms:us-west-2:*:alias/staging-login-dot-gov-keymaker",
+      "arn:aws:kms:us-west-2:*:alias/prod-login-dot-gov-keymaker",
+      "arn:aws:kms:*:*:alias/int-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/staging-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/prod-login-dot-gov-keymaker-multi-region",
     ]
   }
 }
