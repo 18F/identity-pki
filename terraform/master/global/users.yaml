@@ -112,6 +112,15 @@ users:
     - pm
     - lg-all
     - lg-public
+  charles.ferguson:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - cferguson
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   charles.hazen:
     aws_groups:
     - analytics
