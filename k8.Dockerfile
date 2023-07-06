@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt update; apt upgrade; \
-    apt install -y postgresql-contrib libpq-dev sudo; \
+    apt install -y letsencrypt postgresql-contrib libpq-dev sudo; \
     PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python; \
     pip3 install certbot certbot_dns_route53 pyopenssl --upgrade
 
@@ -97,17 +97,14 @@ COPY --chown=app:app ./tmp ./tmp
 RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
     mkdir -p ${RAILS_ROOT}/tmp/cache; chmod -R 0755 ${RAILS_ROOT}/tmp/cache; \
     mkdir -p ${RAILS_ROOT}/tmp/pids; chmod -R 0755 ${RAILS_ROOT}/tmp/pids; \
-    mkdir -p ${RAILS_ROOT}/tmp/sockets; chmod -R 0755 ${RAILS_ROOT}/tmp/sockets;
-
-COPY --chown=appinstall --chmod=755 ./k8files/application.yml.default.docker ./config/application.yml
-
-# Generate and place SSL certificates for Puma
-RUN openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 1825 \
-    -keyout $RAILS_ROOT/keys/localhost.key \
-    -out $RAILS_ROOT/keys/localhost.crt \
-    -subj "/C=US/ST=Fake/L=Fakerton/O=Dis/CN=localhost"
+    mkdir -p ${RAILS_ROOT}/tmp/sockets; chmod -R 0755 ${RAILS_ROOT}/tmp/sockets; \
+    mkdir -p ${RAILS_ROOT}/config/puma; chmod -R 0755 ${RAILS_ROOT}/config/puma; 
+COPY --chown=app --chmod=755 ./k8files/application.yml.default.docker ./config/application.yml
+COPY --chown=app --chmod=755 ./k8files/puma_production.rb ./config/puma/production.rb
+COPY --chown=root:root --chmod=755 ./k8files/push_letsencrypt_certs.sh /usr/local/bin/push_letsencrypt_certs.sh
+COPY --chown=root:root --chmod=755 ./k8files/update_letsencrypt_certs /usr/local/bin/update_letsencrypt_certs
+COPY --chown=root:root --chmod=755 ./k8files/configure_environment.sh /usr/local/bin/configure_environment
+COPY --chown=root:root --chmod=755 ./k8files/app_configure_environment /usr/local/bin/app_configure_environment
 
 # Expose port the app runs on
 EXPOSE 3001
-
-USER root

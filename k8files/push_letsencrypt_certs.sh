@@ -48,4 +48,7 @@ else
   exit 1
 fi
 
-service passenger force-reload
+if [ -e /app/tmp/pids/puma.state ]; then
+  echo "restart puma
+  bundle exec pumactl --state /app/tmp/pids/puma.state restart
+fi

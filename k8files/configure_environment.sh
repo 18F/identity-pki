@@ -1,4 +1,5 @@
-#!/bin/bash
+#!b/in/bash
+rt 
 
 set -euo pipefail
 
@@ -33,7 +34,7 @@ else
 fi
 
 # Setup DB
-rbenv exec bundle exec rake db:create db:migrate:monitor_concurrent --trace
+bundle exec rake db:create db:migrate:monitor_concurrent --trace
 
 # Set Proxy Variables
 export http_proxy="http://obproxy.login.gov.internal:3128"
@@ -64,8 +65,11 @@ cd /etc
 
 certbot renew -n --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1' --key-type rsa --rsa-key-size 2048
 
-# Start Passenger
-bundle exec puma -b ssl://0.0.0.0:3001?key=/app/keys/localhost.key&cert=/app/keys/localhost.crt
+# Update Letsencrypt folder permissions
+chmod 755 /etc/letsencrypt/live
+chmod 755 /etc/letsencrypt/archive
+chmod -R 755 /etc/letsencrypt/archive/pivcac.review-app.identitysandbox.gov/*
 
-# Keep Pod Running
-#tail -f /dev/null
+# Start Passenger
+cd /app
+sudo -E -u app bundle exec puma
