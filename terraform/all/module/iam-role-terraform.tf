@@ -186,16 +186,6 @@ locals {
         ]
       },
       {
-        sid    = "DMS"
-        effect = "Allow"
-        actions = [
-          "dms:*",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
         sid    = "Dynamodb"
         effect = "Allow"
         actions = [
@@ -1047,6 +1037,42 @@ locals {
           "guardduty:ListPublishingDestinations",
           "guardduty:UpdateDetector",
           "guardduty:UpdatePublishingDestination",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "DMS"
+        effect = "Allow"
+        actions = [
+          "dms:AddTagsToResource",
+          "dms:ApplyPendingMaintenanceAction",
+          "dms:CreateEndpoint",
+          "dms:CreateReplicationConfig",
+          "dms:CreateReplicationInstance",
+          "dms:CreateReplicationSubnetGroup",
+          "dms:CreateReplicationTask",
+          "dms:DeleteCertificate",
+          "dms:DeleteConnection",
+          "dms:DeleteEndpoint",
+          "dms:DeleteReplicationInstance",
+          "dms:DeleteReplicationSubnetGroup",
+          "dms:DeleteReplicationTask",
+          "dms:DescribeAccountAttributes",
+          "dms:DescribeCertificates",
+          "dms:DescribeEndpoints",
+          "dms:DescribeEventSubscriptions",
+          "dms:DescribeReplicationInstances",
+          "dms:DescribeReplicationSubnetGroups",
+          "dms:DescribeReplicationTasks",
+          "dms:ImportCertificate",
+          "dms:ListTagsForResource",
+          "dms:ModifyEndpoint",
+          "dms:ModifyReplicationInstance",
+          "dms:ModifyReplicationSubnetGroup",
+          "dms:ModifyReplicationTask",
+          "dms:RemoveTagsFromResource"
         ]
         resources = [
           "*",

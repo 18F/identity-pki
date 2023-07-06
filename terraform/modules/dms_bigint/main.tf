@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "dms_kms" {
       "kms:DescribeKey"
     ]
     resources = [
-      "*"
+      "${var.rds_kms_key_arn}"
     ]
   }
 }
