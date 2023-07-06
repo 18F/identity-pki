@@ -225,6 +225,15 @@ users:
     - devops
     - lg-all
     - lg-public
+  erik.arend:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - earend
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   ero.gray:
     aws_groups:
     - analytics
