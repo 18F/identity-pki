@@ -203,3 +203,7 @@ variable "s3_secrets_bucket_name" {
   description = "Name of bucket used to track user_data"
   default     = ""
 }
+
+variable "slack_events_sns_hook_arn" {
+  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+}

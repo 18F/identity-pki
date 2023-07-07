@@ -44,6 +44,7 @@ module "migration_usw2" {
   root_domain                      = var.root_domain
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
+  slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   vpc_id                           = aws_vpc.default.id
   vpc_secondary_cidr_block         = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }
