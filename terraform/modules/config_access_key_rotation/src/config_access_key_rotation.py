@@ -289,16 +289,16 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
 
 def classify_date(akm):
     creation_date = akm["CreateDate"].date()
-    if creation_date > rotationDate:
+    if creation_date >= rotationDate:
         # print("key is status New", akm['AccessKeyId'])
         return "New"
-    if rotationDate > creation_date > inactivationDate:
+    if rotationDate > creation_date >= inactivationDate:
         # print("key is status Notify", akm['AccessKeyId'])
         return "Notify"
     if creation_date > inactivationDate:
         # print("key status is Inactivate", akm['AccessKeyId'])
         return "Inactivate"
-    if creation_date > deletionDate:
+    if creation_date >= deletionDate:
         # print("key status is Delete", akm['AccessKeyId'])
         return "Inactivate"
     return "Delete"
