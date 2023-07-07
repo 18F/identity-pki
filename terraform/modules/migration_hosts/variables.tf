@@ -122,7 +122,7 @@ variable "migration_instance_profile" {
 
 variable "base_security_group_id" {
   type        = string
-  description = "security group used on client side for outbound proxy"
+  description = "Base security group for all instance types"
 }
 
 variable "bootstrap_private_git_clone_url" {
