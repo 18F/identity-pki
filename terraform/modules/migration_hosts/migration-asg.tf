@@ -21,8 +21,7 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
-  account_rails_ami_id = local.acct_type == "prod" ? (
-  var.rails_ami_id_prod) : var.rails_ami_id_sandbox
+  account_rails_ami_id = var.rails_ami_id
 
 }
 
