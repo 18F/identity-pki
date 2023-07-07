@@ -109,8 +109,8 @@ variable "ami_id_map" {
   default     = {}
 }
 
-variable "default_ami_id" {
-  description = "default AMI ID for environments in the account"
+variable "rails_ami_id" {
+  description = "Rails AMI ID for the environment/account"
 }
 
 variable "instance_type_migration" {
