@@ -31,7 +31,7 @@ module "migration_usw2" {
   bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url
   chef_download_url                = var.chef_download_url
   chef_download_sha256             = var.chef_download_sha256
-  default_ami_id                   = local.account_default_ami_id
+  rails_ami_id                   = local.account_rails_ami_id
   env_name                         = var.env_name
   fisma_tag                        = var.fisma_tag
   github_ipv4_cidr_blocks          = local.github_ipv4
