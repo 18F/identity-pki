@@ -15,9 +15,6 @@ logger.setLevel(logging.INFO)
 iam = boto3.client("iam")
 ses = boto3.client("ses")
 
-# TEMP - Till we start enforcing
-ENFORCE_DAY = os.environ["ENFORCE_DAY"]
-
 # Environment Variable: RotationPeriod
 # The number of days after which a key should be evaluated either for sending notification or change it's status to Inactive
 rotationPeriod = int(os.environ["RotationPeriod"])
@@ -198,7 +195,7 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
             "Key(s) approaching near inactivation action: {}".format(masked_access_key)
         )
         SUBJECT = (
-            "[TEST] Your expiring AWS IAM Access Key will be deactivated in "
+            " Your expiring AWS IAM Access Key will be deactivated in "
             + str(keys_inactivated_days_count)
             + " day(s)"
         )
@@ -206,7 +203,7 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
         BODY_HTML = """<html>
             <head>Dear {user_name},</head>
             <body>
-                <p><strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+                
                 <p>
                     Your IAM Access key ending in "{masked_access_key}" is going to be deactivated at {keys_inactivated_at}.
                     IAM Access key older than {oldKeyInactivationPeriod} will be made inactive if not rotated.
@@ -230,7 +227,6 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
             masked_access_key=masked_access_key,
             keys_inactivated_at=keys_inactivated_at,
             oldKeyInactivationPeriod=oldKeyInactivationPeriod,
-            ENFORCE_DAY=ENFORCE_DAY,
         )
 
         send_notification(
@@ -249,12 +245,12 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
         status = invoke_update_access_keys(user_name, key_to_inactivate, "Inactive")
         if status == "Success":
             # iam.update_access_key(UserName=user_name, AccessKeyId=key_to_inactivate, Status='Inactive')
-            SUBJECT = "[TEST] Your expired AWS IAM Access key has been deactivated"
+            SUBJECT = " Your expired AWS IAM Access key has been deactivated"
 
             BODY_HTML = """<html>
                 <head>Dear {user_name},</head>
                 <body>
-                    <p><strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+                    
                     <p>Your IAM Access key ending in "{masked_access_key}" is older than {oldKeyInactivationPeriod} and has been deactivated.</p>
                     <p>
                         You can create a new access key in AWS Console then follow
@@ -269,7 +265,6 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
             """.format(
                 user_name=user_name,
                 masked_access_key=masked_access_key,
-                ENFORCE_DAY=ENFORCE_DAY,
                 oldKeyInactivationPeriod=oldKeyInactivationPeriod,
             )
 
@@ -294,16 +289,16 @@ def handle_oldest_key(user_name, recipient_email, sender_email, oldest_key):
 
 def classify_date(akm):
     creation_date = akm["CreateDate"].date()
-    if creation_date > rotationDate:
+    if creation_date >= rotationDate:
         # print("key is status New", akm['AccessKeyId'])
         return "New"
-    if rotationDate > creation_date > inactivationDate:
+    if rotationDate > creation_date >= inactivationDate:
         # print("key is status Notify", akm['AccessKeyId'])
         return "Notify"
     if creation_date > inactivationDate:
         # print("key status is Inactivate", akm['AccessKeyId'])
         return "Inactivate"
-    if creation_date > deletionDate:
+    if creation_date >= deletionDate:
         # print("key status is Delete", akm['AccessKeyId'])
         return "Inactivate"
     return "Delete"
@@ -373,12 +368,12 @@ def update_access_keys(temp_credentials, user_name, key_to_inactivate, status):
 
         access_keys = iam.list_access_keys(UserName=user_name)
 
-        # print("Access key " + key_to_inactivate + " is going to be made inactivate for the user " + user_name)
-        # response = iam.update_access_key(
-        #            UserName=user_name,
-        #            AccessKeyId=key_to_inactivate,
-        #            Status='Inactive'
-        #        )
+        print("Access key " + key_to_inactivate + " is going to be made inactivate for the user " + user_name)
+        response = iam.update_access_key(
+                   UserName=user_name,
+                   AccessKeyId=key_to_inactivate,
+                   Status='Inactive'
+               )
 
         return "Success"
 

@@ -27,7 +27,6 @@ resource "aws_lambda_function" "password_rotation_lambda" {
       RotationPeriod = 80,
       InactivePeriod = 90,
       DeletionPeriod = 100,
-      ENFORCE_DAY    = "July 5th, 2023",
     }
   }
 

@@ -16,7 +16,6 @@ ses = boto3.client("ses")
 
 account_id = boto3.client("sts").get_caller_identity()["Account"]
 
-ENFORCE_DAY = os.environ["ENFORCE_DAY"]
 rotationPeriod = int(os.environ["RotationPeriod"])
 oldPasswordInactivationPeriod = int(os.environ["InactivePeriod"])
 oldPasswordDeletionPeriod = int(os.environ["DeletionPeriod"])
@@ -105,14 +104,14 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 user_name,
             )
             SUBJECT = (
-                "[TEST] Your expiring AWS console password is going to deactivated in "
+                " Your expiring AWS console password is going to be deactivated in "
                 + str(expire_in)
                 + "day(s)"
             )
             BODY_HTML = """<html>
                 <head>Dear {user_name},</head>
                 <body>
-                    <p><strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+            
                     <p>
                         Your AWS Console login access is going to be disabled at {check}. Console access is disabled
                         if there is missing login activity for more than {oldPasswordDeletionPeriod} days or if password is
@@ -133,7 +132,6 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             """.format(
                 user_name=user_name,
                 check=check,
-                ENFORCE_DAY=ENFORCE_DAY,
                 oldPasswordDeletionPeriod=oldPasswordDeletionPeriod,
                 oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
             )
@@ -151,12 +149,12 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             action1 = invoke_console_access(user_name)
             if action1 == "Success":
                 SUBJECT = (
-                    "[TEST] Your expired AWS console password has been deactivated."
+                    " Your expired AWS console password has been deactivated."
                 )
                 BODY_HTML = """<html>
                     <head>Dear {user_name},</head>
                     <body>
-                        <p><strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+                        
                         <p>Your AWS Console password is disabled.</p>
                         <p>
                             We recommend updating your AWS Console password every {oldPasswordInactivationPeriod}
@@ -175,7 +173,6 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 </html>
                 """.format(
                     user_name=user_name,
-                    ENFORCE_DAY=ENFORCE_DAY,
                     oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
                     oldPasswordDeletionPeriod=oldPasswordDeletionPeriod,
                 )
@@ -187,11 +184,11 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
     else:
         action = invoke_console_access(user_name)
         if action == "Success":
-            SUBJECT = "[TEST] Your expired AWS console password has been deactivated."
+            SUBJECT = " Your expired AWS console password has been deactivated."
             BODY_HTML = """<html>
                 <head> Dear {user_name}, </head>
                 <body>
-                <p> <strong>This is a test - We will start auto-enforcement on {ENFORCE_DAY}.</strong></p>
+                
                 <p>Your AWS Console Password is beyond the required rotation period. </p>
          
                 <p><p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
@@ -209,7 +206,6 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 </html>
                         """.format(
                 user_name=user_name,
-                ENFORCE_DAY=ENFORCE_DAY,
                 oldPasswordDeletionPeriod=oldPasswordDeletionPeriod,
                 oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
             )
@@ -329,9 +325,9 @@ def disable_console_access(temp_credentials, user_name):
 
         print("Here is the user's login profile", profile)
 
-        # response = iam.delete_login_profile(
-        #      UserName=user_name
-        # )
+        response = iam.delete_login_profile(
+             UserName=user_name
+        )
 
         print("Console access disabled for the user", user_name)
 
