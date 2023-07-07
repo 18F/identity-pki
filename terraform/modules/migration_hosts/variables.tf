@@ -63,7 +63,10 @@ variable "asg_migration_max" {
 
 variable "asg_enabled_metrics" {
   type        = list(string)
-  description = "A list of cloudwatch metrics to collect on ASGs https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html#enabled_metrics"
+  description = <<EOM
+A list of cloudwatch metrics to collect on ASGs
+https://www.terraform.io/docs/providers/aws/r/autoscaling_group.html#enabled_metrics
+EOM
 }
 
 # Automatic recycling and/or zeroing-out of Auto Scaling Groups on scheduled basis
