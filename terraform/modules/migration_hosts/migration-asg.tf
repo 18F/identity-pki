@@ -4,9 +4,6 @@ locals {
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
 
-  acct_type = data.aws_caller_identity.current.account_id == "555546682965" ? (
-  "prod") : "sandbox"
-
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? (
     var.bootstrap_private_s3_ssh_key_url
   ) : "s3://${local.secrets_bucket}/common/id_ecdsa.id-do-private.deploy"
@@ -21,8 +18,6 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
-  account_rails_ami_id = var.rails_ami_id
-
 }
 
 module "migration_user_data" {
@@ -32,7 +27,6 @@ module "migration_user_data" {
   env                    = var.env_name
   domain                 = var.root_domain
   s3_secrets_bucket_name = data.aws_s3_bucket.secrets.bucket
-  sns_topic_arn          = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256

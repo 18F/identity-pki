@@ -6,9 +6,6 @@ resource "aws_iam_instance_profile" "migration" {
 }
 
 module "migration_usw2" {
-  providers = {
-    aws = aws.usw2
-  }
   depends_on = [
     module.outboundproxy_uw2.proxy_asg_name,
     aws_cloudwatch_log_group.nginx_access_log
@@ -31,7 +28,7 @@ module "migration_usw2" {
   bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url
   chef_download_url                = var.chef_download_url
   chef_download_sha256             = var.chef_download_sha256
-  rails_ami_id                   = local.account_rails_ami_id
+  rails_ami_id                     = local.account_rails_ami_id
   env_name                         = var.env_name
   fisma_tag                        = var.fisma_tag
   github_ipv4_cidr_blocks          = local.github_ipv4
