@@ -198,18 +198,3 @@ variable "proxy_enabled_roles" {
   type        = map(string)
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
 }
-
-variable "rails_ami_id_sandbox" {
-  default     = "ami-052fb3ebc6de54174" # 2023-06-20 Ubuntu 20.04
-  description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
-}
-
-variable "rails_ami_id_prod" {
-  default     = "ami-014821bb837d6a777" # 2023-06-20 Ubuntu 20.04
-  description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
-}
-
-variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
-  default     = ""
-}
