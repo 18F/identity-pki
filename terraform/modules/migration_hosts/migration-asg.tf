@@ -62,7 +62,7 @@ module "migration_launch_template" {
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
-  default_ami_id = var.default_ami_id
+  default_ami_id = var.rails_ami_id
 
   instance_type             = var.instance_type_migration
   iam_instance_profile_name = var.migration_instance_profile
