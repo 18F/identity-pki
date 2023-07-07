@@ -26,7 +26,7 @@ module "migration_user_data" {
   role                   = "migration"
   env                    = var.env_name
   domain                 = var.root_domain
-  s3_secrets_bucket_name = data.aws_s3_bucket.secrets.bucket
+  s3_secrets_bucket_name = var.s3_secrets_bucket_name
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256

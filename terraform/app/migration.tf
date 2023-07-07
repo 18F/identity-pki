@@ -43,6 +43,7 @@ module "migration_usw2" {
   proxy_server                     = var.proxy_server
   root_domain                      = var.root_domain
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
+  s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   vpc_id                           = aws_vpc.default.id
   vpc_secondary_cidr_block         = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
 }

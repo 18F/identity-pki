@@ -198,3 +198,8 @@ variable "proxy_enabled_roles" {
   type        = map(string)
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
 }
+
+variable "s3_secrets_bucket_name" {
+  description = "Name of bucket used to track user_data"
+  default     = ""
+}
