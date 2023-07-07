@@ -1428,8 +1428,8 @@ variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
   description = "Primary CIDR for the new vpc in us-east-1 region"
 }
 
-variable "enable_use1_migration_host" {
+variable "enable_us_east_1_infra" {
   type        = bool
   default     = false
-  description = "Flag to create migration host in us-east-1"
+  description = "Flag to create us-east-1 host infrastructure"
 }
