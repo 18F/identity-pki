@@ -39,7 +39,7 @@ module "worker_aurora_uw2" {
     "role/${var.rds_monitoring_role_name}"
   ])
 
-  internal_zone_id = aws_route53_zone.internal.zone_id
+  internal_zone_id = module.internal_dns_uw2.internal_zone_id
   route53_ttl      = 300
 
   primary_cluster_instances = var.worker_cluster_instances  # must start at 1

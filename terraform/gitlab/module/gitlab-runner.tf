@@ -25,7 +25,7 @@ module "build_pool" {
   proxy_server                     = "obproxy-build-pool.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
-  route53_internal_zone_id         = aws_route53_zone.internal.zone_id
+  route53_internal_zone_id         = module.internal_dns_uw2.internal_zone_id
   runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
@@ -63,7 +63,7 @@ module "test_pool" {
   proxy_server                     = "obproxy-test-pool.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
-  route53_internal_zone_id         = aws_route53_zone.internal.zone_id
+  route53_internal_zone_id         = module.internal_dns_uw2.internal_zone_id
   runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
@@ -101,7 +101,7 @@ module "env-runner" {
   proxy_server                     = "obproxy-env-runner.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
-  route53_internal_zone_id         = aws_route53_zone.internal.zone_id
+  route53_internal_zone_id         = module.internal_dns_uw2.internal_zone_id
   runner_subnet_ids                = [for zone in local.network_zones : aws_subnet.apps[zone].id]
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
@@ -129,6 +129,6 @@ module "gitlab" {
   vpc_id                  = aws_vpc.default.id
   env_name                = var.env_name
   allowed_security_groups = [aws_security_group.base.id]
-  route53_zone_id         = aws_route53_zone.internal.zone_id
+  route53_zone_id         = module.internal_dns_uw2.internal_zone_id
   dns_name                = local.env_runner_gitlab_hostname
 }

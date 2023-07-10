@@ -1,7 +1,7 @@
 resource "aws_route53_record" "app_internal" {
   count   = var.apps_enabled
   name    = "app.login.gov.internal"
-  zone_id = aws_route53_zone.internal.zone_id
+  zone_id = module.internal_dns_uw2.internal_zone_id
   records = [aws_alb.app[count.index].dns_name]
   ttl     = "300"
   type    = "CNAME"
