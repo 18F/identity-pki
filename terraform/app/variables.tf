@@ -1426,3 +1426,9 @@ variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
   default     = "172.17.32.0/22"
   description = "Primary CIDR for the new vpc in us-east-1 region"
 }
+
+variable "enable_us_east_1_infra" {
+  type        = bool
+  default     = false
+  description = "Flag to create us-east-1 host infrastructure"
+}
