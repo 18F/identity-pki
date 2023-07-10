@@ -25,10 +25,6 @@ moved {
 }
 
 moved {
-  from = aws_route53_record.aws_route53_record
+  from = aws_route53_record.internal-ns
   to   = module.internal_dns_uw2.aws_route53_record.internal-ns
-}
-
-output "test_outputs" {
-  value = module.internal_dns_uw2
 }
