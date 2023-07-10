@@ -45,7 +45,7 @@ module "idp_launch_template" {
 
   instance_type             = var.instance_type_idp
   iam_instance_profile_name = aws_iam_instance_profile.idp.name
-  security_group_ids        = [aws_security_group.idp.id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.idp.id, module.base_security_uw2.base_id]
   user_data                 = module.idp_user_data.rendered_cloudinit_config
 
   use_spot_instances = var.use_spot_instances == 1 ? (

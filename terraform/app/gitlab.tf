@@ -16,7 +16,7 @@ module "gitlab" {
   vpc_id                  = aws_vpc.default.id
   name                    = var.name
   env_name                = var.env_name
-  allowed_security_groups = [aws_security_group.base.id]
+  allowed_security_groups = [module.base_security_uw2.base_id]
   route53_zone_id         = aws_route53_zone.internal.zone_id
   dns_name                = var.gitlab_hostname
 }
@@ -43,7 +43,7 @@ module "env-runner" {
   asg_outboundproxy_max            = 2
   asg_outboundproxy_min            = 1
   aws_vpc                          = aws_vpc.default.id
-  base_security_group_id           = aws_security_group.base.id
+  base_security_group_id           = module.base_security_uw2.base_id
   bootstrap_main_git_ref_default   = local.bootstrap_main_git_ref_default
   bootstrap_private_git_ref        = local.bootstrap_private_git_ref
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
@@ -64,19 +64,19 @@ module "env-runner" {
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups = [
-    aws_security_group.kms_endpoint.id,
-    aws_security_group.ssm_endpoint.id,
-    aws_security_group.ssmmessages_endpoint.id,
-    aws_security_group.ec2_endpoint.id,
-    aws_security_group.ec2messages_endpoint.id,
-    aws_security_group.logs_endpoint.id,
-    aws_security_group.monitoring_endpoint.id,
-    aws_security_group.secretsmanager_endpoint.id,
-    aws_security_group.sts_endpoint.id,
-    aws_security_group.events_endpoint.id,
-    aws_security_group.sns_endpoint.id,
-    aws_security_group.lambda_endpoint.id,
-    aws_security_group.sqs_endpoint.id
+    module.base_security_uw2.endpoint_sg["kms"],
+    module.base_security_uw2.endpoint_sg["ssm"],
+    module.base_security_uw2.endpoint_sg["ssmmessages"],
+    module.base_security_uw2.endpoint_sg["ec2"],
+    module.base_security_uw2.endpoint_sg["ec2messages"],
+    module.base_security_uw2.endpoint_sg["logs"],
+    module.base_security_uw2.endpoint_sg["monitoring"],
+    module.base_security_uw2.endpoint_sg["secretsmanager"],
+    module.base_security_uw2.endpoint_sg["sts"],
+    module.base_security_uw2.endpoint_sg["events"],
+    module.base_security_uw2.endpoint_sg["sns"],
+    module.base_security_uw2.endpoint_sg["lambda"],
+    module.base_security_uw2.endpoint_sg["sqs"]
   ]
   gitlab_configbucket       = var.gitlab_configbucket
   ssm_access_policy         = module.ssm.ssm_access_role_policy

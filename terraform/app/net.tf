@@ -9,8 +9,11 @@ locals {
   github_ipv4 = compact([
     for ip in data.github_ip_ranges.ips.git : try(regex(local.ip_regex, ip), "")
   ])
-  network_layout            = module.network_layout.network_layout
-  nessus_public_access_mode = var.root_domain == "identitysandbox.gov" && var.allow_nessus_external_scanning ? true : false
+  network_layout = module.network_layout.network_layout
+  nessus_public_access_mode = (
+    var.root_domain == "identitysandbox.gov" && var.allow_nessus_external_scanning ?
+    true : false
+  )
 }
 
 module "network_layout" {
@@ -50,60 +53,6 @@ resource "aws_route" "default" {
   route_table_id         = aws_vpc.default.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.default.id
-}
-
-# Base security group added to all instances, grants default permissions like
-# ingress SSH and ICMP.
-resource "aws_security_group" "base" {
-  name        = "${var.env_name}-base"
-  description = "Base security group for rules common to all instances"
-  vpc_id      = aws_vpc.default.id
-
-  tags = {
-    Name = "${var.env_name}-base"
-  }
-
-  # allow TCP egress to outbound proxy
-  egress {
-    description     = "allow egress to outbound proxy"
-    protocol        = "tcp"
-    from_port       = var.proxy_port
-    to_port         = var.proxy_port
-    security_groups = [module.outboundproxy_net_uw2.security_group_id]
-  }
-
-  # allow ICMP to/from the whole VPC
-  ingress {
-    protocol    = "icmp"
-    from_port   = -1
-    to_port     = -1
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-  egress {
-    protocol    = "icmp"
-    from_port   = -1
-    to_port     = -1
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  # allow access to the VPC private S3 endpoint
-  egress {
-    description     = "allow egress to VPC S3 endpoint"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
-  }
-
-  # GARBAGE TEMP - Allow direct access to api.snapcraft.io until Ubuntu Advantage stops
-  #                hanging on repeated calls to pull the livestream agent from snap
-  egress {
-    description = "allow egress to api.snapcraft.io"
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["91.189.92.0/24"]
-  }
 }
 
 resource "aws_security_group" "app" {
@@ -632,7 +581,10 @@ resource "aws_security_group" "worker-alb" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = concat([aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block], var.worker_sg_ingress_permitted_ips)
+    cidr_blocks = concat(
+      [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block],
+      var.worker_sg_ingress_permitted_ips
+    )
   }
 
   ingress {
@@ -640,7 +592,10 @@ resource "aws_security_group" "worker-alb" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = concat([aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block], var.worker_sg_ingress_permitted_ips)
+    cidr_blocks = concat(
+      [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block],
+      var.worker_sg_ingress_permitted_ips
+    )
   }
 
   name = "${var.env_name}-worker-alb"
@@ -838,11 +793,16 @@ resource "aws_security_group" "quarantine" {
   }
 
   egress {
-    description     = "allow egress to endpoints"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ec2messages_endpoint.id, aws_security_group.ssmmessages_endpoint.id, aws_security_group.ssm_endpoint.id, aws_security_group.logs_endpoint.id]
+    description = "allow egress to endpoints"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    security_groups = [
+      module.base_security_uw2.endpoint_sg["ec2messages"],
+      module.base_security_uw2.endpoint_sg["ssmmessages"],
+      module.base_security_uw2.endpoint_sg["ssm"],
+      module.base_security_uw2.endpoint_sg["logs"]
+    ]
   }
 
   tags = {
@@ -864,7 +824,9 @@ resource "aws_subnet" "app" {
   map_public_ip_on_launch = true
 
   ## Example Enablement of IPv6 for app subnets.
-  # ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, each.value.apps.ipv6-netnum)
+  # ipv6_cidr_block = cidrsubnet(
+  #   aws_vpc.default.ipv6_cidr_block, 8, each.value.apps.ipv6-netnum
+  # )
 
   tags = {
     Name = "${var.name}-app_subnet_${each.key}-${var.env_name}"
@@ -892,7 +854,9 @@ resource "aws_subnet" "public-ingress" {
   cidr_block              = each.value.public-ingress.ipv4-cidr
   map_public_ip_on_launch = true
 
-  ipv6_cidr_block = cidrsubnet(aws_vpc.default.ipv6_cidr_block, 8, each.value.public-ingress.ipv6-netnum)
+  ipv6_cidr_block = cidrsubnet(
+    aws_vpc.default.ipv6_cidr_block, 8, each.value.public-ingress.ipv6-netnum
+  )
 
   tags = {
     Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"

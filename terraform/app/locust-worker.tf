@@ -18,7 +18,7 @@ module "locust_worker_launch_template" {
   instance_type             = var.instance_type_locust
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.base-permissions.name
-  security_group_ids        = [aws_security_group.locust[0].id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.locust[0].id, module.base_security_uw2.base_id]
 
   user_data = module.locust_user_data[0].rendered_cloudinit_config
 

@@ -1,598 +1,170 @@
-resource "aws_security_group" "kms_endpoint" {
-  description = "Allow inbound from idp servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id
-    ]
+locals {
+  aws_endpoints = {
+    "kms"            = { vpc_cidr_egress = true },
+    "logs"           = { vpc_cidr_egress = true },
+    "monitoring"     = { vpc_cidr_egress = true },
+    "ssm"            = { vpc_cidr_egress = true },
+    "ssmmessages"    = { vpc_cidr_egress = true },
+    "ec2"            = { vpc_cidr_egress = true },
+    "ec2messages"    = { vpc_cidr_egress = true },
+    "secretsmanager" = { vpc_cidr_egress = true },
+    "sns"            = { vpc_cidr_egress = true },
+    "lambda"         = { vpc_cidr_egress = false },
+    "sqs"            = { vpc_cidr_egress = true },
+    "sts"            = { vpc_cidr_egress = true },
+    "events"         = { vpc_cidr_egress = true },
   }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-kms_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-kms_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
 }
 
-resource "aws_security_group" "ssm_endpoint" {
-  description = "Allow inbound from all servers"
+module "base_security_uw2" {
+  source = "../modules/base_security"
 
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  #name = "${var.name}-ssm_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-ssm_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+  name                   = var.name
+  env_name               = var.env_name
+  region                 = var.region
+  fisma_tag              = var.fisma_tag
+  vpc_id                 = aws_vpc.default.id
+  proxy_port             = var.proxy_port
+  obproxy_security_group = module.outboundproxy_net_uw2.security_group_id
+  vpc_cidr_block         = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+  s3_prefix_list_id      = aws_vpc_endpoint.private-s3.prefix_list_id
+  aws_services           = local.aws_endpoints
+  app_subnets            = aws_subnet.app
 }
 
-resource "aws_security_group" "ssmmessages_endpoint" {
-  description = "Allow inbound from all servers"
+### remove once moving is complete
 
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  #name = "${var.name}-ssmmessages_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-ssmmessages_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.base
+  to   = module.base_security_uw2.aws_security_group.base
 }
 
-resource "aws_security_group" "ec2_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-ec2_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-ec2_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.kms_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["kms"]
 }
 
-resource "aws_security_group" "ec2messages_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-ec2messages_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-ec2messages_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.ssm_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["ssm"]
 }
 
-resource "aws_security_group" "logs_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  # Adding ingress rule below to allow ssm access via port 443 from private and idp subnets
-  # This rule was created to avoid circular dependencies and allow quarantine hosts to be managed via ssm
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-logs_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-logs_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.ssmmessages_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["ssmmessages"]
 }
 
-resource "aws_security_group" "monitoring_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-monitoring_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-monitoring_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.ec2_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["ec2"]
 }
 
-resource "aws_security_group" "secretsmanager_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-secretsmanager_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.ec2messages_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["ec2messages"]
 }
 
-resource "aws_security_group" "sns_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-sns_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-sns_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.logs_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["logs"]
 }
 
-resource "aws_security_group" "lambda_endpoint" {
-  description = "Allow inbound from idp servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.idp.id,
-      aws_security_group.base.id,
-    ]
-  }
-
-  name = "${var.name}-lambda_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-lambda_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.monitoring_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["monitoring"]
 }
 
-resource "aws_security_group" "sqs_endpoint" {
-  description = "Allow inbound from idp servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.idp.id,
-      aws_security_group.base.id,
-    ]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  name = "${var.name}-sqs_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-sqs_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_security_group.secretsmanager_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["secretsmanager"]
 }
 
-resource "aws_vpc_endpoint" "kms" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.kms"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.kms_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_security_group.sts_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["sts"]
 }
 
-resource "aws_vpc_endpoint" "logs" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.logs"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.logs_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_security_group.events_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["events"]
 }
 
-resource "aws_vpc_endpoint" "monitoring" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.monitoring"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.monitoring_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_security_group.sns_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["sns"]
 }
 
-resource "aws_vpc_endpoint" "ssm" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.ssm"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.ssm_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_security_group.lambda_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["lambda"]
 }
 
-resource "aws_vpc_endpoint" "ssmmessages" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.ssmmessages"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.ssmmessages_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_security_group.sqs_endpoint
+  to   = module.base_security_uw2.aws_security_group.endpoint["sqs"]
 }
 
-resource "aws_vpc_endpoint" "ec2" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.ec2"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.ec2_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.kms
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["kms"]
 }
 
-resource "aws_vpc_endpoint" "ec2messages" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.ec2messages"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.ec2messages_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.ssm
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["ssm"]
 }
 
-resource "aws_vpc_endpoint" "secretsmanager" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.secretsmanager"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.secretsmanager_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.ssmmessages
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["ssmmessages"]
 }
 
-resource "aws_vpc_endpoint" "sns" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.sns"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.sns_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.ec2
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["ec2"]
 }
 
-resource "aws_vpc_endpoint" "lambda" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.lambda"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.lambda_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.ec2messages
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["ec2messages"]
 }
 
-resource "aws_vpc_endpoint" "sqs" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.sqs"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.sqs_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.logs
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["logs"]
 }
 
-resource "aws_security_group" "sts_endpoint" {
-  description = "Allow inbound from all servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = [
-      aws_security_group.base.id,
-    ]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-
-  #name = "${var.name}-sts_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-sts_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_vpc_endpoint.monitoring
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["monitoring"]
 }
 
-resource "aws_vpc_endpoint" "sts" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.sts"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.sts_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.secretsmanager
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["secretsmanager"]
 }
 
-data "aws_vpc_endpoint_service" "events" {
-  service = "events"
+moved {
+  from = aws_vpc_endpoint.sts
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["sts"]
 }
 
-resource "aws_vpc_endpoint" "events" {
-  vpc_id            = aws_vpc.default.id
-  service_name      = "com.amazonaws.${var.region}.events"
-  vpc_endpoint_type = "Interface"
-
-  security_group_ids = [
-    aws_security_group.events_endpoint.id,
-  ]
-
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id if contains(data.aws_vpc_endpoint_service.events.availability_zones, subnet.availability_zone)]
-
-  private_dns_enabled = true
+moved {
+  from = aws_vpc_endpoint.events
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["events"]
 }
 
-resource "aws_security_group" "events_endpoint" {
-  description = "Allow inbound from idp servers"
-
-  ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    security_groups = compact([
-      aws_security_group.idp.id,
-      aws_security_group.base.id,
-      var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
-    ])
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
-  }
-  name = "${var.name}-events_endpoint-${var.env_name}"
-
-  tags = {
-    Name = "${var.name}-events_endpoint-${var.env_name}"
-  }
-
-  vpc_id = aws_vpc.default.id
+moved {
+  from = aws_vpc_endpoint.sns
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["sns"]
 }
 
+moved {
+  from = aws_vpc_endpoint.lambda
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["lambda"]
+}
+
+moved {
+  from = aws_vpc_endpoint.sqs
+  to   = module.base_security_uw2.aws_vpc_endpoint.service["sqs"]
+}

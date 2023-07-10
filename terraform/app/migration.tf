@@ -18,7 +18,7 @@ module "migration_usw2" {
   asg_enabled_metrics              = var.asg_enabled_metrics
   autoscaling_time_zone            = var.autoscaling_time_zone
   autoscaling_schedule_name        = var.autoscaling_schedule_name
-  base_security_group_id           = aws_security_group.base.id
+  base_security_group_id           = module.base_security_uw2.base_id
   bootstrap_private_git_clone_url  = var.bootstrap_private_git_clone_url
   bootstrap_private_git_ref        = var.bootstrap_private_git_ref
   bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url

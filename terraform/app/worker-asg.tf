@@ -44,7 +44,7 @@ module "worker_launch_template" {
 
   instance_type             = var.instance_type_worker
   iam_instance_profile_name = aws_iam_instance_profile.worker.name
-  security_group_ids        = [aws_security_group.worker.id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.worker.id, module.base_security_uw2.base_id]
   user_data                 = module.worker_user_data.rendered_cloudinit_config
 
   use_spot_instances = var.use_spot_instances == 1 ? (

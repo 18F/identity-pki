@@ -51,7 +51,7 @@ module "app_launch_template" {
   instance_type             = var.instance_type_app
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.app[count.index].name
-  security_group_ids        = [aws_security_group.app[count.index].id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.app[count.index].id, module.base_security_uw2.base_id]
 
   user_data = module.app_user_data[count.index].rendered_cloudinit_config
 

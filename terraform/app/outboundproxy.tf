@@ -49,7 +49,7 @@ module "outboundproxy_uw2" {
   use_spot_instances               = var.use_spot_instances
   vpc_id                           = aws_vpc.default.id
   proxy_subnet_ids                 = [for subnet in aws_subnet.app : subnet.id]
-  base_security_group_id           = aws_security_group.base.id
+  base_security_group_id           = module.base_security_uw2.base_id
   proxy_security_group_id          = module.outboundproxy_net_uw2.security_group_id
   proxy_for                        = ""
   ssm_access_policy                = module.ssm.ssm_access_role_policy
@@ -59,7 +59,7 @@ module "outboundproxy_uw2" {
   outboundproxy_rotation_schedules = local.outboundproxy_rotation_schedules
 
   depends_on = [
-    aws_security_group.base,
+    module.base_security_uw2.base_id,
     module.outboundproxy_net_uw2.security_group_id
   ]
 }

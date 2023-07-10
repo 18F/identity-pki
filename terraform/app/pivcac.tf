@@ -40,7 +40,7 @@ module "pivcac_launch_template" {
   instance_type             = var.instance_type_pivcac
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.pivcac.name
-  security_group_ids        = [aws_security_group.pivcac.id, aws_security_group.base.id]
+  security_group_ids        = [aws_security_group.pivcac.id, module.base_security_uw2.base_id]
 
   user_data = module.pivcac_user_data.rendered_cloudinit_config
 
