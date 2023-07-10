@@ -1,10 +1,32 @@
+locals {
+  secrets_bucket = join(".", [
+    "login-gov.secrets",
+    "${data.aws_caller_identity.current.account_id}-${var.region}"
+  ])
+
+  bootstrap_private_s3_ssh_key_url = var.bootstrap_private_s3_ssh_key_url != "" ? (
+    var.bootstrap_private_s3_ssh_key_url
+  ) : "s3://${local.secrets_bucket}/common/id_ecdsa.id-do-private.deploy"
+
+  bootstrap_private_git_ref = var.bootstrap_private_git_ref != "" ? (
+  var.bootstrap_private_git_ref) : "main"
+
+  bootstrap_main_s3_ssh_key_url = var.bootstrap_main_s3_ssh_key_url != "" ? (
+    var.bootstrap_main_s3_ssh_key_url
+  ) : "s3://${local.secrets_bucket}/common/id_ecdsa.identity-devops.deploy"
+
+  bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
+  var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
+
+}
+
 module "migration_user_data" {
-  source = "../modules/bootstrap/"
+  source = "../../modules/bootstrap/"
 
   role                   = "migration"
   env                    = var.env_name
   domain                 = var.root_domain
-  s3_secrets_bucket_name = data.aws_s3_bucket.secrets.bucket
+  s3_secrets_bucket_name = var.s3_secrets_bucket_name
   sns_topic_arn          = var.slack_events_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
@@ -35,17 +57,42 @@ module "migration_launch_template" {
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
-  default_ami_id = local.account_rails_ami_id
+  default_ami_id = var.rails_ami_id
 
   instance_type             = var.instance_type_migration
-  iam_instance_profile_name = aws_iam_instance_profile.migration.name
-  security_group_ids        = [aws_security_group.migration.id, aws_security_group.base.id]
+  iam_instance_profile_name = var.migration_instance_profile
+  security_group_ids        = [aws_security_group.migration.id, var.base_security_group_id]
+
 
   user_data = module.migration_user_data.rendered_cloudinit_config
 
   template_tags = {
     main_git_ref = module.migration_user_data.main_git_ref
   }
+}
+
+module "migration_lifecycle_hooks" {
+  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/asg_lifecycle_notifications"
+  asg_name = aws_autoscaling_group.migration.name
+}
+
+module "migration_recycle" {
+  source = "github.com/18F/identity-terraform//asg_recycle?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/asg_recycle"
+
+  asg_name       = aws_autoscaling_group.migration.name
+  normal_min     = var.asg_migration_min
+  normal_max     = var.asg_migration_max
+  normal_desired = 1
+  time_zone      = var.autoscaling_time_zone
+
+  scale_schedule  = var.autoscaling_schedule_name
+  custom_schedule = var.migration_rotation_schedules
+
+  # Hard set 1 instance for spin up and none for spin down
+  spinup_mult_factor         = 1
+  override_spindown_capacity = 0
 }
 
 resource "aws_autoscaling_group" "migration" {
@@ -64,7 +111,7 @@ resource "aws_autoscaling_group" "migration" {
 
   target_group_arns = []
 
-  vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
+  vpc_zone_identifier = var.migration_subnet_ids
 
   # possible choices: EC2, ELB
   health_check_type = "EC2"
@@ -101,34 +148,4 @@ resource "aws_autoscaling_group" "migration" {
     value               = var.fisma_tag
     propagate_at_launch = true
   }
-
-  depends_on = [
-    module.outboundproxy_uw2.proxy_asg_name,
-    aws_cloudwatch_log_group.nginx_access_log
-  ]
 }
-
-module "migration_lifecycle_hooks" {
-  source = "github.com/18F/identity-terraform//asg_lifecycle_notifications?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../identity-terraform/asg_lifecycle_notifications"
-  asg_name = aws_autoscaling_group.migration.name
-}
-
-module "migration_recycle" {
-  source = "github.com/18F/identity-terraform//asg_recycle?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../identity-terraform/asg_recycle"
-
-  asg_name       = aws_autoscaling_group.migration.name
-  normal_min     = var.asg_migration_min
-  normal_max     = var.asg_migration_max
-  normal_desired = 1
-  time_zone      = var.autoscaling_time_zone
-
-  scale_schedule  = var.autoscaling_schedule_name
-  custom_schedule = local.migration_rotation_schedules # migration-schedule.tf
-
-  # Hard set 1 instance for spin up and none for spin down
-  spinup_mult_factor         = 1
-  override_spindown_capacity = 0
-}
-
