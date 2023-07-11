@@ -26,5 +26,5 @@ moved {
 
 moved {
   from = aws_route53_record.internal-ns
-  to   = module.internal_dns_uw2.aws_route53_record.internal-ns
+  to   = module.internal_dns_uw2.aws_route53_record.internal_ns
 }
