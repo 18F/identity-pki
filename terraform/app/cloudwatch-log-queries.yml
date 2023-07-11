@@ -176,7 +176,7 @@ rails/500s-by-controller:
     - ${env}_/srv/pki-rails/shared/log/production.log
   query: |
     ## Count Rails application server errors by controller
-    filter status =~ /^5/
+    filter status =~ /^5/ and ispresent(action)
     | stats count() as events by controller
     | sort events desc
 
@@ -187,7 +187,7 @@ rails/500s-by-path:
   query: |
     ## Count Rails application server errors by request path
     parse path /^(?<basepath>[^\\?]+)/
-    | filter status =~ /^5/
+    | filter status =~ /^5/ and ispresent(action)
     | stats count() as events by basepath
     | sort events desc
 
@@ -257,6 +257,7 @@ waf/blocked-by-path:
   logs:
     - aws-waf-logs-${env}-idp-waf
   query: |
+    ## Cloudfront WAF is in us-east-1, be sure to check there as well!
     ## Count requests blocked by WAF grouped by HTTP method and URI
     filter action != "ALLOW"
     | stats count() as count by httpRequest.httpMethod,httpRequest.uri
@@ -266,6 +267,7 @@ waf/blocked-by-rule-and-ip:
   logs:
     - aws-waf-logs-${env}-idp-waf
   query: |
+    ## Cloudfront WAF is in us-east-1, be sure to check there as well!
     ## Count requests blocked by WAF grouped by the blocking rule and client IP
     filter action != "ALLOW"
     | stats count() as count by terminatingRuleId,httpRequest.clientIp
