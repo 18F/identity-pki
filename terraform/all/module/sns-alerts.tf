@@ -88,7 +88,7 @@ resource "aws_iam_role" "slack_SNSSuccessFeedback" {
 ## at least for now. TODO: look into using terragrunt / another application to iterate
 ## through regions, rather than duplicating the code.
 
-## us-west-2 
+## us-west-2
 
 resource "aws_cloudwatch_log_group" "slack_usw2_success_logs_groups" {
   for_each = toset(keys(local.slack_channel_map))
@@ -175,15 +175,7 @@ module "splunk_oncall_sns_usw2" {
   }
 }
 
-module "splunk_oncall_sns_use1" {
-  source                            = "../../modules/splunk_oncall_sns"
-  splunk_oncall_routing_keys        = var.splunk_oncall_routing_keys
-  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
-  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
-  providers = {
-    aws = aws.use1
-  }
-}
+## us-east-1
 
 resource "aws_cloudwatch_log_group" "slack_use1_success_logs_groups" {
   provider = aws.use1
@@ -264,4 +256,14 @@ module "slack_lambda_use1" {
   slack_topic_arn             = aws_sns_topic.slack_use1[each.key].arn
 
   depends_on = [aws_sns_topic.slack_use1]
+}
+
+module "splunk_oncall_sns_use1" {
+  source                            = "../../modules/splunk_oncall_sns"
+  splunk_oncall_routing_keys        = var.splunk_oncall_routing_keys
+  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
+  providers = {
+    aws = aws.use1
+  }
 }

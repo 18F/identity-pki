@@ -68,7 +68,7 @@ resource "aws_s3_bucket_policy" "awsmacietrail_dataevent" {
 resource "aws_s3_bucket_logging" "awsmacietrail_dataevent" {
   bucket = aws_s3_bucket.awsmacietrail_dataevent.id
 
-  target_bucket = module.tf-state.s3_access_log_bucket
+  target_bucket = module.tf_state_uw2.s3_access_log_bucket
   target_prefix = "${local.macie_s3_bucket_name}/"
 }
 

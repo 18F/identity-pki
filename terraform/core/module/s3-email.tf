@@ -67,7 +67,7 @@ resource "aws_s3_bucket_versioning" "email" {
 resource "aws_s3_bucket_logging" "email" {
   bucket = aws_s3_bucket.email.id
 
-  target_bucket = local.s3_logs_bucket
+  target_bucket = local.s3_logs_bucket_uw2
   target_prefix = "${aws_s3_bucket.email.id}/"
 }
 

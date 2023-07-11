@@ -38,7 +38,7 @@ resource "aws_s3_bucket_versioning" "reports" {
 resource "aws_s3_bucket_logging" "reports" {
   bucket = aws_s3_bucket.reports.id
 
-  target_bucket = local.s3_logs_bucket
+  target_bucket = local.s3_logs_bucket_uw2
   target_prefix = "${aws_s3_bucket.reports.id}/"
 }
 

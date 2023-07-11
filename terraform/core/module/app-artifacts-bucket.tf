@@ -32,20 +32,53 @@ data "aws_iam_policy_document" "app_artifacts_cross_account" {
   }
 }
 
-module "app_artifacts_bucket" {
+module "app_artifacts_bucket_uw2" {
   source              = "../../modules/secrets_bucket"
-  logs_bucket         = local.s3_logs_bucket
+  logs_bucket         = local.s3_logs_bucket_uw2
   secrets_bucket_type = local.app_artifacts_bucket_type
   bucket_name_prefix  = local.bucket_name_prefix
-  bucket_name         = local.bucket_name
-  force_destroy       = true
-  sse_algorithm       = "AES256"
-  object_ownership    = "BucketOwnerEnforced"
+  bucket_name = join(".", [
+    local.bucket_name_prefix, local.app_artifacts_bucket_type,
+    "${data.aws_caller_identity.current.account_id}-us-west-2"
+  ])
+  force_destroy    = true
+  sse_algorithm    = "AES256"
+  object_ownership = "BucketOwnerEnforced"
   policy = length(
     var.cross_account_archive_bucket_access
   ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account.json : ""
 }
 
-output "app_artifacts_bucket" {
-  value = module.app_artifacts_bucket.bucket_name
+output "app_artifacts_bucket_uw2" {
+  value = module.app_artifacts_bucket_uw2.bucket_name
+}
+
+moved {
+  from = module.app_artifacts_bucket
+  to   = module.app_artifacts_bucket_uw2
+}
+
+module "app_artifacts_bucket_ue1" {
+  source = "../../modules/secrets_bucket"
+  providers = {
+    aws = aws.use1
+  }
+
+  logs_bucket         = local.s3_logs_bucket_ue1
+  secrets_bucket_type = local.app_artifacts_bucket_type
+  bucket_name_prefix  = local.bucket_name_prefix
+  bucket_name = join(".", [
+    local.bucket_name_prefix, local.app_artifacts_bucket_type,
+    "${data.aws_caller_identity.current.account_id}-us-east-1"
+  ])
+  force_destroy    = true
+  sse_algorithm    = "AES256"
+  object_ownership = "BucketOwnerEnforced"
+  policy = length(
+    var.cross_account_archive_bucket_access
+  ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account.json : ""
+}
+
+output "app_artifacts_bucket_ue1" {
+  value = module.app_artifacts_bucket_ue1.bucket_name
 }

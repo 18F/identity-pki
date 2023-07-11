@@ -192,6 +192,13 @@ variable "proxy_port" {
 }
 
 variable "no_proxy_hosts" {
+  type        = string
+  description = <<EOM
+Comma delimited list of hostnames, IP addresses and domains that should not use
+the outboundproxy during provisioning. Leave blank to auto-populate with the
+value in the local.no_proxy_hosts variable.
+EOM
+  default     = ""
 }
 
 variable "proxy_enabled_roles" {

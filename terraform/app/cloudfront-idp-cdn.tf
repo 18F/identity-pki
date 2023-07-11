@@ -45,7 +45,8 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   count = var.enable_idp_cdn ? 1 : 0
 
   depends_on = [
-    module.acm-cert-idp[0].finished_id
+    module.acm-cert-idp[0].finished_id,
+    module.idp_static_bucket_uw2[0].bucket_regional_domain_name
   ]
 
   # Maximum http version supported
@@ -55,7 +56,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   origin {
     # Using regional S3 name here per:
     #  https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html#concept_S3Origin
-    domain_name = aws_s3_bucket.idp_static_bucket[0].bucket_regional_domain_name
+    domain_name = module.idp_static_bucket_uw2[0].bucket_regional_domain_name
     origin_id   = "static-idp-${var.env_name}"
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.cloudfront_oai.cloudfront_access_identity_path

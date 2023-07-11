@@ -63,7 +63,7 @@ resource "aws_s3_bucket_versioning" "lambda_functions" {
 resource "aws_s3_bucket_logging" "lambda_functions" {
   bucket = aws_s3_bucket.lambda_functions.id
 
-  target_bucket = local.s3_logs_bucket
+  target_bucket = local.s3_logs_bucket_uw2
   target_prefix = "${aws_s3_bucket.lambda_functions.id}/"
 }
 

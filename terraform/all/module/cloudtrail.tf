@@ -88,7 +88,7 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
 resource "aws_s3_bucket_logging" "cloudtrail" {
   bucket = aws_s3_bucket.cloudtrail.id
 
-  target_bucket = module.tf-state.s3_access_log_bucket
+  target_bucket = module.tf_state_uw2.s3_access_log_bucket
   target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/"
 }
 
@@ -134,7 +134,7 @@ module "cloudtrail_bucket_config" {
   #source = "../../../../identity-terraform/s3_config"
 
   bucket_name_override = aws_s3_bucket.cloudtrail.id
-  inventory_bucket_arn = module.tf-state.inventory_bucket_arn
+  inventory_bucket_arn = module.tf_state_uw2.inventory_bucket_arn
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail_default" {

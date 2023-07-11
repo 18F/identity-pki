@@ -61,7 +61,7 @@ resource "aws_s3_bucket_policy" "account_static_bucket" {
 resource "aws_s3_bucket_logging" "account_static_bucket" {
   bucket = aws_s3_bucket.account_static_bucket.id
 
-  target_bucket = local.s3_logs_bucket
+  target_bucket = local.s3_logs_bucket_uw2
   target_prefix = "login-gov-account-static.${data.aws_caller_identity.current.account_id}-${var.region}/"
 }
 

@@ -48,5 +48,5 @@ module "s3_inv_block" {
 
   bucket_name_override = each.key
   region               = var.region
-  inventory_bucket_arn = module.tf-state.inventory_bucket_arn
+  inventory_bucket_arn = module.tf_state_uw2.inventory_bucket_arn
 }

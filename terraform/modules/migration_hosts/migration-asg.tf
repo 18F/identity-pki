@@ -18,6 +18,26 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
+  no_proxy_hosts = var.no_proxy_hosts != "" ? var.no_proxy_hosts : join(",", concat([
+    "localhost",
+    "127.0.0.1",
+    "169.254.169.254",
+    "169.254.169.123",
+    ".login.gov.internal",
+    "metadata.google.internal",
+    ], formatlist("%s.${var.region}.amazonaws.com", [
+      "ec2",
+      "ec2messages",
+      "events",
+      "kms",
+      "lambda",
+      "secretsmanager",
+      "sns",
+      "sqs",
+      "ssm",
+      "ssmmessages",
+      "sts",
+  ])))
 }
 
 module "migration_user_data" {

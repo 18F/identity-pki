@@ -62,7 +62,7 @@ resource "aws_s3_bucket_policy" "quarantine-ec2" {
 resource "aws_s3_bucket_logging" "quarantine-ec2" {
   bucket = aws_s3_bucket.quarantine-ec2.id
 
-  target_bucket = local.s3_logs_bucket
+  target_bucket = local.s3_logs_bucket_uw2
   target_prefix = "${local.quarantine_s3_bucket_name}/"
 }
 

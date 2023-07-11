@@ -6,7 +6,7 @@
 
 ## us-west-2
 
-module "tf-state" {
+module "tf_state_uw2" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
   #source = "../../../../identity-terraform/state_bucket"
 
@@ -16,34 +16,34 @@ module "tf-state" {
   sse_algorithm        = "AES256"
 }
 
-module "main_secrets_bucket" {
+module "main_secrets_bucket_uw2" {
   source     = "../../modules/secrets_bucket"
-  depends_on = [module.tf-state.s3_access_log_bucket]
+  depends_on = [module.tf_state_uw2.s3_access_log_bucket]
 
   bucket_name_prefix = "login-gov"
   bucket_name = join(".", [
     "${local.bucket_name_prefix}.secrets",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
-  logs_bucket         = module.tf-state.s3_access_log_bucket
+  logs_bucket         = module.tf_state_uw2.s3_access_log_bucket
   secrets_bucket_type = local.secrets_bucket_type
   region              = var.region
 }
 
-resource "aws_s3_object" "tfslackchannel" {
-  bucket       = module.main_secrets_bucket.bucket_name
+resource "aws_s3_object" "tfslackchannel_uw2" {
+  bucket       = module.main_secrets_bucket_uw2.bucket_name
   key          = "tfslackchannel"
   content      = var.tf_slack_channel
   content_type = "text/plain"
 }
 
-output "main_secrets_bucket" {
-  value = module.main_secrets_bucket.bucket_name
+output "main_secrets_bucket_uw2" {
+  value = module.main_secrets_bucket_uw2.bucket_name
 }
 
 ## us-east-1
 
-module "tf-state-use1" {
+module "tf_state_ue1" {
   source = "github.com/18F/identity-terraform//state_bucket?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
   #source = "../../../../identity-terraform/state_bucket"
   providers = {
@@ -56,9 +56,9 @@ module "tf-state-use1" {
   sse_algorithm        = "AES256"
 }
 
-module "main_secrets_bucket_use1" {
+module "main_secrets_bucket_ue1" {
   source     = "../../modules/secrets_bucket"
-  depends_on = [module.tf-state-use1.s3_access_log_bucket]
+  depends_on = [module.tf_state_ue1.s3_access_log_bucket]
   providers = {
     aws = aws.use1
   }
@@ -68,36 +68,52 @@ module "main_secrets_bucket_use1" {
     "${local.bucket_name_prefix}.secrets",
     "${data.aws_caller_identity.current.account_id}-us-east-1"
   ])
-  logs_bucket         = module.tf-state-use1.s3_access_log_bucket
+  logs_bucket         = module.tf_state_ue1.s3_access_log_bucket
   secrets_bucket_type = local.secrets_bucket_type
   region              = "us-east-1"
 }
 
-resource "aws_s3_object" "tfslackchannel_use1" {
+resource "aws_s3_object" "tfslackchannel_ue1" {
   provider = aws.use1
 
-  bucket       = module.main_secrets_bucket_use1.bucket_name
+  bucket       = module.main_secrets_bucket_ue1.bucket_name
   key          = "tfslackchannel"
   content      = var.tf_slack_channel
   content_type = "text/plain"
 }
 
-output "main_secrets_bucket_use1" {
-  value = module.main_secrets_bucket_use1.bucket_name
+output "main_secrets_bucket_ue1" {
+  value = module.main_secrets_bucket_ue1.bucket_name
 }
 
-## renaming the module from ue1 to use1 = need moves; remove once done!
-moved {
-  from = module.tf-state-ue1
-  to   = module.tf-state-use1
-}
+#### moved blocks for modules above, remove after release is complete! ####
 
 moved {
-  from = module.main_secrets_bucket_ue1
-  to   = module.main_secrets_bucket_use1
+  from = module.tf-state
+  to   = module.tf_state_uw2
 }
 
 moved {
-  from = aws_s3_object.tfslackchannel_ue1
-  to   = aws_s3_object.tfslackchannel_use1
+  from = module.main_secrets_bucket
+  to   = module.main_secrets_bucket_uw2
+}
+
+moved {
+  from = aws_s3_object.tfslackchannel
+  to   = aws_s3_object.tfslackchannel_uw2
+}
+
+moved {
+  from = module.tf-state-use1
+  to   = module.tf_state_ue1
+}
+
+moved {
+  from = module.main_secrets_bucket_use1
+  to   = module.main_secrets_bucket_ue1
+}
+
+moved {
+  from = aws_s3_object.tfslackchannel_use1
+  to   = aws_s3_object.tfslackchannel_ue1
 }

@@ -23,8 +23,8 @@ module "guardduty_usw2" {
   s3_enable            = var.guardduty_s3_enable
   k8s_audit_enable     = var.guardduty_k8s_audit_enable
   ec2_ebs_enable       = var.guardduty_ec2_ebs_enable
-  log_bucket_name      = module.tf-state.s3_access_log_bucket
-  inventory_bucket_arn = module.tf-state.inventory_bucket_arn
+  log_bucket_name      = module.tf_state_uw2.s3_access_log_bucket
+  inventory_bucket_arn = module.tf_state_uw2.inventory_bucket_arn
 }
 
 module "guardduty_logs_to_soc_usw2" {
@@ -59,8 +59,8 @@ module "guardduty_use1" {
   s3_enable            = var.guardduty_s3_enable
   k8s_audit_enable     = var.guardduty_k8s_audit_enable
   ec2_ebs_enable       = var.guardduty_ec2_ebs_enable
-  log_bucket_name      = module.tf-state-use1.s3_access_log_bucket
-  inventory_bucket_arn = module.tf-state-use1.inventory_bucket_arn
+  log_bucket_name      = module.tf_state_ue1.s3_access_log_bucket
+  inventory_bucket_arn = module.tf_state_ue1.inventory_bucket_arn
 }
 
 module "guardduty_logs_to_soc_use1" {
