@@ -44,7 +44,7 @@ module "outboundproxy_uw2" {
   fisma_tag                        = var.fisma_tag
   instance_type_outboundproxy      = var.instance_type_outboundproxy
   proxy_enabled_roles              = var.proxy_enabled_roles
-  route53_internal_zone_id         = aws_route53_zone.internal.zone_id
+  route53_internal_zone_id         = module.internal_dns_uw2.internal_zone_id
   hostname                         = "obproxy.login.gov.internal"
   use_spot_instances               = var.use_spot_instances
   vpc_id                           = aws_vpc.default.id
