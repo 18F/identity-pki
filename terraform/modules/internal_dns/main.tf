@@ -8,7 +8,7 @@ resource "aws_route53_zone" "internal" {
   }
 }
 
-resource "aws_route53_record" "internal-ns" {
+resource "aws_route53_record" "internal_ns" {
   allow_overwrite = true
   zone_id         = aws_route53_zone.internal.zone_id
   name            = "login.gov.internal"
