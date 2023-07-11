@@ -877,7 +877,7 @@ module "network_us_east_1" {
   region                    = "us-east-1"
   secondary_cidr_block      = local.network_layout["us-east-1"][var.env_type]._network
   az                        = local.network_layout["us-east-1"][var.env_type]._zones
-  env_name                  = "sujana09"
+  env_name                  = var.env_name
   env_type                  = var.env_type
   enable_data_services      = "true"
   enable_app                = "true"
