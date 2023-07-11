@@ -56,7 +56,8 @@ variable "nessus_public_access_mode" {
 }
 
 variable "additional_sg_id" {
-  default = ""
+  default     = ""
+  description = "Security groups to be added to DB security group ingress rules"
 }
 
 variable "outbound_subnets" {
@@ -69,29 +70,5 @@ variable "outbound_subnets" {
 variable "github_ipv4_cidr_blocks" {
   type        = list(string)
   description = "List of GitHub's IPv4 CIDR ranges."
-  default     = []
-}
-
-variable "db_inbound_acl_rules" {
-  description = "DB subnets inbound network ACLs"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "db_outbound_acl_rules" {
-  description = "DB subnets outbound network ACLs"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "app_inbound_acl_rules" {
-  description = "App subnets inbound network ACLs"
-  type        = list(map(string))
-  default     = []
-}
-
-variable "app_outbound_acl_rules" {
-  description = "App subnets outbound network ACLs"
-  type        = list(map(string))
   default     = []
 }
