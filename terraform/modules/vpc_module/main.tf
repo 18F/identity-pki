@@ -131,36 +131,79 @@ resource "aws_network_acl" "db" {
   subnet_ids = [for subnet in aws_subnet.data-services : subnet.id]
 }
 
-resource "aws_network_acl_rule" "db_inbound" {
-  count          = var.enable_data_services ? length(var.db_inbound_acl_rules) : 0
+# allow ephemeral ports out
+resource "aws_network_acl_rule" "db-egress-s-ephemeral" {
+  count          = var.enable_data_services ? 1 : 0
   network_acl_id = aws_network_acl.db[0].id
-
-  egress          = false
-  rule_number     = var.db_inbound_acl_rules[count.index]["rule_number"]
-  rule_action     = var.db_inbound_acl_rules[count.index]["rule_action"]
-  from_port       = lookup(var.db_inbound_acl_rules[count.index], "from_port", null)
-  to_port         = lookup(var.db_inbound_acl_rules[count.index], "to_port", null)
-  icmp_code       = lookup(var.db_inbound_acl_rules[count.index], "icmp_code", null)
-  icmp_type       = lookup(var.db_inbound_acl_rules[count.index], "icmp_type", null)
-  protocol        = var.db_inbound_acl_rules[count.index]["protocol"]
-  cidr_block      = lookup(var.db_inbound_acl_rules[count.index], "cidr_block", null)
-  ipv6_cidr_block = lookup(var.db_inbound_acl_rules[count.index], "ipv6_cidr_block", null)
+  egress         = true
+  from_port      = 32768
+  to_port        = 61000
+  protocol       = "tcp"
+  rule_number    = 6
+  rule_action    = "allow"
+  cidr_block     = var.secondary_cidr_block
 }
 
-resource "aws_network_acl_rule" "db_outbound" {
-  count          = var.enable_data_services ? length(var.db_outbound_acl_rules) : 0
+resource "aws_network_acl_rule" "db-egress-nessus-ephemeral" {
+  count          = var.enable_data_services && var.nessus_public_access_mode ? 1 : 0
   network_acl_id = aws_network_acl.db[0].id
+  egress         = true
+  from_port      = 32768
+  to_port        = 61000
+  protocol       = "tcp"
+  rule_number    = 7
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
+}
 
-  egress          = true
-  rule_number     = var.db_outbound_acl_rules[count.index]["rule_number"]
-  rule_action     = var.db_outbound_acl_rules[count.index]["rule_action"]
-  from_port       = lookup(var.db_outbound_acl_rules[count.index], "from_port", null)
-  to_port         = lookup(var.db_outbound_acl_rules[count.index], "to_port", null)
-  icmp_code       = lookup(var.db_outbound_acl_rules[count.index], "icmp_code", null)
-  icmp_type       = lookup(var.db_outbound_acl_rules[count.index], "icmp_type", null)
-  protocol        = var.db_outbound_acl_rules[count.index]["protocol"]
-  cidr_block      = lookup(var.db_outbound_acl_rules[count.index], "cidr_block", null)
-  ipv6_cidr_block = lookup(var.db_outbound_acl_rules[count.index], "ipv6_cidr_block", null)
+# let redis in
+resource "aws_network_acl_rule" "db-ingress-s-redis" {
+  count          = var.enable_data_services ? 1 : 0
+  network_acl_id = aws_network_acl.db[0].id
+  egress         = false
+  from_port      = 6379
+  to_port        = 6379
+  protocol       = "tcp"
+  rule_number    = 11
+  rule_action    = "allow"
+  cidr_block     = var.secondary_cidr_block
+}
+
+# let postgres in
+resource "aws_network_acl_rule" "db-ingress-s-postgres" {
+  count          = var.enable_data_services ? 1 : 0
+  network_acl_id = aws_network_acl.db[0].id
+  egress         = false
+  from_port      = var.rds_db_port
+  to_port        = var.rds_db_port
+  protocol       = "tcp"
+  rule_number    = 16
+  rule_action    = "allow"
+  cidr_block     = var.secondary_cidr_block
+}
+
+resource "aws_network_acl_rule" "db-ingress-nessus-redis" {
+  count          = var.enable_data_services && var.nessus_public_access_mode ? 1 : 0
+  network_acl_id = aws_network_acl.db[0].id
+  egress         = false
+  from_port      = 6379
+  to_port        = 6379
+  protocol       = "tcp"
+  rule_number    = 17
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
+}
+
+resource "aws_network_acl_rule" "db-ingress-nessus-postgres" {
+  count          = var.enable_data_services && var.nessus_public_access_mode ? 1 : 0
+  network_acl_id = aws_network_acl.db[0].id
+  egress         = false
+  from_port      = var.rds_db_port
+  to_port        = var.rds_db_port
+  protocol       = "tcp"
+  rule_number    = 18
+  rule_action    = "allow"
+  cidr_block     = var.nessusserver_ip
 }
 
 #### NACL for app subnets ###
@@ -175,36 +218,47 @@ resource "aws_network_acl" "idp" {
   subnet_ids = [for subnet in aws_subnet.app : subnet.id]
 }
 
-resource "aws_network_acl_rule" "app_inbound" {
-  count          = var.enable_app ? length(var.app_inbound_acl_rules) : 0
+# Uses up to rule number 25 + number of ssh_cidr_blocks
+module "idp-base-nacl-rules" {
+  count          = var.enable_app ? 1 : 0
+  source         = "../../modules/base_nacl_rules"
   network_acl_id = aws_network_acl.idp[0].id
-
-  egress          = false
-  rule_number     = var.app_inbound_acl_rules[count.index]["rule_number"]
-  rule_action     = var.app_inbound_acl_rules[count.index]["rule_action"]
-  from_port       = lookup(var.app_inbound_acl_rules[count.index], "from_port", null)
-  to_port         = lookup(var.app_inbound_acl_rules[count.index], "to_port", null)
-  icmp_code       = lookup(var.app_inbound_acl_rules[count.index], "icmp_code", null)
-  icmp_type       = lookup(var.app_inbound_acl_rules[count.index], "icmp_type", null)
-  protocol        = var.app_inbound_acl_rules[count.index]["protocol"]
-  cidr_block      = lookup(var.app_inbound_acl_rules[count.index], "cidr_block", null)
-  ipv6_cidr_block = lookup(var.app_inbound_acl_rules[count.index], "ipv6_cidr_block", null)
 }
 
-resource "aws_network_acl_rule" "app_outbound" {
-  count          = var.enable_app ? length(var.app_outbound_acl_rules) : 0
+resource "aws_network_acl_rule" "idp-ingress-s-http" {
+  count          = var.enable_app ? 1 : 0
   network_acl_id = aws_network_acl.idp[0].id
+  egress         = false
+  from_port      = 80
+  to_port        = 80
+  protocol       = "tcp"
+  rule_number    = 41
+  rule_action    = "allow"
+  cidr_block     = var.secondary_cidr_block
+}
 
-  egress          = true
-  rule_number     = var.app_outbound_acl_rules[count.index]["rule_number"]
-  rule_action     = var.app_outbound_acl_rules[count.index]["rule_action"]
-  from_port       = lookup(var.app_outbound_acl_rules[count.index], "from_port", null)
-  to_port         = lookup(var.app_outbound_acl_rules[count.index], "to_port", null)
-  icmp_code       = lookup(var.app_outbound_acl_rules[count.index], "icmp_code", null)
-  icmp_type       = lookup(var.app_outbound_acl_rules[count.index], "icmp_type", null)
-  protocol        = var.app_outbound_acl_rules[count.index]["protocol"]
-  cidr_block      = lookup(var.app_outbound_acl_rules[count.index], "cidr_block", null)
-  ipv6_cidr_block = lookup(var.app_outbound_acl_rules[count.index], "ipv6_cidr_block", null)
+resource "aws_network_acl_rule" "idp-ingress-s-https" {
+  count          = var.enable_app ? 1 : 0
+  network_acl_id = aws_network_acl.idp[0].id
+  egress         = false
+  from_port      = 443
+  to_port        = 443
+  protocol       = "tcp"
+  rule_number    = 49
+  rule_action    = "allow"
+  cidr_block     = var.secondary_cidr_block
+}
+
+resource "aws_network_acl_rule" "idp-ingress-s-proxy" {
+  count          = var.enable_app ? 1 : 0
+  network_acl_id = aws_network_acl.idp[0].id
+  egress         = false
+  from_port      = 1024
+  to_port        = 65535
+  protocol       = "tcp"
+  rule_number    = 50
+  rule_action    = "allow"
+  cidr_block     = var.secondary_cidr_block
 }
 
 ### DB Subnet Groups ###
