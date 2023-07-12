@@ -27,6 +27,8 @@ resource "aws_s3_bucket_ownership_controls" "secrets" {
 }
 
 resource "aws_s3_bucket_acl" "secrets" {
+  count = var.object_ownership == "BucketOwnerEnforced" ? 0 : 1
+
   bucket = aws_s3_bucket.secrets.id
   acl    = "private"
 

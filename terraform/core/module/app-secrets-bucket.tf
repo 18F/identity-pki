@@ -8,6 +8,7 @@ module "app_secrets_bucket_uw2" {
   secrets_bucket_type = local.app_secrets_bucket_type
   bucket_name_prefix  = local.bucket_name_prefix
   force_destroy       = true
+  region              = "us-west-2"
 }
 
 output "app_secrets_bucket_uw2" {
@@ -33,6 +34,7 @@ module "app_secrets_bucket_ue1" {
   secrets_bucket_type = local.app_secrets_bucket_type
   bucket_name_prefix  = local.bucket_name_prefix
   force_destroy       = true
+  region              = "us-east-1"
 }
 
 output "app_secrets_bucket_ue1" {

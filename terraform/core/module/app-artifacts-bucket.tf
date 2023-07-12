@@ -1,7 +1,3 @@
-locals {
-  bucket_name = "${local.bucket_name_prefix}.${local.app_artifacts_bucket_type}.${data.aws_caller_identity.current.account_id}-${var.region}"
-}
-
 #cross_account_archive_bucket_access = {thing = [directories]}
 # BUCKETNAME/KEY
 #
@@ -11,6 +7,8 @@ locals {
 #       "login-gov.app-artifacts.894947205914-us-west-2/mhenke",
 #       "login-gov.app-artifacts.894947205914-us-west-2/"
 data "aws_iam_policy_document" "app_artifacts_cross_account" {
+  for_each = toset(["us-west-2", "us-east-1"])
+
   dynamic "statement" {
     for_each = var.cross_account_archive_bucket_access
 
@@ -26,7 +24,11 @@ data "aws_iam_policy_document" "app_artifacts_cross_account" {
         ]
       }
       resources = [
-        for subdir in statement.value : "arn:aws:s3:::${local.bucket_name}/${subdir}/*"
+        for subdir in statement.value : join("", [
+          "arn:aws:s3:::",
+          "${local.bucket_name_prefix}.${local.app_artifacts_bucket_type}.",
+          "${data.aws_caller_identity.current.account_id}-${each.key}/${subdir}/*"
+        ])
       ]
     }
   }
@@ -46,7 +48,8 @@ module "app_artifacts_bucket_uw2" {
   object_ownership = "BucketOwnerEnforced"
   policy = length(
     var.cross_account_archive_bucket_access
-  ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account.json : ""
+  ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account["us-west-2"].json : ""
+  region = "us-west-2"
 }
 
 output "app_artifacts_bucket_uw2" {
@@ -76,7 +79,8 @@ module "app_artifacts_bucket_ue1" {
   object_ownership = "BucketOwnerEnforced"
   policy = length(
     var.cross_account_archive_bucket_access
-  ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account.json : ""
+  ) > 0 ? data.aws_iam_policy_document.app_artifacts_cross_account["us-east-1"].json : ""
+  region = "us-east-1"
 }
 
 output "app_artifacts_bucket_ue1" {

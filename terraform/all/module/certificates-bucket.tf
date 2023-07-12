@@ -8,6 +8,7 @@ module "internal_certificates_bucket_uw2" {
   secrets_bucket_type = local.cert_secrets_bucket_type
   bucket_name_prefix  = local.bucket_name_prefix
   force_destroy       = true
+  region              = "us-west-2"
 }
 
 moved {
@@ -29,4 +30,5 @@ module "internal_certificates_bucket_ue1" {
   secrets_bucket_type = local.cert_secrets_bucket_type
   bucket_name_prefix  = local.bucket_name_prefix
   force_destroy       = true
+  region              = "us-east-1"
 }
