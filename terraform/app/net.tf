@@ -872,14 +872,19 @@ module "network_us_east_1" {
   providers = {
     aws = aws.use1
   }
-  source                = "../modules/vpc_module"
-  vpc_cidr_block        = var.us_east_1_vpc_cidr_block
-  region                = "us-east-1"
-  secondary_cidr_block  = local.network_layout["us-east-1"][var.env_type]._network
-  az                    = local.network_layout["us-east-1"][var.env_type]._zones
-  env_name              = var.env_name
-  env_type              = var.env_type
-  enable_data_services  = "true"
-  enable_app            = "true"
-  flow_log_iam_role_arn = module.application_iam_roles.flow_role_iam_role_arn
+  source                    = "../modules/vpc_module"
+  vpc_cidr_block            = var.us_east_1_vpc_cidr_block
+  region                    = "us-east-1"
+  secondary_cidr_block      = local.network_layout["us-east-1"][var.env_type]._network
+  az                        = local.network_layout["us-east-1"][var.env_type]._zones
+  env_name                  = var.env_name
+  env_type                  = var.env_type
+  enable_data_services      = "true"
+  enable_app                = "true"
+  fisma_tag                 = var.fisma_tag
+  flow_log_iam_role_arn     = module.application_iam_roles.flow_role_iam_role_arn
+  github_ipv4_cidr_blocks   = local.github_ipv4
+  nessusserver_ip           = var.nessusserver_ip
+  nessus_public_access_mode = local.nessus_public_access_mode
+  rds_db_port               = var.rds_db_port
 }
