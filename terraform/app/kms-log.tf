@@ -61,19 +61,6 @@ module "kms_keymaker_uw2" {
   sqs_queue_arn = module.kms_logging.kms-ct-events-queue
 }
 
-# this key is being supersceded by the multi-region keys below
-module "kms_keymaker_ue1" {
-  source = "github.com/18F/identity-terraform//kms_keymaker?ref=49bc02749966cef8ec7f14c4d181a2d3879721fc"
-  #source = "../../../identity-terraform/kms_keymaker"
-  providers = {
-    aws = aws.use1
-  }
-
-  env_name      = var.env_name
-  ec2_kms_arns  = local.kms_arns
-  sqs_queue_arn = module.kms_logging.kms-ct-events-queue
-}
-
 module "kms_keymaker_multiregion_primary_uw2" {
   source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_primary?ref=49bc02749966cef8ec7f14c4d181a2d3879721fc"
   #source = "../../../identity-terraform/kms_keymaker_multiregion_primary"
