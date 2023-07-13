@@ -1,11 +1,6 @@
 build:
 	go build -mod vendor .
 
-# This does the initial vendoring
-vendor:
-	go mod tidy
-	go mod vendor
-
 # this updates the vendored code
 .PHONY: update-go-deps
 update-go-deps:

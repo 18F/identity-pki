@@ -1,9 +1,4 @@
-# This will make sure that we have all the packages we need to run this,
-# and that the code is vendored here.
-default:
-	go mod tidy
-	go mod vendor
-
+# This will update the vendored code here.
 .PHONY: update-go-deps
 update-go-deps:
 	@echo ">> updating Go dependencies"
@@ -14,4 +9,3 @@ update-go-deps:
 ifneq (,$(wildcard vendor))
 	go mod vendor
 endif
-
