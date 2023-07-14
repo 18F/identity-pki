@@ -444,6 +444,22 @@ test_charlie:
     DOMAIN: gitlab.charlie.gitlab.login.gov
     branch: "stages/gitlabcharlie"
 
+run_unallowed_image_charlie:
+  extends: .run_unallowed_image_template
+  variables:
+    ENV_NAME: charlie
+    DOMAIN: gitlab.charlie.gitlab.login.gov
+    TRIGGER_BRANCH: main
+
+test_unallowed_image_charlie:
+  extends: .test_unallowed_image_template
+  variables:
+    ENV_NAME: charlie
+    DOMAIN: gitlab.charlie.gitlab.login.gov
+    TRIGGER_BRANCH: main
+  needs:
+    - run_unallowed_image_charlie
+
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
   extends: .deploy_gitlab_template
