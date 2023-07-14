@@ -58,11 +58,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "pivcac_public_cert_bucket" {
     status = "Enabled"
 
     noncurrent_version_expiration {
-      noncurrent_days = 60
+      noncurrent_days = 2
     }
 
     expiration {
-      days = 60
+      days = 2
     }
   }
 }
