@@ -100,9 +100,9 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   if node['identity_gitlab']['allowed_images'] == true
     allowed_images = ConfigLoader.load_config_or_nil(node, 'gitlab_env_runner_allowed_images')
     if allowed_images.nil?
-      node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split().grep_v(/XXXXXdate_separatorXXXXX/)
+      node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split().grep_v(/^#/).grep_v(/XXXXXdate_separatorXXXXX/)
     else
-      node.run_state['allowed_images'] = allowed_images.chomp.split().grep_v(/XXXXXdate_separatorXXXXX/)
+      node.run_state['allowed_images'] = allowed_images.chomp.split().grep_v(/^#/).grep_v(/XXXXXdate_separatorXXXXX/)
     end
   else
     # allowed images feature is turned off, so allow everything.
