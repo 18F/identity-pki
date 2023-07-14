@@ -456,14 +456,14 @@ run_unallowed_image_charlie:
   variables:
     ENV_NAME: charlie
     DOMAIN: gitlab.charlie.gitlab.login.gov
-    TRIGGER_BRANCH: main
+    TRIGGER_BRANCH: stages/gitlabcharlie
 
 test_unallowed_image_charlie:
   extends: .test_unallowed_image_template
   variables:
     ENV_NAME: charlie
+    TRIGGER_BRANCH: stages/gitlabcharlie
     DOMAIN: gitlab.charlie.gitlab.login.gov
-    TRIGGER_BRANCH: main
   needs:
     - run_unallowed_image_charlie
 
