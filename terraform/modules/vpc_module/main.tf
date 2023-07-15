@@ -61,36 +61,6 @@ resource "aws_subnet" "app" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-### Route Table for DB Subnets ###
-
-resource "aws_route_table" "database" {
-  count = var.enable_data_services ? 1 : 0
-
-  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-}
-
-resource "aws_route_table_association" "database" {
-  for_each = var.enable_data_services ? aws_subnet.data-services : {}
-
-  route_table_id = aws_route_table.database[0].id
-  subnet_id      = each.value.id
-}
-
-### Route Table for App Subnets ###
-
-resource "aws_route_table" "app" {
-  count = var.enable_app ? 1 : 0
-
-  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-}
-
-resource "aws_route_table_association" "app" {
-  for_each = var.enable_app ? aws_subnet.app : {}
-
-  route_table_id = aws_route_table.app[0].id
-  subnet_id      = each.value.id
-}
-
 #### Default NACL ###
 
 resource "aws_default_network_acl" "default" {
