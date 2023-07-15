@@ -17,7 +17,8 @@ This module performs the following:
 
 - Module at the current setup is creating vpc resources for data-services and app subnets. Following resources are created:
         - Database/App Subnets with CIDR calculated from network_layout module can be passed when calling this module
-        - Separate Route table, Network Acls is associated with these subnets(not default)
+        - Both subnets are using the default route table with similar routes present in us-west-2
+        - Different Network Acls is associated with these subnets(not default) similar to us-west-2 infrastructure
         - A Security Group along with default null security group is created
         - VPC flow log is created with destination as cloudwatch logs
 
@@ -50,10 +51,6 @@ module "network_us_east_1" {
     enable_data_services       = "true"
     enable_app                 = "true"
     flow_log_iam_role_arn      = module.application_iam_roles.flow_role_iam_role_arn
-    db_inbound_acl_rules       = var.db_inbound_acl_rules
-    db_outbound_acl_rules      = var.db_outbound_acl_rules
-    db_security_group_ingress  = var.db_security_group_ingress
-    db_security_group_egress   = var.db_security_group_egress
 }
 
 ```
