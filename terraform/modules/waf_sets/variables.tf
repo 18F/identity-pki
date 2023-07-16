@@ -49,7 +49,8 @@ variable "ip_block_cidrs_v4" {
     "45.156.25.223/32",   # 2022-04-29 - Log4j scanner blocked per-GSA IR
     "141.170.198.141/32", # 2022-05-10 - Noisy scanner from BA generating some 502s
     "103.114.162.12/32",  # 2022-06-03 - Singapore 502ing with app requests
-    "185.170.235.237/32"  # 2023-04-12 - Cyprus DDoS / feroxbuster-2.9.1
+    "185.170.235.237/32", # 2023-04-12 - Cyprus DDoS / feroxbuster-2.9.1
+    "188.149.236.243/32"  # 2023-07-16 - Sweden spamming across multiple methods
   ]
 
   validation {
