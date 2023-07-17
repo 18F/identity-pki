@@ -437,12 +437,35 @@ deploy_charlie:
     url: https://gitlab.charlie.gitlab.identitysandbox.gov/
     branch: "stages/gitlabcharlie"
 
+recycle_runner_charlie:
+  extends: .recycle_runner_gitlab_template
+  variables:
+    env: charlie
+    url: https://gitlab.identitysandbox.gov/
+    branch: "stages/gitlabcharlie"
+
 test_charlie:
   extends: .test_gitlab_template
   variables:
     ENV_NAME: charlie
     DOMAIN: gitlab.charlie.gitlab.login.gov
     branch: "stages/gitlabcharlie"
+
+run_unallowed_image_charlie:
+  extends: .run_unallowed_image_template
+  variables:
+    ENV_NAME: charlie
+    DOMAIN: gitlab.charlie.gitlab.login.gov
+    TRIGGER_BRANCH: stages/gitlabcharlie
+
+test_unallowed_image_charlie:
+  extends: .test_unallowed_image_template
+  variables:
+    ENV_NAME: charlie
+    TRIGGER_BRANCH: stages/gitlabcharlie
+    DOMAIN: gitlab.charlie.gitlab.login.gov
+  needs:
+    - run_unallowed_image_charlie
 
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:

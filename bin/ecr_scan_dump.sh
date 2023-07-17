@@ -5,7 +5,7 @@
 # current directory and are named IMAGENAME-scan.txt.
 #
 
-IMAGES=$(aws s3 cp s3://login-gov.secrets.217680906704-us-west-2/common/gitlab_env_runner_allowed_images - | grep -v 000000000000.dkr.ecr)
+IMAGES=$(aws s3 cp s3://login-gov.secrets.217680906704-us-west-2/common/gitlab_env_runner_allowed_images - | grep -v '^#' | grep -v '.grep_v(/XXXXXdate_separatorXXXXX/)')
 
 for i in $IMAGES ; do
 	IMAGE=$(echo "$i" | sed 's/.*amazonaws.com\///')
