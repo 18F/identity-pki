@@ -94,6 +94,30 @@ resource "aws_iam_role_policy" "gitlab-ecr" {
     EOM
 }
 
+resource "aws_iam_role_policy" "gitlab-inspector2" {
+  name_prefix = "${var.env_name}-gitlab-inspector2"
+  role        = aws_iam_role.gitlab_runner.id
+  policy      = <<-EOM
+      {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+                "Sid": "Inspector2Permissions",
+                "Effect": "Allow",
+                "Action": [
+                    "inspector2:ListCoverage",
+                    "inspector2:ListCoverageStatistics",
+                    "inspector2:ListFindings",
+                    "inspector2:ListFindingAggregations",
+                    "inspector2:listTagsForResource"
+                ],
+                "Resource": "*"
+            }
+          ]
+      }
+    EOM
+}
+
 resource "aws_iam_role_policy" "gitlab-runner-certificates" {
   name_prefix = "${var.env_name}-gitlab_runner-certificates"
   role        = aws_iam_role.gitlab_runner.id
