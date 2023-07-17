@@ -10,6 +10,7 @@ output_format = :table
 include_uuids = true
 host_group = 'asg-prod-idp'
 redact_emails = false
+pad_case_numbers = true
 
 parser = OptionParser.new do |opts|
   opts.banner = <<~EOM
@@ -47,6 +48,10 @@ parser = OptionParser.new do |opts|
     output_format = :markdown
   end
 
+  opts.on('--[no-]pad', 'Whether or not to pad case numbers with a leading zero (defaults to padding)') do |pad_v|
+    pad_case_numbers = pad_v
+  end
+
   opts.on('--help', 'Print this help message') do
     puts opts
     exit 0
@@ -58,6 +63,10 @@ case_numbers = parser.parse!(ARGV)
 if case_numbers.empty?
   puts parser
   exit 1
+end
+
+if pad_case_numbers
+  case_numbers = Salesforcelib::Client.pad_case_numbers(case_numbers)
 end
 
 cases = Salesforcelib::Client.new.find_cases(case_numbers, include_missing: true)

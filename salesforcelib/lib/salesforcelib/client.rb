@@ -3,6 +3,16 @@ module Salesforcelib
   class Client
     attr_reader :restforce
 
+    # @api private
+    # Ensures each case number has a leading zero
+    # @param [Array<String>] case_numbers
+    # @return [Array<String>]
+    def self.pad_case_numbers(case_numbers)
+      case_numbers.map do |case_number|
+        case_number.rjust(8, '0') 
+      end
+    end
+
     # @param [Restforce] restforce
     def initialize(restforce = Salesforcelib::Auth.new.auth!)
       @restforce = restforce
@@ -18,7 +28,7 @@ module Salesforcelib
       alias_method :found?, :found
     end
 
-    # @param [Array<String>]
+    # @param [Array<String>] case_numbers
     # @return [Array<SupportCase>]
     def find_cases(case_numbers, include_missing: false)
       results = restforce.query(format(<<-SQL, case_numbers: quote(case_numbers)))
