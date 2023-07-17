@@ -585,9 +585,12 @@ variable "bootstrap_private_git_clone_url" {
   description = "URL for provision.sh to use to clone identity-devops-private"
 }
 
-# The following two AMIs should be built at the same time and identical, even
+# The following AMIs should be built at the same time and identical, even
 # though they will have different IDs. They should be updated here at the same
 # time, and then released to environments in sequence.
+
+#### us-west-2
+
 variable "default_ami_id_sandbox" {
   default     = "ami-09c52394da9d2dbf7" # 2023-07-11 Ubuntu 20.04
   description = "default AMI ID for environments in the sandbox account"
@@ -606,6 +609,51 @@ variable "rails_ami_id_sandbox" {
 variable "rails_ami_id_prod" {
   default     = "ami-021af6c9bbc4e1a45" # 2023-07-11 Ubuntu 20.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
+}
+
+##### us-east-1
+
+variable "base_ami_sandbox_ue1" {
+  default     = "ami-0545f343c13472f0c" # 2023-07-11 Ubuntu 20.04
+  description = <<EOM
+us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
+EOM
+}
+
+variable "base_ami_prod_ue1" {
+  default     = "ami-028ce75484671cd88" # 2023-07-11 Ubuntu 20.04
+  description = <<EOM
+us-east-1 AMI ID for 'base' hosts (outboundproxy) in the prod account
+EOM
+}
+
+variable "rails_ami_sandbox_ue1" {
+  default     = "ami-0a1509723018279c7" # 2023-07-11 Ubuntu 20.04
+  description = <<EOM
+us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
+EOM
+}
+
+variable "rails_ami_prod_ue1" {
+  default     = "ami-021af6c9bbc4e1a45" # 2023-07-11 Ubuntu 20.04
+  description = <<EOM
+us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
+EOM
+}
+
+variable "ami_id_map_ue1" {
+  type        = map(string)
+  description = <<EOM
+Custom map of host types to us-east-1 AMI IDs. Values, if set, will override the
+account default 'base' and 'rails' AMI IDs to create hosts with in the specified env.
+EOM
+  default = {
+    #app           = "ami-0a1509723018279c7"
+    #idp           = "ami-0a1509723018279c7"
+    #migration     = "ami-0a1509723018279c7"
+    #outboundproxy = "ami-0545f343c13472f0c"
+    #pivcac        = "ami-0a1509723018279c7"
+  }
 }
 
 variable "high_priority_sns_hook" {
@@ -653,6 +701,11 @@ locals {
   var.default_ami_id_prod) : var.default_ami_id_sandbox
   account_rails_ami_id = local.acct_type == "prod" ? (
   var.rails_ami_id_prod) : var.rails_ami_id_sandbox
+
+  base_ami_id_ue1 = local.acct_type == "prod" ? (
+  var.base_ami_prod_ue1) : var.base_ami_sandbox_ue1
+  rails_ami_id_ue1 = local.acct_type == "prod" ? (
+  var.rails_ami_prod_ue1) : var.rails_ami_sandbox_ue1
 
   in_person_alarm_actions         = [coalesce(var.in_person_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
   low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
