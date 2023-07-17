@@ -12,24 +12,28 @@ def message(date, duration, state)
   central = eastern.in_time_zone('America/Chicago')
   mountain = eastern.in_time_zone('America/Denver')
   pacific = eastern.in_time_zone('America/Los_Angeles')
+  alaska = eastern.in_time_zone('America/Juneau')
+  hawaii = eastern.in_time_zone('Pacific/Honolulu')
   template = <<-EOM
 
-  [Planned Maintenance] Login.gov identity verification services unavailable for residents of #{state}
+[Planned Maintenance] Login.gov identity verification services unavailable for residents of #{state}
 
-  Impact: Low - Downstream provider maintenance for a subset of Identity Verification users
+<strong>Impact</strong> Low - Downstream provider maintenance for a subset of identity verification users
 
-  Maintenance Window:
-  UTC: #{utc.strftime(TIME_FORMAT)} to #{(utc + duration.hours).strftime(TIME_FORMAT)}
-  Eastern:  #{eastern.strftime(TIME_FORMAT)} to #{(eastern + duration.hours).strftime(TIME_FORMAT)}
-  Central:  #{central.strftime(TIME_FORMAT)} to #{(central + duration.hours).strftime(TIME_FORMAT)}
-  Mountain: #{mountain.strftime(TIME_FORMAT)} to #{(mountain + duration.hours).strftime(TIME_FORMAT)}
-  Pacific:  #{pacific.strftime(TIME_FORMAT)} to #{(pacific + duration.hours).strftime(TIME_FORMAT)}
+<strong>Maintenance Window</strong>
+<tt><strong>UTC</strong> #{utc.strftime(TIME_FORMAT)} to #{(utc + duration.hours).strftime(TIME_FORMAT)}</tt>
+<tt><strong>Eastern</strong> #{eastern.strftime(TIME_FORMAT)} to #{(eastern + duration.hours).strftime(TIME_FORMAT)}</tt>
+<tt><strong>Central</strong> #{central.strftime(TIME_FORMAT)} to #{(central + duration.hours).strftime(TIME_FORMAT)}</tt>
+<tt><strong>Mountain</strong> #{mountain.strftime(TIME_FORMAT)} to #{(mountain + duration.hours).strftime(TIME_FORMAT)}</tt>
+<tt><strong>Pacific</strong> #{pacific.strftime(TIME_FORMAT)} to #{(pacific + duration.hours).strftime(TIME_FORMAT)}</tt>
+<tt><strong>Alaska</strong> #{alaska.strftime(TIME_FORMAT)} to #{(alaska + duration.hours).strftime(TIME_FORMAT)}</tt>
+<tt><strong>Hawaii</strong> #{hawaii.strftime(TIME_FORMAT)} to #{(hawaii + duration.hours).strftime(TIME_FORMAT)}</tt>
 
-  #{state} state driver's license information will be unavailable during this planned maintenance.  Users who experience a problem with identity verification are asked to try again after the maintenance window has closed.
+#{state} state driver's license information will be unavailable during this planned maintenance. Users who experience a problem with identity verification are asked to try again after the maintenance window has closed.
 
-  All other Login.gov functionality will continue to operate normally during this window.
+All other Login.gov functionality will continue to operate normally during this window.
 
-  Partners may submit any questions or concerns through our Partner Support system: https://logingov.zendesk.com/
+Partners may submit any questions or concerns through our Partner Support system: https://logingov.zendesk.com/
 
   EOM
   template
