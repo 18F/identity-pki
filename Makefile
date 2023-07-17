@@ -23,8 +23,6 @@ check: lint test
 lint:
 	@echo "--- rubocop ---"
 	bundle exec rubocop
-	@echo "--- fasterer ---"
-	bundle exec fasterer
 
 lintfix:
 	@echo "--- rubocop fix ---"

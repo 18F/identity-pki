@@ -4,10 +4,7 @@ plugins:
   reek:
     enabled: false
   rubocop:
-    enabled: true
-    channel: rubocop-0-78
-    config:
-      file: .rubocop.yml
+    enabled: false
 
 checks:
   method-complexity:

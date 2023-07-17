@@ -14,7 +14,10 @@ Bundler.require(*Rails.groups)
 module IdentityPki
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.1
+    config.load_defaults 6.1
+    config.autoloader = :zeitwerk
+    # Remove once 7.0 has been deployed
+    config.active_support.cache_format_version = 6.1
 
     configuration = Identity::Hostdata::ConfigReader.new(app_root: Rails.root).read_configuration(
       Rails.env, write_copy_to: Rails.root.join('tmp/application.yml')
