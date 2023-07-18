@@ -1,7 +1,7 @@
 enabled: true
-env:
-  - name: FLUENTD_OPT
-    value: "-v"
+#env:
+#  - name: FLUENTD_OPT
+#    value: "-v"
 serviceAccount:
   annotations:
     "eks.amazonaws.com/role-arn": "${fluentd_irsa_iam_role_arn}"
@@ -108,9 +108,8 @@ fileConfigs:
       # </match>
       #</label>
   04_outputs.conf: |-
-    <match events.log kms.log workers.log telephony.log>
+    <match events.log>
       @type cloudwatch_logs
-      @id out_cloudwatch_logs_containers
       region "${region}"
       log_group_name_key aws_log_group_name
       log_stream_name_key aws_log_stream_name
@@ -120,5 +119,32 @@ fileConfigs:
       auto_create_stream true
     </match>
     <match kms.log>
-      @type stdout
+      @type cloudwatch_logs
+      region "${region}"
+      log_group_name_key aws_log_group_name
+      log_stream_name_key aws_log_stream_name
+      remove_log_stream_name_key true
+      remove_log_group_name_key true
+      message_keys log_processed\, log
+      auto_create_stream true
+    </match>
+    <match workers.log>
+      @type cloudwatch_logs
+      region "${region}"
+      log_group_name_key aws_log_group_name
+      log_stream_name_key aws_log_stream_name
+      remove_log_stream_name_key true
+      remove_log_group_name_key true
+      message_keys log_processed
+      auto_create_stream true
+    </match>
+    <match telephony.log>
+      @type cloudwatch_logs
+      region "${region}"
+      log_group_name_key aws_log_group_name
+      log_stream_name_key aws_log_stream_name
+      remove_log_stream_name_key true
+      remove_log_group_name_key true
+      message_keys log_processed
+      auto_create_stream true
     </match>

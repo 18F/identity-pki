@@ -5,7 +5,7 @@ additionalInputs: |
       Tag                 kube.app.*
       Path                /var/log/containers/*identity*.log
       multiline.parser    docker\, cri
-      DB                  /var/log/flb_container.db
+      DB                  /var/log/flb_app_container.db
       Mem_Buf_Limit       5MB
       Skip_Long_Lines     On
       Refresh_Interval    10
@@ -16,7 +16,7 @@ additionalInputs: |
       Path                /var/log/containers/*.log
       Exclude_Path        /var/log/containers/*identity*.log
       multiline.parser    docker\, cri
-      DB                  /var/log/flb_container.db
+      DB                  /var/log/flb_infra_container.db
       Mem_Buf_Limit       5MB
       Skip_Long_Lines     On
       Refresh_Interval    10
