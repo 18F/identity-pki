@@ -5,7 +5,6 @@ locals {
   fluentbit_config = yamldecode(templatefile("${path.module}/helm-values/fluent-bit-for-aws.yaml.tpl", {
     region                     = var.region,
     fluentbit_irsa_iam_role_arn = module.fluentbit_irsa.iam_role_arn,
-    #fluentd_host  = "172.20.82.110",
     fluentd_host  = "fluentd.logging.svc.cluster.local"
     fluentd_port  = "24224"
   }))
