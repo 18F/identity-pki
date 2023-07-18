@@ -44,7 +44,7 @@ fileConfigs:
           </rule>
           <rule>
             key log
-            pattern /Health/
+            pattern /kms.log/
             tag kms.log
           </rule>
           <rule>
