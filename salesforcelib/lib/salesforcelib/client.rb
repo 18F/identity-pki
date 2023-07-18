@@ -22,6 +22,7 @@ module Salesforcelib
       :internal_id,
       :case_number,
       :customer_email,
+      :created_date,
       :found,
       keyword_init: true
     ) do
@@ -32,7 +33,7 @@ module Salesforcelib
     # @return [Array<SupportCase>]
     def find_cases(case_numbers, include_missing: false)
       results = restforce.query(format(<<-SQL, case_numbers: quote(case_numbers)))
-        SELECT Id, CaseNumber, Customer_Email_address__c
+        SELECT Id, CaseNumber, CreatedDate, Customer_Email_address__c
         FROM Case
         WHERE CaseNumber IN %{case_numbers}
       SQL
@@ -42,6 +43,7 @@ module Salesforcelib
           internal_id: result.Id,
           case_number: result.CaseNumber,
           customer_email: result.Customer_Email_address__c,
+          created_date: result.CreatedDate,
           found: true,
         )
       end
