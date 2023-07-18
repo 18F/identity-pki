@@ -77,6 +77,15 @@ resource "aws_cloudwatch_log_group" "gitlab_messages_log" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "gitlab_aide_log" {
+  name              = "${var.env_name}_/var/log/aide/aide.json"
+  retention_in_days = 365
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "gitlab_backup_failures" {
   name           = "gitlab_${var.env_name}_backup_failures"
   pattern        = "gitlab backup FAILED"

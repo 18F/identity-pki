@@ -4,7 +4,7 @@
 # the host from going into service.
 Chef.event_handler do
   on :run_completed do
-    pid = spawn("/usr/bin/aide.wrapper --update", :out => "/var/log/aideupdate.out", :err => "/var/log/aideupdate.err")
+    pid = spawn("/usr/local/bin/aide -c /etc/aide/aide.conf --update", :out => "/var/log/aideupdate.out", :err => "/var/log/aideupdate.err")
     Process.detach(pid)
   end
 end

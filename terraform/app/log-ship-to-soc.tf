@@ -11,6 +11,7 @@ module "log-ship-to-soc-os-logs" {
     "${var.env_name}_/var/log/audit/audit.log" = ""
     "${var.env_name}_/var/log/kern.log"        = ""
     "${var.env_name}_/var/log/messages"        = ""
+    "${var.env_name}_/var/log/aide/aide.json"  = ""
     "${var.env_name}_/var/log/syslog"          = ""
   }
   env_name            = var.env_name
