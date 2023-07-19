@@ -16,6 +16,12 @@ variable "dnszone" {
   default     = "review-app.identitysandbox.gov"
 }
 
+variable "pivcac_dnszone" {
+  description = "dns zone that external_dns will be able to edit for pivcac"
+  type        = string
+  default     = "pivcac.identitysandbox.gov"
+}
+
 variable "ecr_repo_names" {
   description = "list of ecr repos to create"
   type        = list(string)
