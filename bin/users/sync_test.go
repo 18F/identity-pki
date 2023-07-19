@@ -152,7 +152,6 @@ var testResolveGroupsData = []struct {
 	AuthorizedUsers *AuthorizedUsers
 	AuthGroups      map[string]map[string]bool
 	WantToCreate    map[string]bool
-	WantToDelete    map[string]*gitlab.Group
 }{
 	{
 		Name: "Create/Delete Groups",
@@ -182,18 +181,14 @@ var testResolveGroupsData = []struct {
 		WantToCreate: map[string]bool{
 			"new_admin_group": true,
 		},
-		WantToDelete: map[string]*gitlab.Group{
-			"vestigial": {},
-		},
 	},
 }
 
 func TestResolveGroups(t *testing.T) {
 	for _, td := range testResolveGroupsData {
-		toCreate, toDelete := resolveGroups(td.GitlabGroups, td.AuthorizedUsers)
+		toCreate := resolveGroups(td.GitlabGroups, td.AuthorizedUsers)
 
 		assertEqual(t, td.Name, toCreate, td.WantToCreate)
-		assertEqual(t, td.Name, toDelete, td.WantToDelete)
 	}
 }
 

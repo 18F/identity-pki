@@ -662,6 +662,8 @@ users:
     - pm
     - lg-all
     - lg-public
+    can_create_group:
+    - true
   shannon.alexander-navarro:
     aws_groups:
     - appdev

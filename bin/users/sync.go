@@ -10,9 +10,9 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/xanzy/go-gitlab"
+	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v2"
 )
-
 const gitlabTokenEnvVar = "GITLAB_API_TOKEN"
 const ghost = "ghost"
 
@@ -43,6 +43,8 @@ type AuthorizedProject struct {
 		Access *gitlab.AccessLevelValue
 	}
 }
+
+var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
@@ -238,15 +240,12 @@ func main() {
 		log.Fatalf("Could not get GitLab groups: %v", err)
 	}
 
-	groupsToCreate, groupsToDelete := resolveGroups(gitlabGroups, authorizedUsers)
+	groupsToCreate := resolveGroups(gitlabGroups, authorizedUsers)
+
 	// Even if these fail, try to continue. There's still work to do.
 	err = createGroups(gitc, groupsToCreate)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("unable to create groups: %v", err))
-	}
-	err = deleteGroups(gitc, groupsToDelete)
-	if err != nil {
-		result = multierror.Append(result, fmt.Errorf("unable to delete groups: %v", err))
 	}
 
 	//
@@ -544,65 +543,75 @@ func resolveUsers(
 	return result
 }
 
-// Returns sets of groups to create and delete
-// TODO: directly create and delete groups. Use mocks to test.
+// Returns sets of groups to create.
+// We don't delete groups that may have been manually created, and instead verify that the
+// projects and group memberships in users.yaml are synced.
+// TODO: directly create groups. Use mocks to test.
 func resolveGroups(
 	gitlabGroups map[string]*gitlab.Group,
 	authorizedUsers *AuthorizedUsers,
-) (map[string]bool, map[string]*gitlab.Group) {
+) map[string]bool {
 
-	authGroups := getAuthorizedGroups(authorizedUsers)
-
+	authorizedGroups := getAuthorizedGroups(authorizedUsers)
 	groupsToCreate := map[string]bool{}
-	groupsToDelete := map[string]*gitlab.Group{}
-
-	// Copy input so we don't confuse callers
-	for k, v := range gitlabGroups {
-		groupsToDelete[k] = v
-	}
 
 	// authGroups is every group with a member
-	for ag := range authGroups {
-		if _, ok := gitlabGroups[ag]; ok {
-			delete(groupsToDelete, ag)
-			continue
+	for ag := range authorizedGroups {
+		if _, ok := gitlabGroups[ag]; !ok {
+			groupsToCreate[ag] = true
 		}
-		groupsToCreate[ag] = true
 	}
 
-	// Don't delete defined groups without members
-	for ag := range authorizedUsers.Groups {
-		if _, ok := gitlabGroups[ag]; ok {
-			delete(groupsToDelete, ag)
-			continue
+	for g := range gitlabGroups {
+		if _, ok := authorizedGroups[g]; !ok {
+			logger.Info(
+				fmt.Sprintf("%v not found in authorized groups; doing nothing.", g),
+				"event", "skip_unauthorized_group",
+				"group", g,
+			)
 		}
-		groupsToCreate[ag] = true
 	}
 
-	return groupsToCreate, groupsToDelete
+	return groupsToCreate
 }
 
+// Returns memberships to create and delete.
+// TODO: create and delete in-place, test with mocks, and recursively create subgroups.
 func resolveMembers(
-	memberships map[string]map[string]bool,
-	authGroups map[string]map[string]bool,
+	liveGroupMemberships map[string]map[string]bool,
+	authorizedGroups map[string]map[string]bool,
 ) (map[string]map[string]bool, map[string]map[string]bool) {
 
 	membersToCreate := map[string]map[string]bool{}
+	membersToDelete := map[string]map[string]bool{}
 
-	for gname, members := range memberships {
+	// Go through each live group and members
+	for gname, liveMembers := range liveGroupMemberships {
+		
+		// If existing membership is for a group not in config, don't do anything.
+		if _, ok := authorizedGroups[gname]; !ok {
+			continue
+		}
+
+		// Create the structure where we can store new and invalid memberships
 		membersToCreate[gname] = make(map[string]bool)
-
-		for username := range authGroups[gname] {
-			// Remove authorized members from maybeDelete
-			if _, ok := members[username]; ok {
-				delete(members, username)
-				continue
+		membersToDelete[gname] = make(map[string]bool)
+		
+		for username := range authorizedGroups[gname] {
+			if _, ok := liveMembers[username]; !ok {
+				// Create new memberships if required
+				membersToCreate[gname][username] = true
 			}
-			// Create new memberships if required
-			membersToCreate[gname][username] = true
+		}
+
+		for username := range liveMembers {
+			if _, ok := authorizedGroups[gname][username]; !ok {
+				// This user shouldn't be in this group. Delete.
+				membersToDelete[gname][username] = true
+			}
 		}
 	}
-	return membersToCreate, memberships
+	return membersToCreate, membersToDelete
 }
 
 func blockUser(gitc GitlabClientIface, u *gitlab.User) error {

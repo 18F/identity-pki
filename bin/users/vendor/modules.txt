@@ -29,6 +29,13 @@ github.com/hashicorp/go-retryablehttp
 # github.com/xanzy/go-gitlab v0.73.1
 ## explicit; go 1.18
 github.com/xanzy/go-gitlab
+# golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
+## explicit; go 1.20
+golang.org/x/exp/constraints
+golang.org/x/exp/slices
+golang.org/x/exp/slog
+golang.org/x/exp/slog/internal
+golang.org/x/exp/slog/internal/buffer
 # golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 ## explicit; go 1.17
 golang.org/x/net/context
