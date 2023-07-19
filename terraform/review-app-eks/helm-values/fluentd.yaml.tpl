@@ -58,7 +58,7 @@ fileConfigs:
           @type record_transformer
           enable_ruby true
           <record>
-            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}/srv/idp/shared/log/events.log
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/srv/idp/shared/log/events.log
             aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
           </record>
         </filter>
@@ -66,7 +66,7 @@ fileConfigs:
           @type record_transformer
           enable_ruby true
           <record>
-            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}/srv/idp/shared/log/kms.log
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/srv/idp/shared/log/kms.log
             aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
           </record>
         </filter>
@@ -74,7 +74,7 @@ fileConfigs:
           @type record_transformer
           enable_ruby true
           <record>
-            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}/srv/idp/shared/log/workers.log
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/srv/idp/shared/log/workers.log
             aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
           </record>
         </filter>
@@ -82,7 +82,7 @@ fileConfigs:
           @type record_transformer
           enable_ruby true
           <record>
-            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}/srv/idp/shared/log/telephony.log
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/srv/idp/shared/log/telephony.log
             aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
           </record>
         </filter>
