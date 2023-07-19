@@ -241,6 +241,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  eryn.sobing:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - esobing
+    gitlab_groups:
+    - pm
   fred.agyepongyeboah:
     aws_groups:
     - soc
