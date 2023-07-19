@@ -3,16 +3,16 @@ locals {
   vpc_cidr = "10.0.0.0/16"
 
   fluentbit_config = yamldecode(templatefile("${path.module}/helm-values/fluent-bit-for-aws.yaml.tpl", {
-    region                     = var.region,
+    region                      = var.region,
     fluentbit_irsa_iam_role_arn = module.fluentbit_irsa.iam_role_arn,
-    fluentd_host  = "fluentd.logging.svc.cluster.local"
-    fluentd_port  = "24224"
+    fluentd_host                = "fluentd.logging.svc.cluster.local"
+    fluentd_port                = "24224"
   }))
 
   fluentd_config = yamldecode(templatefile("${path.module}/helm-values/fluentd.yaml.tpl", {
-     region                     = var.region
+    region                    = var.region
     fluentd_irsa_iam_role_arn = module.fluentd_irsa.iam_role_arn,
-   
+
   }))
 }
 
@@ -89,9 +89,9 @@ module "kubernetes_addons" {
       type            = "helm"
       target_revision = "main"
       values = {
-              awsForFluentBit = local.fluentbit_config
-              fluentd = local.fluentd_config
-            }
+        awsForFluentBit = local.fluentbit_config
+        fluentd         = local.fluentd_config
+      }
     }
     # Below are all magic add-ons that you can see how to configure here:
     # https://github.com/aws-ia/terraform-aws-eks-blueprints/tree/main/docs/add-ons
