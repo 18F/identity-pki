@@ -5,9 +5,9 @@
 Chef.event_handler do
   on :run_completed do
     if File.exists?('/usr/local/bin/aide')
-      pid = spawn("/usr/local/bin/aide -c /etc/aide/aide.conf --update", :out => "/var/log/aideupdate.out", :err => "/var/log/aideupdate.err")
+      pid = spawn("/usr/local/bin/aide -c /etc/aide/aide.conf --update ; cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db", :out => "/var/log/aideupdate.out", :err => "/var/log/aideupdate.err")
     else
-      pid = spawn("aide.wrapper --update", :out => "/var/log/aideupdate.out", :err => "/var/log/aideupdate.err")
+      pid = spawn("aide.wrapper --update ; cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db", :out => "/var/log/aideupdate.out", :err => "/var/log/aideupdate.err")
     end
     Process.detach(pid)
   end
