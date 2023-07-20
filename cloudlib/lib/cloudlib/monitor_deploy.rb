@@ -192,10 +192,10 @@ module Cloudlib
     def self.get_proofing_metrics(deploys:, env:, role:, start_time:, end_time:)
       proofing_query_string = """
       fields @timestamp, @message, (name = 'IdV: doc auth image upload vendor submitted') as doc_auth_attempt, (name = 'IdV: doc auth image upload vendor submitted' and properties.event_properties.success) as doc_auth_success,
-      (name = 'IdV: doc auth optional verify_wait submitted') as verify_attempt, (name = 'IdV: doc auth optional verify_wait submitted' and properties.event_properties.success) as verify_success,
+      (name = 'IdV: doc auth verify proofing results') as verify_attempt, (name = 'IdV: doc auth verify proofing results' and properties.event_properties.success) as verify_success,
       (name = 'IdV: phone confirmation vendor') as phone_attempt, (name = 'IdV: phone confirmation vendor' and properties.event_properties.success) as phone_success,
       (name = 'IdV: final resolution' and properties.event_properties.success) as proofing_successful
-      | filter name in ['IdV: doc auth image upload vendor submitted', 'IdV: phone confirmation vendor', 'IdV: doc auth optional verify_wait submitted', 'IdV: final resolution']
+      | filter name in ['IdV: doc auth image upload vendor submitted', 'IdV: phone confirmation vendor', 'IdV: doc auth verify proofing results', 'IdV: final resolution']
       | stats sum(doc_auth_success)/sum(doc_auth_attempt) * 100 as doc_auth_success_rate, sum(verify_success)/sum(verify_attempt) * 100 as verify_success_rate, sum(phone_success)/sum(phone_attempt) * 100 as phone_success_rate,
         sum(proofing_successful) as proofing_success by properties.git_sha as git_sha
       """
