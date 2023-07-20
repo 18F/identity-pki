@@ -592,22 +592,22 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "default_ami_id_sandbox" {
-  default     = "ami-09c52394da9d2dbf7" # 2023-07-11 Ubuntu 20.04
+  default     = "ami-003daccd049dd0bc1" # 2023-07-18 Ubuntu 20.04
   description = "default AMI ID for environments in the sandbox account"
 }
 
 variable "default_ami_id_prod" {
-  default     = "ami-028ce75484671cd88" # 2023-07-11 Ubuntu 20.04
+  default     = "ami-02fb085091f29e1f1" # 2023-07-18 Ubuntu 20.04
   description = "default AMI ID for environments in the prod account"
 }
 
 variable "rails_ami_id_sandbox" {
-  default     = "ami-03b5c85fc99ed0a36" # 2023-07-11 Ubuntu 20.04
+  default     = "ami-002a5890c778df6c9" # 2023-07-18 Ubuntu 20.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
 }
 
 variable "rails_ami_id_prod" {
-  default     = "ami-021af6c9bbc4e1a45" # 2023-07-11 Ubuntu 20.04
+  default     = "ami-0f9e0c546fa1a0e0b" # 2023-07-18 Ubuntu 20.04
   description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
 }
 

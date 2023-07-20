@@ -241,6 +241,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  eryn.sobing:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - esobing
+    gitlab_groups:
+    - pm
   fred.agyepongyeboah:
     aws_groups:
     - soc
@@ -662,6 +669,8 @@ users:
     - pm
     - lg-all
     - lg-public
+    can_create_group:
+    - true
   shannon.alexander-navarro:
     aws_groups:
     - appdev

@@ -16,7 +16,7 @@ module "application_iam_roles" {
   slack_events_sns_hook_arn   = "arn:aws:sns:us-west-2:894947205914:slack-hook-otherevents"
   root_domain                 = var.dnszone
   gitlab_enabled              = false
-  pivcac_route53_zone_id      = data.aws_route53_zone.selected.zone_id
+  pivcac_route53_zone_id      = aws_route53_zone.pivcac.zone_id
   ssm_policy                  = "" # Not setting so policies aren't created
   ssm_access_enabled          = false
   ipv4_secondary_cidr         = local.vpc_cidr # No secondary cidr at the moment, pointing to primary cidr

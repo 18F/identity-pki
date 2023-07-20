@@ -37,7 +37,7 @@ Reference [Runbook:-Onboarding-and-Offboarding-AWS-and-GitLab-Users#functional-r
 to idenify the proper Pre-Prod AWS group(s), GitLab group(s), and NewRelic access
 the user should have.
 
-- [ ] Use `bin/manage-user` to add the team member to `terraform/master/global/users.yaml`
+- [ ] Use `bin/manage-user` to add the team member to `terraform/master/global/users.yaml`. Unless they request otherwise, use the username in their username@gsa.gov email for their AWS, EC2 and GitLab usernames.
     - Add AWS group(s)
     - Add `ec2_username` if team member needs console/SSM access to EC2 hosts
     - Add `gitlab_groups` if team member needs GitLab access

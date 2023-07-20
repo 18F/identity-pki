@@ -122,12 +122,13 @@ def backticks_or_not_found(str)
   end
 end
 
-header = ['case_number', 'email', *(include_uuids ? 'uuid' : nil)]
+header = ['case_number', 'email', *(include_uuids ? 'uuid' : nil), 'case_created_date']
 rows = cases.map do |c|
   [
     c.case_number,
     format_email(email: c.customer_email, redact: redact_emails),
     *(include_uuids ? email_to_uuid.fetch(c.customer_email, '[not found]') : nil),
+    c.created_date,
   ]
 end
 
@@ -140,8 +141,8 @@ when :csv
     end
   end
 when :markdown
-  rows.each do |(case_number, email, uuid)|
-    puts "- *#{case_number}*: #{backticks_or_not_found(email)} #{backticks_or_not_found(uuid.to_s)}".rstrip
+  rows.each do |(case_number, email, uuid, created_date)|
+    puts "- *#{case_number}*: #{backticks_or_not_found(email)} #{backticks_or_not_found(uuid.to_s)} #{created_date}".rstrip
   end
 else
   Terminal::Table.new do |table|

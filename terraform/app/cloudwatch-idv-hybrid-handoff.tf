@@ -12,7 +12,7 @@ resource "aws_cloudwatch_dashboard" "idv_hybrid_handoff" {
       "x": 12,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth upload submitted\" and !properties.event_properties.skip_upload_step\n| fields properties.event_properties.destination as destination\n| fields destination = \"link_sent\" as link, destination = \"document_capture\" as desktop\n| stats sum(link) as switched_to_mobile, sum(desktop) as stayed_on_desktop by bin(1hour)",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth hybrid handoff submitted\" and !properties.event_properties.skip_upload_step\n| fields properties.event_properties.destination as destination\n| fields destination = \"link_sent\" as link, destination = \"document_capture\" as desktop\n| stats sum(link) as switched_to_mobile, sum(desktop) as stayed_on_desktop by bin(1hour)",
         "region": "${var.region}",
         "stacked": true,
         "title": "Absolute number of users",
@@ -36,7 +36,7 @@ resource "aws_cloudwatch_dashboard" "idv_hybrid_handoff" {
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth upload submitted\"\n| fields properties.event_properties.skip_upload_step as skip\n| stats avg(!skip)*100 as did_hybrid_handoff by bin(1hour)\n",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth hybrid handoff submitted\"\n| fields properties.event_properties.skip_upload_step as skip\n| stats avg(!skip)*100 as did_hybrid_handoff by bin(1hour)\n",
         "region": "${var.region}",
         "stacked": true,
         "title": "Percentage who completed handoff",
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_dashboard" "idv_hybrid_handoff" {
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth upload submitted\"\n| fields properties.event_properties.skip_upload_step as skip_upload_step\n| stats sum(!skip_upload_step) as hybrid_step_submitted, sum(skip_upload_step) as hybrid_step_skipped by bin(1hour)\n",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth hybrid handoff submitted\"\n| fields properties.event_properties.skip_upload_step as skip_upload_step\n| stats sum(!skip_upload_step) as hybrid_step_submitted, sum(skip_upload_step) as hybrid_step_skipped by bin(1hour)\n",
         "region": "${var.region}",
         "stacked": true,
         "title": "Absolute number of users",
@@ -136,7 +136,7 @@ resource "aws_cloudwatch_dashboard" "idv_hybrid_handoff" {
       "x": 12,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth upload submitted\" and !properties.event_properties.skip_upload_step\n| fields properties.event_properties.destination as destination\n| fields destination = \"link_sent\" as mobile\n| stats avg(mobile)*100 as switched_to_mobile by bin(1hour)\n",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = \"IdV: doc auth hybrid handoff submitted\" and !properties.event_properties.skip_upload_step\n| fields properties.event_properties.destination as destination\n| fields destination = \"link_sent\" as mobile\n| stats avg(mobile)*100 as switched_to_mobile by bin(1hour)\n",
         "region": "${var.region}",
         "stacked": true,
         "title": "Percentage who chose mobile at the hybrid handoff screen",

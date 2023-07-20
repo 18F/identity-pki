@@ -95,7 +95,8 @@ EOM
 
 3_empty_buckets() {
   for BUCKET in $(ave aws s3 ls | grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
-    empty_bucket_with_versions ${BUCKET}
+    BUCKET_REGION=$(echo ${BUCKET} | sed -E 's/.*[0-9]+\-//')
+    empty_bucket_with_versions ${BUCKET} ${BUCKET_REGION}
   done
 }
 
@@ -107,13 +108,21 @@ EOM
 5_delete_env_keys() {
   local OBJECTS
   for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
-    OBJECTS=$(ave aws s3api list-object-versions --bucket ${BUCKET} \
-        --output=json --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}' |
-        jq --arg name "${TF_ENV}" '{Objects:[.[][]|
-        select(.Key|contains($name))|{Key, VersionId}],Quiet: false}')
-    if [[ ! -z $(echo "${OBJECTS}" | jq -r '.Objects[]') ]] ; then
-      ave aws s3api delete-objects --bucket ${BUCKET} \
+    OBJECTS_JSON=$(ave aws s3api list-object-versions \
+      --bucket ${BUCKET} --output=json \
+      --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')
+    if [[ $(echo "${OBJECTS_JSON}" | jq -r '.Objects') != "null" ]] ; then
+      OBJECTS=$(echo "${OBJECTS_JSON}" | jq --arg name "${TF_ENV}" \
+        '{Objects:[.[][]|select(.Key|contains($name))|
+          {Key, VersionId}],Quiet: false}')
+      if [[ ! -z $(echo "${OBJECTS}" | jq '.Objects[]') ]] ; then
+        ave aws s3api delete-objects --bucket ${BUCKET} \
           --delete "$(echo "${OBJECTS}" | jq)"
+      fi
+    fi
+    if [[ $(ave -r aws s3 ls "s3://${BUCKET}/${TF_ENV}") ]] ; then
+      BUCKET_REGION=$(echo ${BUCKET} | sed -E 's/.*[0-9]+\-//')
+      empty_bucket_with_versions "${BUCKET}/${TF_ENV}" ${BUCKET_REGION}
     fi
   done
 }
