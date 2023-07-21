@@ -65,6 +65,9 @@ RUN addgroup --gid 1000 app && \
 
 # Copy scripts
 COPY --chown=root:root --chmod=755 ./k8files/update_cert_revocations /usr/local/bin
+COPY --chown=root:root --chmod=755 ./k8files/push_letsencrypt_certs.sh /usr/local/bin/push_letsencrypt_certs.sh
+COPY --chown=root:root --chmod=755 ./k8files/update_letsencrypt_certs /usr/local/bin/update_letsencrypt_certs
+COPY --chown=root:root --chmod=755 ./k8files/configure_environment /usr/local/bin/configure_environment
 
 # Install and configure nginx
 RUN mkdir -p /opt/nginx/src; \
@@ -139,9 +142,6 @@ RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
     mkdir -p ${RAILS_ROOT}/config/puma; chmod -R 0755 ${RAILS_ROOT}/config/puma; 
 COPY --chown=app --chmod=755 ./k8files/application.yml.default.docker ./config/application.yml
 COPY --chown=app --chmod=755 ./k8files/puma_production.rb ./config/puma/production.rb
-COPY --chown=root:root --chmod=755 ./k8files/push_letsencrypt_certs.sh /usr/local/bin/push_letsencrypt_certs.sh
-COPY --chown=root:root --chmod=755 ./k8files/update_letsencrypt_certs /usr/local/bin/update_letsencrypt_certs
-COPY --chown=root:root --chmod=755 ./k8files/configure_environment /usr/local/bin/configure_environment
 
 # Expose port the app runs on
 EXPOSE 443

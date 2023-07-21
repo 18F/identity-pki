@@ -55,9 +55,6 @@ sed -i '/<REAL_IP6_PLACEHOLDER>/d' /opt/nginx/conf/nginx.conf
 sudo chmod og-w /opt/nginx/conf/nginx.conf
 sudo chmod og-w /opt/nginx/conf
 
-# Setup DB
-bundle exec rake db:create db:migrate:monitor_concurrent --trace
-
 # Fetch DHParam from AWS
 sudo -E -u root aws s3 cp s3://login-gov.secrets.${AWS_ACCOUNT_NUM}-us-west-2/${ENV}/dhparam /etc/ssl/certs/dhparam.pem
 
@@ -68,9 +65,6 @@ sudo -E -u root aws s3 cp s3://login-gov-pivcac-${ENV}.${AWS_ACCOUNT_NUM}-us-wes
 echo "@daily root flock -n /tmp/update_letsencrypt_certs.lock -c \"/usr/local/bin/update_letsencrypt_certs -e ${ENV} -c ${CERT_ENV}\" " | sudo tee /etc/cron.d/update_letsencrypt_certs
 sudo -E -u root chown root: /etc/cron.d/update_letsencrypt_certs
 sudo -E -u root chmod 700 /etc/cron.d/update_letsencrypt_certs
-
-# Set nginx pivcac.conf environment
-#sed -i "s~<ENVIRONMENT>~${CERT_ENV}~g" /opt/nginx/conf/sites.d/pivcac.conf
 
 # Check if bundle exists/is not null
 sudo -E -u root [ -s /root/letsencrypt.${CERT_ENV}.tar.gz ] && sudo -E -u root tar zxf /root/letsencrypt.${CERT_ENV}.tar.gz -C /etc || sudo -E -u root certbot certonly --agree-tos -n --dns-route53 -d *.${CERT_ENV}.pivcac.identitysandbox.gov --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
