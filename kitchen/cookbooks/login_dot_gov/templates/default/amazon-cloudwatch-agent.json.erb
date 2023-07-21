@@ -191,6 +191,13 @@
 
                                         },
                                         {
+                                                "file_path": "/var/log/aide/aide.json",
+                                                "log_group_name": "<%= @environmentName %>_/var/log/aide/aide.json",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC"
+
+                                        },
+                                        {
                                                 "file_path": "/var/log/amazon/ssm/amazon-ssm-agent.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/amazon-ssm-agent.log",
                                                 "log_stream_name": "{local_hostname}",
