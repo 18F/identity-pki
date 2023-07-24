@@ -1,6 +1,6 @@
 class IdentityConfig
   class << self
-    attr_reader :store
+    attr_reader :store, :key_types
   end
 
   CONVERTERS = {
@@ -39,9 +39,12 @@ class IdentityConfig
     end,
   }
 
+  attr_reader :key_types
+
   def initialize(read_env)
     @read_env = read_env
     @written_env = {}
+    @key_types = {}
   end
 
   def add(key, type: :string, is_sensitive: false, options: {})
@@ -49,6 +52,9 @@ class IdentityConfig
     raise "#{key} is required but is not present" if value.nil?
     converted_value = CONVERTERS.fetch(type).call(value, options: options)
     raise "#{key} is required but is not present" if converted_value.nil?
+
+
+    @key_types[key] = type
 
     @written_env[key] = converted_value
     @written_env
@@ -92,6 +98,7 @@ class IdentityConfig
     config.add(:token_encryption_key_salt_old)
     final_env = config.add(:trusted_ca_root_identifiers, type: :comma_separated_string_list)
 
+    @key_types = config.key_types
     @store = RedactedStruct.new('IdentityConfig', *final_env.keys, keyword_init: true).
       new(**final_env)
   end
