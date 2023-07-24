@@ -1485,3 +1485,12 @@ variable "enable_us_east_1_infra" {
   default     = false
   description = "Flag to create us-east-1 host infrastructure"
 }
+
+variable "replicate_keymaker_key" {
+  type        = bool
+  default     = false
+  description = <<EOM
+Whether or not to make a replica key for the multi-region keymaker key
+in the us-east-1 region.
+EOM
+}

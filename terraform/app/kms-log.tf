@@ -72,6 +72,7 @@ module "kms_keymaker_multiregion_primary_uw2" {
 }
 
 module "kms_keymaker_multiregion_replica_ue1" {
+  count  = var.replicate_keymaker_key ? 1 : 0
   source = "github.com/18F/identity-terraform//kms_keymaker_multiregion_replica?ref=49bc02749966cef8ec7f14c4d181a2d3879721fc"
   #source = "../../../identity-terraform/kms_keymaker_multiregion_replica"
   providers = {
@@ -83,4 +84,9 @@ module "kms_keymaker_multiregion_replica_ue1" {
   sqs_queue_arn   = module.kms_logging.kms-ct-events-queue
   primary_key_arn = module.kms_keymaker_multiregion_primary_uw2.multi_region_primary_key_arn
   # alarm_sns_topic_arn = var.slack_events_sns_hook_arn
+}
+
+moved {
+  from = module.kms_keymaker_multiregion_replica_ue1
+  to   = module.kms_keymaker_multiregion_replica_ue1[0]
 }
