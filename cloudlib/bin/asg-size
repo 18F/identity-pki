@@ -58,6 +58,11 @@ For example:
     opts.on('--desired', 'Set desired count') do
       options[:mode] = :desired
     end
+
+    opts.on('-R', '--aws-region REGION', 'Set AWS_REGION env variable') do |val|
+      ENV['AWS_REGION'] = val
+      log.debug("AWS_REGION=#{val.inspect}")
+    end
   end
 
   args = optparse.parse!

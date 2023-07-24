@@ -122,17 +122,8 @@ locals {
       ]
     }
   }
-}
 
-module "ssm" {
-  source = "github.com/18F/identity-terraform//ssm?ref=16554935ff6fe92b77a29a3bcd4b04072d65e264"
-  #source = "../../../identity-terraform/ssm"
-
-  bucket_name_prefix = "login-gov"
-  region             = var.region
-  env_name           = var.env_name
-
-  ssm_doc_map = {
+  ssm_docs = {
     "default" = {
       command     = "/etc/update-motd.d/00-header ; cd ; /bin/bash"
       description = "Default shell to login as GSA_USERNAME"
@@ -175,11 +166,7 @@ module "ssm" {
     }
   }
 
-  ssm_cmd_doc_map = (
-    var.enable_loadtesting ? merge(local.locust_cmds, local.ssm_cmds) : local.ssm_cmds
-  )
-
-  ssm_interactive_cmd_map = {
+  ssm_interactive_cmds = {
     "tail-cw" = {
       description = "Tail the cloud-init-output logs"
       parameters = [
@@ -196,6 +183,45 @@ module "ssm" {
   }
 }
 
+module "ssm_uw2" {
+  source = "github.com/18F/identity-terraform//ssm?ref=16554935ff6fe92b77a29a3bcd4b04072d65e264"
+  #source = "../../../identity-terraform/ssm"
+
+  bucket_name_prefix = "login-gov"
+  region             = var.region
+  env_name           = var.env_name
+
+  ssm_doc_map             = local.ssm_docs
+  ssm_interactive_cmd_map = local.ssm_interactive_cmds
+  ssm_cmd_doc_map = (
+    var.enable_loadtesting ? merge(local.locust_cmds, local.ssm_cmds) : local.ssm_cmds
+  )
+}
+
+moved {
+  from = module.ssm
+  to   = module.ssm_uw2
+}
+
+module "ssm_ue1" {
+  count  = var.enable_us_east_1_infra ? 1 : 0
+  source = "github.com/18F/identity-terraform//ssm?ref=16554935ff6fe92b77a29a3bcd4b04072d65e264"
+  #source = "../../../identity-terraform/ssm"
+  providers = {
+    aws = aws.use1
+  }
+
+  bucket_name_prefix = "login-gov"
+  region             = "us-east-1"
+  env_name           = var.env_name
+
+  ssm_doc_map             = local.ssm_docs
+  ssm_interactive_cmd_map = local.ssm_interactive_cmds
+  ssm_cmd_doc_map = (
+    var.enable_loadtesting ? merge(local.locust_cmds, local.ssm_cmds) : local.ssm_cmds
+  )
+}
+
 # Base role required for all instances
 resource "aws_iam_role" "ssm-access" {
   name               = "${var.env_name}-ssm-access"
@@ -206,7 +232,7 @@ resource "aws_iam_role" "ssm-access" {
 resource "aws_iam_role_policy" "ssm-access" {
   name   = "${var.env_name}-ssm-access"
   role   = aws_iam_role.ssm-access.id
-  policy = module.ssm.ssm_access_role_policy
+  policy = module.ssm_uw2.ssm_access_role_policy
 }
 
 # IAM instance profile using the ssm-access role
@@ -221,9 +247,9 @@ resource "aws_iam_instance_profile" "ssm-access" {
 #region                              = "us-west-2"
 #cloudwatch_subscription_filter_name = "log-ship-to-soc"
 #cloudwatch_log_group_name = {
-#"${module.ssm.ssm_cw_logs}" = ""
+#"${module.ssm_uw2.ssm_cw_logs}" = ""
 #}
 #env_name            = "${var.env_name}-ssm-logs"
 #soc_destination_arn = "arn:aws:logs:us-west-2:752281881774:destination:elp-ssm-lg"
-#depends_on = [module.ssm.ssm_cw_logs]
+#depends_on = [module.ssm_uw2.ssm_cw_logs]
 #}

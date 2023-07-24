@@ -79,7 +79,7 @@ module "env-runner" {
     module.base_security_uw2.endpoint_sg["sqs"]
   ]
   gitlab_configbucket       = var.gitlab_configbucket
-  ssm_access_policy         = module.ssm.ssm_access_role_policy
+  ssm_access_policy         = module.ssm_uw2.ssm_access_role_policy
   terraform_powers          = true
   is_it_an_env_runner       = true
   gitlab_ecr_repo_accountid = var.gitlab_ecr_repo_accountid

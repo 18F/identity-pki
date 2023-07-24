@@ -52,7 +52,7 @@ module "outboundproxy_uw2" {
   base_security_group_id           = module.base_security_uw2.base_id
   proxy_security_group_id          = module.outboundproxy_net_uw2.security_group_id
   proxy_for                        = ""
-  ssm_access_policy                = module.ssm.ssm_access_role_policy
+  ssm_access_policy                = module.ssm_uw2.ssm_access_role_policy
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   autoscaling_time_zone            = var.autoscaling_time_zone
   autoscaling_schedule_name        = var.autoscaling_schedule_name

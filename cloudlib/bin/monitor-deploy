@@ -38,6 +38,11 @@ For example:
     opts.on('-q', '--quiet', 'Be quieter (can pass multiple times)') do
       Cloudlib.log_level += 1
     end
+
+    opts.on('-R', '--aws-region REGION', 'Set AWS_REGION env variable') do |val|
+      ENV['AWS_REGION'] = val
+      log.debug("AWS_REGION=#{val.inspect}")
+    end
   end
 
   args = optparse.parse!

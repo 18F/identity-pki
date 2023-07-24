@@ -20,5 +20,5 @@ resource "aws_iam_instance_profile" "base-permissions" {
 resource "aws_iam_role_policy" "base-permissions-ssm-access" {
   name   = "${var.env_name}-base-permissions-ssm-access"
   role   = module.application_iam_roles.base_permissions_iam_role_id
-  policy = module.ssm.ssm_access_role_policy
+  policy = module.ssm_uw2.ssm_access_role_policy
 }

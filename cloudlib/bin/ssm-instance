@@ -90,6 +90,11 @@ Options:
       ENV['AWS_PROFILE'] = val
       log.debug("AWS_PROFILE=#{val.inspect}")
     end
+
+    opts.on('-R', '--aws-region REGION', 'Set AWS_REGION env variable') do |val|
+      ENV['AWS_REGION'] = val
+      log.debug("AWS_REGION=#{val.inspect}")
+    end
   end
 
   host_and_cmd = optparse.order(args)
