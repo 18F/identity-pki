@@ -34,6 +34,13 @@ users:
     - lg-public
     ec2_username:
     - theabrad
+  allison.rosenberg:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - arosenberg
+    gitlab_groups:
+    - pm
   amir.reavis-bey:
     aws_groups:
     - appdev
