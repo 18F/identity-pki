@@ -523,8 +523,8 @@ data "aws_iam_policy_document" "certificates_role_policy" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
-      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
     ]
   }
 }
@@ -683,6 +683,7 @@ data "aws_iam_policy_document" "sns-publish-alerts-policy" {
     ]
     resources = [
       var.slack_events_sns_hook_arn,
+      var.slack_events_sns_hook_arn_use1,
     ]
   }
 }

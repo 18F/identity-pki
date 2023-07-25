@@ -16,6 +16,7 @@ module "application_iam_roles" {
   kinesis_kms_key_arn            = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
   gitlab_env_runner_role_arn     = try(module.env-runner[0].runner_role_arn, null)
   slack_events_sns_hook_arn      = var.slack_events_sns_hook_arn
+  slack_events_sns_hook_arn_use1 = var.slack_events_sns_hook_arn_use1
   root_domain                    = var.root_domain
   gitlab_enabled                 = var.gitlab_enabled
   usps_updates_sqs_arn           = try(module.usps_updates[0].sqs_arn, null)
