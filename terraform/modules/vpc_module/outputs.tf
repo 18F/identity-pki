@@ -11,7 +11,11 @@ output "s3_prefix_list_id" {
 }
 
 output "db_security_group" {
-  value = var.enable_data_services ? aws_security_group.db[*].id : null
+  value = var.enable_data_services ? aws_security_group.db[0].id : null
+}
+
+output "db_subnet_group" {
+  value = var.enable_data_services ? aws_db_subnet_group.aurora[0].id : null
 }
 
 output "app_security_group" {
