@@ -22,6 +22,7 @@ module "build_pool" {
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
   gitlab_lb_interface_cidr_blocks  = local.gitlab_lb_interface_cidr_blocks
   gitlab_runner_pool_name          = "build-pool"
+  instance_type_gitlab_runner      = var.instance_type_gitlab_build
   proxy_server                     = "obproxy-build-pool.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
@@ -60,6 +61,7 @@ module "test_pool" {
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
   gitlab_lb_interface_cidr_blocks  = local.gitlab_lb_interface_cidr_blocks
   gitlab_runner_pool_name          = "test-pool"
+  instance_type_gitlab_runner      = var.instance_type_gitlab_test
   proxy_server                     = "obproxy-test-pool.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
@@ -98,6 +100,7 @@ module "env-runner" {
   github_ipv4_cidr_blocks          = local.github_ipv4_cidr_blocks
   gitlab_lb_interface_cidr_blocks  = local.gitlab_lb_interface_cidr_blocks
   gitlab_runner_pool_name          = "env-runner"
+  instance_type_gitlab_runner      = var.instance_type_gitlab_runner
   proxy_server                     = "obproxy-env-runner.login.gov.internal"
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
