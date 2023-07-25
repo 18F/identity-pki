@@ -673,6 +673,42 @@ data "aws_iam_policy_document" "cloudwatch-agent" {
   }
 }
 
+# Allows IDP worker hosts to query cloudwatch insights
+data "aws_iam_policy_document" "worker-cloudwatch-insights" {
+  statement {
+    sid = "AllowQueryAndLogGroupAccess"
+    actions = [
+      "logs:StartQuery",
+      "logs:DescribeLogStreams",
+    ]
+    resources = [
+      "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:${var.env_name}_/srv/idp/shared/log/events.log:*",
+    ]
+  }
+
+  statement {
+    sid = "AllowGetLogEvents"
+    actions = [
+      "logs:GetLogEvents",
+    ]
+    resources = [
+      "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:${var.env_name}_/srv/idp/shared/log/events.log:log-stream:*",
+    ]
+  }
+
+  statement {
+    sid = "AllowGetAndStopQuery"
+    actions = [
+      "logs:GetQueryResults",
+      "logs:StopQuery",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
+}
+
 # Allow publishing to SNS topics used for alerting
 #This policy is for writing log files to CloudWatch
 data "aws_iam_policy_document" "sns-publish-alerts-policy" {
