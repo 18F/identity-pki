@@ -107,7 +107,7 @@ get_pipeline_ami() {
     BAD_IMAGE_DATA+=("${PROFILE}/${AMI_TYPE}/${BAD_BUILDS}")
   fi
   IMAGE=$(ave -r aws cloudtrail lookup-events \
-                    --lookup-attributes AttributeKey=EventName,AttributeValue=CopyImage |
+                    --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
                     jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
                       fromjson|
                       select(.userIdentity.arn|
