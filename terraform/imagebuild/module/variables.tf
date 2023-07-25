@@ -72,6 +72,15 @@ DESC
   }
 }
 
+variable "ami_regions" {
+  description = <<EOM
+List of region(s) where AMIs should exist. AMIs are created in us-west-2 and will be
+copied to other regions IFF this variable has more than one region listed.
+EOM
+  type        = list(string)
+  default     = ["us-west-2", "us-east-1"]
+}
+
 variable "os_number" {
   description = <<DESC
 REQUIRED. Main version number of Ubuntu Pro FIPS used in buildspec.yml file from

@@ -19,4 +19,6 @@ module "main" {
   trigger_source      = "CloudWatch"
   code_branch         = var.code_branch
   image_build_nat_eip = "34.216.215.32" # TODO: make this programmable
+
+  ami_regions = ["us-west-2"] # until approved in SIA/SCR for us-east-1 infra
 }
