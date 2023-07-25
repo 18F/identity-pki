@@ -541,8 +541,8 @@ data "aws_iam_policy_document" "application_secrets_role_policy" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/${var.env_name}/",
-      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/${var.env_name}/*",
+      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-*-${data.aws_caller_identity.current.account_id}/${var.env_name}/",
+      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-*-${data.aws_caller_identity.current.account_id}/${var.env_name}/*",
     ]
   }
 }
@@ -714,7 +714,7 @@ data "aws_iam_policy_document" "ec2-tags" {
     ]
 
     resources = [
-      "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:instance/*"
     ]
     condition {
       test     = "StringEquals"
