@@ -43,8 +43,8 @@ the user should have.
     - Add `gitlab_groups` if team member needs GitLab access
 ~~~sh
 # Example - Add a user with the AWS name "steamboat.willie" and EC2 username of
-#           "swillie" to the "appdev" group in AWS and the "appdev" group in GitLab
-bin/manage-user -u steamboat.willie -e swillie -a appdev -g appdev
+#           "swillie" to the "appdev" group in AWS and the "appdev", "lg-all", "lg-public" groups in GitLab
+bin/manage-user -u steamboat.willie -e swillie -a appdev -g appdev,lg-all,lg-public
 ~~~
   - [ ] Open a PR with the above change(s)
     - [ ] Upon approval, merge PR and create AWS user account
