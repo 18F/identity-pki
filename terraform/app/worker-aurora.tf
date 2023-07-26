@@ -1,7 +1,6 @@
 module "worker_aurora_uw2" {
   source = "../modules/rds_aurora"
 
-  region        = "us-west-2"
   env_name      = var.env_name
   db_identifier = "worker"
 
@@ -28,7 +27,7 @@ module "worker_aurora_uw2" {
   major_upgrades      = true
 
   storage_encrypted   = true
-  db_kms_key_id       = data.aws_kms_key.rds_alias.arn
+  db_kms_key_id       = module.idp_aurora_uw2.kms_arn
   key_admin_role_name = "KMSAdministrator"
 
   cw_logs_exports     = ["postgresql"]
@@ -38,9 +37,6 @@ module "worker_aurora_uw2" {
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}",
     "role/${var.rds_monitoring_role_name}"
   ])
-
-  internal_zone_id = module.internal_dns_uw2.internal_zone_id
-  route53_ttl      = 300
 
   primary_cluster_instances = var.worker_cluster_instances  # must start at 1
   enable_autoscaling        = var.worker_aurora_autoscaling # defaults to false

@@ -68,7 +68,7 @@ EOM
   local TF_ARGS=()
   if [[ ! ${APPLY_ALL} == true ]] ; then
     TF_ARGS=($(ave ${BASEPATH}/tf-deploy ${TF_ENV} app state list |
-      grep 'db_instance\|autoscaling_group\|rds_cluster\.'))
+                   grep 'autoscaling_group\|cluster'))
     TF_ARGS+=('aws_route53_record.pivcac_zone_ds') # delete pivcac parent DS
     TF_ARGS=( "${TF_ARGS[@]/#/-target=}" ) # adds DBs and ASGs as targets
   fi

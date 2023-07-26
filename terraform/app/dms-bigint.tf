@@ -12,10 +12,10 @@ module "big_int_migration" {
   rds_username = var.rds_username
   cert_bucket  = local.secrets_bucket
 
-  source_db_address           = module.idp_aurora_from_rds[0].writer_instance_endpoint
-  target_db_address           = module.idp_aurora_from_rds[0].writer_instance_endpoint
+  source_db_address           = module.idp_aurora_uw2.writer_instance_endpoint
+  target_db_address           = module.idp_aurora_uw2.writer_instance_endpoint
   source_db_allocated_storage = 3000
-  source_db_availability_zone = module.idp_aurora_from_rds[0].writer_instance_az
+  source_db_availability_zone = module.idp_aurora_uw2.writer_instance_az
   source_db_instance_class    = var.rds_instance_class_aurora
   rds_kms_key_arn             = data.aws_kms_key.dms_alias.arn
 
@@ -27,7 +27,7 @@ module "big_int_migration" {
   ]
 
   depends_on = [
-    module.idp_aurora_from_rds
+    module.idp_aurora_uw2
   ]
 
 }

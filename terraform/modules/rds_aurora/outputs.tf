@@ -1,5 +1,21 @@
+output "kms_arn" {
+  value = data.aws_kms_key.rds_alias.arn
+}
+
 output "cluster_id" {
   value = aws_rds_cluster.aurora.id
+}
+
+output "cluster_arn" {
+  value = aws_rds_cluster.aurora.arn
+}
+
+output "global_cluster_id" {
+  value = var.create_global_db ? aws_rds_global_cluster.aurora[0].id : null
+}
+
+output "global_cluster_arn" {
+  value = var.create_global_db ? aws_rds_global_cluster.aurora[0].arn : null
 }
 
 output "writer_instance" {
@@ -18,10 +34,6 @@ output "writer_endpoint" {
   value = aws_rds_cluster.aurora.endpoint
 }
 
-output "writer_fqdn" {
-  value = aws_route53_record.writer_endpoint.fqdn
-}
-
 output "writer_instance_endpoint" {
   value = aws_rds_cluster_instance.aurora[0].endpoint
 }
@@ -32,8 +44,4 @@ output "writer_instance_az" {
 
 output "reader_endpoint" {
   value = aws_rds_cluster.aurora.reader_endpoint
-}
-
-output "reader_fqdn" {
-  value = aws_route53_record.reader_endpoint.fqdn
 }

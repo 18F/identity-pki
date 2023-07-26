@@ -523,8 +523,8 @@ data "aws_iam_policy_document" "certificates_role_policy" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
-      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
     ]
   }
 }
@@ -541,8 +541,8 @@ data "aws_iam_policy_document" "application_secrets_role_policy" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/${var.env_name}/",
-      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-${var.region}-${data.aws_caller_identity.current.account_id}/${var.env_name}/*",
+      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-*-${data.aws_caller_identity.current.account_id}/${var.env_name}/",
+      "arn:aws:s3:::${var.app_secrets_bucket_name_prefix}-*-${data.aws_caller_identity.current.account_id}/${var.env_name}/*",
     ]
   }
 }
@@ -673,6 +673,42 @@ data "aws_iam_policy_document" "cloudwatch-agent" {
   }
 }
 
+# Allows IDP worker hosts to query cloudwatch insights
+data "aws_iam_policy_document" "worker-cloudwatch-insights" {
+  statement {
+    sid = "AllowQueryAndLogGroupAccess"
+    actions = [
+      "logs:StartQuery",
+      "logs:DescribeLogStreams",
+    ]
+    resources = [
+      "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:${var.env_name}_/srv/idp/shared/log/events.log:*",
+    ]
+  }
+
+  statement {
+    sid = "AllowGetLogEvents"
+    actions = [
+      "logs:GetLogEvents",
+    ]
+    resources = [
+      "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:${var.env_name}_/srv/idp/shared/log/events.log:log-stream:*",
+    ]
+  }
+
+  statement {
+    sid = "AllowGetAndStopQuery"
+    actions = [
+      "logs:GetQueryResults",
+      "logs:StopQuery",
+    ]
+    resources = [
+      "*",
+    ]
+  }
+
+}
+
 # Allow publishing to SNS topics used for alerting
 #This policy is for writing log files to CloudWatch
 data "aws_iam_policy_document" "sns-publish-alerts-policy" {
@@ -683,6 +719,7 @@ data "aws_iam_policy_document" "sns-publish-alerts-policy" {
     ]
     resources = [
       var.slack_events_sns_hook_arn,
+      var.slack_events_sns_hook_arn_use1,
     ]
   }
 }
@@ -714,7 +751,7 @@ data "aws_iam_policy_document" "ec2-tags" {
     ]
 
     resources = [
-      "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:instance/*"
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:instance/*"
     ]
     condition {
       test     = "StringEquals"

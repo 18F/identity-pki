@@ -29,7 +29,7 @@ get_build_branch() {
   echo -e "\nGetting SSM parameter for imagebuild branch in \`login-${ACCOUNT}\`..."
   CURRENT_BRANCH=$(ave -r aws ssm get-parameter \
     --name ImageCreationSourceFile --output text --with-decryption --query 'Parameter.Value' |
-    sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\.\/-]+)\/18F_identity-base-image\.zip/\1/')
+    sed -E 's/18F\/identity-base-image\/(.+)\/18F_identity-base-image\.zip/\1/')
 }
 
 verify_cfn_branches() {
@@ -38,7 +38,7 @@ verify_cfn_branches() {
     STACK_BRANCH=$(ave -r aws cloudformation describe-stacks \
       --output text --stack-name ${STACK} \
       --query 'Stacks[].Parameters[?ParameterKey==`SourceFileName`].ResolvedValue[]' |
-      sed -E 's/18F\/identity-base-image\/([A-Za-z0-9\.\/-]+)\/18F_identity-base-image\.zip/\1/')
+      sed -E 's/18F\/identity-base-image\/(.+)\/18F_identity-base-image\.zip/\1/')
     if [[ "${STACK_BRANCH}" != "${CURRENT_BRANCH}" ]] ; then
       echo_yellow "Stack ${STACK} is using branch \`${STACK_BRANCH}\`;"
       echo_yellow "updating to use \`${CURRENT_BRANCH}\` instead."

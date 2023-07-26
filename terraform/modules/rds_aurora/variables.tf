@@ -7,12 +7,6 @@ locals {
 
 # Identifiers
 
-variable "region" {
-  type        = string
-  description = "Primary AWS Region"
-  default     = "us-west-2"
-}
-
 variable "env_name" {
   type        = string
   description = "Environment name"
@@ -32,11 +26,23 @@ EOM
   default     = ""
 }
 
-variable "rds_db_arn" {
+variable "create_global_db" {
+  type        = bool
+  description = <<EOM
+Whether or not to enable creating an Aurora Global cluster AFTER the creation
+of the aws_rds_cluster.aurora regional Aurora cluster. Must be set to 'false'
+if this module instance is creating a secondary regional Aurora cluster
+in an existing Global cluster.
+EOM
+  default     = false
+}
+
+variable "global_db_id" {
   type        = string
   description = <<EOM
-(OPTIONAL) ARN of RDS DB used as replication source for the Aurora cluster;
-leave blank if not using an RDS replication source / creating a standalone cluster
+Identifier for an Aurora Global cluster. MUST be specified if this module instance
+is creating a secondary regional Aurora cluster in an existing Global cluster
+OR if creating an Aurora Global cluster specifically within this module.
 EOM
   default     = ""
 }
@@ -89,7 +95,7 @@ EOM
 variable "db_instance_class" {
   type        = string
   description = "Instance class to use in AuroraDB cluster"
-  default     = "db.t3.medium"
+  default     = "db.r6g.large"
 }
 
 variable "db_publicly_accessible" {
@@ -294,19 +300,6 @@ variable "rds_password" {
 variable "rds_username" {
   type        = string
   description = "Username for the RDS master user account"
-}
-
-# DNS / Route53
-
-variable "internal_zone_id" {
-  type        = string
-  description = "(REQUIRED) ID of the Route53 hosted zone to create records in"
-}
-
-variable "route53_ttl" {
-  type        = number
-  description = "TTL for the Route53 DNS records for the writer/reader endpoints"
-  default     = 300
 }
 
 # Disaster Recovery

@@ -112,6 +112,10 @@ variable "slack_events_sns_hook_arn" {
   type        = string
 }
 
+variable "slack_events_sns_hook_arn_use1" {
+  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
+}
+
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
   type        = string

@@ -2,169 +2,23 @@
 
 data "aws_caller_identity" "current" {}
 
+data "aws_region" "current" {}
+
 data "aws_availability_zones" "region" {
   state = "available"
 }
 
-# use aws/rds KMS key for performance insights
-data "aws_kms_key" "insights" {
+# use aws/rds KMS key for cluster encryption + performance insights
+data "aws_kms_key" "rds_alias" {
   key_id = "alias/aws/rds"
 }
 
-# policy for KMS key used with actual database
-data "aws_iam_policy_document" "db_kms_key" {
-  statement {
-    sid    = "Enable IAM User Permissions"
-    effect = "Allow"
-    actions = [
-      "kms:*",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-      ]
-    }
-    resources = [
-      "*",
-    ]
-  }
-
-  statement {
-    sid    = "Allow access for Key Administrators"
-    effect = "Allow"
-    actions = [
-      "kms:Create*",
-      "kms:Describe*",
-      "kms:Enable*",
-      "kms:List*",
-      "kms:Put*",
-      "kms:Update*",
-      "kms:Revoke*",
-      "kms:Disable*",
-      "kms:Get*",
-      "kms:Delete*",
-      "kms:TagResource",
-      "kms:UntagResource",
-      "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion",
-    ]
-    resources = [
-      "*",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        join(":", [
-          "arn:aws:iam", "", data.aws_caller_identity.current.account_id,
-          "role/${var.key_admin_role_name}"
-        ])
-      ]
-    }
-  }
-
-  statement {
-    sid    = "Allow RDS Access"
-    effect = "Allow"
-    actions = [
-      "kms:Encrypt",
-      "kms:Decrypt",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:DescribeKey",
-    ]
-    resources = [
-      "*",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        join(":", [
-          "arn:aws:iam", "", data.aws_caller_identity.current.account_id,
-          "role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
-        ])
-      ]
-    }
-  }
-
-  statement {
-    sid    = "Allow attachment of resources"
-    effect = "Allow"
-    actions = [
-      "kms:CreateGrant",
-      "kms:ListGrants",
-      "kms:RevokeGrant",
-    ]
-    resources = [
-      "*",
-    ]
-    principals {
-      type = "AWS"
-      identifiers = [
-        join(":", [
-          "arn:aws:iam", "", data.aws_caller_identity.current.account_id,
-          "role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"
-        ])
-      ]
-    }
-    condition {
-      test     = "Bool"
-      variable = "kms:GrantIsForAWSResource"
-
-      values = [
-        "true",
-      ]
-    }
-  }
+moved {
+  from = data.aws_kms_key.insights
+  to   = data.aws_kms_key.rds_alias
 }
 
 ##### Resources
-
-# DNS / Route53
-
-resource "aws_route53_record" "writer_endpoint" {
-  zone_id = var.internal_zone_id
-  name    = "${var.db_identifier}-${var.db_engine}-writer-${var.region}"
-
-  type    = "CNAME"
-  ttl     = var.route53_ttl
-  records = [replace(aws_rds_cluster.aurora.endpoint, ":${var.db_port}", "")]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_route53_record" "reader_endpoint" {
-  zone_id = var.internal_zone_id
-  name    = "${var.db_identifier}-${var.db_engine}-reader-${var.region}"
-
-  type    = "CNAME"
-  ttl     = var.route53_ttl
-  records = [replace(aws_rds_cluster.aurora.reader_endpoint, ":${var.db_port}", "")]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# KMS (if not importing)
-
-resource "aws_kms_key" "db" {
-  count = var.db_kms_key_id == "" ? 1 : 0
-
-  description             = "${local.db_name} DB Key"
-  deletion_window_in_days = 30
-  enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.db_kms_key.json
-}
-
-resource "aws_kms_alias" "db" {
-  count = var.db_kms_key_id == "" ? 1 : 0
-
-  name          = "alias/${local.db_name}-db"
-  target_key_id = aws_kms_key.db[count.index].key_id
-}
 
 # Monitoring role (if not importing)
 
@@ -196,6 +50,31 @@ resource "aws_iam_role_policy_attachment" "rds_monitoring" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
 
+# Global Cluster 'head' resource
+
+resource "aws_rds_global_cluster" "aurora" {
+  count = var.create_global_db ? 1 : 0
+
+  global_cluster_identifier    = "${var.env_name}-${var.global_db_id}"
+  source_db_cluster_identifier = aws_rds_cluster.aurora.arn
+  force_destroy                = true
+
+  # To properly delete this cluster via Terraform:
+  # 1. Comment out the `deletion_protection` and `lifecycle/prevent_destroy` lines.
+  # 2. Perform a targeted 'apply' (e.g. "-target=aws_rds_global_cluster.aurora")
+  #    to remove deletion protection + disable requiring a final snapshot.
+  # 3. Perform a 'destroy' operation as needed.
+
+  deletion_protection = true
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [source_db_cluster_identifier]
+  }
+
+  depends_on = [aws_rds_cluster.aurora]
+}
+
 # AuroraDB Cluster + Instances
 
 resource "aws_rds_cluster" "aurora" {
@@ -220,14 +99,15 @@ resource "aws_rds_cluster" "aurora" {
   apply_immediately            = true
 
   storage_encrypted = var.storage_encrypted
+  master_password   = var.rds_password
+  master_username   = var.rds_username
   kms_key_id = (
-    var.db_kms_key_id == "" ? aws_kms_key.db[0].key_id : var.db_kms_key_id
+    var.db_kms_key_id == "" ? data.aws_kms_key.rds_alias.arn : var.db_kms_key_id
   )
 
-  # must specify password and username unless using a replication_source_identifier
-  master_password               = var.rds_db_arn == "" ? var.rds_password : ""
-  master_username               = var.rds_db_arn == "" ? var.rds_username : ""
-  replication_source_identifier = var.rds_db_arn
+  # only use if NOT creating Global cluster ; must specify external Global cluster ID
+  global_cluster_identifier = var.global_db_id != "" && var.create_global_db == false ? (
+  var.global_db_id) : null
 
   # send logs to cloudwatch
   enabled_cloudwatch_logs_exports = var.cw_logs_exports == [] ? (
@@ -280,9 +160,11 @@ resource "aws_rds_cluster" "aurora" {
   lifecycle {
     prevent_destroy = true
     ignore_changes = [
-      replication_source_identifier,
+      global_cluster_identifier,
       master_password,
-      master_username
+      master_username,
+      kms_key_id,
+      availability_zones
     ]
   }
 }
@@ -315,7 +197,7 @@ resource "aws_rds_cluster_instance" "aurora" {
   # performance insights
   performance_insights_enabled = var.pi_enabled
   performance_insights_kms_key_id = (
-    var.pi_enabled ? data.aws_kms_key.insights.arn : ""
+    var.pi_enabled ? data.aws_kms_key.rds_alias.arn : ""
   )
 }
 

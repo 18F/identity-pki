@@ -61,36 +61,6 @@ resource "aws_subnet" "app" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-### Route Table for DB Subnets ###
-
-resource "aws_route_table" "database" {
-  count = var.enable_data_services ? 1 : 0
-
-  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-}
-
-resource "aws_route_table_association" "database" {
-  for_each = var.enable_data_services ? aws_subnet.data-services : {}
-
-  route_table_id = aws_route_table.database[0].id
-  subnet_id      = each.value.id
-}
-
-### Route Table for App Subnets ###
-
-resource "aws_route_table" "app" {
-  count = var.enable_app ? 1 : 0
-
-  vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-}
-
-resource "aws_route_table_association" "app" {
-  for_each = var.enable_app ? aws_subnet.app : {}
-
-  route_table_id = aws_route_table.app[0].id
-  subnet_id      = each.value.id
-}
-
 #### Default NACL ###
 
 resource "aws_default_network_acl" "default" {
@@ -286,7 +256,7 @@ resource "aws_security_group" "db" {
     protocol  = "tcp"
     security_groups = compact([
       var.additional_sg_id,
-      var.enable_app == 1 ? aws_security_group.app[0].id : ""
+      var.enable_app ? aws_security_group.app[0].id : ""
     ])
   }
 
@@ -379,14 +349,9 @@ resource "aws_security_group" "null" {
 resource "aws_vpc_endpoint" "private-s3" {
   count = var.enable_data_services || var.enable_app ? 1 : 0
 
-  vpc_id       = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-  service_name = "com.amazonaws.${var.region}.s3"
-  route_table_ids = compact(
-    [
-      var.enable_data_services ? aws_route_table.database[0].id : null,
-      var.enable_app ? aws_route_table.app[0].id : null,
-    ]
-  )
+  vpc_id          = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
+  service_name    = "com.amazonaws.${var.region}.s3"
+  route_table_ids = [aws_vpc.default.main_route_table_id]
 }
 
 ### Get vpc flow logs going into cloudwatch ###

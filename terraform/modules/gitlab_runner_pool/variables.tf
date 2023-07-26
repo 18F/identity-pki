@@ -147,11 +147,11 @@ variable "env_name" {
 }
 
 variable "instance_type_gitlab" {
-  default = "c5.xlarge"
+  default = "c6i.xlarge"
 }
 
 variable "instance_type_gitlab_runner" {
-  default = "c5.xlarge"
+  default = "c6i.xlarge"
 }
 
 variable "instance_type_outboundproxy" {

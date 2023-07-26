@@ -11,19 +11,23 @@ output "s3_prefix_list_id" {
 }
 
 output "db_security_group" {
-  value = var.enable_data_services ? aws_security_group.db[*].id : null
+  value = var.enable_data_services ? aws_security_group.db[0].id : null
+}
+
+output "db_subnet_group" {
+  value = var.enable_data_services ? aws_db_subnet_group.aurora[0].id : null
 }
 
 output "app_security_group" {
   value = var.enable_app ? aws_security_group.app[*].id : null
 }
 
-output "db_subnet_ids" {
-  description = "List of IDs of data-services subnets"
-  value       = var.enable_data_services ? [for s in aws_subnet.data-services : s.id] : null
+output "db_subnet" {
+  description = "Data-services subnets"
+  value       = var.enable_data_services ? aws_subnet.data-services : null
 }
 
-output "app_subnet_ids" {
-  description = "List of IDs of App services subnets"
-  value       = var.enable_app ? [for s in aws_subnet.app : s.id] : null
+output "app_subnet" {
+  description = "App services subnets"
+  value       = var.enable_app ? aws_subnet.app : null
 }

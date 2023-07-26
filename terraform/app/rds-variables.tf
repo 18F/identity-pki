@@ -88,9 +88,22 @@ variable "rds_engine_version_aurora" {
 variable "rds_instance_class_aurora" {
   type        = string
   description = <<EOM
-Instance class to use for the 'login-ENV-idp-aurora-us-west-2' AuroraDB cluster.
+Instance class to use for the idp AuroraDB cluster(s). Will be ignored
+in favor of rds_instance_class_aurora_global if idp_global_enabled is 'true',
+as Aurora clusters MUST have an instance class of db.r5.large (the default
+value) or larger in order to support a Global cluster.
 EOM
   default     = "db.t3.medium"
+}
+
+variable "rds_instance_class_aurora_global" {
+  type        = string
+  description = <<EOM
+Instance class to use for the idp AuroraDB cluster(s) when creating/supporting
+a Global Aurora cluster. MUST be an instance class of db.r5.large or larger.
+Will override rds_instance_class_aurora if if idp_global_enabled is 'true'.
+EOM
+  default     = "db.r5.large"
 }
 
 variable "rds_password" { # set manually after creation
@@ -164,15 +177,6 @@ variable "performance_insights_enabled" {
 
 # idp
 
-variable "idp_aurora_enabled" {
-  type        = bool
-  description = <<EOM
-Enable/disable creation of the 'login-ENV-idp-aurora-us-west-2' AuroraDB cluster.
-Set to FALSE once new ENV-idp cluster (w/BigInt changes) has replaced it.
-EOM
-  default     = true
-}
-
 variable "idp_cluster_instances" {
   type        = number
   description = <<EOM
@@ -205,6 +209,24 @@ Scaling configuration (maximum/minimum capacity) to use,
 if setting/upgrading idp DB cluster to Aurora Serverless v2
 EOM
   default     = []
+}
+
+variable "idp_global_enabled" {
+  type        = bool
+  description = <<EOM
+Whether or not to enable creating an Aurora Global cluster AFTER the creation
+of the ENV-idp-uw2 regional Aurora cluster.
+EOM
+  default     = false
+}
+
+variable "idp_aurora_ue1_enabled" {
+  type        = bool
+  description = <<EOM
+Whether or not to enable creating a replica Aurora cluster in us-east-1
+AFTER the creation of the global Aurora cluster.
+EOM
+  default     = false
 }
 
 # dashboard (app)

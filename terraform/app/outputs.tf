@@ -42,33 +42,27 @@ output "elasticache" {
 
 # AuroraDB
 
-output "idp_aurora_from_rds" {
-  value = var.idp_aurora_enabled ? {
-    endpoint_reader          = module.idp_aurora_from_rds[0].reader_endpoint
-    endpoint_writer          = module.idp_aurora_from_rds[0].writer_endpoint
-    endpoint_writer_instance = module.idp_aurora_from_rds[0].writer_instance_endpoint
-    fqdn_reader              = module.idp_aurora_from_rds[0].reader_fqdn
-    fqdn_writer              = module.idp_aurora_from_rds[0].writer_fqdn
-  } : null
+output "idp_aurora_uw2" {
+  value = {
+    endpoint_reader_cluster  = module.idp_aurora_uw2.reader_endpoint
+    endpoint_writer_cluster  = module.idp_aurora_uw2.writer_endpoint
+    endpoint_writer_instance = module.idp_aurora_uw2.writer_instance_endpoint
+  }
 }
 
 output "dashboard_aurora_uw2" {
   value = var.apps_enabled == 1 ? {
-    endpoint_reader          = module.dashboard_aurora_uw2[0].reader_endpoint
-    endpoint_writer          = module.dashboard_aurora_uw2[0].writer_endpoint
+    endpoint_reader_cluster  = module.dashboard_aurora_uw2[0].reader_endpoint
+    endpoint_writer_cluster  = module.dashboard_aurora_uw2[0].writer_endpoint
     endpoint_writer_instance = module.dashboard_aurora_uw2[0].writer_instance_endpoint
-    fqdn_reader              = module.dashboard_aurora_uw2[0].reader_fqdn
-    fqdn_writer              = module.dashboard_aurora_uw2[0].writer_fqdn
   } : null
 }
 
 output "worker_aurora_uw2" {
   value = {
-    endpoint_reader          = module.worker_aurora_uw2.reader_endpoint
-    endpoint_writer          = module.worker_aurora_uw2.writer_endpoint
+    endpoint_reader_cluster  = module.worker_aurora_uw2.reader_endpoint
+    endpoint_writer_cluster  = module.worker_aurora_uw2.writer_endpoint
     endpoint_writer_instance = module.worker_aurora_uw2.writer_instance_endpoint
-    fqdn_reader              = module.worker_aurora_uw2.reader_fqdn
-    fqdn_writer              = module.worker_aurora_uw2.writer_fqdn
   }
 }
 

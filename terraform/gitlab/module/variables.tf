@@ -187,8 +187,16 @@ variable "instance_type_gitlab" {
   default = "r5.xlarge"
 }
 
+variable "instance_type_gitlab_build" {
+  default = "c6i.large"
+}
+
 variable "instance_type_gitlab_runner" {
-  default = "c5.xlarge"
+  default = "c6i.large"
+}
+
+variable "instance_type_gitlab_test" {
+  default = "c6i.xlarge"
 }
 
 variable "instance_type_outboundproxy" {

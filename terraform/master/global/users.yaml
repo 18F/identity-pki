@@ -43,7 +43,7 @@ users:
     - pm
   amir.reavis-bey:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - amir.reavis-bey
     gitlab_groups:
@@ -746,13 +746,6 @@ users:
     - sujana09
     gitlab_groups:
     - devops
-    - lg-all
-    - lg-public
-  sumi.thaiveettil:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
     - lg-all
     - lg-public
   thomas.apodaca:

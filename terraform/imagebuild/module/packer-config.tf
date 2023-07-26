@@ -1,3 +1,8 @@
+locals {
+  # hack to properly parse var.ami_regions into packer_config as a list in heredoc
+  config_separator = "\", \""
+}
+
 resource "aws_s3_object" "packer_config" {
   for_each = toset(var.ami_types)
 
@@ -22,6 +27,7 @@ chef_version = "${var.packer_config["chef_version"]}"
 os_version = "${var.packer_config["os_version"]}"
 ami_owner_id = "${var.packer_config["ami_owner_id"]}"
 ami_filter_name = "${var.packer_config["ami_filter_name"]}"
+ami_regions = ["${join(local.config_separator, var.ami_regions)}"]
 HCL
   content_type = "text/plain"
 }

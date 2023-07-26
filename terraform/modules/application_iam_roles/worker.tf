@@ -52,6 +52,12 @@ resource "aws_iam_role_policy" "worker-cloudwatch-agent" {
   policy = data.aws_iam_policy_document.cloudwatch-agent.json
 }
 
+resource "aws_iam_role_policy" "worker-cloudwatch-insights" {
+  name   = "${var.env_name}-worker-cloudwatch-insights"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.worker-cloudwatch-insights.json
+}
+
 # Conditionally create ssm policy, for backwards compatibility with non kubernetes environments
 resource "aws_iam_role_policy" "worker-ssm-access" {
   count  = var.ssm_access_enabled ? 1 : 0

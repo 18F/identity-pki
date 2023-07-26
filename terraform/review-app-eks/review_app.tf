@@ -11,8 +11,11 @@ locals {
 
   fluentd_config = yamldecode(templatefile("${path.module}/helm-values/fluentd.yaml.tpl", {
     region                    = var.region
-    fluentd_irsa_iam_role_arn = module.fluentd_irsa.iam_role_arn,
+    fluentd_irsa_iam_role_arn = module.fluentd_irsa.iam_role_arn
+  }))
 
+  ingress_nginx_config = yamldecode(templatefile("${path.module}/helm-values/ingress-nginx.yaml.tpl", {
+    ingress_nginx_irsa_iam_role_arn = module.ingress_nginx_irsa.iam_role_arn
   }))
 }
 
@@ -91,6 +94,7 @@ module "kubernetes_addons" {
       values = {
         awsForFluentBit = local.fluentbit_config
         fluentd         = local.fluentd_config
+        ingressNginx    = local.ingress_nginx_config
       }
     }
     # Below are all magic add-ons that you can see how to configure here:
