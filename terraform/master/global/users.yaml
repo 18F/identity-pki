@@ -748,13 +748,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  sumi.thaiveettil:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
   thomas.apodaca:
     aws_groups:
     - apponcall
