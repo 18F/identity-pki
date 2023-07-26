@@ -197,7 +197,7 @@ variable "instance_type_gitlab_runner" {
 
 variable "instance_type_gitlab_test" {
   default = "c6i.xlarge"
-} 
+}
 
 variable "instance_type_outboundproxy" {
   default = "t3.medium"
