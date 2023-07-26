@@ -43,7 +43,7 @@ users:
     - pm
   amir.reavis-bey:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - amir.reavis-bey
     gitlab_groups:
