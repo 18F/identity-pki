@@ -203,6 +203,8 @@ group 'github' do
   members 'git'
 end
 
+execute 'chgrp git /etc/login.gov/keys/id_ecdsa.identity-servers'
+
 package 'gitlab-ee' do
   version node['identity_gitlab']['gitlab_version']
 end
