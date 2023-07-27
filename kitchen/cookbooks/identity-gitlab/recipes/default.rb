@@ -183,6 +183,26 @@ file 'gitlab_ee_license_file' do
   sensitive true
 end
 
+# make sure that the uid/gid is static, and can access the ssh keys
+group 'git' do
+  gid 994
+  system true
+end
+
+user 'git' do
+  comment 'Gitlab user'
+  uid 993
+  gid 'git'
+  home '/var/opt/gitlab'
+  shell '/bin/sh'
+  system true
+end
+
+group 'github' do
+  append true
+  members 'git'
+end
+
 package 'gitlab-ee' do
   version node['identity_gitlab']['gitlab_version']
 end
