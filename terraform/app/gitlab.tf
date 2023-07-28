@@ -4,7 +4,7 @@
 #   gitlab_servicename    = "<endpoint name>"
 #   gitlab_hostname       = "gitlab.<whatever>.gov"
 #   gitlab_enabled        = true
-# 
+#
 module "gitlab" {
   count      = var.gitlab_enabled ? 1 : 0
   depends_on = [aws_internet_gateway.default]
@@ -27,12 +27,12 @@ module "gitlab" {
 # stuff as documented above:
 #   gitlab_runner_enabled = true
 #   gitlab_configbucket   = "login-gov-<env>-gitlabconfig-<env accountid>-<region>"
-# 
+#
 # You will also need to set up these in the identity-devops/kitchen/environments/env.json
 # file:
 #   "gitlab_url": "gitlab.<whatever>.gov",
 #   "gitlab_config_s3_bucket": "login-gov-<env>-gitlabconfig-<accountid>-<region>"
-# 
+#
 module "env-runner" {
   count  = var.gitlab_runner_enabled ? 1 : 0
   source = "../modules/gitlab_runner_pool/"
@@ -76,7 +76,8 @@ module "env-runner" {
     module.base_security_uw2.endpoint_sg["events"],
     module.base_security_uw2.endpoint_sg["sns"],
     module.base_security_uw2.endpoint_sg["lambda"],
-    module.base_security_uw2.endpoint_sg["sqs"]
+    module.base_security_uw2.endpoint_sg["sqs"],
+    module.base_security_uw2.endpoint_sg["dms"]
   ]
   gitlab_configbucket       = var.gitlab_configbucket
   ssm_access_policy         = module.ssm_uw2.ssm_access_role_policy

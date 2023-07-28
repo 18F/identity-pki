@@ -1,5 +1,6 @@
 locals {
   aws_endpoints = {
+    "dms"            = { vpc_cidr_egress = true },
     "kms"            = { vpc_cidr_egress = true },
     "logs"           = { vpc_cidr_egress = true },
     "monitoring"     = { vpc_cidr_egress = true },

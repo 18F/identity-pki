@@ -24,6 +24,7 @@ locals {
     ".login.gov.internal",
     "metadata.google.internal",
     ], formatlist("%s.${var.region}.amazonaws.com", [
+      "dms",
       "ec2",
       "ec2messages",
       "events",
