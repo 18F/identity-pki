@@ -46,6 +46,9 @@ variables:
   interruptible: true
   allow_failure: true
   rules:
+    # Make sure scans only run on prod, where images are built
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     # Build on commits to default branch so we have something to scan for the security dashboard
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     # Build when the daily pipeline runs, but not for other scheduled pipelines.
