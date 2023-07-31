@@ -10,8 +10,8 @@ variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
   IDP_CI_SHA: 'sha256:6915b54a913ebcb9066fdfaa88c3d42bda1f4505cfb59b9d5848576705954621'
 
-default:
-  image: '${ECR_REGISTRY}/idp/ci@${IDP_CI_SHA}'
+#default:
+#  image: '${ECR_REGISTRY}/idp/ci@${IDP_CI_SHA}'
 
 stages:
   - review
@@ -66,7 +66,7 @@ review-app:
   stage: review
   allow_failure: true
   needs:
-    - job: build-idp-image
+    - job: build-pivcac-image
   resource_group: $CI_ENVIRONMENT_SLUG.review-app.pivcac.identitysandbox.gov
   image:
     name: dtzar/helm-kubectl:latest
