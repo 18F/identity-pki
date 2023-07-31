@@ -61,12 +61,6 @@ variable "identity_sms_iam_role_name_idp" {
   default     = "idp-pinpoint"
 }
 
-variable "ami_id_map" {
-  type        = map(string)
-  description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
-  default     = {}
-}
-
 variable "route53_id" {
 }
 
@@ -591,24 +585,45 @@ variable "bootstrap_private_git_clone_url" {
 
 #### us-west-2
 
-variable "default_ami_id_sandbox" {
+variable "base_ami_sandbox_uw2" {
   default     = "ami-0a64068f10aca88cf" # 2023-07-25 Ubuntu 20.04
-  description = "default AMI ID for environments in the sandbox account"
+  description = <<EOM
+us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
+EOM
 }
 
-variable "default_ami_id_prod" {
+variable "base_ami_prod_uw2" {
   default     = "ami-04c177e7467f2c729" # 2023-07-25 Ubuntu 20.04
-  description = "default AMI ID for environments in the prod account"
+  description = <<EOM
+us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
+EOM
 }
 
-variable "rails_ami_id_sandbox" {
+variable "rails_ami_sandbox_uw2" {
   default     = "ami-049373819feac677b" # 2023-07-25 Ubuntu 20.04
-  description = "AMI ID for Rails (IdP/PIVCAC servers) in the sandbox account"
+  description = <<EOM
+us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
+EOM
 }
 
-variable "rails_ami_id_prod" {
+variable "rails_ami_prod_uw2" {
   default     = "ami-094163bc98346df53" # 2023-07-25 Ubuntu 20.04
-  description = "AMI ID for Rails (IdP/PIVCAC servers) in the prod account"
+  description = <<EOM
+us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
+EOM
+}
+
+variable "ami_id_map_uw2" {
+  type        = map(string)
+  description = "Mapping from server role to an AMI ID, overrides the default_ami_id if key present"
+  default = {
+    #app           = "ami-049373819feac677b"
+    #idp           = "ami-049373819feac677b"
+    #migration     = "ami-049373819feac677b"
+    #outboundproxy = "ami-0a64068f10aca88cf"
+    #pivcac        = "ami-049373819feac677b"
+    #worker        = "ami-049373819feac677b"
+  }
 }
 
 ##### us-east-1
@@ -653,6 +668,7 @@ EOM
     #migration     = "ami-0a1509723018279c7"
     #outboundproxy = "ami-0545f343c13472f0c"
     #pivcac        = "ami-0a1509723018279c7"
+    #worker        = "ami-0a1509723018279c7"
   }
 }
 
@@ -698,9 +714,9 @@ locals {
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
   account_default_ami_id = local.acct_type == "prod" ? (
-  var.default_ami_id_prod) : var.default_ami_id_sandbox
+  var.base_ami_prod_uw2) : var.base_ami_sandbox_uw2
   account_rails_ami_id = local.acct_type == "prod" ? (
-  var.rails_ami_id_prod) : var.rails_ami_id_sandbox
+  var.rails_ami_prod_uw2) : var.rails_ami_sandbox_uw2
 
   base_ami_id_ue1 = local.acct_type == "prod" ? (
   var.base_ami_prod_ue1) : var.base_ami_sandbox_ue1

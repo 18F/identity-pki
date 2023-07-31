@@ -14,17 +14,14 @@ Requires access to FullAdministrator role for account(s) polled for image change
 
 Flags (will run all if no flags specified):
   -l : Show AMI data output table only
-  -u : Update ami_id vars in terraform/app/variables.tf + terraform/gitlab/*/main.tf
+  -u : Update ami_id Terraform vars in appropriate .tf files
   -o : Create ami/DATE branch + open a PR with ami_id changes
   -h : Detailed help
 
-Manually set AMIs for specific account and/or type:
-  --sb=<AMI_ID> | --sandbox-base=<AMI_ID>
-  --sr=<AMI_ID> | --sandbox-rails=<AMI_ID>
-  --pb=<AMI_ID> | --prod-base=<AMI_ID>
-  --pr=<AMI_ID> | --prod-rails=<AMI_ID>
-  --ts=<AMI_ID> | --tooling-sandbox=<AMI_ID>
-  --tp=<AMI_ID> | --tooling-prod=<AMI_ID>
+Limit AMI selection via:
+  -t TYPE    : Only look up \$TYPE AMIs ('base' or 'rails')
+  -r REGION  : Only look up AMIs in \$REGION ('us-west-2' or 'us-east-1')
+  -a ACCOUNT : Only look up AMIs in \$ACCOUNT ('sandbox', 'prod',  or 'tooling-prod')
 
 EOM
 }
@@ -32,132 +29,101 @@ EOM
 help_me() {
   cat >&2 << EOM
 
-Obtains information (ID/date/type/description) on most recent AMIs in each account
-(sandbox/prod/tooling-sandbox/tooling-prod) generated via the terraform/imagebuild
-deployment infrastructure, then:
+Looks up the most recent base / rails AMIs built from the 'main' branch, in each
+account and each region where Terraform variables are used to set AMI IDs
+(sandbox/prod/tooling-prod), then:
 
-1. Verifies that the AMIs are valid (via aws ec2 describe-images)
-2. Updates the corresponding values in terraform/app/variables.tf
+1. Prints a table showing account/ID/date/type/OS version/region for all AMIs
+2. Updates the corresponding values in the appropriate .tf file(s), i.e.
+   terraform/app/variables.tf and terraform/gitlab/production/main.tf
 3. Creates a branch/pull request with the new AMI IDs
+
+While designed to be run without arguments, flags can be used to specify which of
+the above steps to perform, and/or to limit the lookup and/or update operations to
+a specific account, region, and/or AMI type.
 
 The script will error out if:
 - there is an active \$AWS_VAULT session running
+- the person running the script does not have FullAdministrator access
 - the \`hub\` cask is not installed (for creating a PR)
-- when manually declaring AMIs, a space is used as a separator instead of the = sign
 - when attempting to create a PR, there are other local changes besides the updates
   to terraform/app/variables.tf and terraform/gitlab/*/main.tf
 
 Example output:
 
-| ID                    | Date                | Account      | Version     | 
-| -----                 | -----               | -----        | -----       | 
-| ami-0bdb7a0f4b458e241 | 2022-11-15 07:38:51 | sandbox      | base-18.04  | 
-| ami-0d62c4bd00b9fcc43 | 2022-11-15 07:37:55 | sandbox      | rails-18.04 | 
-| ami-02b34aef0997fd696 | 2022-11-15 07:40:00 | prod         | rails-18.04 | 
-| ami-0db7ebba69f9886fa | 2022-11-15 07:30:53 | prod         | base-18.04  | 
-| ami-03436eeb5f77f43f4 | 2022-11-15 07:38:49 | tooling      | base-18.04  | 
-| ami-081a79d240358c459 | 2022-11-15 07:29:43 | tooling-prod | base-18.04  | 
+| ACCOUNT      | ID                    | DATE       | ROLE  | VERSION      | REGION    | 
+| -----        | -----                 | -----      | ----- | -----        | -----     | 
+| sandbox      | ami-0a67129cb56cc10d2 | 2023-07-27 | base  | Ubuntu 20.04 | us-west-2 | 
+| sandbox      | ami-08feaa1be7d8d01c7 | 2023-07-27 | rails | Ubuntu 20.04 | us-west-2 | 
+| sandbox      | ami-080d1de6e34256a5a | 2023-07-27 | base  | Ubuntu 20.04 | us-east-1 | 
+| sandbox      | ami-0f64a6e871baf482f | 2023-07-27 | rails | Ubuntu 20.04 | us-east-1 | 
+| prod         | ami-058ca41a84ae6f822 | 2023-07-27 | base  | Ubuntu 20.04 | us-west-2 | 
+| prod         | ami-0c29ceb2e5e0317cb | 2023-07-28 | rails | Ubuntu 20.04 | us-west-2 | 
+| tooling-prod | ami-0b9e84d755f061467 | 2023-07-28 | base  | Ubuntu 20.04 | us-west-2 | 
+
 EOM
   usage
   exit 0
 }
 
-needs_arg() { if [ -z "$OPTARG" ]; then raise "No arg for --$OPT option"; fi; }
-
-next_build() {
-  PIPE_DATA=$(ave -r aws codepipeline list-action-executions \
-    --pipeline-name ${PIPE_NAME} \
-    --max-items 1 --starting-token ${PIPE_TOKEN})
-  PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
-}
-
-get_pipeline_ami() {
-  local AMI_TYPE="${1}"
-  local BUILD
-  local BAD_BUILDS=0
-  PIPE_NAME=$(ave -r aws codepipeline list-pipelines |
-    jq -r '.pipelines[].name' | grep -i "Image${AMI_TYPE}Role")
-  PIPE_DATA=$(ave aws codepipeline list-action-executions \
-    --pipeline-name ${PIPE_NAME} --max-items 1)
-  PIPE_TOKEN=$(echo ${PIPE_DATA} | jq -r '.NextToken')
-  # check actionExecutionDetails of most recent CodePipeline action
-  # if stageName = Build & Status = Succeeded, get externalExecutionId to look up AMI
-  # if not -- and/or if the build Failed -- go to the next action
-  while [[ -z ${BUILD} ]] ; do
-    PIPE_BUILD=$(echo ${PIPE_DATA} | jq -r '.actionExecutionDetails[]')
-    if [[ $(echo $PIPE_BUILD | jq -r '.stageName') == 'Build' ]] ; then
-      if [[ $(echo $PIPE_BUILD | jq -r '.status') == "Succeeded" ]] ; then
-        BUILD=$(echo ${PIPE_BUILD} |
-          jq -r '.output.executionResult.externalExecutionId' |
-          awk -F: '{print $NF}')
-      else
-        if [[ ${PIPE_TOKEN} == 'null' ]] || [[ -z ${PIPE_TOKEN} ]]; then
-          # fail entirely if there are no more builds to check
-          raise "${PIPE_NAME} has no successful runs; run bin/build-images and verify completion!"
-        else
-          ((BAD_BUILDS++))
-          next_build
-        fi
-      fi
-    else
-      next_build
-    fi
-  done
-  if [[ ${BAD_BUILDS} -gt 0 ]] ; then
-    BAD_IMAGE_DATA+=("${PROFILE}/${AMI_TYPE}/${BAD_BUILDS}")
-  fi
-  IMAGE=$(ave -r aws cloudtrail lookup-events \
-                    --lookup-attributes AttributeKey=EventName,AttributeValue=CreateImage |
-                    jq -r --arg build "$BUILD" '.Events[].CloudTrailEvent|
-                      fromjson|
-                      select(.userIdentity.arn|
-                      contains($build)).responseElements.imageId')
-  echo_cyan "Using CodeBuild artifact ${IMAGE} for ${AMI_TYPE} AMI."
-}
-
 get_ami_info() {
-  PROFILE=${1}
-  shift
-  echo -e "\nGetting login-${PROFILE} AMI data..."
-  NEW_AMIS=()
-  get_iam 'imagebuild' "${PROFILE}" 'FullAdministrator'
+  for TF_ACCT in "${TF_ACCTS[@]}" ; do
+    echo "Getting login-${TF_ACCT} AMI data..."
+    get_iam 'imagebuild' "${TF_ACCT}" 'FullAdministrator'
 
-  for TYPE in "$@" ; do
-    if [[ ${TYPE} =~ '_ami-' ]] ; then
-      IMAGE=$(echo ${TYPE} | awk -F_ '{print $2}')
-      TYPE=$(echo ${TYPE} | awk -F_ '{print $1}')
-      echo_yellow "Using manually-specified ID ${IMAGE} for ${TYPE} AMI."
-    else
-      get_pipeline_ami "${TYPE}"
+    if [[ "${TF_ACCT}" == "tooling-prod" ]] ; then
+      AV_REGIONS=('us-west-2')
+      AMI_TYPES=('base')
     fi
-    NEW_AMIS+=(${IMAGE})
-  done
-  [[ ${PROFILE} == 'tooling' ]] && PROFILE='tooling-sandbox'
 
-  DATA+=$(echo -e "\n$(ave -r aws ec2 describe-images \
-              --image-ids $(echo "${NEW_AMIS[*]}") \
-              --query 'Images[*].[ImageId,CreationDate,Name]' \
-              --output text | sort -rk2 | head -n 2 |
-              sed -E "s/login\.gov (base|rails) (role )?hardened (base )?image Ubuntu ([0-9\.]+) [0-9]+/$PROFILE \1\-\4/g" |
-              sed -E "s/([0-9\:]+)\.000Z/\1/g" |
-              sed -E 's/^/\|/g;s/$/\|/g')\n")
+    for AV_REGION in "${AV_REGIONS[@]}" ; do
+
+      AMI_DATA=$(ave -r aws ec2 describe-images --region ${AV_REGION} \
+        --filters "Name=tag:Branch_Name,Values=main" --owners self |
+        jq --arg REGION "${AV_REGION}" --arg ACCT "${TF_ACCT}" '[.Images[]|
+        select(.Tags != null)|{Account:$ACCT,ID:.ImageId,Date:.CreationDate|
+        sub("T.+$";""),Role:.Tags[]|select(.Key == "Role").Value,Version:.Tags[]|
+        select(.Key == "OS_Version").Value|sub(" ";"-"),Region:$REGION}]|sort_by(.Date)')
+
+      for AMI_TYPE in "${AMI_TYPES[@]}" ; do
+        if [[ $(echo $AMI_DATA | jq '.[]') != "" ]] ; then
+          AMI_INFO=$(echo ${AMI_DATA} | jq -r --arg ROLE "${AMI_TYPE}" \
+          '[.[]|select(.Role == $ROLE)]|.[-1:][]|[.Account,.ID,.Date,.Role,.Version,.Region]|@tsv' |
+          sed -E 's/^/\|/g;s/$/\|/g')
+          DATA+=$(echo -e "\n${AMI_INFO}\n")
+          
+          AMI_CREATE_DATE=$(echo "${AMI_INFO}" | awk '{print $3}' | tr -d '-')
+          DATE_DIFF=$((${TODAY_DATE} - ${AMI_CREATE_DATE}))
+          if [[ ${DATE_DIFF} -gt 0 ]] ; then
+            BAD_IMAGE_DATA+=("${TF_ACCT}/${AMI_TYPE}/${DATE_DIFF}")
+          fi
+        fi
+      done
+    done
+  done
 }
 
 data_table() {
-  NUM_COLS=$(echo "${DATA[@]}" | awk '{print NF}' | sort -nu | tail -n 1)
+  NUM_COLS=$(echo "${DATA[@]}" | sed -E 's/\| \|/\|\n\|/g' | awk '{print NF}' | sort -nu | tail -n 1)
+  HEADERS="|ACCOUNT ID DATE ROLE VERSION REGION|"
   echo
-  echo_green "AMI data generated:"
+  echo_cyan "$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
+           sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
+      sed -E 's/(Ubuntu)-/\1 /g')"
   echo
-  mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
-         sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' '
+  
   if [[ ${#BAD_IMAGE_DATA[@]} -gt 0 ]] ; then
-    echo && echo_yellow "One or more pipelines had failing builds:"
-    for BAD_PIPELINE in "${BAD_IMAGE_DATA[@]}" ; do
-      PIPE_INFO=($(echo ${BAD_PIPELINE} | tr '/' ' '))
-      echo "login-${PIPE_INFO[0]} : ${PIPE_INFO[1]} : ${PIPE_INFO[2]} build(s)"
-    done
-    echo_yellow "Verify status of above pipeline(s) when creating an AMI PR!"
+    echo_yellow "One or more AMIs built from 'main' is >1 day old:"
     echo
+    for BAD_ACCT in "${BAD_IMAGE_DATA[@]}" ; do
+      ACCT_INFO=($(echo ${BAD_ACCT} | tr '/' ' '))
+      echo "login-${ACCT_INFO[0]} : ${ACCT_INFO[1]} : ${ACCT_INFO[2]} day(s)"
+    done
+    echo
+    echo_yellow "This suggests that one or more pipelines may be failing to build correctly."
+    echo_yellow "Verify status of the associated pipeline(s) before creating an AMI PR!"
+    echo
+    if [[ "${TASK_LIST[@]}" =~ 'open' ]] ; then exit 0 ; fi
   fi
 }
 
@@ -165,43 +131,41 @@ update_vars() {
   echo -e "\nUpdating values in .tf file(s)...\n"
   local UPDATES=('FILE:TERRAFORM@VAR:NEW@VALUE' '-----:-----:-----')
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
-  for LINE in $(echo "${DATA[@]}" | tail -n +2 | tr -d '|' |
-                awk '{print $1"+"$2"+"$3"+"$4}') ; do
-    AMI_ID=$(echo ${LINE} | awk -F+ '{print $1}')
-    AMI_DATE=$(echo ${LINE} | awk -F+ '{print $2}' | sed -E 's/([0-9-]+)T.+/\1/')
-    AMI_ACCT=$(echo ${LINE} | awk -F+ '{print $3}')
-    AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E 's/([a-z]+).+/\1/')
-    UBUNTU_VERSION=$(echo ${LINE} | awk -F+ '{print $4}' | sed -E "s/${AMI_TYPE}-//")
-    AMI_STRING="${AMI_ID}\" # ${AMI_DATE} Ubuntu ${UBUNTU_VERSION}"
-    [[ ${AMI_TYPE} == "base" ]] && AMI_TYPE='default'
-    # select files to update AMIs in
-    local TF_VARS_PATHS=()
+  for LINE in $(echo "${DATA[@]}" | tr -d '|' | sed -E 's/\t+/\+/g') ; do
+    AMI_ACCT=$(echo ${LINE} | awk -F+ '{print $1}')
+    AMI_ID=$(echo ${LINE} | awk -F+ '{print $2}')
+    AMI_DATE=$(echo ${LINE} | awk -F+ '{print $3}')
+    AMI_TYPE=$(echo ${LINE} | awk -F+ '{print $4}')
+    UBUNTU_VERSION=$(echo ${LINE} | awk -F+ '{print $5}' | sed -E 's/(Ubuntu)-/\1 /g')
+    AMI_REGION=$(echo ${LINE} | awk -F+ '{print $6}' | sed -E 's/([a-z0-9])[a-z0-9]+\-/\1/g')
+
     if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
-      for MAIN_TF in $(find "${GIT_DIR}/terraform/gitlab" -type f -name 'main.tf' -maxdepth 2) ; do
-        if [[ $(grep -E "\# +require login-${AMI_ACCT}$" "${MAIN_TF}") ]] && \
-          [[ $(grep -E "default_ami_id += \"ami-[0-9a-f]+\"" "${MAIN_TF}") ]] ; then
-            TF_VARS_PATHS+=($(echo "${MAIN_TF}" | sed -E 's/.+(terraform\/)/\1/'))
-        fi
-      done
+      AMI_VAR="default_ami_id"
+    else
+      AMI_VAR="${AMI_TYPE}_ami_${AMI_ACCT}_${AMI_REGION}"
+    fi
+    AMI_STRING="${AMI_ID}\" # ${AMI_DATE} ${UBUNTU_VERSION}"
+
+    TF_VARS_PATHS=()
+    if [[ "${AMI_ACCT}" == "tooling-prod" ]] ; then
+      TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
     else
       TF_VARS_PATHS+=('terraform/app/variables.tf')
     fi
 
     for VAR_PATH in "${TF_VARS_PATHS[@]:-}" ; do
-      if [[ ! -z "${VAR_PATH}" ]] ; then
-        if [[ "${VAR_PATH}" =~ 'app' ]] ; then
-          sed -i '' -E "/\"${AMI_TYPE}_ami_id_${AMI_ACCT}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
-          "${GIT_DIR}/${VAR_PATH}"
-        else
-          sed -i '' -E "s/ami-.+/${AMI_STRING}/" "${GIT_DIR}/${VAR_PATH}"
-        fi
-        if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}" ) ]]; then
-          UPDATES+=("${VAR_PATH}:${AMI_TYPE}_ami_id_${AMI_ACCT%-*}:${AMI_ID}")
-          ((UPDATED_VARS++))
-        fi
-        if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]] ; then
-          AMI_FILES+=(${VAR_PATH})
-        fi
+      if [[ "${VAR_PATH}" =~ 'app' ]] ; then
+        sed -i '' -E "/\"${AMI_VAR}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
+        "${GIT_DIR}/${VAR_PATH}"
+      else
+        sed -i '' -E "s/ami-.+/${AMI_STRING}/" "${GIT_DIR}/${VAR_PATH}"
+      fi
+      if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}" ) ]]; then
+        UPDATES+=("${VAR_PATH}:${AMI_VAR%-*}:${AMI_ID}")
+        ((UPDATED_VARS++))
+      fi
+      if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]] ; then
+        AMI_FILES+=(${VAR_PATH})
       fi
     done
   done
@@ -215,7 +179,7 @@ update_vars() {
 
 open_pr() {
   local DIFF=($(git diff --name-only))
-  local UNSCOPED=$(echo "${DIFF[@]}" "${AMI_FILES[@]}" | tr ' ' '\n' | sort | uniq -u)
+  local UNSCOPED=$(echo "${DIFF[@]}" "${AMI_FILES[@]:-}" | tr ' ' '\n' | sort | uniq -u)
   if [[ ! -z "${UNSCOPED}" ]] ; then
     echo_red "Additional files found in diff:"
     for FILE in "${UNSCOPED}" ; do
@@ -242,11 +206,21 @@ open_pr() {
   run hub pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
 ${PR_TITLE}
 
-$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" | sed 's/ /----- |/g')")\n${DATA}" | tr 'T' ' ')
+$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
+           sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
+      sed -E 's/(Ubuntu)-/\1 /g')
 
 
 EOF
 )"
+}
+
+verify_day() {
+  local DATE_MATH="-v-0d"
+  if [[ $(date -uj '+%d') -gt $(date -j '+%d') ]] ; then
+    DATE_MATH="-v-1d"
+  fi
+  TODAY_DATE=$(date -uj "${DATE_MATH}" '+%Y%m%d')
 }
 
 ##### main script
@@ -257,56 +231,35 @@ fi
 
 verify_root_repo
 
+declare {AWS_PROFILE,AV_PROFILE,TODAY_DATE}=
 DATA=()
 BAD_IMAGE_DATA=()
 AMI_FILES=()
-AWS_PROFILE=
-AV_PROFILE=
 UPDATED_VARS=0
-HEADERS="|ID Date Account Version|"
+HEADERS="|ACCOUNT ID DATE ROLE VERSION REGION|"
 
 TASK_LIST=('list' 'update' 'open')
-SANDBOX_AMIS=('sandbox')
-PROD_AMIS=('prod')
-TOOLING_SANDBOX_AMIS=('tooling')
-TOOLING_PROD_AMIS=('tooling-prod')
+TF_ACCTS=('sandbox' 'prod' 'tooling-prod')
+AV_REGIONS=('us-west-2' 'us-east-1')
+AMI_TYPES=('base' 'rails')
 
-while getopts luoh-: OPT; do
-  # support long options: https://stackoverflow.com/a/28466267/519360
-  if [ "$OPT" = "-" ]; then   # long option: reformulate OPT and OPTARG
-    OPT="${OPTARG%%=*}"       # extract long option name
-    OPTARG="${OPTARG#$OPT}"   # extract long option argument (may be empty)
-    OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
-  fi
-  
+while getopts t:r:a:luoh OPT ; do
   case "$OPT" in
-    sb|sandbox-base)    needs_arg; SANDBOX_AMIS+=("base_$OPTARG")         ;;
-    sr|sandbox-rails)   needs_arg; SANDBOX_AMIS+=("rails_$OPTARG")        ;;
-    pb|prod-base)       needs_arg; PROD_AMIS+=("base_$OPTARG")            ;;
-    pr|prod-rails)      needs_arg; PROD_AMIS+=("rails_$OPTARG")           ;;
-    ts|tooling-sandbox) needs_arg; TOOLING_SANDBOX_AMIS+=("base_$OPTARG") ;;
-    tp|tooling-prod)    needs_arg; TOOLING_PROD_AMIS+=("base_$OPTARG")    ;;
+    t) AMI_TYPES=("${OPTARG}")     ;;
+    r) AV_REGIONS=("${OPTARG}")    ;;
+    a) TF_ACCTS=("${OPTARG}")      ;;
     l) TASK_LIST=('list')          ;;
     u) TASK_LIST=('list' 'update') ;;
     o) TASK_LIST=('list' 'open')   ;;
     h) help_me                     ;;
-    ??* ) raise "Illegal option --$OPT" ;;  # bad long option
-    ? )   usage && exit 2 ;;  # bad short option (error reported via getopts)
+    *) usage && exit 1 ;;
   esac
 done
-shift $((OPTIND-1)) # remove parsed options and args from $@ list
+shift $((OPTIND-1))
 
-for TYPE in 'base' 'rails' ;  do
-  [[ "${SANDBOX_AMIS[@]}" =~ $TYPE ]] || SANDBOX_AMIS+=("${TYPE}")
-  [[ "${PROD_AMIS[@]}"    =~ $TYPE ]] || PROD_AMIS+=("${TYPE}")
-done
-[[ "${TOOLING_SANDBOX_AMIS[@]}" =~ 'base' ]] || TOOLING_SANDBOX_AMIS+=('base')
-[[ "${TOOLING_PROD_AMIS[@]}"    =~ 'base' ]] || TOOLING_PROD_AMIS+=('base')
-
-get_ami_info "${SANDBOX_AMIS[@]}"
-get_ami_info "${PROD_AMIS[@]}"
-get_ami_info "${TOOLING_SANDBOX_AMIS[@]}"
-get_ami_info "${TOOLING_PROD_AMIS[@]}"
+echo
+verify_day
+get_ami_info
 
 for TASK in "${TASK_LIST[@]}" ; do
   case "${TASK}" in
