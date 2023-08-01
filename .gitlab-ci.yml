@@ -38,8 +38,6 @@ variables:
   TEST_IMAGE_DIGEST: "sha256:46a48af66a345bf50aacca5dc5e649d9482564bfad294451ea40666839712ac8"
   GITDEPLOY_IMAGE_DIGEST: "sha256:9235830d3b0c3abfe316c717a7c36865adf7d8cfe898579d301fa99cadbe76bd"
   GITTEST_IMAGE_DIGEST: "sha256:36aa91003cc13f5a0ecdb17fd04ac38443f5d20d6fb6d10c8ab138668700b5d3"
-  TERRAFORM_APPLY_IMAGE_DIGEST: "sha256:1f10c7311fcaff979028bac7ad9d052df3aa3feba9770c85438ebe220c5676b8"
-  TERRAFORM_PLAN_IMAGE_DIGEST: "sha256:52ab356460a2ec9ecdb4aa3a1d0bf0303c34ec726c93fd34274505acb3182317"
 
 .container_scan_template:
   stage: scan
@@ -234,18 +232,6 @@ build_idp_ci_container:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
 
-build_terraform_apply_container:
-  extends: .build_template
-  variables:
-    dockerfile: terraform_apply.Dockerfile
-    ecr_repo: cd/terraform_apply
-
-build_terraform_plan_container:
-  extends: .build_template
-  variables:
-    dockerfile: terraform_plan.Dockerfile
-    ecr_repo: cd/terraform_plan
-
 # Grab ECR scans and import into gitlab
 scan_gitlab_deploy_container:
   extends: .container_scan_template
@@ -288,20 +274,6 @@ scan_idp_ci_container:
     ecr_repo: idp/ci
   needs:
     - build_idp_ci_container
-
-scan_terraform_apply_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/terraform_apply
-  needs:
-    - build_terraform_apply_container
-
-scan_terraform_plan_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/terraform_plan
-  needs:
-    - build_terraform_plan_container
 
 # IDP environments and their jobs
 .include_idp_jobs_template:
@@ -723,7 +695,6 @@ test_unallowed_image_alpha:
 
 include:
   - local: .gitlab-ci-rules.yml
-  - local: gitlab-ci/terraform-jobs.yml
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml
