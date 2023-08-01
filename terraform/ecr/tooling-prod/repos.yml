@@ -56,3 +56,9 @@ repos:
   identity_idp_review_cache:
     name: "identity-idp/review/cache"
     <<: *all_write_template
+  identity_pivcac_review:
+    name: "identity-pivcac/review"
+    <<: *all_write_template
+  identity_pivcac_review_cache:
+    name: "identity-pivcac/review/cache"
+    <<: *all_write_template
