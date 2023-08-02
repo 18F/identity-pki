@@ -113,13 +113,13 @@ module "elasticache_external_access" {
 
   name     = var.name
   env_name = var.env_name
-  vpc_id   = aws_vpc.default.id
+  vpc_id   = module.network_usw2.vpc_id
 
   cluster_name = each.key
   clusters     = each.value
 
   public_subnet_ids = [for subnet in aws_subnet.public-ingress : subnet.id]
-  data_subnet_ids   = [for subnet in aws_subnet.data-services : subnet.id]
+  data_subnet_ids   = [for subnet in module.network_usw2.db_subnet : subnet.id]
 }
 
 resource "aws_elasticache_replication_group" "cache" {

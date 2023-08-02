@@ -81,7 +81,7 @@ module "migration_launch_template" {
 
   instance_type             = var.instance_type_migration
   iam_instance_profile_name = var.migration_instance_profile
-  security_group_ids        = [aws_security_group.migration.id, var.base_security_group_id]
+  security_group_ids        = [var.migration_security_group_id, var.base_security_group_id]
 
   user_data = module.migration_user_data.rendered_cloudinit_config
 

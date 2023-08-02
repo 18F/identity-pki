@@ -32,7 +32,7 @@ module "locust_user_data" {
 resource "aws_security_group" "locust" {
   count       = var.enable_loadtesting ? 1 : 0
   name        = "${var.name}-locust-${var.env_name}"
-  vpc_id      = aws_vpc.default.id
+  vpc_id      = module.network_usw2.vpc_id
   description = "Allows locust hosts to run distributed loadtests against the environment"
 
   # TODO: limit this to what is actually needed
@@ -42,7 +42,7 @@ resource "aws_security_group" "locust" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+    cidr_blocks = [module.network_usw2.secondary_cidr]
   }
 
   # need 80/443 to get packages/gems/etc
@@ -89,7 +89,7 @@ resource "aws_security_group" "locust" {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    prefix_list_ids = [aws_vpc_endpoint.private-s3.prefix_list_id]
+    prefix_list_ids = [module.network_usw2.s3_prefix_list_id]
   }
 
   # locust distributed

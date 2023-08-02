@@ -51,7 +51,7 @@ module "app_launch_template" {
   instance_type             = var.instance_type_app
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.app[count.index].name
-  security_group_ids        = [aws_security_group.app[count.index].id, module.base_security_uw2.base_id]
+  security_group_ids        = [module.network_usw2.app_security_group, module.network_usw2.base_id]
 
   user_data = module.app_user_data[count.index].rendered_cloudinit_config
 
@@ -81,7 +81,7 @@ resource "aws_autoscaling_group" "app" {
     aws_alb_target_group.app-ssl[count.index].arn,
   ]
 
-  vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
+  vpc_zone_identifier = [for subnet in module.network_usw2.app_subnet : subnet.id]
 
   # possible choices: EC2, ELB
   health_check_type = "ELB"

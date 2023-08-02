@@ -16,8 +16,8 @@ module "dashboard_aurora_uw2" {
   apg_cluster_pgroup = var.dashboard_aurora_pgroup
   apg_db_pgroup      = var.dashboard_aurora_pgroup
 
-  db_subnet_group        = aws_db_subnet_group.aurora.id
-  db_security_group      = aws_security_group.db.id
+  db_subnet_group        = module.network_usw2.db_subnet_group
+  db_security_group      = module.network_usw2.db_security_group
   db_publicly_accessible = local.nessus_public_access_mode
 
   retention_period    = var.rds_backup_retention_period
