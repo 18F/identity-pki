@@ -8,13 +8,14 @@ require 'yaml'
 
 module Cloudlib
   class AppS3Secret
-    attr_reader :app, :env, :remote_file
+    attr_reader :app, :env, :remote_file, :region
 
-    def initialize(app: nil, env: nil, remote_file: nil, dry_run: false)
+    def initialize(app: nil, env: nil, remote_file: nil, dry_run: false, region: nil)
       @app = app
       @env = env
       @remote_file = remote_file
       @dry_run = dry_run
+      @region = region
     end
 
     # @param [String] destination file path, pass "-" for STDOUT
@@ -73,7 +74,7 @@ module Cloudlib
       end
 
       if account_id && !account_id.empty?
-        "login-gov.app-secrets.#{account_id}-us-west-2"
+        "login-gov.app-secrets.#{account_id}-#{region}"
       end
     end
 
