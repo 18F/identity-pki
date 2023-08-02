@@ -88,7 +88,7 @@ review-app:
       ]
       EOF
       )
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-healm-chart.git
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
     - ls 
     - >-
       helm upgrade --install --namespace review-apps
