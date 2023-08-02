@@ -1,7 +1,3 @@
-# Manage the special default Network ACL, which should not be used by any
-# subnets. Add every subnet explicitly to one of the NACLs below so that they
-# don't use this default NACL.
-
 resource "aws_network_acl" "alb" {
   vpc_id     = module.network_usw2.vpc_id
   subnet_ids = [for subnet in aws_subnet.public-ingress : subnet.id]

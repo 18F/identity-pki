@@ -19,11 +19,6 @@ locals {
 
 ### remove once moving is complete
 
-#moved {
-#  from = aws_security_group.base
-#  to   = module.base_security_uw2.aws_security_group.base
-#}
-
 moved {
   from = module.base_security_uw2.aws_security_group.base
   to   = module.network_usw2.aws_security_group.base

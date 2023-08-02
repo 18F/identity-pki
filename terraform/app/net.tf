@@ -632,14 +632,13 @@ resource "aws_subnet" "public-ingress" {
 
 module "network_us_east_1" {
   count = var.enable_us_east_1_vpc ? 1 : 0
-  apps_enabled              = var.apps_enabled
   providers = {
     aws = aws.use1
   }
+  
   source                    = "../modules/vpc_module"
-  vpc_cidr_block            = var.us_east_1_vpc_cidr_block
-  region                    = "us-east-1"
-  secondary_cidr_block      = local.network_layout["us-east-1"][var.env_type]._network
+  apps_enabled              = var.apps_enabled
+  aws_services              = local.aws_endpoints
   az                        = local.network_layout["us-east-1"][var.env_type]._zones
   env_name                  = var.env_name
   env_type                  = var.env_type
@@ -648,16 +647,19 @@ module "network_us_east_1" {
   github_ipv4_cidr_blocks   = local.github_ipv4
   nessusserver_ip           = var.nessusserver_ip
   nessus_public_access_mode = local.nessus_public_access_mode
+  proxy_port                = var.proxy_port
   rds_db_port               = var.rds_db_port
+  region                    = "us-east-1"
+  secondary_cidr_block      = local.network_layout["us-east-1"][var.env_type]._network
+  vpc_cidr_block            = var.us_east_1_vpc_cidr_block    
 }
 
 ### Calling vpc module for us-west-2 ###
 
 module "network_usw2" {
   source                    = "../modules/vpc_module"
-  region                    = "us-west-2"
-  vpc_cidr_block            = var.vpc_cidr_block
   apps_enabled              = var.apps_enabled
+  aws_services              = local.aws_endpoints
   az                        = local.network_layout[var.region][var.env_type]._zones
   env_name                  = "sujana09"
   env_type                  = var.env_type
@@ -666,14 +668,15 @@ module "network_usw2" {
   github_ipv4_cidr_blocks   = local.github_ipv4
   nessusserver_ip           = var.nessusserver_ip
   nessus_public_access_mode = local.nessus_public_access_mode
-  rds_db_port               = var.rds_db_port
-  aws_services              = local.aws_endpoints
   outbound_subnets          = var.outbound_subnets
   proxy_port                = var.proxy_port
+  rds_db_port               = var.rds_db_port
+  region                    = "us-west-2"
   secondary_cidr_block      = local.network_layout[var.region][var.env_type]._network
   security_group_idp_id     = aws_security_group.idp.id
   security_group_pivcac_id  = aws_security_group.pivcac.id
   security_group_worker_id  = aws_security_group.worker.id
+  vpc_cidr_block            = var.vpc_cidr_block
 }
 
 
