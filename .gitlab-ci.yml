@@ -101,7 +101,7 @@ review-app:
       --set pivcac.image.tag="${CI_COMMIT_SHA}"
       --set pivcac.ingress.enabled=true
       --set-json pivcac.env="$PIVCAC_ENV"
-      --set-json pivcac.ingress.hosts="[{\"host\": \"$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov\", \"paths\": [{\"path\": \"/\", \"pathType\": \"Prefix\"}]}]"
+      --set-json pivcac.ingress.hosts="[{\"host\": \"$CI_ENVIRONMENT_SLUG.review-app.pivcac.identitysandbox.gov\", \"paths\": [{\"path\": \"/\", \"pathType\": \"Prefix\"}]}]"
       $CI_ENVIRONMENT_SLUG ./identity-idp-helm-chart
     - echo "DNS may take a while to propagate, so be patient if it doesn't show up right away"
     - echo "To access the rails console, first run 'aws-vault exec sandbox-power -- aws eks update-kubeconfig --name review_app'"
