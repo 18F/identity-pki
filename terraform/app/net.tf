@@ -661,7 +661,7 @@ module "network_usw2" {
   apps_enabled              = var.apps_enabled
   aws_services              = local.aws_endpoints
   az                        = local.network_layout[var.region][var.env_type]._zones
-  env_name                  = "sujana09"
+  env_name                  = var.env_name
   env_type                  = var.env_type
   fisma_tag                 = var.fisma_tag
   flow_log_iam_role_arn     = module.application_iam_roles.flow_role_iam_role_arn
