@@ -12,7 +12,7 @@ module "locust_leader_launch_template" {
   role           = "locust-leader"
   env            = var.env_name
   root_domain    = var.root_domain
-  ami_id_map     = var.ami_id_map
+  ami_id_map     = var.ami_id_map_uw2
   default_ami_id = local.account_default_ami_id
 
   instance_type             = var.instance_type_locust

@@ -11,7 +11,7 @@ module "migration_usw2" {
     aws_cloudwatch_log_group.nginx_access_log
   ]
   source                           = "../modules/migration_hosts"
-  ami_id_map                       = var.ami_id_map
+  ami_id_map                       = var.ami_id_map_uw2
   asg_migration_min                = var.asg_migration_min
   asg_migration_desired            = var.asg_migration_desired
   asg_migration_max                = var.asg_migration_max

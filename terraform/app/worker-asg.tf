@@ -39,7 +39,7 @@ module "worker_launch_template" {
   role           = "worker"
   env            = var.env_name
   root_domain    = var.root_domain
-  ami_id_map     = var.ami_id_map
+  ami_id_map     = var.ami_id_map_uw2
   default_ami_id = local.account_rails_ami_id
 
   instance_type             = var.instance_type_worker

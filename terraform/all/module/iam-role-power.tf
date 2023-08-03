@@ -685,6 +685,46 @@ module "poweruser-assumerole" {
           ]
         }
       ]
+    },
+    {
+      policy_name        = "Power3"
+      policy_description = "Policy 3 for Power User"
+      policy_document = [
+        {
+          sid    = "DMS"
+          effect = "Allow"
+          actions = [
+            "dms:Describe*",
+            "dms:List*",
+            "dms:AddTagsToResource",
+            "dms:ApplyPendingMaintenanceAction",
+            "dms:AssociateExtensionPack",
+            "dms:CancelReplicationTaskAssessmentRun",
+            "dms:CreateReplicationTask",
+            "dms:DeleteReplicationTask",
+            "dms:DeleteReplicationTaskAssessmentRun",
+            "dms:ModifyReplicationTask",
+            "dms:MoveReplicationTask",
+            "dms:RebootReplicationInstance",
+            "dms:RefreshSchemas",
+            "dms:ReloadReplicationTables",
+            "dms:ReloadTables",
+            "dms:RemoveTagsFromResource",
+            "dms:StartDataMigration",
+            "dms:StartReplication",
+            "dms:StartReplicationTask",
+            "dms:StartReplicationTaskAssessment",
+            "dms:StartReplicationTaskAssessmentRun",
+            "dms:StopDataMigration",
+            "dms:StopReplication",
+            "dms:StopReplicationTask",
+            "dms:TestConnection",
+          ]
+          resources = [
+            "*",
+          ]
+        }
+      ]
     }
   ]
 }

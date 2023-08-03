@@ -3015,10 +3015,10 @@ func (c *RDS) CreateGlobalClusterRequest(input *CreateGlobalClusterInput) (req *
 // primary cluster through high-speed replication performed by the Aurora storage
 // subsystem.
 //
-// You can create a global database that is initially empty, and then add a
-// primary cluster and a secondary cluster to it. Or you can specify an existing
-// Aurora cluster during the create operation, and this cluster becomes the
-// primary cluster of the global database.
+// You can create a global database that is initially empty, and then create
+// the primary and secondary DB clusters in the global database. Or you can
+// specify an existing Aurora cluster during the create operation, and this
+// cluster becomes the primary cluster of the global database.
 //
 // This operation applies only to Aurora DB clusters.
 //
@@ -3423,6 +3423,11 @@ func (c *RDS) DeleteDBClusterRequest(input *DeleteDBClusterInput) (req *request.
 //   - ErrCodeInvalidDBClusterSnapshotStateFault "InvalidDBClusterSnapshotStateFault"
 //     The supplied value isn't a valid DB cluster snapshot state.
 //
+//   - ErrCodeDBClusterAutomatedBackupQuotaExceededFault "DBClusterAutomatedBackupQuotaExceededFault"
+//     The quota for retained automated backups was exceeded. This prevents you
+//     from retaining any additional automated backups. The retained automated backups
+//     quota is the same as your DB cluster quota.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteDBCluster
 func (c *RDS) DeleteDBCluster(input *DeleteDBClusterInput) (*DeleteDBClusterOutput, error) {
 	req, out := c.DeleteDBClusterRequest(input)
@@ -3440,6 +3445,90 @@ func (c *RDS) DeleteDBCluster(input *DeleteDBClusterInput) (*DeleteDBClusterOutp
 // for more information on using Contexts.
 func (c *RDS) DeleteDBClusterWithContext(ctx aws.Context, input *DeleteDBClusterInput, opts ...request.Option) (*DeleteDBClusterOutput, error) {
 	req, out := c.DeleteDBClusterRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteDBClusterAutomatedBackup = "DeleteDBClusterAutomatedBackup"
+
+// DeleteDBClusterAutomatedBackupRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteDBClusterAutomatedBackup operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteDBClusterAutomatedBackup for more information on using the DeleteDBClusterAutomatedBackup
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DeleteDBClusterAutomatedBackupRequest method.
+//	req, resp := client.DeleteDBClusterAutomatedBackupRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteDBClusterAutomatedBackup
+func (c *RDS) DeleteDBClusterAutomatedBackupRequest(input *DeleteDBClusterAutomatedBackupInput) (req *request.Request, output *DeleteDBClusterAutomatedBackupOutput) {
+	op := &request.Operation{
+		Name:       opDeleteDBClusterAutomatedBackup,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteDBClusterAutomatedBackupInput{}
+	}
+
+	output = &DeleteDBClusterAutomatedBackupOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteDBClusterAutomatedBackup API operation for Amazon Relational Database Service.
+//
+// Deletes automated backups using the DbClusterResourceId value of the source
+// DB cluster or the Amazon Resource Name (ARN) of the automated backups.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DeleteDBClusterAutomatedBackup for usage and error information.
+//
+// Returned Error Codes:
+//
+//   - ErrCodeInvalidDBClusterAutomatedBackupStateFault "InvalidDBClusterAutomatedBackupStateFault"
+//     The automated backup is in an invalid state. For example, this automated
+//     backup is associated with an active cluster.
+//
+//   - ErrCodeDBClusterAutomatedBackupNotFoundFault "DBClusterAutomatedBackupNotFoundFault"
+//     No automated backup for this DB cluster was found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteDBClusterAutomatedBackup
+func (c *RDS) DeleteDBClusterAutomatedBackup(input *DeleteDBClusterAutomatedBackupInput) (*DeleteDBClusterAutomatedBackupOutput, error) {
+	req, out := c.DeleteDBClusterAutomatedBackupRequest(input)
+	return out, req.Send()
+}
+
+// DeleteDBClusterAutomatedBackupWithContext is the same as DeleteDBClusterAutomatedBackup with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteDBClusterAutomatedBackup for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DeleteDBClusterAutomatedBackupWithContext(ctx aws.Context, input *DeleteDBClusterAutomatedBackupInput, opts ...request.Option) (*DeleteDBClusterAutomatedBackupOutput, error) {
+	req, out := c.DeleteDBClusterAutomatedBackupRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -3814,7 +3903,7 @@ func (c *RDS) DeleteDBInstanceRequest(input *DeleteDBInstanceInput) (req *reques
 //   - ErrCodeDBInstanceAutomatedBackupQuotaExceededFault "DBInstanceAutomatedBackupQuotaExceeded"
 //     The quota for retained automated backups was exceeded. This prevents you
 //     from retaining any additional automated backups. The retained automated backups
-//     quota is the same as your DB Instance quota.
+//     quota is the same as your DB instance quota.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteDBInstance
 func (c *RDS) DeleteDBInstance(input *DeleteDBInstanceInput) (*DeleteDBInstanceOutput, error) {
@@ -4917,7 +5006,7 @@ func (c *RDS) DescribeBlueGreenDeploymentsRequest(input *DescribeBlueGreenDeploy
 
 // DescribeBlueGreenDeployments API operation for Amazon Relational Database Service.
 //
-// Returns information about blue/green deployments.
+// Describes one or more blue/green deployments.
 //
 // For more information, see Using Amazon RDS Blue/Green Deployments for database
 // updates (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html)
@@ -5149,6 +5238,89 @@ func (c *RDS) DescribeCertificatesPagesWithContext(ctx aws.Context, input *Descr
 	}
 
 	return p.Err()
+}
+
+const opDescribeDBClusterAutomatedBackups = "DescribeDBClusterAutomatedBackups"
+
+// DescribeDBClusterAutomatedBackupsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeDBClusterAutomatedBackups operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeDBClusterAutomatedBackups for more information on using the DescribeDBClusterAutomatedBackups
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DescribeDBClusterAutomatedBackupsRequest method.
+//	req, resp := client.DescribeDBClusterAutomatedBackupsRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeDBClusterAutomatedBackups
+func (c *RDS) DescribeDBClusterAutomatedBackupsRequest(input *DescribeDBClusterAutomatedBackupsInput) (req *request.Request, output *DescribeDBClusterAutomatedBackupsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeDBClusterAutomatedBackups,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DescribeDBClusterAutomatedBackupsInput{}
+	}
+
+	output = &DescribeDBClusterAutomatedBackupsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeDBClusterAutomatedBackups API operation for Amazon Relational Database Service.
+//
+// Displays backups for both current and deleted DB clusters. For example, use
+// this operation to find details about automated backups for previously deleted
+// clusters. Current clusters are returned for both the DescribeDBClusterAutomatedBackups
+// and DescribeDBClusters operations.
+//
+// All parameters are optional.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DescribeDBClusterAutomatedBackups for usage and error information.
+//
+// Returned Error Codes:
+//   - ErrCodeDBClusterAutomatedBackupNotFoundFault "DBClusterAutomatedBackupNotFoundFault"
+//     No automated backup for this DB cluster was found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeDBClusterAutomatedBackups
+func (c *RDS) DescribeDBClusterAutomatedBackups(input *DescribeDBClusterAutomatedBackupsInput) (*DescribeDBClusterAutomatedBackupsOutput, error) {
+	req, out := c.DescribeDBClusterAutomatedBackupsRequest(input)
+	return out, req.Send()
+}
+
+// DescribeDBClusterAutomatedBackupsWithContext is the same as DescribeDBClusterAutomatedBackups with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeDBClusterAutomatedBackups for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeDBClusterAutomatedBackupsWithContext(ctx aws.Context, input *DescribeDBClusterAutomatedBackupsInput, opts ...request.Option) (*DescribeDBClusterAutomatedBackupsOutput, error) {
+	req, out := c.DescribeDBClusterAutomatedBackupsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
 }
 
 const opDescribeDBClusterBacktracks = "DescribeDBClusterBacktracks"
@@ -12104,13 +12276,13 @@ func (c *RDS) ModifyGlobalClusterRequest(input *ModifyGlobalClusterInput) (req *
 
 // ModifyGlobalCluster API operation for Amazon Relational Database Service.
 //
-// Modify a setting for an Amazon Aurora global cluster. You can change one
+// Modifies a setting for an Amazon Aurora global cluster. You can change one
 // or more database configuration parameters by specifying these parameters
 // and the new values in the request. For more information on Amazon Aurora,
 // see What is Amazon Aurora? (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html)
 // in the Amazon Aurora User Guide.
 //
-// This action only applies to Aurora DB clusters.
+// This operation only applies to Aurora global database clusters.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -13895,6 +14067,9 @@ func (c *RDS) RestoreDBClusterToPointInTimeRequest(input *RestoreDBClusterToPoin
 //     DBClusterParameterGroupName doesn't refer to an existing DB cluster parameter
 //     group.
 //
+//   - ErrCodeDBClusterAutomatedBackupNotFoundFault "DBClusterAutomatedBackupNotFoundFault"
+//     No automated backup for this DB cluster was found.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/RestoreDBClusterToPointInTime
 func (c *RDS) RestoreDBClusterToPointInTime(input *RestoreDBClusterToPointInTimeInput) (*RestoreDBClusterToPointInTimeOutput, error) {
 	req, out := c.RestoreDBClusterToPointInTimeRequest(input)
@@ -14895,7 +15070,7 @@ func (c *RDS) StartDBInstanceAutomatedBackupsReplicationRequest(input *StartDBIn
 //   - ErrCodeDBInstanceAutomatedBackupQuotaExceededFault "DBInstanceAutomatedBackupQuotaExceeded"
 //     The quota for retained automated backups was exceeded. This prevents you
 //     from retaining any additional automated backups. The retained automated backups
-//     quota is the same as your DB Instance quota.
+//     quota is the same as your DB instance quota.
 //
 //   - ErrCodeStorageTypeNotSupportedFault "StorageTypeNotSupported"
 //     The specified StorageType can't be associated with the DB instance.
@@ -16658,7 +16833,7 @@ func (s *BacktrackDBClusterOutput) SetStatus(v string) *BacktrackDBClusterOutput
 	return s
 }
 
-// Contains the details about a blue/green deployment.
+// Details about a blue/green deployment.
 //
 // For more information, see Using Amazon RDS Blue/Green Deployments for database
 // updates (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html)
@@ -16668,18 +16843,18 @@ func (s *BacktrackDBClusterOutput) SetStatus(v string) *BacktrackDBClusterOutput
 type BlueGreenDeployment struct {
 	_ struct{} `type:"structure"`
 
-	// The system-generated identifier of the blue/green deployment.
+	// The unique identifier of the blue/green deployment.
 	BlueGreenDeploymentIdentifier *string `min:"1" type:"string"`
 
 	// The user-supplied name of the blue/green deployment.
 	BlueGreenDeploymentName *string `min:"1" type:"string"`
 
-	// Specifies the time when the blue/green deployment was created, in Universal
-	// Coordinated Time (UTC).
+	// The time when the blue/green deployment was created, in Universal Coordinated
+	// Time (UTC).
 	CreateTime *time.Time `type:"timestamp"`
 
-	// Specifies the time when the blue/green deployment was deleted, in Universal
-	// Coordinated Time (UTC).
+	// The time when the blue/green deployment was deleted, in Universal Coordinated
+	// Time (UTC).
 	DeleteTime *time.Time `type:"timestamp"`
 
 	// The source database for the blue/green deployment.
@@ -16690,7 +16865,7 @@ type BlueGreenDeployment struct {
 
 	// The status of the blue/green deployment.
 	//
-	// Values:
+	// Valid Values:
 	//
 	//    * PROVISIONING - Resources are being created in the green environment.
 	//
@@ -16815,7 +16990,7 @@ func (s *BlueGreenDeployment) SetTasks(v []*BlueGreenDeploymentTask) *BlueGreenD
 	return s
 }
 
-// Contains the details about a task for a blue/green deployment.
+// Details about a task for a blue/green deployment.
 //
 // For more information, see Using Amazon RDS Blue/Green Deployments for database
 // updates (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html)
@@ -16830,9 +17005,9 @@ type BlueGreenDeploymentTask struct {
 
 	// The status of the blue/green deployment task.
 	//
-	// Values:
+	// Valid Values:
 	//
-	//    * PENDING - The resources are being prepared for deployment.
+	//    * PENDING - The resource is being prepared for deployment.
 	//
 	//    * IN_PROGRESS - The resource is being deployed.
 	//
@@ -18746,7 +18921,7 @@ func (s *CreateBlueGreenDeploymentInput) SetTargetEngineVersion(v string) *Creat
 type CreateBlueGreenDeploymentOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Contains the details about a blue/green deployment.
+	// Details about a blue/green deployment.
 	//
 	// For more information, see Using Amazon RDS Blue/Green Deployments for database
 	// updates (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html)
@@ -19099,6 +19274,13 @@ type CreateCustomDBEngineVersionOutput struct {
 	// specific DB engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// A value that indicates whether the DB engine version supports forwarding
+	// write operations from reader DB instances to the writer DB instance in the
+	// DB cluster. By default, write operations aren't allowed on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	SupportsLocalWriteForwarding *bool `type:"boolean"`
+
 	// A value that indicates whether the engine version supports exporting the
 	// log types specified by ExportableLogTypes to CloudWatch Logs.
 	SupportsLogExportsToCloudwatchLogs *bool `type:"boolean"`
@@ -19290,6 +19472,12 @@ func (s *CreateCustomDBEngineVersionOutput) SetSupportsCertificateRotationWithou
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *CreateCustomDBEngineVersionOutput) SetSupportsGlobalDatabases(v bool) *CreateCustomDBEngineVersionOutput {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsLocalWriteForwarding sets the SupportsLocalWriteForwarding field's value.
+func (s *CreateCustomDBEngineVersionOutput) SetSupportsLocalWriteForwarding(v bool) *CreateCustomDBEngineVersionOutput {
+	s.SupportsLocalWriteForwarding = &v
 	return s
 }
 
@@ -19781,6 +19969,13 @@ type CreateDBClusterInput struct {
 	//
 	// Valid for Cluster Type: Aurora DB clusters only
 	EnableIAMDatabaseAuthentication *bool `type:"boolean"`
+
+	// Specifies whether read replicas can forward write operations to the writer
+	// DB instance in the DB cluster. By default, write operations aren't allowed
+	// on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	EnableLocalWriteForwarding *bool `type:"boolean"`
 
 	// Specifies whether to turn on Performance Insights for the DB cluster.
 	//
@@ -20405,6 +20600,12 @@ func (s *CreateDBClusterInput) SetEnableHttpEndpoint(v bool) *CreateDBClusterInp
 // SetEnableIAMDatabaseAuthentication sets the EnableIAMDatabaseAuthentication field's value.
 func (s *CreateDBClusterInput) SetEnableIAMDatabaseAuthentication(v bool) *CreateDBClusterInput {
 	s.EnableIAMDatabaseAuthentication = &v
+	return s
+}
+
+// SetEnableLocalWriteForwarding sets the EnableLocalWriteForwarding field's value.
+func (s *CreateDBClusterInput) SetEnableLocalWriteForwarding(v bool) *CreateDBClusterInput {
+	s.EnableLocalWriteForwarding = &v
 	return s
 }
 
@@ -21150,58 +21351,13 @@ type CreateDBInstanceInput struct {
 	// DBInstanceIdentifier is a required field
 	DBInstanceIdentifier *string `type:"string" required:"true"`
 
-	// The meaning of this parameter differs depending on the database engine.
+	// The meaning of this parameter differs according to the database engine you
+	// use.
 	//
-	// Amazon Aurora MySQL
+	// MySQL
 	//
-	// The name of the database to create when the primary DB instance of the Aurora
-	// MySQL DB cluster is created. If you don't specify a value, Amazon RDS doesn't
-	// create a database in the DB cluster.
-	//
-	// Constraints:
-	//
-	//    * Must contain 1 to 64 alphanumeric characters.
-	//
-	//    * Can't be a word reserved by the database engine.
-	//
-	// Amazon Aurora PostgreSQL
-	//
-	// The name of the database to create when the primary DB instance of the Aurora
-	// PostgreSQL DB cluster is created.
-	//
-	// Default: postgres
-	//
-	// Constraints:
-	//
-	//    * Must contain 1 to 63 alphanumeric characters.
-	//
-	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
-	//    or digits (0 to 9).
-	//
-	//    * Can't be a word reserved by the database engine.
-	//
-	// Amazon RDS Custom for Oracle
-	//
-	// The Oracle System ID (SID) of the created RDS Custom DB instance.
-	//
-	// Default: ORCL
-	//
-	// Constraints:
-	//
-	//    * Must contain 1 to 8 alphanumeric characters.
-	//
-	//    * Must contain a letter.
-	//
-	//    * Can't be a word reserved by the database engine.
-	//
-	// Amazon RDS Custom for SQL Server
-	//
-	// Not applicable. Must be null.
-	//
-	// RDS for MariaDB
-	//
-	// The name of the database to create when the DB instance is created. If you
-	// don't specify a value, Amazon RDS doesn't create a database in the DB instance.
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, no database is created in the DB instance.
 	//
 	// Constraints:
 	//
@@ -21210,12 +21366,12 @@ type CreateDBInstanceInput struct {
 	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
 	//    or digits (0-9).
 	//
-	//    * Can't be a word reserved by the database engine.
+	//    * Can't be a word reserved by the specified database engine
 	//
-	// RDS for MySQL
+	// MariaDB
 	//
-	// The name of the database to create when the DB instance is created. If you
-	// don't specify a value, Amazon RDS doesn't create a database in the DB instance.
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, no database is created in the DB instance.
 	//
 	// Constraints:
 	//
@@ -21224,26 +21380,13 @@ type CreateDBInstanceInput struct {
 	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
 	//    or digits (0-9).
 	//
-	//    * Can't be a word reserved by the database engine.
+	//    * Can't be a word reserved by the specified database engine
 	//
-	// RDS for Oracle
+	// PostgreSQL
 	//
-	// The Oracle System ID (SID) of the created DB instance.
-	//
-	// Default: ORCL
-	//
-	// Constraints:
-	//
-	//    * Can't be longer than 8 characters.
-	//
-	//    * Can't be a word reserved by the database engine, such as the string
-	//    NULL.
-	//
-	// RDS for PostgreSQL
-	//
-	// The name of the database to create when the DB instance is created.
-	//
-	// Default: postgres
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, a database named postgres is created in the DB
+	// instance.
 	//
 	// Constraints:
 	//
@@ -21252,11 +21395,71 @@ type CreateDBInstanceInput struct {
 	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
 	//    or digits (0-9).
 	//
-	//    * Can't be a word reserved by the database engine.
+	//    * Can't be a word reserved by the specified database engine
 	//
-	// RDS for SQL Server
+	// Oracle
+	//
+	// The Oracle System ID (SID) of the created DB instance. If you don't specify
+	// a value, the default value is ORCL. You can't specify the string null, or
+	// any other reserved word, for DBName.
+	//
+	// Default: ORCL
+	//
+	// Constraints:
+	//
+	//    * Can't be longer than 8 characters
+	//
+	// Amazon RDS Custom for Oracle
+	//
+	// The Oracle System ID (SID) of the created RDS Custom DB instance. If you
+	// don't specify a value, the default value is ORCL for non-CDBs and RDSCDB
+	// for CDBs.
+	//
+	// Default: ORCL
+	//
+	// Constraints:
+	//
+	//    * It must contain 1 to 8 alphanumeric characters.
+	//
+	//    * It must contain a letter.
+	//
+	//    * It can't be a word reserved by the database engine.
+	//
+	// Amazon RDS Custom for SQL Server
 	//
 	// Not applicable. Must be null.
+	//
+	// SQL Server
+	//
+	// Not applicable. Must be null.
+	//
+	// Amazon Aurora MySQL
+	//
+	// The name of the database to create when the primary DB instance of the Aurora
+	// MySQL DB cluster is created. If this parameter isn't specified for an Aurora
+	// MySQL DB cluster, no database is created in the DB cluster.
+	//
+	// Constraints:
+	//
+	//    * It must contain 1 to 64 alphanumeric characters.
+	//
+	//    * It can't be a word reserved by the database engine.
+	//
+	// Amazon Aurora PostgreSQL
+	//
+	// The name of the database to create when the primary DB instance of the Aurora
+	// PostgreSQL DB cluster is created. If this parameter isn't specified for an
+	// Aurora PostgreSQL DB cluster, a database named postgres is created in the
+	// DB cluster.
+	//
+	// Constraints:
+	//
+	//    * It must contain 1 to 63 alphanumeric characters.
+	//
+	//    * It must begin with a letter. Subsequent characters can be letters, underscores,
+	//    or digits (0 to 9).
+	//
+	//    * It can't be a word reserved by the database engine.
 	DBName *string `type:"string"`
 
 	// The name of the DB parameter group to associate with this DB instance. If
@@ -21290,6 +21493,13 @@ type CreateDBInstanceInput struct {
 	//
 	// Example: mydbsubnetgroup
 	DBSubnetGroupName *string `type:"string"`
+
+	// The Oracle system identifier (SID), which is the name of the Oracle database
+	// instance that manages your database files. In this context, the term "Oracle
+	// database instance" refers exclusively to the system global area (SGA) and
+	// Oracle background processes. If you don't specify a SID, the value defaults
+	// to RDSCDB. The Oracle SID is also the name of your CDB.
+	DBSystemId *string `type:"string"`
 
 	// Specifies whether the DB instance has deletion protection enabled. The database
 	// can't be deleted when deletion protection is enabled. By default, deletion
@@ -22064,6 +22274,12 @@ func (s *CreateDBInstanceInput) SetDBSecurityGroups(v []*string) *CreateDBInstan
 // SetDBSubnetGroupName sets the DBSubnetGroupName field's value.
 func (s *CreateDBInstanceInput) SetDBSubnetGroupName(v string) *CreateDBInstanceInput {
 	s.DBSubnetGroupName = &v
+	return s
+}
+
+// SetDBSystemId sets the DBSystemId field's value.
+func (s *CreateDBInstanceInput) SetDBSystemId(v string) *CreateDBInstanceInput {
+	s.DBSystemId = &v
 	return s
 }
 
@@ -24885,6 +25101,10 @@ type DBCluster struct {
 	// The latest time to which a database can be restored with point-in-time restore.
 	LatestRestorableTime *time.Time `type:"timestamp"`
 
+	// Specifies whether an Aurora DB cluster has in-cluster write forwarding enabled,
+	// not enabled, requested, or is in the process of enabling it.
+	LocalWriteForwardingStatus *string `type:"string" enum:"LocalWriteForwardingStatus"`
+
 	// The secret managed by RDS in Amazon Web Services Secrets Manager for the
 	// master user password.
 	//
@@ -25343,6 +25563,12 @@ func (s *DBCluster) SetLatestRestorableTime(v time.Time) *DBCluster {
 	return s
 }
 
+// SetLocalWriteForwardingStatus sets the LocalWriteForwardingStatus field's value.
+func (s *DBCluster) SetLocalWriteForwardingStatus(v string) *DBCluster {
+	s.LocalWriteForwardingStatus = &v
+	return s
+}
+
 // SetMasterUserSecret sets the MasterUserSecret field's value.
 func (s *DBCluster) SetMasterUserSecret(v *MasterUserSecret) *DBCluster {
 	s.MasterUserSecret = v
@@ -25490,6 +25716,259 @@ func (s *DBCluster) SetTagList(v []*Tag) *DBCluster {
 // SetVpcSecurityGroups sets the VpcSecurityGroups field's value.
 func (s *DBCluster) SetVpcSecurityGroups(v []*VpcSecurityGroupMembership) *DBCluster {
 	s.VpcSecurityGroups = v
+	return s
+}
+
+// An automated backup of a DB cluster. It consists of system backups, transaction
+// logs, and the database cluster properties that existed at the time you deleted
+// the source cluster.
+type DBClusterAutomatedBackup struct {
+	_ struct{} `type:"structure"`
+
+	// For all database engines except Amazon Aurora, AllocatedStorage specifies
+	// the allocated storage size in gibibytes (GiB). For Aurora, AllocatedStorage
+	// always returns 1, because Aurora DB cluster storage size isn't fixed, but
+	// instead automatically adjusts as needed.
+	AllocatedStorage *int64 `type:"integer"`
+
+	// The Availability Zones where instances in the DB cluster can be created.
+	// For information on Amazon Web Services Regions and Availability Zones, see
+	// Regions and Availability Zones (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.RegionsAndAvailabilityZones.html).
+	AvailabilityZones []*string `locationNameList:"AvailabilityZone" type:"list"`
+
+	// The retention period for the automated backups.
+	BackupRetentionPeriod *int64 `type:"integer"`
+
+	// The time when the DB cluster was created, in Universal Coordinated Time (UTC).
+	ClusterCreateTime *time.Time `type:"timestamp"`
+
+	// The Amazon Resource Name (ARN) for the source DB cluster.
+	DBClusterArn *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) for the automated backups.
+	DBClusterAutomatedBackupsArn *string `type:"string"`
+
+	// The identifier for the source DB cluster, which can't be changed and which
+	// is unique to an Amazon Web Services Region.
+	DBClusterIdentifier *string `type:"string"`
+
+	// The resource ID for the source DB cluster, which can't be changed and which
+	// is unique to an Amazon Web Services Region.
+	DbClusterResourceId *string `type:"string"`
+
+	// The name of the database engine for this automated backup.
+	Engine *string `type:"string"`
+
+	// The engine mode of the database engine for the automated backup.
+	EngineMode *string `type:"string"`
+
+	// The version of the database engine for the automated backup.
+	EngineVersion *string `type:"string"`
+
+	// True if mapping of Amazon Web Services Identity and Access Management (IAM)
+	// accounts to database accounts is enabled, and otherwise false.
+	IAMDatabaseAuthenticationEnabled *bool `type:"boolean"`
+
+	// The IOPS (I/O operations per second) value for the automated backup.
+	//
+	// This setting is only for non-Aurora Multi-AZ DB clusters.
+	Iops *int64 `type:"integer"`
+
+	// The Amazon Web Services KMS key ID for an automated backup.
+	//
+	// The Amazon Web Services KMS key identifier is the key ARN, key ID, alias
+	// ARN, or alias name for the KMS key.
+	KmsKeyId *string `type:"string"`
+
+	// The license model information for this DB cluster automated backup.
+	LicenseModel *string `type:"string"`
+
+	// The master user name of the automated backup.
+	MasterUsername *string `type:"string"`
+
+	// The port number that the automated backup used for connections.
+	//
+	// Default: Inherits from the source DB cluster
+	//
+	// Valid Values: 1150-65535
+	Port *int64 `type:"integer"`
+
+	// The Amazon Web Services Region associated with the automated backup.
+	Region *string `type:"string"`
+
+	// Earliest and latest time an instance can be restored to:
+	RestoreWindow *RestoreWindow `type:"structure"`
+
+	// A list of status information for an automated backup:
+	//
+	//    * retained - Automated backups for deleted clusters.
+	Status *string `type:"string"`
+
+	// Specifies whether the source DB cluster is encrypted.
+	StorageEncrypted *bool `type:"boolean"`
+
+	// The storage type associated with the DB cluster.
+	//
+	// This setting is only for non-Aurora Multi-AZ DB clusters.
+	StorageType *string `type:"string"`
+
+	// The VPC ID associated with the DB cluster.
+	VpcId *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DBClusterAutomatedBackup) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DBClusterAutomatedBackup) GoString() string {
+	return s.String()
+}
+
+// SetAllocatedStorage sets the AllocatedStorage field's value.
+func (s *DBClusterAutomatedBackup) SetAllocatedStorage(v int64) *DBClusterAutomatedBackup {
+	s.AllocatedStorage = &v
+	return s
+}
+
+// SetAvailabilityZones sets the AvailabilityZones field's value.
+func (s *DBClusterAutomatedBackup) SetAvailabilityZones(v []*string) *DBClusterAutomatedBackup {
+	s.AvailabilityZones = v
+	return s
+}
+
+// SetBackupRetentionPeriod sets the BackupRetentionPeriod field's value.
+func (s *DBClusterAutomatedBackup) SetBackupRetentionPeriod(v int64) *DBClusterAutomatedBackup {
+	s.BackupRetentionPeriod = &v
+	return s
+}
+
+// SetClusterCreateTime sets the ClusterCreateTime field's value.
+func (s *DBClusterAutomatedBackup) SetClusterCreateTime(v time.Time) *DBClusterAutomatedBackup {
+	s.ClusterCreateTime = &v
+	return s
+}
+
+// SetDBClusterArn sets the DBClusterArn field's value.
+func (s *DBClusterAutomatedBackup) SetDBClusterArn(v string) *DBClusterAutomatedBackup {
+	s.DBClusterArn = &v
+	return s
+}
+
+// SetDBClusterAutomatedBackupsArn sets the DBClusterAutomatedBackupsArn field's value.
+func (s *DBClusterAutomatedBackup) SetDBClusterAutomatedBackupsArn(v string) *DBClusterAutomatedBackup {
+	s.DBClusterAutomatedBackupsArn = &v
+	return s
+}
+
+// SetDBClusterIdentifier sets the DBClusterIdentifier field's value.
+func (s *DBClusterAutomatedBackup) SetDBClusterIdentifier(v string) *DBClusterAutomatedBackup {
+	s.DBClusterIdentifier = &v
+	return s
+}
+
+// SetDbClusterResourceId sets the DbClusterResourceId field's value.
+func (s *DBClusterAutomatedBackup) SetDbClusterResourceId(v string) *DBClusterAutomatedBackup {
+	s.DbClusterResourceId = &v
+	return s
+}
+
+// SetEngine sets the Engine field's value.
+func (s *DBClusterAutomatedBackup) SetEngine(v string) *DBClusterAutomatedBackup {
+	s.Engine = &v
+	return s
+}
+
+// SetEngineMode sets the EngineMode field's value.
+func (s *DBClusterAutomatedBackup) SetEngineMode(v string) *DBClusterAutomatedBackup {
+	s.EngineMode = &v
+	return s
+}
+
+// SetEngineVersion sets the EngineVersion field's value.
+func (s *DBClusterAutomatedBackup) SetEngineVersion(v string) *DBClusterAutomatedBackup {
+	s.EngineVersion = &v
+	return s
+}
+
+// SetIAMDatabaseAuthenticationEnabled sets the IAMDatabaseAuthenticationEnabled field's value.
+func (s *DBClusterAutomatedBackup) SetIAMDatabaseAuthenticationEnabled(v bool) *DBClusterAutomatedBackup {
+	s.IAMDatabaseAuthenticationEnabled = &v
+	return s
+}
+
+// SetIops sets the Iops field's value.
+func (s *DBClusterAutomatedBackup) SetIops(v int64) *DBClusterAutomatedBackup {
+	s.Iops = &v
+	return s
+}
+
+// SetKmsKeyId sets the KmsKeyId field's value.
+func (s *DBClusterAutomatedBackup) SetKmsKeyId(v string) *DBClusterAutomatedBackup {
+	s.KmsKeyId = &v
+	return s
+}
+
+// SetLicenseModel sets the LicenseModel field's value.
+func (s *DBClusterAutomatedBackup) SetLicenseModel(v string) *DBClusterAutomatedBackup {
+	s.LicenseModel = &v
+	return s
+}
+
+// SetMasterUsername sets the MasterUsername field's value.
+func (s *DBClusterAutomatedBackup) SetMasterUsername(v string) *DBClusterAutomatedBackup {
+	s.MasterUsername = &v
+	return s
+}
+
+// SetPort sets the Port field's value.
+func (s *DBClusterAutomatedBackup) SetPort(v int64) *DBClusterAutomatedBackup {
+	s.Port = &v
+	return s
+}
+
+// SetRegion sets the Region field's value.
+func (s *DBClusterAutomatedBackup) SetRegion(v string) *DBClusterAutomatedBackup {
+	s.Region = &v
+	return s
+}
+
+// SetRestoreWindow sets the RestoreWindow field's value.
+func (s *DBClusterAutomatedBackup) SetRestoreWindow(v *RestoreWindow) *DBClusterAutomatedBackup {
+	s.RestoreWindow = v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *DBClusterAutomatedBackup) SetStatus(v string) *DBClusterAutomatedBackup {
+	s.Status = &v
+	return s
+}
+
+// SetStorageEncrypted sets the StorageEncrypted field's value.
+func (s *DBClusterAutomatedBackup) SetStorageEncrypted(v bool) *DBClusterAutomatedBackup {
+	s.StorageEncrypted = &v
+	return s
+}
+
+// SetStorageType sets the StorageType field's value.
+func (s *DBClusterAutomatedBackup) SetStorageType(v string) *DBClusterAutomatedBackup {
+	s.StorageType = &v
+	return s
+}
+
+// SetVpcId sets the VpcId field's value.
+func (s *DBClusterAutomatedBackup) SetVpcId(v string) *DBClusterAutomatedBackup {
+	s.VpcId = &v
 	return s
 }
 
@@ -25923,7 +26402,7 @@ type DBClusterSnapshot struct {
 	// snapshot was created from.
 	DBClusterIdentifier *string `type:"string"`
 
-	// The Amazon Resource Name (ARN) for the DB cluster snapshot.
+	// Specifies the Amazon Resource Name (ARN) for the DB cluster snapshot.
 	DBClusterSnapshotArn *string `type:"string"`
 
 	// Specifies the identifier for the DB cluster snapshot.
@@ -25931,6 +26410,10 @@ type DBClusterSnapshot struct {
 
 	// Reserved for future use.
 	DBSystemId *string `type:"string"`
+
+	// Specifies the resource ID of the DB cluster that this DB cluster snapshot
+	// was created from.
+	DbClusterResourceId *string `type:"string"`
 
 	// Specifies the name of the database engine for this DB cluster snapshot.
 	Engine *string `type:"string"`
@@ -26060,6 +26543,12 @@ func (s *DBClusterSnapshot) SetDBClusterSnapshotIdentifier(v string) *DBClusterS
 // SetDBSystemId sets the DBSystemId field's value.
 func (s *DBClusterSnapshot) SetDBSystemId(v string) *DBClusterSnapshot {
 	s.DBSystemId = &v
+	return s
+}
+
+// SetDbClusterResourceId sets the DbClusterResourceId field's value.
+func (s *DBClusterSnapshot) SetDbClusterResourceId(v string) *DBClusterSnapshot {
+	s.DbClusterResourceId = &v
 	return s
 }
 
@@ -26387,6 +26876,13 @@ type DBEngineVersion struct {
 	// specific DB engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// A value that indicates whether the DB engine version supports forwarding
+	// write operations from reader DB instances to the writer DB instance in the
+	// DB cluster. By default, write operations aren't allowed on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	SupportsLocalWriteForwarding *bool `type:"boolean"`
+
 	// A value that indicates whether the engine version supports exporting the
 	// log types specified by ExportableLogTypes to CloudWatch Logs.
 	SupportsLogExportsToCloudwatchLogs *bool `type:"boolean"`
@@ -26581,6 +27077,12 @@ func (s *DBEngineVersion) SetSupportsGlobalDatabases(v bool) *DBEngineVersion {
 	return s
 }
 
+// SetSupportsLocalWriteForwarding sets the SupportsLocalWriteForwarding field's value.
+func (s *DBEngineVersion) SetSupportsLocalWriteForwarding(v bool) *DBEngineVersion {
+	s.SupportsLocalWriteForwarding = &v
+	return s
+}
+
 // SetSupportsLogExportsToCloudwatchLogs sets the SupportsLogExportsToCloudwatchLogs field's value.
 func (s *DBEngineVersion) SetSupportsLogExportsToCloudwatchLogs(v bool) *DBEngineVersion {
 	s.SupportsLogExportsToCloudwatchLogs = &v
@@ -26757,15 +27259,10 @@ type DBInstance struct {
 	// in the Amazon RDS User Guide.
 	DBInstanceStatus *string `type:"string"`
 
-	// The meaning of this parameter differs depending on the database engine.
-	//
-	//    * For RDS for MariaDB, Microsoft SQL Server, MySQL, and PostgreSQL - The
-	//    name of the initial database specified for this DB instance when it was
-	//    created, if one was provided. This same name is returned for the life
-	//    of the DB instance.
-	//
-	//    * For RDS for Oracle - The Oracle System ID (SID) of the created DB instance.
-	//    This value is only returned when the object returned is an Oracle DB instance.
+	// Contains the initial database name that you provided (if required) when you
+	// created the DB instance. This name is returned for the life of your DB instance.
+	// For an RDS for Oracle CDB instance, the name identifies the PDB rather than
+	// the CDB.
 	DBName *string `type:"string"`
 
 	// The list of DB parameter groups applied to this DB instance.
@@ -26909,6 +27406,9 @@ type DBInstance struct {
 	// returned only when there are pending changes. Specific changes are identified
 	// by subelements.
 	PendingModifiedValues *PendingModifiedValues `type:"structure"`
+
+	// The progress of the storage optimization operation as a percentage.
+	PercentProgress *string `type:"string"`
 
 	// Indicates whether Performance Insights is enabled for the DB instance.
 	PerformanceInsightsEnabled *bool `type:"boolean"`
@@ -27399,6 +27899,12 @@ func (s *DBInstance) SetPendingModifiedValues(v *PendingModifiedValues) *DBInsta
 	return s
 }
 
+// SetPercentProgress sets the PercentProgress field's value.
+func (s *DBInstance) SetPercentProgress(v string) *DBInstance {
+	s.PercentProgress = &v
+	return s
+}
+
 // SetPerformanceInsightsEnabled sets the PerformanceInsightsEnabled field's value.
 func (s *DBInstance) SetPerformanceInsightsEnabled(v bool) *DBInstance {
 	s.PerformanceInsightsEnabled = &v
@@ -27568,11 +28074,11 @@ type DBInstanceAutomatedBackup struct {
 	// with the automated backup.
 	DBInstanceAutomatedBackupsReplications []*DBInstanceAutomatedBackupsReplication `locationNameList:"DBInstanceAutomatedBackupsReplication" type:"list"`
 
-	// The customer id of the instance that is/was associated with the automated
-	// backup.
+	// The identifier for the source DB instance, which can't be changed and which
+	// is unique to an Amazon Web Services Region.
 	DBInstanceIdentifier *string `type:"string"`
 
-	// The identifier for the source DB instance, which can't be changed and which
+	// The resource ID for the source DB instance, which can't be changed and which
 	// is unique to an Amazon Web Services Region.
 	DbiResourceId *string `type:"string"`
 
@@ -27604,7 +28110,7 @@ type DBInstanceAutomatedBackup struct {
 	// License model information for the automated backup.
 	LicenseModel *string `type:"string"`
 
-	// The license model of an automated backup.
+	// The master user name of an automated backup.
 	MasterUsername *string `type:"string"`
 
 	// The option group the automated backup is associated with. If omitted, the
@@ -27626,11 +28132,11 @@ type DBInstanceAutomatedBackup struct {
 
 	// Provides a list of status information for an automated backup:
 	//
-	//    * active - automated backups for current instances
+	//    * active - Automated backups for current instances.
 	//
-	//    * retained - automated backups for deleted instances
+	//    * retained - Automated backups for deleted instances.
 	//
-	//    * creating - automated backups that are waiting for the first automated
+	//    * creating - Automated backups that are waiting for the first automated
 	//    snapshot to be available.
 	Status *string `type:"string"`
 
@@ -28852,6 +29358,11 @@ type DBSnapshot struct {
 	// Specifies the identifier for the DB snapshot.
 	DBSnapshotIdentifier *string `type:"string"`
 
+	// The Oracle system identifier (SID), which is the name of the Oracle database
+	// instance that manages your database files. The Oracle SID is also the name
+	// of your CDB.
+	DBSystemId *string `type:"string"`
+
 	// The identifier for the source DB instance, which can't be changed and which
 	// is unique to an Amazon Web Services Region.
 	DbiResourceId *string `type:"string"`
@@ -29009,6 +29520,12 @@ func (s *DBSnapshot) SetDBSnapshotArn(v string) *DBSnapshot {
 // SetDBSnapshotIdentifier sets the DBSnapshotIdentifier field's value.
 func (s *DBSnapshot) SetDBSnapshotIdentifier(v string) *DBSnapshot {
 	s.DBSnapshotIdentifier = &v
+	return s
+}
+
+// SetDBSystemId sets the DBSystemId field's value.
+func (s *DBSnapshot) SetDBSystemId(v string) *DBSnapshot {
+	s.DBSystemId = &v
 	return s
 }
 
@@ -29385,8 +29902,8 @@ func (s *DBSubnetGroup) SetVpcId(v string) *DBSubnetGroup {
 type DeleteBlueGreenDeploymentInput struct {
 	_ struct{} `type:"structure"`
 
-	// The blue/green deployment identifier of the deployment to be deleted. This
-	// parameter isn't case-sensitive.
+	// The unique identifier of the blue/green deployment to delete. This parameter
+	// isn't case-sensitive.
 	//
 	// Constraints:
 	//
@@ -29395,8 +29912,8 @@ type DeleteBlueGreenDeploymentInput struct {
 	// BlueGreenDeploymentIdentifier is a required field
 	BlueGreenDeploymentIdentifier *string `min:"1" type:"string" required:"true"`
 
-	// A value that indicates whether to delete the resources in the green environment.
-	// You can't specify this option if the blue/green deployment status (https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_BlueGreenDeployment.html)
+	// Specifies whether to delete the resources in the green environment. You can't
+	// specify this option if the blue/green deployment status (https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_BlueGreenDeployment.html)
 	// is SWITCHOVER_COMPLETED.
 	DeleteTarget *bool `type:"boolean"`
 }
@@ -29450,7 +29967,7 @@ func (s *DeleteBlueGreenDeploymentInput) SetDeleteTarget(v bool) *DeleteBlueGree
 type DeleteBlueGreenDeploymentOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Contains the details about a blue/green deployment.
+	// Details about a blue/green deployment.
 	//
 	// For more information, see Using Amazon RDS Blue/Green Deployments for database
 	// updates (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html)
@@ -29673,6 +30190,13 @@ type DeleteCustomDBEngineVersionOutput struct {
 	// specific DB engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// A value that indicates whether the DB engine version supports forwarding
+	// write operations from reader DB instances to the writer DB instance in the
+	// DB cluster. By default, write operations aren't allowed on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	SupportsLocalWriteForwarding *bool `type:"boolean"`
+
 	// A value that indicates whether the engine version supports exporting the
 	// log types specified by ExportableLogTypes to CloudWatch Logs.
 	SupportsLogExportsToCloudwatchLogs *bool `type:"boolean"`
@@ -29867,6 +30391,12 @@ func (s *DeleteCustomDBEngineVersionOutput) SetSupportsGlobalDatabases(v bool) *
 	return s
 }
 
+// SetSupportsLocalWriteForwarding sets the SupportsLocalWriteForwarding field's value.
+func (s *DeleteCustomDBEngineVersionOutput) SetSupportsLocalWriteForwarding(v bool) *DeleteCustomDBEngineVersionOutput {
+	s.SupportsLocalWriteForwarding = &v
+	return s
+}
+
 // SetSupportsLogExportsToCloudwatchLogs sets the SupportsLogExportsToCloudwatchLogs field's value.
 func (s *DeleteCustomDBEngineVersionOutput) SetSupportsLogExportsToCloudwatchLogs(v bool) *DeleteCustomDBEngineVersionOutput {
 	s.SupportsLogExportsToCloudwatchLogs = &v
@@ -29894,6 +30424,86 @@ func (s *DeleteCustomDBEngineVersionOutput) SetTagList(v []*Tag) *DeleteCustomDB
 // SetValidUpgradeTarget sets the ValidUpgradeTarget field's value.
 func (s *DeleteCustomDBEngineVersionOutput) SetValidUpgradeTarget(v []*UpgradeTarget) *DeleteCustomDBEngineVersionOutput {
 	s.ValidUpgradeTarget = v
+	return s
+}
+
+type DeleteDBClusterAutomatedBackupInput struct {
+	_ struct{} `type:"structure"`
+
+	// The identifier for the source DB cluster, which can't be changed and which
+	// is unique to an Amazon Web Services Region.
+	//
+	// DbClusterResourceId is a required field
+	DbClusterResourceId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteDBClusterAutomatedBackupInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteDBClusterAutomatedBackupInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteDBClusterAutomatedBackupInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteDBClusterAutomatedBackupInput"}
+	if s.DbClusterResourceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("DbClusterResourceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDbClusterResourceId sets the DbClusterResourceId field's value.
+func (s *DeleteDBClusterAutomatedBackupInput) SetDbClusterResourceId(v string) *DeleteDBClusterAutomatedBackupInput {
+	s.DbClusterResourceId = &v
+	return s
+}
+
+type DeleteDBClusterAutomatedBackupOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An automated backup of a DB cluster. It consists of system backups, transaction
+	// logs, and the database cluster properties that existed at the time you deleted
+	// the source cluster.
+	DBClusterAutomatedBackup *DBClusterAutomatedBackup `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteDBClusterAutomatedBackupOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteDBClusterAutomatedBackupOutput) GoString() string {
+	return s.String()
+}
+
+// SetDBClusterAutomatedBackup sets the DBClusterAutomatedBackup field's value.
+func (s *DeleteDBClusterAutomatedBackupOutput) SetDBClusterAutomatedBackup(v *DBClusterAutomatedBackup) *DeleteDBClusterAutomatedBackupOutput {
+	s.DBClusterAutomatedBackup = v
 	return s
 }
 
@@ -30091,6 +30701,11 @@ type DeleteDBClusterInput struct {
 	// DBClusterIdentifier is a required field
 	DBClusterIdentifier *string `type:"string" required:"true"`
 
+	// A value that indicates whether to remove automated backups immediately after
+	// the DB cluster is deleted. This parameter isn't case-sensitive. The default
+	// is to remove automated backups immediately after the DB cluster is deleted.
+	DeleteAutomatedBackups *bool `type:"boolean"`
+
 	// The DB cluster snapshot identifier of the new DB cluster snapshot created
 	// when SkipFinalSnapshot is disabled.
 	//
@@ -30151,6 +30766,12 @@ func (s *DeleteDBClusterInput) Validate() error {
 // SetDBClusterIdentifier sets the DBClusterIdentifier field's value.
 func (s *DeleteDBClusterInput) SetDBClusterIdentifier(v string) *DeleteDBClusterInput {
 	s.DBClusterIdentifier = &v
+	return s
+}
+
+// SetDeleteAutomatedBackups sets the DeleteAutomatedBackups field's value.
+func (s *DeleteDBClusterInput) SetDeleteAutomatedBackups(v bool) *DeleteDBClusterInput {
+	s.DeleteAutomatedBackups = &v
 	return s
 }
 
@@ -31448,18 +32069,18 @@ func (s *DescribeAccountAttributesOutput) SetAccountQuotas(v []*AccountQuota) *D
 type DescribeBlueGreenDeploymentsInput struct {
 	_ struct{} `type:"structure"`
 
-	// The blue/green deployment identifier. If this parameter is specified, information
-	// from only the specific blue/green deployment is returned. This parameter
-	// isn't case-sensitive.
+	// The blue/green deployment identifier. If you specify this parameter, the
+	// response only includes information about the specific blue/green deployment.
+	// This parameter isn't case-sensitive.
 	//
 	// Constraints:
 	//
-	//    * If supplied, must match an existing blue/green deployment identifier.
+	//    * Must match an existing blue/green deployment identifier.
 	BlueGreenDeploymentIdentifier *string `min:"1" type:"string"`
 
 	// A filter that specifies one or more blue/green deployments to describe.
 	//
-	// Supported filters:
+	// Valid Values:
 	//
 	//    * blue-green-deployment-identifier - Accepts system-generated identifiers
 	//    for blue/green deployments. The results list only includes information
@@ -31479,7 +32100,7 @@ type DescribeBlueGreenDeploymentsInput struct {
 	Filters []*Filter `locationNameList:"Filter" type:"list"`
 
 	// An optional pagination token provided by a previous DescribeBlueGreenDeployments
-	// request. If this parameter is specified, the response includes only records
+	// request. If you specify this parameter, the response only includes records
 	// beyond the marker, up to the value specified by MaxRecords.
 	Marker *string `type:"string"`
 
@@ -31489,7 +32110,11 @@ type DescribeBlueGreenDeploymentsInput struct {
 	//
 	// Default: 100
 	//
-	// Constraints: Minimum 20, maximum 100.
+	// Constraints:
+	//
+	//    * Must be a minimum of 20.
+	//
+	//    * Can't exceed 100.
 	MaxRecords *int64 `min:"20" type:"integer"`
 }
 
@@ -31564,7 +32189,8 @@ func (s *DescribeBlueGreenDeploymentsInput) SetMaxRecords(v int64) *DescribeBlue
 type DescribeBlueGreenDeploymentsOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Contains a list of blue/green deployments for the user.
+	// A list of blue/green deployments in the current account and Amazon Web Services
+	// Region.
 	BlueGreenDeployments []*BlueGreenDeployment `type:"list"`
 
 	// A pagination token that can be used in a later DescribeBlueGreenDeployments
@@ -31733,6 +32359,159 @@ func (s *DescribeCertificatesOutput) SetCertificates(v []*Certificate) *Describe
 
 // SetMarker sets the Marker field's value.
 func (s *DescribeCertificatesOutput) SetMarker(v string) *DescribeCertificatesOutput {
+	s.Marker = &v
+	return s
+}
+
+type DescribeDBClusterAutomatedBackupsInput struct {
+	_ struct{} `type:"structure"`
+
+	// (Optional) The user-supplied DB cluster identifier. If this parameter is
+	// specified, it must match the identifier of an existing DB cluster. It returns
+	// information from the specific DB cluster's automated backup. This parameter
+	// isn't case-sensitive.
+	DBClusterIdentifier *string `type:"string"`
+
+	// The resource ID of the DB cluster that is the source of the automated backup.
+	// This parameter isn't case-sensitive.
+	DbClusterResourceId *string `type:"string"`
+
+	// A filter that specifies which resources to return based on status.
+	//
+	// Supported filters are the following:
+	//
+	//    * status retained - Automated backups for deleted clusters and after backup
+	//    replication is stopped.
+	//
+	//    * db-cluster-id - Accepts DB cluster identifiers and Amazon Resource Names
+	//    (ARNs). The results list includes only information about the DB cluster
+	//    automated backups identified by these ARNs.
+	//
+	//    * db-cluster-resource-id - Accepts DB resource identifiers and Amazon
+	//    Resource Names (ARNs). The results list includes only information about
+	//    the DB cluster resources identified by these ARNs.
+	//
+	// Returns all resources by default. The status for each resource is specified
+	// in the response.
+	Filters []*Filter `locationNameList:"Filter" type:"list"`
+
+	// The pagination token provided in the previous request. If this parameter
+	// is specified the response includes only records beyond the marker, up to
+	// MaxRecords.
+	Marker *string `type:"string"`
+
+	// The maximum number of records to include in the response. If more records
+	// exist than the specified MaxRecords value, a pagination token called a marker
+	// is included in the response so that you can retrieve the remaining results.
+	MaxRecords *int64 `type:"integer"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBClusterAutomatedBackupsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBClusterAutomatedBackupsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeDBClusterAutomatedBackupsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeDBClusterAutomatedBackupsInput"}
+	if s.Filters != nil {
+		for i, v := range s.Filters {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Filters", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDBClusterIdentifier sets the DBClusterIdentifier field's value.
+func (s *DescribeDBClusterAutomatedBackupsInput) SetDBClusterIdentifier(v string) *DescribeDBClusterAutomatedBackupsInput {
+	s.DBClusterIdentifier = &v
+	return s
+}
+
+// SetDbClusterResourceId sets the DbClusterResourceId field's value.
+func (s *DescribeDBClusterAutomatedBackupsInput) SetDbClusterResourceId(v string) *DescribeDBClusterAutomatedBackupsInput {
+	s.DbClusterResourceId = &v
+	return s
+}
+
+// SetFilters sets the Filters field's value.
+func (s *DescribeDBClusterAutomatedBackupsInput) SetFilters(v []*Filter) *DescribeDBClusterAutomatedBackupsInput {
+	s.Filters = v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeDBClusterAutomatedBackupsInput) SetMarker(v string) *DescribeDBClusterAutomatedBackupsInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxRecords sets the MaxRecords field's value.
+func (s *DescribeDBClusterAutomatedBackupsInput) SetMaxRecords(v int64) *DescribeDBClusterAutomatedBackupsInput {
+	s.MaxRecords = &v
+	return s
+}
+
+type DescribeDBClusterAutomatedBackupsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A list of DBClusterAutomatedBackup backups.
+	DBClusterAutomatedBackups []*DBClusterAutomatedBackup `locationNameList:"DBClusterAutomatedBackup" type:"list"`
+
+	// The pagination token provided in the previous request. If this parameter
+	// is specified the response includes only records beyond the marker, up to
+	// MaxRecords.
+	Marker *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBClusterAutomatedBackupsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBClusterAutomatedBackupsOutput) GoString() string {
+	return s.String()
+}
+
+// SetDBClusterAutomatedBackups sets the DBClusterAutomatedBackups field's value.
+func (s *DescribeDBClusterAutomatedBackupsOutput) SetDBClusterAutomatedBackups(v []*DBClusterAutomatedBackup) *DescribeDBClusterAutomatedBackupsOutput {
+	s.DBClusterAutomatedBackups = v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeDBClusterAutomatedBackupsOutput) SetMarker(v string) *DescribeDBClusterAutomatedBackupsOutput {
 	s.Marker = &v
 	return s
 }
@@ -32442,6 +33221,9 @@ type DescribeDBClusterSnapshotsInput struct {
 	//    must also be specified.
 	DBClusterSnapshotIdentifier *string `type:"string"`
 
+	// A specific DB cluster resource ID to describe.
+	DbClusterResourceId *string `type:"string"`
+
 	// A filter that specifies one or more DB cluster snapshots to describe.
 	//
 	// Supported filters:
@@ -32562,6 +33344,12 @@ func (s *DescribeDBClusterSnapshotsInput) SetDBClusterIdentifier(v string) *Desc
 // SetDBClusterSnapshotIdentifier sets the DBClusterSnapshotIdentifier field's value.
 func (s *DescribeDBClusterSnapshotsInput) SetDBClusterSnapshotIdentifier(v string) *DescribeDBClusterSnapshotsInput {
 	s.DBClusterSnapshotIdentifier = &v
+	return s
+}
+
+// SetDbClusterResourceId sets the DbClusterResourceId field's value.
+func (s *DescribeDBClusterSnapshotsInput) SetDbClusterResourceId(v string) *DescribeDBClusterSnapshotsInput {
+	s.DbClusterResourceId = &v
 	return s
 }
 
@@ -33080,7 +33868,7 @@ type DescribeDBInstanceAutomatedBackupsInput struct {
 
 	// (Optional) The user-supplied instance identifier. If this parameter is specified,
 	// it must match the identifier of an existing DB instance. It returns information
-	// from the specific DB instance' automated backup. This parameter isn't case-sensitive.
+	// from the specific DB instance's automated backup. This parameter isn't case-sensitive.
 	DBInstanceIdentifier *string `type:"string"`
 
 	// The resource ID of the DB instance that is the source of the automated backup.
@@ -33091,10 +33879,10 @@ type DescribeDBInstanceAutomatedBackupsInput struct {
 	//
 	// Supported filters are the following:
 	//
-	//    * status active - automated backups for current instances retained - automated
-	//    backups for deleted instances and after backup replication is stopped
-	//    creating - automated backups that are waiting for the first automated
-	//    snapshot to be available
+	//    * status active - Automated backups for current instances. creating -
+	//    Automated backups that are waiting for the first automated snapshot to
+	//    be available. retained - Automated backups for deleted instances and after
+	//    backup replication is stopped.
 	//
 	//    * db-instance-id - Accepts DB instance identifiers and Amazon Resource
 	//    Names (ARNs). The results list includes only information about the DB
@@ -39784,6 +40572,13 @@ type ModifyCustomDBEngineVersionOutput struct {
 	// specific DB engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// A value that indicates whether the DB engine version supports forwarding
+	// write operations from reader DB instances to the writer DB instance in the
+	// DB cluster. By default, write operations aren't allowed on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	SupportsLocalWriteForwarding *bool `type:"boolean"`
+
 	// A value that indicates whether the engine version supports exporting the
 	// log types specified by ExportableLogTypes to CloudWatch Logs.
 	SupportsLogExportsToCloudwatchLogs *bool `type:"boolean"`
@@ -39975,6 +40770,12 @@ func (s *ModifyCustomDBEngineVersionOutput) SetSupportsCertificateRotationWithou
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *ModifyCustomDBEngineVersionOutput) SetSupportsGlobalDatabases(v bool) *ModifyCustomDBEngineVersionOutput {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsLocalWriteForwarding sets the SupportsLocalWriteForwarding field's value.
+func (s *ModifyCustomDBEngineVersionOutput) SetSupportsLocalWriteForwarding(v bool) *ModifyCustomDBEngineVersionOutput {
+	s.SupportsLocalWriteForwarding = &v
 	return s
 }
 
@@ -40432,6 +41233,13 @@ type ModifyDBClusterInput struct {
 	//
 	// Valid for Cluster Type: Aurora DB clusters only
 	EnableIAMDatabaseAuthentication *bool `type:"boolean"`
+
+	// Specifies whether read replicas can forward write operations to the writer
+	// DB instance in the DB cluster. By default, write operations aren't allowed
+	// on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	EnableLocalWriteForwarding *bool `type:"boolean"`
 
 	// Specifies whether to turn on Performance Insights for the DB cluster.
 	//
@@ -40912,6 +41720,12 @@ func (s *ModifyDBClusterInput) SetEnableHttpEndpoint(v bool) *ModifyDBClusterInp
 // SetEnableIAMDatabaseAuthentication sets the EnableIAMDatabaseAuthentication field's value.
 func (s *ModifyDBClusterInput) SetEnableIAMDatabaseAuthentication(v bool) *ModifyDBClusterInput {
 	s.EnableIAMDatabaseAuthentication = &v
+	return s
+}
+
+// SetEnableLocalWriteForwarding sets the EnableLocalWriteForwarding field's value.
+func (s *ModifyDBClusterInput) SetEnableLocalWriteForwarding(v bool) *ModifyDBClusterInput {
+	s.EnableLocalWriteForwarding = &v
 	return s
 }
 
@@ -41397,7 +42211,7 @@ type ModifyDBInstanceInput struct {
 	//    * Can't be set to 0 for an RDS Custom for Oracle DB instance.
 	BackupRetentionPeriod *int64 `type:"integer"`
 
-	// The CA certificate identifier to use for the DB instance6's server certificate.
+	// The CA certificate identifier to use for the DB instance's server certificate.
 	//
 	// This setting doesn't apply to RDS Custom DB instances.
 	//
@@ -43539,25 +44353,23 @@ func (s *ModifyEventSubscriptionOutput) SetEventSubscription(v *EventSubscriptio
 type ModifyGlobalClusterInput struct {
 	_ struct{} `type:"structure"`
 
-	// A value that indicates whether major version upgrades are allowed.
+	// Specifies whether to allow major version upgrades.
 	//
-	// Constraints: You must allow major version upgrades when specifying a value
-	// for the EngineVersion parameter that is a different major version than the
-	// DB cluster's current version.
+	// Constraints: Must be enabled if you specify a value for the EngineVersion
+	// parameter that's a different major version than the global cluster's current
+	// version.
 	//
 	// If you upgrade the major version of a global database, the cluster and DB
 	// instance parameter groups are set to the default parameter groups for the
 	// new version. Apply any custom parameter groups after completing the upgrade.
 	AllowMajorVersionUpgrade *bool `type:"boolean"`
 
-	// Indicates if the global database cluster has deletion protection enabled.
+	// Specifies whether to enable deletion protection for the global database cluster.
 	// The global database cluster can't be deleted when deletion protection is
 	// enabled.
 	DeletionProtection *bool `type:"boolean"`
 
-	// The version number of the database engine to which you want to upgrade. Changing
-	// this parameter results in an outage. The change is applied during the next
-	// maintenance window unless ApplyImmediately is enabled.
+	// The version number of the database engine to which you want to upgrade.
 	//
 	// To list all of the available engine versions for aurora-mysql (for MySQL-based
 	// Aurora global databases), use the following command:
@@ -43572,24 +44384,24 @@ type ModifyGlobalClusterInput struct {
 	// == `true`].[EngineVersion]'
 	EngineVersion *string `type:"string"`
 
-	// The DB cluster identifier for the global cluster being modified. This parameter
-	// isn't case-sensitive.
+	// The cluster identifier for the global cluster to modify. This parameter isn't
+	// case-sensitive.
 	//
 	// Constraints:
 	//
 	//    * Must match the identifier of an existing global database cluster.
 	GlobalClusterIdentifier *string `type:"string"`
 
-	// The new cluster identifier for the global database cluster when modifying
-	// a global database cluster. This value is stored as a lowercase string.
+	// The new cluster identifier for the global database cluster. This value is
+	// stored as a lowercase string.
 	//
 	// Constraints:
 	//
-	//    * Must contain from 1 to 63 letters, numbers, or hyphens
+	//    * Must contain from 1 to 63 letters, numbers, or hyphens.
 	//
-	//    * The first character must be a letter
+	//    * The first character must be a letter.
 	//
-	//    * Can't end with a hyphen or contain two consecutive hyphens
+	//    * Can't end with a hyphen or contain two consecutive hyphens.
 	//
 	// Example: my-cluster2
 	NewGlobalClusterIdentifier *string `type:"string"`
@@ -48809,9 +49621,10 @@ type RestoreDBClusterToPointInTimeInput struct {
 	//    * Must match the identifier of an existing DBCluster.
 	//
 	// Valid for: Aurora DB clusters and Multi-AZ DB clusters
-	//
-	// SourceDBClusterIdentifier is a required field
-	SourceDBClusterIdentifier *string `type:"string" required:"true"`
+	SourceDBClusterIdentifier *string `type:"string"`
+
+	// The resource ID of the source DB cluster from which to restore.
+	SourceDbClusterResourceId *string `type:"string"`
 
 	// Specifies the storage type to be associated with the DB cluster.
 	//
@@ -48868,9 +49681,6 @@ func (s *RestoreDBClusterToPointInTimeInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "RestoreDBClusterToPointInTimeInput"}
 	if s.DBClusterIdentifier == nil {
 		invalidParams.Add(request.NewErrParamRequired("DBClusterIdentifier"))
-	}
-	if s.SourceDBClusterIdentifier == nil {
-		invalidParams.Add(request.NewErrParamRequired("SourceDBClusterIdentifier"))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -49014,6 +49824,12 @@ func (s *RestoreDBClusterToPointInTimeInput) SetServerlessV2ScalingConfiguration
 // SetSourceDBClusterIdentifier sets the SourceDBClusterIdentifier field's value.
 func (s *RestoreDBClusterToPointInTimeInput) SetSourceDBClusterIdentifier(v string) *RestoreDBClusterToPointInTimeInput {
 	s.SourceDBClusterIdentifier = &v
+	return s
+}
+
+// SetSourceDbClusterResourceId sets the SourceDbClusterResourceId field's value.
+func (s *RestoreDBClusterToPointInTimeInput) SetSourceDbClusterResourceId(v string) *RestoreDBClusterToPointInTimeInput {
+	s.SourceDbClusterResourceId = &v
 	return s
 }
 
@@ -53234,7 +54050,7 @@ func (s *Subnet) SetSubnetStatus(v string) *Subnet {
 type SwitchoverBlueGreenDeploymentInput struct {
 	_ struct{} `type:"structure"`
 
-	// The blue/green deployment identifier.
+	// The unique identifier of the blue/green deployment.
 	//
 	// Constraints:
 	//
@@ -53243,8 +54059,9 @@ type SwitchoverBlueGreenDeploymentInput struct {
 	// BlueGreenDeploymentIdentifier is a required field
 	BlueGreenDeploymentIdentifier *string `min:"1" type:"string" required:"true"`
 
-	// The amount of time, in seconds, for the switchover to complete. The default
-	// is 300.
+	// The amount of time, in seconds, for the switchover to complete.
+	//
+	// Default: 300
 	//
 	// If the switchover takes longer than the specified duration, then any changes
 	// are rolled back, and no changes are made to the environments.
@@ -53303,7 +54120,7 @@ func (s *SwitchoverBlueGreenDeploymentInput) SetSwitchoverTimeout(v int64) *Swit
 type SwitchoverBlueGreenDeploymentOutput struct {
 	_ struct{} `type:"structure"`
 
-	// Contains the details about a blue/green deployment.
+	// Details about a blue/green deployment.
 	//
 	// For more information, see Using Amazon RDS Blue/Green Deployments for database
 	// updates (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments.html)
@@ -53667,6 +54484,13 @@ type UpgradeTarget struct {
 	// target engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// A value that indicates whether the target engine version supports forwarding
+	// write operations from reader DB instances to the writer DB instance in the
+	// DB cluster. By default, write operations aren't allowed on reader DB instances.
+	//
+	// Valid for: Aurora DB clusters only
+	SupportsLocalWriteForwarding *bool `type:"boolean"`
+
 	// A value that indicates whether you can use Aurora parallel query with the
 	// target engine version.
 	SupportsParallelQuery *bool `type:"boolean"`
@@ -53735,6 +54559,12 @@ func (s *UpgradeTarget) SetSupportsBabelfish(v bool) *UpgradeTarget {
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *UpgradeTarget) SetSupportsGlobalDatabases(v bool) *UpgradeTarget {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsLocalWriteForwarding sets the SupportsLocalWriteForwarding field's value.
+func (s *UpgradeTarget) SetSupportsLocalWriteForwarding(v bool) *UpgradeTarget {
+	s.SupportsLocalWriteForwarding = &v
 	return s
 }
 
@@ -54425,6 +55255,34 @@ func IAMAuthMode_Values() []string {
 		IAMAuthModeDisabled,
 		IAMAuthModeRequired,
 		IAMAuthModeEnabled,
+	}
+}
+
+const (
+	// LocalWriteForwardingStatusEnabled is a LocalWriteForwardingStatus enum value
+	LocalWriteForwardingStatusEnabled = "enabled"
+
+	// LocalWriteForwardingStatusDisabled is a LocalWriteForwardingStatus enum value
+	LocalWriteForwardingStatusDisabled = "disabled"
+
+	// LocalWriteForwardingStatusEnabling is a LocalWriteForwardingStatus enum value
+	LocalWriteForwardingStatusEnabling = "enabling"
+
+	// LocalWriteForwardingStatusDisabling is a LocalWriteForwardingStatus enum value
+	LocalWriteForwardingStatusDisabling = "disabling"
+
+	// LocalWriteForwardingStatusRequested is a LocalWriteForwardingStatus enum value
+	LocalWriteForwardingStatusRequested = "requested"
+)
+
+// LocalWriteForwardingStatus_Values returns all elements of the LocalWriteForwardingStatus enum
+func LocalWriteForwardingStatus_Values() []string {
+	return []string{
+		LocalWriteForwardingStatusEnabled,
+		LocalWriteForwardingStatusDisabled,
+		LocalWriteForwardingStatusEnabling,
+		LocalWriteForwardingStatusDisabling,
+		LocalWriteForwardingStatusRequested,
 	}
 }
 

@@ -20,7 +20,7 @@ module "outboundproxy_uw2" {
   use_prefix                       = false
   external_role                    = module.application_iam_roles.obproxy_iam_role_name
   create_cpu_policy                = false
-  ami_id_map                       = var.ami_id_map
+  ami_id_map                       = var.ami_id_map_uw2
   asg_outboundproxy_desired        = var.asg_outboundproxy_desired
   asg_outboundproxy_min            = var.asg_outboundproxy_min
   asg_outboundproxy_max            = var.asg_outboundproxy_max

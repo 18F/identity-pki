@@ -69,15 +69,15 @@ repos:
   ruby-node-yarn-chrome-chromedriver:
     name: "ruby-node-yarn-chrome-chromedriver"
     <<: *all_write_template
-  terraform_apply:
-    name: "cd/terraform_apply"
-    <<: *all_write_template
-  terraform_plan:
-    name: "cd/terraform_plan"
-    <<: *all_write_template
   tspencertest:
     name: "tspencertest"
     <<: *all_write_template
   tspencertestreview:
     name: "tspencer/tspencertestreview"
+    <<: *all_write_template
+  identity_pivcac_review:
+    name: "identity-pivcac/review"
+    <<: *all_write_template
+  identity_pivcac_review_cache:
+    name: "identity-pivcac/review/cache"
     <<: *all_write_template

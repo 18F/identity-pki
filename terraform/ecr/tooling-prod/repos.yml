@@ -41,12 +41,6 @@ repos:
   ruby:
     name: "ecr-public/docker/library/ruby"
     <<: *all_write_template
-  terraform_apply:
-    name: "cd/terraform_apply"
-    <<: *all_write_template
-  terraform_plan:
-    name: "cd/terraform_plan"
-    <<: *all_write_template
   tf_deploy:
     name: "cd/tf_deploy"
     <<: *all_write_template
@@ -55,4 +49,10 @@ repos:
     <<: *all_write_template
   identity_idp_review_cache:
     name: "identity-idp/review/cache"
+    <<: *all_write_template
+  identity_pivcac_review:
+    name: "identity-pivcac/review"
+    <<: *all_write_template
+  identity_pivcac_review_cache:
+    name: "identity-pivcac/review/cache"
     <<: *all_write_template

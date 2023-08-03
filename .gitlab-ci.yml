@@ -33,19 +33,20 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
-  DEPLOY_IMAGE_DIGEST: "sha256:de71d76fb4e2dcbf3f0e3dfd55169977fb95e8510ccec67f3fa4e87429b9800d"
-  STOP_IMAGE_DIGEST: "sha256:fa800ff29cd9b8ba1b1afa0f81227e89459d86cdacc084296e7d3c77363e2af9"
-  TEST_IMAGE_DIGEST: "sha256:46a48af66a345bf50aacca5dc5e649d9482564bfad294451ea40666839712ac8"
-  GITDEPLOY_IMAGE_DIGEST: "sha256:9235830d3b0c3abfe316c717a7c36865adf7d8cfe898579d301fa99cadbe76bd"
-  GITTEST_IMAGE_DIGEST: "sha256:36aa91003cc13f5a0ecdb17fd04ac38443f5d20d6fb6d10c8ab138668700b5d3"
-  TERRAFORM_APPLY_IMAGE_DIGEST: "sha256:1f10c7311fcaff979028bac7ad9d052df3aa3feba9770c85438ebe220c5676b8"
-  TERRAFORM_PLAN_IMAGE_DIGEST: "sha256:52ab356460a2ec9ecdb4aa3a1d0bf0303c34ec726c93fd34274505acb3182317"
+  DEPLOY_IMAGE_DIGEST: "sha256:9ec46c1c1c34e2800b3145b376a46a07e914cc29cced9862800d6580d75a7448"
+  STOP_IMAGE_DIGEST: "sha256:12340c0938578724826ffecfb311170487f9dc2c1361a36591ea5f5dc5283083"
+  TEST_IMAGE_DIGEST: "sha256:867cfb384340b55644ccbfb71b4d910c082207d0a146d16a9e03f276bbb9900e"
+  GITDEPLOY_IMAGE_DIGEST: "sha256:3db1c2a4f6a723387b328e677776cc7f585f79be4afce3110476276bf14e405e"
+  GITTEST_IMAGE_DIGEST: "sha256:0d2108f721a580a339f564578e65c5a35dfb2357dc7d2eb5890b88771ed1c8f7"
 
 .container_scan_template:
   stage: scan
   interruptible: true
   allow_failure: true
   rules:
+    # Make sure scans only run on prod, where images are built
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
     # Build on commits to default branch so we have something to scan for the security dashboard
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     # Build when the daily pipeline runs, but not for other scheduled pipelines.
@@ -231,18 +232,6 @@ build_idp_ci_container:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
 
-build_terraform_apply_container:
-  extends: .build_template
-  variables:
-    dockerfile: terraform_apply.Dockerfile
-    ecr_repo: cd/terraform_apply
-
-build_terraform_plan_container:
-  extends: .build_template
-  variables:
-    dockerfile: terraform_plan.Dockerfile
-    ecr_repo: cd/terraform_plan
-
 # Grab ECR scans and import into gitlab
 scan_gitlab_deploy_container:
   extends: .container_scan_template
@@ -285,20 +274,6 @@ scan_idp_ci_container:
     ecr_repo: idp/ci
   needs:
     - build_idp_ci_container
-
-scan_terraform_apply_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/terraform_apply
-  needs:
-    - build_terraform_apply_container
-
-scan_terraform_plan_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/terraform_plan
-  needs:
-    - build_terraform_plan_container
 
 # IDP environments and their jobs
 .include_idp_jobs_template:
@@ -720,7 +695,6 @@ test_unallowed_image_alpha:
 
 include:
   - local: .gitlab-ci-rules.yml
-  - local: gitlab-ci/terraform-jobs.yml
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml
