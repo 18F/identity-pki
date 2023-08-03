@@ -80,7 +80,7 @@ RUN mkdir -p /opt/nginx/src; \
 COPY --chmod=644 ./k8files/fipsmode.patch /opt/nginx/src
 RUN patch -d /opt/nginx/src/nginx-${NGINX_VERSION} -p1 < /opt/nginx/src/fipsmode.patch; \
     mkdir -p /opt/nginx/src/headers-more-nginx-module-0.34; \
-    wget -O /opt/nginx/src/headers-more-nginx-module-0.34.tar.gz https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v0.34.tar.gz; \
+    wget --no-proxy -O /opt/nginx/src/headers-more-nginx-module-0.34.tar.gz https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v0.34.tar.gz; \
     tar xzvf /opt/nginx/src/headers-more-nginx-module-0.34.tar.gz -C /opt/nginx/src;
 WORKDIR /opt/nginx/src/nginx-${NGINX_VERSION}
 RUN ./configure --sbin-path=/usr/local/nginx/nginx --prefix=/opt/nginx --with-http_ssl_module --with-ipv6 --with-http_stub_status_module --with-http_realip_module --with-ld-opt="-L/usr/lib/x86_64-linux-gnu" --with-cc-opt="-I/usr/include/x86_64-linux-gnu/openssl" --add-module=/opt/nginx/src/headers-more-nginx-module-0.34 && \
