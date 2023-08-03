@@ -13,10 +13,10 @@ variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
   default = "172.16.32.0/22"
 }
 
-variable "vpc_secondary_cidr_block" {
-  type        = string
-  description = "Secondary CIDR block for the vpc assigned from network_layout"
-}
+#variable "vpc_secondary_cidr_block" {
+#  type        = string
+#  description = "Secondary CIDR block for the vpc assigned from network_layout"
+#}
 
 variable "region" {
   default = "us-west-2"
@@ -26,23 +26,23 @@ variable "fisma_tag" {
   default = "Q-LG"
 }
 
-variable "nessusserver_ip" {
-  description = "Nessus server's public IP"
-  default     = "44.230.151.136/32"
-}
+#variable "nessusserver_ip" {
+#  description = "Nessus server's public IP"
+#  default     = "44.230.151.136/32"
+#}
 
-variable "s3_prefix_list_id" {
-}
+#variable "s3_prefix_list_id" {
+#}
 
-variable "vpc_id" {
-  description = "VPC Used To Launch the Migration Host"
-}
+#variable "vpc_id" {
+#  description = "VPC Used To Launch the Migration Host"
+#}
 
-variable "github_ipv4_cidr_blocks" {
-  type        = list(string)
-  description = "List of GitHub's IPv4 CIDR ranges."
-  default     = []
-}
+#variable "github_ipv4_cidr_blocks" {
+#  type        = list(string)
+#  description = "List of GitHub's IPv4 CIDR ranges."
+#  default     = []
+#}
 
 variable "migration_subnet_ids" {
   type        = list(string)
@@ -213,4 +213,7 @@ variable "s3_secrets_bucket_name" {
 
 variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+}
+
+variable "migration_security_group_id" {
 }

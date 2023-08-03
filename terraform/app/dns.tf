@@ -4,7 +4,7 @@ resource "aws_route53_zone" "internal-reverse" {
   comment = "${var.name}-zone-${var.env_name}"
   name    = "16.172.in-addr.arpa"
   vpc {
-    vpc_id = aws_vpc.default.id
+    vpc_id = module.network_uw2.vpc_id
   }
 }
 
@@ -13,7 +13,7 @@ module "internal_dns_uw2" {
 
   env_name = var.env_name
   name     = var.name
-  vpc_id   = aws_vpc.default.id
+  vpc_id   = module.network_uw2.vpc_id
 
 }
 

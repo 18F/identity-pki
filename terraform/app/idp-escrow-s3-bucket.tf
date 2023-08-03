@@ -174,7 +174,7 @@ data "aws_iam_policy_document" "escrow_deny" {
     condition {
       test     = "NotIpAddress"
       variable = "aws:VpcSourceIP"
-      values   = [aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+      values   = [module.network_uw2.secondary_cidr]
     }
   }
 }

@@ -18,7 +18,7 @@ module "locust_leader_launch_template" {
   instance_type             = var.instance_type_locust
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.base-permissions.name
-  security_group_ids        = [aws_security_group.locust[0].id, module.base_security_uw2.base_id]
+  security_group_ids        = [aws_security_group.locust[0].id, module.network_uw2.base_id]
 
   user_data = module.locust_user_data[0].rendered_cloudinit_config
 
@@ -42,7 +42,7 @@ resource "aws_autoscaling_group" "locust_leader" {
 
   wait_for_capacity_timeout = 0 # 0 == ignore
 
-  vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
+  vpc_zone_identifier = [for subnet in module.network_uw2.app_subnet : subnet.id]
 
   health_check_type         = "EC2"
   health_check_grace_period = 1

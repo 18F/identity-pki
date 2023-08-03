@@ -44,7 +44,7 @@ module "worker_launch_template" {
 
   instance_type             = var.instance_type_worker
   iam_instance_profile_name = aws_iam_instance_profile.worker.name
-  security_group_ids        = [aws_security_group.worker.id, module.base_security_uw2.base_id]
+  security_group_ids        = [aws_security_group.worker.id, module.network_uw2.base_id]
   user_data                 = module.worker_user_data.rendered_cloudinit_config
 
   use_spot_instances = var.use_spot_instances == 1 ? (
@@ -142,7 +142,7 @@ resource "aws_autoscaling_group" "worker" {
     aws_alb_target_group.worker_ssl.arn,
   ]
 
-  vpc_zone_identifier = [for subnet in aws_subnet.app : subnet.id]
+  vpc_zone_identifier = [for subnet in module.network_uw2.app_subnet : subnet.id]
 
   health_check_type         = "ELB"
   health_check_grace_period = 1

@@ -26,7 +26,7 @@ module "application_iam_roles" {
   identity_sms_iam_role_name_idp = var.identity_sms_iam_role_name_idp
   ssm_policy                     = module.ssm_uw2.ssm_access_role_policy
   ssm_access_enabled             = var.ssm_access_enabled
-  ipv4_secondary_cidr            = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
+  ipv4_secondary_cidr            = module.network_uw2.secondary_cidr
 
   depends_on = [module.ssm_uw2]
 }

@@ -7,16 +7,16 @@
 #
 module "gitlab" {
   count      = var.gitlab_enabled ? 1 : 0
-  depends_on = [aws_internet_gateway.default]
+  depends_on = [module.network_uw2]
   source     = "../modules/gitlab"
 
   gitlab_servicename = var.gitlab_servicename
   # not supported in us-west-2d
-  endpoint_subnet_ids     = slice([for subnet in aws_subnet.app : subnet.id], 0, 2)
-  vpc_id                  = aws_vpc.default.id
+  endpoint_subnet_ids     = slice([for subnet in module.network_uw2.app_subnet : subnet.id], 0, 2)
+  vpc_id                  = module.network_uw2.vpc_id
   name                    = var.name
   env_name                = var.env_name
-  allowed_security_groups = [module.base_security_uw2.base_id]
+  allowed_security_groups = [module.network_uw2.base_id]
   route53_zone_id         = module.internal_dns_uw2.internal_zone_id
   dns_name                = var.gitlab_hostname
 }
@@ -42,8 +42,8 @@ module "env-runner" {
   asg_outboundproxy_desired        = 1
   asg_outboundproxy_max            = 2
   asg_outboundproxy_min            = 1
-  aws_vpc                          = aws_vpc.default.id
-  base_security_group_id           = module.base_security_uw2.base_id
+  aws_vpc                          = module.network_uw2.vpc_id
+  base_security_group_id           = module.network_uw2.base_id
   bootstrap_main_git_ref_default   = local.bootstrap_main_git_ref_default
   bootstrap_private_git_ref        = local.bootstrap_private_git_ref
   bootstrap_main_git_ref_map       = var.bootstrap_main_git_ref_map
@@ -59,25 +59,25 @@ module "env-runner" {
   root_domain                      = var.root_domain
   route53_id                       = var.route53_id
   route53_internal_zone_id         = module.internal_dns_uw2.internal_zone_id
-  runner_subnet_ids                = [for subnet in aws_subnet.app : subnet.id]
-  s3_prefix_list_id                = aws_vpc_endpoint.private-s3.prefix_list_id
+  runner_subnet_ids                = [for subnet in module.network_uw2.app_subnet : subnet.id]
+  s3_prefix_list_id                = module.network_uw2.s3_prefix_list_id
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
   endpoint_security_groups = [
-    module.base_security_uw2.endpoint_sg["kms"],
-    module.base_security_uw2.endpoint_sg["ssm"],
-    module.base_security_uw2.endpoint_sg["ssmmessages"],
-    module.base_security_uw2.endpoint_sg["ec2"],
-    module.base_security_uw2.endpoint_sg["ec2messages"],
-    module.base_security_uw2.endpoint_sg["logs"],
-    module.base_security_uw2.endpoint_sg["monitoring"],
-    module.base_security_uw2.endpoint_sg["secretsmanager"],
-    module.base_security_uw2.endpoint_sg["sts"],
-    module.base_security_uw2.endpoint_sg["events"],
-    module.base_security_uw2.endpoint_sg["sns"],
-    module.base_security_uw2.endpoint_sg["lambda"],
-    module.base_security_uw2.endpoint_sg["sqs"],
-    module.base_security_uw2.endpoint_sg["dms"]
+    module.network_uw2.endpoint_sg["kms"],
+    module.network_uw2.endpoint_sg["ssm"],
+    module.network_uw2.endpoint_sg["ssmmessages"],
+    module.network_uw2.endpoint_sg["ec2"],
+    module.network_uw2.endpoint_sg["ec2messages"],
+    module.network_uw2.endpoint_sg["logs"],
+    module.network_uw2.endpoint_sg["monitoring"],
+    module.network_uw2.endpoint_sg["secretsmanager"],
+    module.network_uw2.endpoint_sg["sts"],
+    module.network_uw2.endpoint_sg["events"],
+    module.network_uw2.endpoint_sg["sns"],
+    module.network_uw2.endpoint_sg["lambda"],
+    module.network_uw2.endpoint_sg["sqs"],
+    module.network_uw2.endpoint_sg["dms"]
   ]
   gitlab_configbucket       = var.gitlab_configbucket
   ssm_access_policy         = module.ssm_uw2.ssm_access_role_policy

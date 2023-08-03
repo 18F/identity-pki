@@ -17,155 +17,149 @@ locals {
   }
 }
 
-module "base_security_uw2" {
-  source = "../modules/base_security"
-
-  name                   = var.name
-  env_name               = var.env_name
-  region                 = var.region
-  fisma_tag              = var.fisma_tag
-  vpc_id                 = aws_vpc.default.id
-  proxy_port             = var.proxy_port
-  obproxy_security_group = module.outboundproxy_net_uw2.security_group_id
-  vpc_cidr_block         = aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block
-  s3_prefix_list_id      = aws_vpc_endpoint.private-s3.prefix_list_id
-  aws_services           = local.aws_endpoints
-  app_subnets            = aws_subnet.app
-}
-
 ### remove once moving is complete
 
 moved {
-  from = aws_security_group.base
-  to   = module.base_security_uw2.aws_security_group.base
+  from = module.base_security_uw2.aws_security_group.base
+  to   = module.network_uw2.aws_security_group.base
 }
 
 moved {
-  from = aws_security_group.kms_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["kms"]
+  from = module.base_security_uw2.aws_security_group.endpoint["kms"]
+  to   = module.network_uw2.aws_security_group.endpoint["kms"]
 }
 
 moved {
-  from = aws_security_group.ssm_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["ssm"]
+  from = module.base_security_uw2.aws_security_group.endpoint["ssm"]
+  to   = module.network_uw2.aws_security_group.endpoint["ssm"]
 }
 
 moved {
-  from = aws_security_group.ssmmessages_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["ssmmessages"]
+  from = module.base_security_uw2.aws_security_group.endpoint["ssmmessages"]
+  to   = module.network_uw2.aws_security_group.endpoint["ssmmessages"]
 }
 
 moved {
-  from = aws_security_group.ec2_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["ec2"]
+  from = module.base_security_uw2.aws_security_group.endpoint["ec2"]
+  to   = module.network_uw2.aws_security_group.endpoint["ec2"]
 }
 
 moved {
-  from = aws_security_group.ec2messages_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["ec2messages"]
+  from = module.base_security_uw2.aws_security_group.endpoint["ec2messages"]
+  to   = module.network_uw2.aws_security_group.endpoint["ec2messages"]
 }
 
 moved {
-  from = aws_security_group.logs_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["logs"]
+  from = module.base_security_uw2.aws_security_group.endpoint["logs"]
+  to   = module.network_uw2.aws_security_group.endpoint["logs"]
 }
 
 moved {
-  from = aws_security_group.monitoring_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["monitoring"]
+  from = module.base_security_uw2.aws_security_group.endpoint["monitoring"]
+  to   = module.network_uw2.aws_security_group.endpoint["monitoring"]
 }
 
 moved {
-  from = aws_security_group.secretsmanager_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["secretsmanager"]
+  from = module.base_security_uw2.aws_security_group.endpoint["secretsmanager"]
+  to   = module.network_uw2.aws_security_group.endpoint["secretsmanager"]
 }
 
 moved {
-  from = aws_security_group.sts_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["sts"]
+  from = module.base_security_uw2.aws_security_group.endpoint["sts"]
+  to   = module.network_uw2.aws_security_group.endpoint["sts"]
 }
 
 moved {
-  from = aws_security_group.events_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["events"]
+  from = module.base_security_uw2.aws_security_group.endpoint["events"]
+  to   = module.network_uw2.aws_security_group.endpoint["events"]
 }
 
 moved {
-  from = aws_security_group.sns_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["sns"]
+  from = module.base_security_uw2.aws_security_group.endpoint["sns"]
+  to   = module.network_uw2.aws_security_group.endpoint["sns"]
 }
 
 moved {
-  from = aws_security_group.lambda_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["lambda"]
+  from = module.base_security_uw2.aws_security_group.endpoint["lambda"]
+  to   = module.network_uw2.aws_security_group.endpoint["lambda"]
 }
 
 moved {
-  from = aws_security_group.sqs_endpoint
-  to   = module.base_security_uw2.aws_security_group.endpoint["sqs"]
+  from = module.base_security_uw2.aws_security_group.endpoint["sqs"]
+  to   = module.network_uw2.aws_security_group.endpoint["sqs"]
 }
 
 moved {
-  from = aws_vpc_endpoint.kms
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["kms"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["kms"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["kms"]
 }
 
 moved {
-  from = aws_vpc_endpoint.ssm
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["ssm"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["ssm"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["ssm"]
 }
 
 moved {
-  from = aws_vpc_endpoint.ssmmessages
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["ssmmessages"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["ssmmessages"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["ssmmessages"]
 }
 
 moved {
-  from = aws_vpc_endpoint.ec2
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["ec2"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["ec2"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["ec2"]
 }
 
 moved {
-  from = aws_vpc_endpoint.ec2messages
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["ec2messages"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["ec2messages"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["ec2messages"]
 }
 
 moved {
-  from = aws_vpc_endpoint.logs
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["logs"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["logs"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["logs"]
 }
 
 moved {
-  from = aws_vpc_endpoint.monitoring
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["monitoring"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["monitoring"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["monitoring"]
 }
 
 moved {
-  from = aws_vpc_endpoint.secretsmanager
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["secretsmanager"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["secretsmanager"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["secretsmanager"]
 }
 
 moved {
-  from = aws_vpc_endpoint.sts
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["sts"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["sts"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["sts"]
 }
 
 moved {
-  from = aws_vpc_endpoint.events
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["events"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["events"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["events"]
 }
 
 moved {
-  from = aws_vpc_endpoint.sns
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["sns"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["sns"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["sns"]
 }
 
 moved {
-  from = aws_vpc_endpoint.lambda
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["lambda"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["lambda"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["lambda"]
 }
 
 moved {
-  from = aws_vpc_endpoint.sqs
-  to   = module.base_security_uw2.aws_vpc_endpoint.service["sqs"]
+  from = module.base_security_uw2.aws_vpc_endpoint.service["sqs"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["sqs"]
+}
+
+moved {
+  from = module.base_security_uw2.aws_vpc_endpoint.service["dms"]
+  to   = module.network_uw2.aws_vpc_endpoint.service["dms"]
+}
+
+moved {
+  from = module.base_security_uw2.aws_security_group.endpoint["dms"]
+  to   = module.network_uw2.aws_security_group.endpoint["dms"]
 }

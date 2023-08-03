@@ -34,7 +34,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "secondary_cidr" {
 ### DB Subnets ###
 
 resource "aws_subnet" "data-services" {
-  for_each                = var.enable_data_services ? var.az : {}
+  for_each                = var.az
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.data-services.ipv4-cidr
   map_public_ip_on_launch = false
@@ -49,7 +49,7 @@ resource "aws_subnet" "data-services" {
 ### App Subnets ###
 
 resource "aws_subnet" "app" {
-  for_each                = var.enable_app ? var.az : {}
+  for_each                = var.az
   availability_zone       = "${var.region}${each.key}"
   cidr_block              = each.value.apps.ipv4-cidr
   map_public_ip_on_launch = true
@@ -61,294 +61,17 @@ resource "aws_subnet" "app" {
   vpc_id = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
 }
 
-#### Default NACL ###
-
-resource "aws_default_network_acl" "default" {
-  default_network_acl_id = aws_vpc.default.default_network_acl_id
-
-  tags = {
-    Name = "${var.env_name}-default-should-not-be-used"
-  }
-
-  ingress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-
-  egress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-}
-
-#### NACL for db subnets ###
-
-resource "aws_network_acl" "db" {
-  count = var.enable_data_services ? 1 : 0
-  tags = {
-    Name = "${var.env_name}-db"
-  }
-
-  vpc_id     = aws_vpc.default.id
-  subnet_ids = [for subnet in aws_subnet.data-services : subnet.id]
-}
-
-# allow ephemeral ports out
-resource "aws_network_acl_rule" "db-egress-s-ephemeral" {
-  count          = var.enable_data_services ? 1 : 0
-  network_acl_id = aws_network_acl.db[0].id
-  egress         = true
-  from_port      = 32768
-  to_port        = 61000
-  protocol       = "tcp"
-  rule_number    = 6
-  rule_action    = "allow"
-  cidr_block     = var.secondary_cidr_block
-}
-
-resource "aws_network_acl_rule" "db-egress-nessus-ephemeral" {
-  count          = var.enable_data_services && var.nessus_public_access_mode ? 1 : 0
-  network_acl_id = aws_network_acl.db[0].id
-  egress         = true
-  from_port      = 32768
-  to_port        = 61000
-  protocol       = "tcp"
-  rule_number    = 7
-  rule_action    = "allow"
-  cidr_block     = var.nessusserver_ip
-}
-
-# let redis in
-resource "aws_network_acl_rule" "db-ingress-s-redis" {
-  count          = var.enable_data_services ? 1 : 0
-  network_acl_id = aws_network_acl.db[0].id
-  egress         = false
-  from_port      = 6379
-  to_port        = 6379
-  protocol       = "tcp"
-  rule_number    = 11
-  rule_action    = "allow"
-  cidr_block     = var.secondary_cidr_block
-}
-
-# let postgres in
-resource "aws_network_acl_rule" "db-ingress-s-postgres" {
-  count          = var.enable_data_services ? 1 : 0
-  network_acl_id = aws_network_acl.db[0].id
-  egress         = false
-  from_port      = var.rds_db_port
-  to_port        = var.rds_db_port
-  protocol       = "tcp"
-  rule_number    = 16
-  rule_action    = "allow"
-  cidr_block     = var.secondary_cidr_block
-}
-
-resource "aws_network_acl_rule" "db-ingress-nessus-redis" {
-  count          = var.enable_data_services && var.nessus_public_access_mode ? 1 : 0
-  network_acl_id = aws_network_acl.db[0].id
-  egress         = false
-  from_port      = 6379
-  to_port        = 6379
-  protocol       = "tcp"
-  rule_number    = 17
-  rule_action    = "allow"
-  cidr_block     = var.nessusserver_ip
-}
-
-resource "aws_network_acl_rule" "db-ingress-nessus-postgres" {
-  count          = var.enable_data_services && var.nessus_public_access_mode ? 1 : 0
-  network_acl_id = aws_network_acl.db[0].id
-  egress         = false
-  from_port      = var.rds_db_port
-  to_port        = var.rds_db_port
-  protocol       = "tcp"
-  rule_number    = 18
-  rule_action    = "allow"
-  cidr_block     = var.nessusserver_ip
-}
-
-#### NACL for app subnets ###
-
-resource "aws_network_acl" "idp" {
-  count = var.enable_app ? 1 : 0
-  tags = {
-    Name = "${var.env_name}-idp"
-  }
-
-  vpc_id     = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
-  subnet_ids = [for subnet in aws_subnet.app : subnet.id]
-}
-
-# Uses up to rule number 25 + number of ssh_cidr_blocks
-module "idp-base-nacl-rules" {
-  count          = var.enable_app ? 1 : 0
-  source         = "../../modules/base_nacl_rules"
-  network_acl_id = aws_network_acl.idp[0].id
-}
-
-resource "aws_network_acl_rule" "idp-ingress-s-http" {
-  count          = var.enable_app ? 1 : 0
-  network_acl_id = aws_network_acl.idp[0].id
-  egress         = false
-  from_port      = 80
-  to_port        = 80
-  protocol       = "tcp"
-  rule_number    = 41
-  rule_action    = "allow"
-  cidr_block     = var.secondary_cidr_block
-}
-
-resource "aws_network_acl_rule" "idp-ingress-s-https" {
-  count          = var.enable_app ? 1 : 0
-  network_acl_id = aws_network_acl.idp[0].id
-  egress         = false
-  from_port      = 443
-  to_port        = 443
-  protocol       = "tcp"
-  rule_number    = 49
-  rule_action    = "allow"
-  cidr_block     = var.secondary_cidr_block
-}
-
-resource "aws_network_acl_rule" "idp-ingress-s-proxy" {
-  count          = var.enable_app ? 1 : 0
-  network_acl_id = aws_network_acl.idp[0].id
-  egress         = false
-  from_port      = 1024
-  to_port        = 65535
-  protocol       = "tcp"
-  rule_number    = 50
-  rule_action    = "allow"
-  cidr_block     = var.secondary_cidr_block
-}
-
 ### DB Subnet Groups ###
 
 resource "aws_db_subnet_group" "aurora" {
-  count       = var.enable_data_services ? 1 : 0
   name        = "${var.name}-rds-${var.env_name}"
   description = "RDS Aurora Subnet Group for ${var.env_name} environment"
   subnet_ids  = [for subnet in aws_subnet.data-services : subnet.id]
 }
 
-### DB Security Group ###
-
-resource "aws_security_group" "db" {
-  count       = var.enable_data_services ? 1 : 0
-  description = "Allow inbound and outbound postgresql traffic with app subnet in vpc"
-  vpc_id      = aws_vpc.default.id
-  name        = "${var.name}-db-${var.env_name}"
-
-  egress = []
-
-  ingress {
-    from_port = var.rds_db_port
-    to_port   = var.rds_db_port
-    protocol  = "tcp"
-    security_groups = compact([
-      var.additional_sg_id,
-      var.enable_app ? aws_security_group.app[0].id : ""
-    ])
-  }
-
-  dynamic "ingress" {
-    for_each = var.nessus_public_access_mode ? [1] : []
-    content {
-      description = "Inbound Nessus Scanning"
-      from_port   = var.rds_db_port
-      to_port     = var.rds_db_port
-      protocol    = "tcp"
-      cidr_blocks = [var.nessusserver_ip]
-    }
-  }
-
-  tags = {
-    Name = "${var.name}-db_security_group-${var.env_name}"
-  }
-}
-
-### App Security Group ###
-
-resource "aws_security_group" "app" {
-  count       = var.enable_app ? 1 : 0
-  description = "Security group for sample app servers"
-
-  vpc_id = aws_vpc.default.id
-
-  # TODO: limit this to what is actually needed
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
-  egress {
-    from_port   = 0
-    to_port     = 65535
-    protocol    = "tcp"
-    cidr_blocks = [var.secondary_cidr_block]
-  }
-
-  # need to get packages and stuff (conditionally)
-  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
-  egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
-  }
-
-  # need to get packages and stuff (conditionally)
-  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = var.outbound_subnets
-  }
-
-  # github
-  egress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.github_ipv4_cidr_blocks
-  }
-
-  name = "${var.env_name}-app"
-
-  tags = {
-    Name = "${var.name}-app_security_group-${var.env_name}"
-    role = "app"
-  }
-
-}
-
-# Create a security group with nothing in it that we can use to work around
-# Terraform warts and break bootstrapping loops. For example, since Terraform
-# can't handle a security group rule not having a group ID, we can put in this
-# null group ID as a placeholder to break bootstrapping loops.
-resource "aws_security_group" "null" {
-  name        = "${var.env_name}-null"
-  description = "Null security group for terraform hacks, do NOT put instances in it"
-  vpc_id      = aws_vpc.default.id
-  tags = {
-    Name = "${var.env_name}-null"
-  }
-
-  ingress = []
-  egress  = []
-}
-
 ### S3 Gateway endpoint ###
 
 resource "aws_vpc_endpoint" "private-s3" {
-  count = var.enable_data_services || var.enable_app ? 1 : 0
-
   vpc_id          = aws_vpc_ipv4_cidr_block_association.secondary_cidr.vpc_id
   service_name    = "com.amazonaws.${var.region}.s3"
   route_table_ids = [aws_vpc.default.main_route_table_id]
