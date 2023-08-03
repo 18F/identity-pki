@@ -14,22 +14,22 @@ variable "env_type" {
 
 variable "vpc_cidr_block" {
   description = "Primary CIDR for the new vpc"
-  default = ""
+  default     = ""
 }
 
 variable "secondary_cidr_block" {
   description = "Secondary cidr block for the vpc from network_layout module"
-  default = ""
+  default     = ""
 }
 
 variable "az" {
   description = "Availability Zones in the provided region from network_layout module"
-  default = ""
+  default     = ""
 }
 
 variable "flow_log_iam_role_arn" {
   description = "IAM role arn for pushing vpc flow logs to cloudwatch"
-  default = ""
+  default     = ""
 }
 
 variable "fisma_tag" {

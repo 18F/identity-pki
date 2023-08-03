@@ -635,7 +635,7 @@ module "network_us_east_1" {
   providers = {
     aws = aws.use1
   }
-  
+
   source                    = "../modules/vpc_module"
   apps_enabled              = var.apps_enabled
   aws_services              = local.aws_endpoints
@@ -651,7 +651,7 @@ module "network_us_east_1" {
   rds_db_port               = var.rds_db_port
   region                    = "us-east-1"
   secondary_cidr_block      = local.network_layout["us-east-1"][var.env_type]._network
-  vpc_cidr_block            = var.us_east_1_vpc_cidr_block    
+  vpc_cidr_block            = var.us_east_1_vpc_cidr_block
 }
 
 ### Calling vpc module for us-west-2 ###

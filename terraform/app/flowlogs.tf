@@ -7,6 +7,6 @@ moved {
 }
 
 moved {
-    from = aws_cloudwatch_log_group.flow_log_group
-    to   = module.network_usw2.aws_cloudwatch_log_group.flow_log_group
+  from = aws_cloudwatch_log_group.flow_log_group
+  to   = module.network_usw2.aws_cloudwatch_log_group.flow_log_group
 }
