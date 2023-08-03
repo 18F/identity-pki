@@ -3,25 +3,25 @@ This module performs the following:
 
 - Creates a vpc when network_us_east_1 flag set to true. To leave out the legacy space and avoid polluting another block of private address space that could prevent future peering, the module is using ip address range 172.17.32.0/22 for us-east-1. It is recommended to use a similar non overlapping range from 172.16/12 prefix for other regions as well. While passing the primary CIDR to new VPC and if this vpc is intended to use for vpc peering please ensure the following, more info [here](https://docs.aws.amazon.com/vpc/latest/peering/vpc-peering-basics.html): 
 
-        - You cannot create a VPC peering connection between VPCs that have matching or overlapping IPv4 
-        CIDR blocks.
+      - You cannot create a VPC peering connection between VPCs that have matching or overlapping IPv4 
+      CIDR blocks.
 
-        - You cannot create a VPC peering connection between VPCs that have matching or overlapping IPv6 
-        CIDR blocks.
+      - You cannot create a VPC peering connection between VPCs that have matching or overlapping IPv6 
+      CIDR blocks.
 
-        - If you have multiple IPv4 CIDR blocks, you can't create a VPC peering connection if any of the 
-        CIDR blocks overlap, even if you intend to use only the non-overlapping CIDR blocks or only IPv6 
-        CIDR blocks.
+      - If you have multiple IPv4 CIDR blocks, you can't create a VPC peering connection if any of the 
+      CIDR blocks overlap, even if you intend to use only the non-overlapping CIDR blocks or only IPv6 
+      CIDR blocks.
 
 - A secondary CIDR calculated from network_layout module can be passed when calling this module, that will associate a secondary cidr to the vpc.
 
 - Module at the current setup is creating vpc resources for data-services and app subnets. Following resources are created:
-        - Database/App Subnets with CIDR calculated from network_layout module can be passed when calling this module
-        - Both subnets are using the default route table with similar routes present in us-west-2
-        - Different Network Acls is associated with these subnets(not default) similar to us-west-2 infrastructure
-        - A default null security group is created
-        - Security group associated with migration, app, data-services, app-alb hosts are created
-        - VPC flow log is created with destination as cloudwatch logs
+      - Database/App Subnets with CIDR calculated from network_layout module can be passed when calling this module
+      - Both subnets are using the default route table with similar routes present in us-west-2
+      - Different Network Acls is associated with these subnets(not default) similar to us-west-2 infrastructure
+      - A default null security group is created
+      - Security group associated with migration, app, data-services, app-alb hosts are created
+      - VPC flow log is created with destination as cloudwatch logs
 
 
 ## Usage
