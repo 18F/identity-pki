@@ -31,10 +31,10 @@ module "outboundproxy_uw2" {
   route53_internal_zone_id         = module.internal_dns_uw2.internal_zone_id
   hostname                         = "obproxy.login.gov.internal"
   use_spot_instances               = var.use_spot_instances
-  vpc_id                           = module.network_usw2.vpc_id
-  proxy_subnet_ids                 = [for subnet in module.network_usw2.app_subnet : subnet.id]
-  base_security_group_id           = module.network_usw2.base_id
-  proxy_security_group_id          = module.network_usw2.security_group_id
+  vpc_id                           = module.network_uw2.vpc_id
+  proxy_subnet_ids                 = [for subnet in module.network_uw2.app_subnet : subnet.id]
+  base_security_group_id           = module.network_uw2.base_id
+  proxy_security_group_id          = module.network_uw2.security_group_id
   proxy_for                        = ""
   ssm_access_policy                = module.ssm_uw2.ssm_access_role_policy
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
@@ -43,8 +43,8 @@ module "outboundproxy_uw2" {
   outboundproxy_rotation_schedules = local.outboundproxy_rotation_schedules
 
   depends_on = [
-    module.network_usw2.base_id,
-    module.network_usw2.security_group_id
+    module.network_uw2.base_id,
+    module.network_uw2.security_group_id
   ]
 }
 
@@ -53,7 +53,7 @@ module "outboundproxy_uw2" {
 
 moved {
   from = module.outboundproxy_net_uw2.aws_security_group.obproxy
-  to   = module.network_usw2.module.outboundproxy_net.aws_security_group.obproxy
+  to   = module.network_uw2.module.outboundproxy_net.aws_security_group.obproxy
 }
 
 moved {

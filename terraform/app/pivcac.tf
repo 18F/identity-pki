@@ -40,7 +40,7 @@ module "pivcac_launch_template" {
   instance_type             = var.instance_type_pivcac
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.pivcac.name
-  security_group_ids        = [aws_security_group.pivcac.id, module.network_usw2.base_id]
+  security_group_ids        = [aws_security_group.pivcac.id, module.network_uw2.base_id]
 
   user_data = module.pivcac_user_data.rendered_cloudinit_config
 
@@ -87,7 +87,7 @@ resource "aws_autoscaling_group" "pivcac" {
   wait_for_capacity_timeout = 0
 
   # Use the same subnet as the IDP.
-  vpc_zone_identifier = [for subnet in module.network_usw2.app_subnet : subnet.id]
+  vpc_zone_identifier = [for subnet in module.network_uw2.app_subnet : subnet.id]
 
   load_balancers = [aws_elb.pivcac.id]
 

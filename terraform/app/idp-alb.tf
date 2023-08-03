@@ -140,7 +140,7 @@ resource "aws_alb_target_group" "idp" {
   name     = "${var.env_name}-target-group"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = module.network_usw2.vpc_id
+  vpc_id   = module.network_uw2.vpc_id
 
   deregistration_delay          = 120
   load_balancing_algorithm_type = var.use_lor_algorithm ? "least_outstanding_requests" : "round_robin"
@@ -169,7 +169,7 @@ resource "aws_alb_target_group" "idp-ssl" {
   name     = "${var.env_name}-ssl-target-group"
   port     = 443
   protocol = "HTTPS"
-  vpc_id   = module.network_usw2.vpc_id
+  vpc_id   = module.network_uw2.vpc_id
 
   deregistration_delay          = 120
   load_balancing_algorithm_type = var.use_lor_algorithm ? "least_outstanding_requests" : "round_robin"

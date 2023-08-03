@@ -68,7 +68,7 @@ resource "aws_alb_target_group" "worker" {
   name     = "${var.env_name}-worker-http"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = module.network_usw2.vpc_id
+  vpc_id   = module.network_uw2.vpc_id
 
   deregistration_delay = 120
 }
@@ -89,7 +89,7 @@ resource "aws_alb_target_group" "worker_ssl" {
   name     = "${var.env_name}-worker-ssl"
   port     = 443
   protocol = "HTTPS"
-  vpc_id   = module.network_usw2.vpc_id
+  vpc_id   = module.network_uw2.vpc_id
 
   deregistration_delay = 120
 

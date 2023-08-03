@@ -1,5 +1,5 @@
 resource "aws_network_acl" "alb" {
-  vpc_id     = module.network_usw2.vpc_id
+  vpc_id     = module.network_uw2.vpc_id
   subnet_ids = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   tags = {
@@ -27,7 +27,7 @@ resource "aws_network_acl_rule" "alb-ingress-tcp-all-s-internal" {
   protocol       = "tcp"
   rule_number    = 25
   rule_action    = "allow"
-  cidr_block     = module.network_usw2.secondary_cidr
+  cidr_block     = module.network_uw2.secondary_cidr
 }
 
 resource "aws_network_acl_rule" "alb-ingress-tcp-http" {
@@ -66,65 +66,65 @@ resource "aws_network_acl_rule" "alb-ingress-tcp-redis" {
 
 moved {
   from = aws_default_network_acl.default
-  to   = module.network_usw2.aws_default_network_acl.default
+  to   = module.network_uw2.aws_default_network_acl.default
 }
 
 moved {
   from = aws_network_acl.db
-  to   = module.network_usw2.aws_network_acl.db
+  to   = module.network_uw2.aws_network_acl.db
 }
 
 moved {
   from = aws_network_acl_rule.db-egress-s-ephemeral
-  to   = module.network_usw2.aws_network_acl_rule.db-egress-s-ephemeral
+  to   = module.network_uw2.aws_network_acl_rule.db-egress-s-ephemeral
 }
 
 moved {
   from = aws_network_acl_rule.db-egress-nessus-ephemeral
-  to   = module.network_usw2.aws_network_acl_rule.db-egress-nessus-ephemeral
+  to   = module.network_uw2.aws_network_acl_rule.db-egress-nessus-ephemeral
 }
 
 moved {
   from = aws_network_acl_rule.db-ingress-s-redis
-  to   = module.network_usw2.aws_network_acl_rule.db-ingress-s-redis
+  to   = module.network_uw2.aws_network_acl_rule.db-ingress-s-redis
 }
 
 moved {
   from = aws_network_acl_rule.db-ingress-s-postgres
-  to   = module.network_usw2.aws_network_acl_rule.db-ingress-s-postgres
+  to   = module.network_uw2.aws_network_acl_rule.db-ingress-s-postgres
 }
 
 moved {
   from = aws_network_acl_rule.db-ingress-nessus-redis
-  to   = module.network_usw2.aws_network_acl_rule.db-ingress-nessus-redis
+  to   = module.network_uw2.aws_network_acl_rule.db-ingress-nessus-redis
 }
 
 moved {
   from = aws_network_acl_rule.db-ingress-nessus-postgres
-  to   = module.network_usw2.aws_network_acl_rule.db-ingress-nessus-postgres
+  to   = module.network_uw2.aws_network_acl_rule.db-ingress-nessus-postgres
 }
 
 moved {
   from = aws_network_acl.idp
-  to   = module.network_usw2.aws_network_acl.idp
+  to   = module.network_uw2.aws_network_acl.idp
 }
 
 moved {
   from = module.idp-base-nacl-rules
-  to   = module.network_usw2.module.idp-base-nacl-rules
+  to   = module.network_uw2.module.idp-base-nacl-rules
 }
 
 moved {
   from = aws_network_acl_rule.idp-ingress-s-http
-  to   = module.network_usw2.aws_network_acl_rule.idp-ingress-s-http
+  to   = module.network_uw2.aws_network_acl_rule.idp-ingress-s-http
 }
 
 moved {
   from = aws_network_acl_rule.idp-ingress-s-https
-  to   = module.network_usw2.aws_network_acl_rule.idp-ingress-s-https
+  to   = module.network_uw2.aws_network_acl_rule.idp-ingress-s-https
 }
 
 moved {
   from = aws_network_acl_rule.idp-ingress-s-proxy
-  to   = module.network_usw2.aws_network_acl_rule.idp-ingress-s-proxy
+  to   = module.network_uw2.aws_network_acl_rule.idp-ingress-s-proxy
 }

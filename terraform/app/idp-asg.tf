@@ -45,7 +45,7 @@ module "idp_launch_template" {
 
   instance_type             = var.instance_type_idp
   iam_instance_profile_name = aws_iam_instance_profile.idp.name
-  security_group_ids        = [aws_security_group.idp.id, module.network_usw2.base_id]
+  security_group_ids        = [aws_security_group.idp.id, module.network_uw2.base_id]
   user_data                 = module.idp_user_data.rendered_cloudinit_config
 
   use_spot_instances = var.use_spot_instances == 1 ? (
@@ -121,7 +121,7 @@ resource "aws_autoscaling_group" "idp" {
     aws_alb_target_group.idp-ssl.arn,
   ]
 
-  vpc_zone_identifier = [for subnet in module.network_usw2.app_subnet : subnet.id]
+  vpc_zone_identifier = [for subnet in module.network_uw2.app_subnet : subnet.id]
 
   # possible choices: EC2, ELB
   health_check_type = "ELB"

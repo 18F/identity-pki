@@ -19,10 +19,10 @@ module "big_int_migration" {
   source_db_instance_class    = var.rds_instance_class_aurora
   rds_kms_key_arn             = data.aws_kms_key.dms_alias.arn
 
-  subnet_ids = module.network_usw2.db_subnet_group
+  subnet_ids = module.network_uw2.db_subnet_group
 
   vpc_security_group_ids = [
-    module.network_usw2.db_security_group,
+    module.network_uw2.db_security_group,
     aws_security_group.idp.id
   ]
 

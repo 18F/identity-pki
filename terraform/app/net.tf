@@ -33,7 +33,7 @@ module "network_layout" {
 resource "aws_elasticache_subnet_group" "idp" {
   name        = "${var.name}-idp-cache-${var.env_name}"
   description = "Redis Subnet Group"
-  subnet_ids  = [for subnet in module.network_usw2.db_subnet : subnet.id]
+  subnet_ids  = [for subnet in module.network_uw2.db_subnet : subnet.id]
 }
 
 resource "aws_security_group" "cache" {
@@ -75,7 +75,7 @@ resource "aws_security_group" "cache" {
     Name = "${var.name}-cache_security_group-${var.env_name}"
   }
 
-  vpc_id = module.network_usw2.vpc_id
+  vpc_id = module.network_uw2.vpc_id
 }
 
 resource "aws_security_group" "idp" {
@@ -87,7 +87,7 @@ resource "aws_security_group" "idp" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [module.network_usw2.secondary_cidr]
+    cidr_blocks = [module.network_uw2.secondary_cidr]
   }
 
   # need to get packages and stuff (conditionally)
@@ -118,7 +118,7 @@ resource "aws_security_group" "idp" {
     # can't use security_groups on account of terraform cycle
     # https://github.com/terraform-providers/terraform-provider-aws/issues/3234
     #security_groups = ["${aws_security_group.cloudhsm.id}"]
-    cidr_blocks = [for subnet in module.network_usw2.app_subnet : subnet.cidr_block]
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
 
   # gpo
@@ -156,7 +156,7 @@ resource "aws_security_group" "idp" {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    prefix_list_ids = [module.network_usw2.s3_prefix_list_id]
+    prefix_list_ids = [module.network_uw2.s3_prefix_list_id]
   }
 
   ingress {
@@ -185,7 +185,7 @@ resource "aws_security_group" "idp" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [for subnet in module.network_usw2.app_subnet : subnet.cidr_block]
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
 
   name = "${var.name}-idp-${var.env_name}"
@@ -195,7 +195,7 @@ resource "aws_security_group" "idp" {
     role = "idp"
   }
 
-  vpc_id = module.network_usw2.vpc_id
+  vpc_id = module.network_uw2.vpc_id
 }
 
 resource "aws_ssm_parameter" "net_idp_securitygroup" {
@@ -218,7 +218,7 @@ resource "aws_ssm_parameter" "net_idp_securitygroup" {
 resource "aws_security_group" "cloudhsm" {
   name        = "${var.env_name}-cloudhsm-tf-placeholder"
   description = "CloudHSM security group (terraform placeholder, delete me)"
-  vpc_id      = module.network_usw2.vpc_id
+  vpc_id      = module.network_uw2.vpc_id
 
   # We ignore changes to the name and description since they can't be edited.
   lifecycle {
@@ -267,7 +267,7 @@ resource "aws_security_group" "pivcac" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [module.network_usw2.secondary_cidr]
+    cidr_blocks = [module.network_uw2.secondary_cidr]
   }
 
   # need to get packages and stuff (conditionally)
@@ -301,7 +301,7 @@ resource "aws_security_group" "pivcac" {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    prefix_list_ids = [module.network_usw2.s3_prefix_list_id]
+    prefix_list_ids = [module.network_uw2.s3_prefix_list_id]
   }
 
   # We should never need port 80 for PIVCAC ingress, because users should only
@@ -328,14 +328,14 @@ resource "aws_security_group" "pivcac" {
     role = "pivcac"
   }
 
-  vpc_id = module.network_usw2.vpc_id
+  vpc_id = module.network_uw2.vpc_id
 }
 
 # TODO rename to idp-alb
 resource "aws_security_group" "web" {
   # TODO: description = "idp-alb security group allowing web traffic"
   description = "Security group for web that allows web traffic from internet"
-  vpc_id      = module.network_usw2.vpc_id
+  vpc_id      = module.network_uw2.vpc_id
 
   # Allow outbound to the IDP subnets on 80/443.
   #
@@ -346,13 +346,13 @@ resource "aws_security_group" "web" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [for subnet in module.network_usw2.app_subnet : subnet.cidr_block]
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [for subnet in module.network_usw2.app_subnet : subnet.cidr_block]
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
 
   ingress {
@@ -378,21 +378,21 @@ resource "aws_security_group" "web" {
 
 resource "aws_security_group" "worker-alb" {
   description = "Worker ALB group allowing monitoring from authorized ip addresses"
-  vpc_id      = module.network_usw2.vpc_id
+  vpc_id      = module.network_uw2.vpc_id
 
   egress {
     description = "Permit HTTP to public subnets for app"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [for subnet in module.network_usw2.app_subnet : subnet.cidr_block]
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
   egress {
     description = "Permit HTTPS to public subnets for app"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = [for subnet in module.network_usw2.app_subnet : subnet.cidr_block]
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
 
   ingress {
@@ -401,7 +401,7 @@ resource "aws_security_group" "worker-alb" {
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = concat(
-      [module.network_usw2.secondary_cidr],
+      [module.network_uw2.secondary_cidr],
       var.worker_sg_ingress_permitted_ips
     )
   }
@@ -412,7 +412,7 @@ resource "aws_security_group" "worker-alb" {
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = concat(
-      [module.network_usw2.secondary_cidr],
+      [module.network_uw2.secondary_cidr],
       var.worker_sg_ingress_permitted_ips
     )
   }
@@ -428,7 +428,7 @@ resource "aws_security_group" "worker-alb" {
 resource "aws_ssm_parameter" "net_vpcid" {
   name  = "${local.net_ssm_parameter_prefix}vpc/id"
   type  = "String"
-  value = module.network_usw2.vpc_id
+  value = module.network_uw2.vpc_id
 }
 
 # use route53 for dns query logging
@@ -440,11 +440,11 @@ resource "aws_route53_resolver_query_log_config" "vpc" {
 
 resource "aws_route53_resolver_query_log_config_association" "vpc" {
   resolver_query_log_config_id = aws_route53_resolver_query_log_config.vpc.id
-  resource_id                  = module.network_usw2.vpc_id
+  resource_id                  = module.network_uw2.vpc_id
 }
 
 resource "aws_route53_resolver_dnssec_config" "vpc" {
-  resource_id = module.network_usw2.vpc_id
+  resource_id = module.network_uw2.vpc_id
 }
 
 resource "aws_security_group" "worker" {
@@ -455,7 +455,7 @@ resource "aws_security_group" "worker" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = [module.network_usw2.secondary_cidr]
+    cidr_blocks = [module.network_uw2.secondary_cidr]
   }
 
   # need to get packages and stuff (conditionally)
@@ -509,7 +509,7 @@ resource "aws_security_group" "worker" {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    prefix_list_ids = [module.network_usw2.s3_prefix_list_id]
+    prefix_list_ids = [module.network_uw2.s3_prefix_list_id]
   }
 
   # need 8834 to comm with Nessus Server
@@ -549,13 +549,13 @@ resource "aws_security_group" "worker" {
     role = "idp"
   }
 
-  vpc_id = module.network_usw2.vpc_id
+  vpc_id = module.network_uw2.vpc_id
 }
 
 module "vpc_flow_cloudwatch_filters" {
   source = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/vpc_flow_cloudwatch_filters"
-  depends_on = [module.network_usw2]
+  depends_on = [module.network_uw2]
 
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn]
@@ -575,21 +575,21 @@ resource "aws_ssm_parameter" "net_noproxy" {
 resource "aws_security_group" "quarantine" {
   name        = "${var.env_name}-quarantine"
   description = "Quarantine security group to access quarantined ec2 instances"
-  vpc_id      = module.network_usw2.vpc_id
+  vpc_id      = module.network_uw2.vpc_id
 
   ingress {
     description = "allow 443 from VPC"
     protocol    = "tcp"
     from_port   = 443
     to_port     = 443
-    cidr_blocks = [module.network_usw2.secondary_cidr]
+    cidr_blocks = [module.network_uw2.secondary_cidr]
   }
   egress {
     description     = "allow egress to VPC S3 endpoint"
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    prefix_list_ids = [module.network_usw2.s3_prefix_list_id]
+    prefix_list_ids = [module.network_uw2.s3_prefix_list_id]
   }
 
   egress {
@@ -598,10 +598,10 @@ resource "aws_security_group" "quarantine" {
     to_port     = 443
     protocol    = "tcp"
     security_groups = [
-      module.network_usw2.endpoint_sg["ec2messages"],
-      module.network_usw2.endpoint_sg["ssmmessages"],
-      module.network_usw2.endpoint_sg["ssm"],
-      module.network_usw2.endpoint_sg["logs"]
+      module.network_uw2.endpoint_sg["ec2messages"],
+      module.network_uw2.endpoint_sg["ssmmessages"],
+      module.network_uw2.endpoint_sg["ssm"],
+      module.network_uw2.endpoint_sg["logs"]
     ]
   }
 
@@ -618,19 +618,19 @@ resource "aws_subnet" "public-ingress" {
   map_public_ip_on_launch = true
 
   ipv6_cidr_block = cidrsubnet(
-    module.network_usw2.ipv6_cidr_block, 8, each.value.public-ingress.ipv6-netnum
+    module.network_uw2.ipv6_cidr_block, 8, each.value.public-ingress.ipv6-netnum
   )
 
   tags = {
     Name = "${var.name}-public_ingress_subnet_${each.key}-${var.env_name}"
   }
 
-  vpc_id = module.network_usw2.vpc_id
+  vpc_id = module.network_uw2.vpc_id
 }
 
 ### Calling vpc module for us-east-1 ###
 
-module "network_us_east_1" {
+module "network_use1" {
   count = var.enable_us_east_1_vpc ? 1 : 0
   providers = {
     aws = aws.use1
@@ -656,7 +656,7 @@ module "network_us_east_1" {
 
 ### Calling vpc module for us-west-2 ###
 
-module "network_usw2" {
+module "network_uw2" {
   source                    = "../modules/vpc_module"
   apps_enabled              = var.apps_enabled
   aws_services              = local.aws_endpoints
@@ -682,61 +682,191 @@ module "network_usw2" {
 
 moved {
   from = aws_vpc.default
-  to   = module.network_usw2.aws_vpc.default
+  to   = module.network_uw2.aws_vpc.default
 }
 
 moved {
   from = aws_internet_gateway.default
-  to   = module.network_usw2.aws_internet_gateway.default
+  to   = module.network_uw2.aws_internet_gateway.default
 }
 
 moved {
   from = aws_route.default
-  to   = module.network_usw2.aws_route.default
+  to   = module.network_uw2.aws_route.default
 }
 
 moved {
   from = aws_vpc_endpoint.private-s3
-  to   = module.network_usw2.aws_vpc_endpoint.private-s3
+  to   = module.network_uw2.aws_vpc_endpoint.private-s3
 }
 
 moved {
   from = aws_vpc_ipv4_cidr_block_association.secondary_cidr
-  to   = module.network_usw2.aws_vpc_ipv4_cidr_block_association.secondary_cidr
+  to   = module.network_uw2.aws_vpc_ipv4_cidr_block_association.secondary_cidr
 }
 
 moved {
   from = aws_subnet.data-services
-  to   = module.network_usw2.aws_subnet.data-services
+  to   = module.network_uw2.aws_subnet.data-services
 }
 
 moved {
   from = aws_subnet.app
-  to   = module.network_usw2.aws_subnet.app
+  to   = module.network_uw2.aws_subnet.app
 }
 
 
 moved {
   from = aws_db_subnet_group.aurora
-  to   = module.network_usw2.aws_db_subnet_group.aurora
+  to   = module.network_uw2.aws_db_subnet_group.aurora
 }
 
 moved {
   from = aws_security_group.db
-  to   = module.network_usw2.aws_security_group.db
+  to   = module.network_uw2.aws_security_group.db
 }
 
 moved {
   from = aws_security_group.app
-  to   = module.network_usw2.aws_security_group.app
+  to   = module.network_uw2.aws_security_group.app
 }
 
 moved {
   from = aws_security_group.null
-  to   = module.network_usw2.aws_security_group.null
+  to   = module.network_uw2.aws_security_group.null
 }
 
 moved {
   from = aws_security_group.app-alb
-  to   = module.network_usw2.aws_security_group.app-alb
+  to   = module.network_uw2.aws_security_group.app-alb
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_vpc.default
+  to   = module.network_use1[0].aws_vpc.default
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_internet_gateway.default
+  to   = module.network_use1[0].aws_internet_gateway.default
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_route.default
+  to   = module.network_use1[0].aws_route.default
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_vpc_ipv4_cidr_block_association.secondary_cidr
+  to   = module.network_use1[0].aws_vpc_ipv4_cidr_block_association.secondary_cidr
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_subnet.data-services
+  to   = module.network_use1[0].aws_subnet.data-services
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_subnet.app
+  to   = module.network_use1[0].aws_subnet.app
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_db_subnet_group.aurora[0]
+  to   = module.network_use1[0].aws_db_subnet_group.aurora
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_vpc_endpoint.private-s3[0]
+  to   = module.network_use1[0].aws_vpc_endpoint.private-s3
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_flow_log.flow_log
+  to   = module.network_use1[0].aws_flow_log.flow_log
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_cloudwatch_log_group.flow_log_group
+  to   = module.network_use1[0].aws_cloudwatch_log_group.flow_log_group
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_default_network_acl.default
+  to   = module.network_use1[0].aws_default_network_acl.default
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl.db[0]
+  to   = module.network_use1[0].aws_network_acl.db
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.db-egress-s-ephemeral[0]
+  to   = module.network_use1[0].aws_network_acl_rule.db-egress-s-ephemeral
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.db-egress-nessus-ephemeral
+  to   = module.network_use1[0].aws_network_acl_rule.db-egress-nessus-ephemeral
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.db-ingress-s-redis[0]
+  to   = module.network_use1[0].aws_network_acl_rule.db-ingress-s-redis
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.db-ingress-s-postgres[0]
+  to   = module.network_use1[0].aws_network_acl_rule.db-ingress-s-postgres
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.db-ingress-nessus-redis
+  to   = module.network_use1[0].aws_network_acl_rule.db-ingress-nessus-redis
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.db-ingress-nessus-postgres
+  to   = module.network_use1[0].aws_network_acl_rule.db-ingress-nessus-postgres
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl.idp[0]
+  to   = module.network_use1[0].aws_network_acl.idp
+}
+
+moved {
+  from = module.network_us_east_1[0].module.idp-base-nacl-rules[0]
+  to   = module.network_use1[0].module.idp-base-nacl-rules
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.idp-ingress-s-http[0]
+  to   = module.network_use1[0].aws_network_acl_rule.idp-ingress-s-http
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.idp-ingress-s-https[0]
+  to   = module.network_use1[0].aws_network_acl_rule.idp-ingress-s-https
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_network_acl_rule.idp-ingress-s-proxy[0]
+  to   = module.network_use1[0].aws_network_acl_rule.idp-ingress-s-proxy
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_security_group.null
+  to   = module.network_use1[0].aws_security_group.null
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_security_group.app
+  to   = module.network_use1[0].aws_security_group.app
+}
+
+moved {
+  from = module.network_us_east_1[0].aws_security_group.db[0]
+  to   = module.network_use1[0].aws_security_group.db
 }

@@ -1,7 +1,7 @@
 resource "aws_alb" "app" {
   count           = var.apps_enabled
   name            = "${var.name}-app-alb-${var.env_name}"
-  security_groups = [module.network_usw2.app_alb_sg_id]
+  security_groups = [module.network_uw2.app_alb_sg_id]
   subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   access_logs {
@@ -70,7 +70,7 @@ resource "aws_alb_target_group" "app" {
   name     = "${var.env_name}-app-http"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = module.network_usw2.vpc_id
+  vpc_id   = module.network_uw2.vpc_id
 
   deregistration_delay = 120
 }
@@ -92,7 +92,7 @@ resource "aws_alb_target_group" "app-ssl" {
   name     = "${var.env_name}-app-ssl"
   port     = 443
   protocol = "HTTPS"
-  vpc_id   = module.network_usw2.vpc_id
+  vpc_id   = module.network_uw2.vpc_id
 
   deregistration_delay = 120
 
