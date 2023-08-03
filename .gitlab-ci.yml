@@ -75,7 +75,7 @@ review-app:
     - export CONTEXT=$(kubectl config get-contexts | grep -v CURRENT | awk '{print $1}' | head -1)
     - kubectl config use-context "$CONTEXT"
     - |-
-      export PIVCACI_ENV=$(cat <<EOF
+      export PIVCAC_ENV=$(cat <<EOF
       [
         {"name": "CLIENT_CERT_S3_BUCKET", "value": "login-gov-pivcac-public-cert-reviewapp.894947205914-us-west-2"},
         {"name": "POSTGRES_SSLMODE", "value": "prefer"},

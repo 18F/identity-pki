@@ -59,6 +59,8 @@ sudo chmod og-w /opt/nginx/conf
 sudo -E -u root aws s3 cp s3://login-gov.secrets.${AWS_ACCOUNT_NUM}-us-west-2/${ENV}/dhparam /etc/ssl/certs/dhparam.pem
 
 # Fetch LetsEncrypt bundle from AWS
+sudo chmod ugo+rwx /usr/local/bin/*
+sudo chmod ug-w /usr/local/bin/*
 sudo -E -u root aws s3 cp s3://login-gov-pivcac-${ENV}.${AWS_ACCOUNT_NUM}-us-west-2/letsencrypt.${CERT_ENV}.tar.gz /root/letsencrypt.${CERT_ENV}.tar.gz > /dev/null 2>&1 || echo 'LetsEncrypt bundle does not exist in S3'
 
 # Set Cron Jobsbundle exec rake db:create db:migrate:monitor_concurrent --trace
