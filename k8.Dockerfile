@@ -145,3 +145,7 @@ COPY --chown=app --chmod=755 ./k8files/puma_production ./config/puma/production.
 
 # Expose port the app runs on
 EXPOSE 443
+
+# Entrypoint command will fail unless run via proper helm chart
+# due to necessary environment variables not yet being applied.
+ENTRYPOINT ["/bin/bash", "-c" "/usr/local/bin/configure_environment -e reviewapp -c review-app"]
