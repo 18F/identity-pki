@@ -337,7 +337,7 @@ users:
     - lg-public
   jeremy.curcio:
     aws_groups:
-    - appdev
+    - apponcall
     gitlab_groups:
     - appdev
     - lg-all
