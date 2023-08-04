@@ -89,7 +89,6 @@ review-app:
       EOF
       )
     - git clone -b cmccarthy/pivcac --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
-    - ls 
     - >-
       helm upgrade --install --namespace review-apps
       --debug
@@ -107,7 +106,9 @@ review-app:
     - echo "DNS may take a while to propagate, so be patient if it doesn't show up right away"
     - echo "To access the rails console, first run 'aws-vault exec sandbox-power -- aws eks update-kubeconfig --name review_app'"
     - echo "Then run 'aws-vault exec sandbox-power -- kubectl exec -it service/$CI_ENVIRONMENT_SLUG-identity-idp-chart-pivcac -n review-apps -- /app/bin/rails console'"
-    - echo "PIVCAC Domain: https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov"
+  after_script:
+    - echo "Address of PIVCAC review app:"
+    - echo https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov

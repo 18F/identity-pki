@@ -145,3 +145,5 @@ COPY --chown=app --chmod=755 ./k8files/puma_production ./config/puma/production.
 
 # Expose port the app runs on
 EXPOSE 443
+
+ENTRYPOINT ["/usr/local/bin/configure_environment"]
