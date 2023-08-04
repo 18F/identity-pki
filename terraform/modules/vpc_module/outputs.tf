@@ -22,6 +22,10 @@ output "db_subnet_group" {
   value = aws_db_subnet_group.aurora.id
 }
 
+output "db_subnet_ids" {
+  value = aws_db_subnet_group.aurora.subnet_ids
+}
+
 output "app_security_group" {
   value = aws_security_group.app[0].id
 }

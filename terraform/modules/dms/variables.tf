@@ -57,10 +57,3 @@ variable "subnet_ids" {
   description = "List of subnet ids"
   type        = list(any)
 }
-
-variable "logger_severity" {
-  description = "Log level for dms"
-  type        = string
-  default     = "LOGGER_SEVERITY_INFO"
-}
-

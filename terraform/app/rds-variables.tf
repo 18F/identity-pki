@@ -164,6 +164,23 @@ EOM
   default     = false
 }
 
+variable "dms_logging_level" {
+  type        = string
+  description = <<EOM
+Sets logging level for the dms migration instances
+EOM
+  default     = "LOGGER_SEVERITY_INFO"
+}
+
+variable "enable_dms_analytics" {
+  description = <<EOM
+Enables creation of resources necessary for loading idp data
+into the data analytics platform.
+EOM
+  type        = bool
+  default     = false
+}
+
 variable "unvacummed_transactions_count" {
   type        = string
   description = "Maximum transaction IDs (in count) used by PostgreSQL."
