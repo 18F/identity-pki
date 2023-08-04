@@ -108,7 +108,7 @@ review-app:
     - echo "Then run 'aws-vault exec sandbox-power -- kubectl exec -it service/$CI_ENVIRONMENT_SLUG-identity-idp-chart-pivcac -n review-apps -- /app/bin/rails console'"
   after_script:
     - echo "Address of PIVCAC review app:"
-    - echo $CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
+    - echo https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
