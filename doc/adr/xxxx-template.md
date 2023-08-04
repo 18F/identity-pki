@@ -2,9 +2,8 @@ _This uses [Michael Nygard's](https://cognitect.com/blog/2011/11/15/documenting-
 
 ---
 
-# Title
+# Architecture Decision Record N: Title
 _These documents have names that are short noun phrases. For example, "ADR 1: Deployment on Ruby on Rails 3.0.10" or "ADR 9: LDAP for Multitenant Integration"_
-
 
 > Short description
 

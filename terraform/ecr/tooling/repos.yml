@@ -8,6 +8,11 @@ default_read_template: &all_write_template
     gitlab_bravo_test-pool: "read"
     gitlab_charlie_test-pool: "read"
 
+# Disallow any write access from gitlab processes, including runners.
+readonly_template: &readonly_template
+  ecr_repo_tag_mutability: "MUTABLE"
+  tags: {}
+
 # If you add an existing repo, you may need to import the state, e.g.
 # tf-deploy ecr/tooling import 'module.repos["gitlab-qa"].aws_ecr_repository.ecr_repo' gitlab-qa
 
@@ -30,6 +35,15 @@ repos:
   env_test:
     name: "cd/env_test"
     <<: *all_write_template
+  env_deploy_blessed:
+    name: "cd/env_deploy/blessed"
+    <<: *readonly_template
+  env_stop_blessed:
+    name: "cd/env_stop/blessed"
+    <<: *readonly_template
+  env_test_blessed:
+    name: "cd/env_test/blessed"
+    <<: *readonly_template
   fluent-bit:
     name: "amazon/aws-for-fluent-bit"
     <<: *all_write_template

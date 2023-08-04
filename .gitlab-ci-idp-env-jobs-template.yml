@@ -16,12 +16,7 @@ post_deploy:
   tags:
     - ${ENV_NAME}-env-runner
   image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy/blessed@$DEPLOY_IMAGE_DIGEST
   stage: post_deploy
   script:
     - echo "Somebody set us up the post_deploy" ; exit 1
@@ -38,12 +33,7 @@ deploy:
   variables:
     GIT_SUBMODULE_STRATEGY: normal
   image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy@$DEPLOY_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_deploy/blessed@$DEPLOY_IMAGE_DIGEST
   stage: deploy
   artifacts:
     name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
@@ -68,11 +58,7 @@ test:
     ENV_NAME: ${ENV_NAME}
     ACCOUNT_ID: $AWS_ACCOUNT_ID
   image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test@$TEST_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test/blessed@$TEST_IMAGE_DIGEST
   stage: smoke_test
   artifacts:
     reports:
@@ -92,7 +78,7 @@ stop:
   variables:
     GIT_SUBMODULE_STRATEGY: normal
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_stop@$STOP_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_stop/blessed@$STOP_IMAGE_DIGEST
   script:
     - echo "Main screen turn off." ; exit 1
 

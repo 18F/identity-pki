@@ -33,6 +33,13 @@ stages:
 variables:
   CI_COMMIT_TAG: "$CI_COMMIT_SHA"
   ECR_REGISTRY: "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+  # These are hardcoded to make this deploy process more secure.
+  # If you want to update these images, you will need to edit it here, and move them to a
+  # "blessed" repo like:
+  #
+  # brew install crane
+  # crane copy <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:42a373721c2c26[...] \
+  #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed
   DEPLOY_IMAGE_DIGEST: "sha256:9ec46c1c1c34e2800b3145b376a46a07e914cc29cced9862800d6580d75a7448"
   STOP_IMAGE_DIGEST: "sha256:12340c0938578724826ffecfb311170487f9dc2c1361a36591ea5f5dc5283083"
   TEST_IMAGE_DIGEST: "sha256:867cfb384340b55644ccbfb71b4d910c082207d0a146d16a9e03f276bbb9900e"
@@ -392,7 +399,7 @@ env-aduth:
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
     # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy@$GITDEPLOY_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy/blessed@$GITDEPLOY_IMAGE_DIGEST
   stage: deploy
   variables:
     GIT_SUBMODULE_STRATEGY: normal
@@ -436,7 +443,7 @@ env-aduth:
     # If you want to update this image, you will need to edit it here, and in
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test@$GITTEST_IMAGE_DIGEST
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test/blessed@$GITTEST_IMAGE_DIGEST
   stage: smoke_test
   script:
     - echo "Somebody set us up the deploy" ; exit 1
@@ -692,6 +699,22 @@ test_unallowed_image_alpha:
     TRIGGER_BRANCH: stages/gitlabalpha
   needs:
     - run_unallowed_image_alpha
+
+test_images_exist:
+  stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
+      changes:
+        - .gitlab-ci.yml
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+  script:
+    - apk add aws-cli
+    - aws ecr describe-images --repository-name cd/env_deploy/blessed --image-ids imageDigest=$DEPLOY_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/env_stop/blessed --image-ids imageDigest=$STOP_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/env_test/blessed --image-ids imageDigest=$TEST_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/gitlab_deploy/blessed --image-ids imageDigest=$GITDEPLOY_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/gitlab_test/blessed --image-ids imageDigest=$GITTEST_IMAGE_DIGEST
 
 include:
   - local: .gitlab-ci-rules.yml

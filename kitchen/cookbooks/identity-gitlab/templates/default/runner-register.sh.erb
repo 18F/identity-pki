@@ -19,7 +19,7 @@ gitlab-runner register \
     --docker-disable-entrypoint-overwrite \
 <% end -%>
 <% if node.run_state['allowed_images'].length > 0 -%>
-    --docker-image="<%= node.run_state['allowed_images'][0] -%>" \
+    --docker-image="<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com/cd/env_test/blessed:latest" \
 <% else -%>
     --docker-image="<%= @aws_account_id %>.dkr.ecr.<%= @aws_region %>.amazonaws.com/ecr-public/docker/library/alpine:latest" \
 <% end -%>

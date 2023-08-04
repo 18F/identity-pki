@@ -81,29 +81,18 @@ end
 runner_token = shell_out("aws s3 cp s3://#{config_s3_bucket}/gitlab_runner_token -").stdout.chomp
 
 if node.run_state['is_it_an_env_runner'] == 'true'
-  # only allow images with the proper digests, which are hardcoded into
-  # the gitlab_env_runner_allowed_images file in the env secret bucket:
-  #   s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images
-  # Or in the common secret bucket, if the env secret does not exist:
-  #   s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images
+  # Only allow images in the */blessed repos.
+  # To "bless" an image and move it into a blessed repo, use Google's `crane` util to
+  # copy it from the automation-writeable repo while preserving the digest. For example:
   #
-  # The file should look something like:
-  #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:e04b3b710e76ff00dddd3d62029571fb40a2edeba6ffbda4fa80138c079264b1
-  #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_test@sha256:e04b3b710e76ff00dddd3d62029571fb4feeddeba6ffbda4fa80138c079264b1
-  #
-  # You can find the digest by going to ECR in the AWS console and looking at the repo,
-  # finding the build that you have approved, and then copying the digest for it.
-  # They look like "sha256:2feedface4242424242<etc>"
-  #
+  # brew install crane
+  # crane copy <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:42a373721c2c26[...] \
+  #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed
+
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
   if node['identity_gitlab']['allowed_images'] == true
-    allowed_images = ConfigLoader.load_config_or_nil(node, 'gitlab_env_runner_allowed_images')
-    if allowed_images.nil?
-      node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split().grep_v(/^#/).grep_v(/XXXXXdate_separatorXXXXX/)
-    else
-      node.run_state['allowed_images'] = allowed_images.chomp.split().grep_v(/^#/).grep_v(/XXXXXdate_separatorXXXXX/)
-    end
+    node.run_state['allowed_images'] = [gitlab_ecr_registry + '/**/blessed:*']
   else
     # allowed images feature is turned off, so allow everything.
     node.run_state['allowed_images'] = []
