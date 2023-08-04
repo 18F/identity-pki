@@ -148,4 +148,4 @@ EXPOSE 443
 
 # Entrypoint command will fail unless run via proper helm chart
 # due to necessary environment variables not yet being applied.
-ENTRYPOINT ["/usr/local/bin/configure_environmenti", "-e reviewapp", "-c review-app"]
+ENTRYPOINT ["/usr/local/bin/configure_environment", "-e reviewapp", "-c review-app"]
