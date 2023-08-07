@@ -14,7 +14,7 @@ gem 'mini_cache'
 gem 'newrelic_rpm'
 gem 'pg'
 gem 'pry-rails'
-gem 'puma', '~> 4.3'
+gem 'puma'
 gem 'redacted_struct', '~> 1.0'
 gem 'rgl'
 
