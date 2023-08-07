@@ -14,6 +14,7 @@ resource "aws_s3_object" "gitaly_volume_id" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitaly_ebs_volume"
   content = aws_ebs_volume.gitaly.id
+  acl     = "private"
 
   source_hash = md5(aws_ebs_volume.gitaly.id)
 }

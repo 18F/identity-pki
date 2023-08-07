@@ -94,6 +94,7 @@ resource "aws_s3_object" "gitlab_instance_id" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_instance_id"
   content = aws_db_instance.gitlab.identifier
+  acl     = "private"
 
   source_hash = md5(aws_db_instance.gitlab.identifier)
 }
@@ -102,6 +103,7 @@ resource "aws_s3_object" "gitlab_db_host" {
   bucket  = data.aws_s3_bucket.secrets.id
   key     = "${var.env_name}/gitlab_db_host"
   content = aws_db_instance.gitlab.address
+  acl     = "private"
 
   source_hash = md5(aws_db_instance.gitlab.address)
 }

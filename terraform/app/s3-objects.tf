@@ -13,6 +13,7 @@ resource "aws_s3_object" "tfslackchannel" {
   key          = "${var.env_name}/tfslackchannel"
   content      = var.tf_slack_channel
   content_type = "text/plain"
+  acl          = "private"
 }
 
 resource "aws_s3_object" "db_host_app" {
@@ -22,6 +23,7 @@ resource "aws_s3_object" "db_host_app" {
   key          = "${var.env_name}/db_host_app"
   content      = module.dashboard_aurora_uw2[count.index].writer_endpoint
   content_type = "text/plain"
+  acl          = "private"
 }
 
 resource "aws_s3_object" "dir_key" {
@@ -30,4 +32,5 @@ resource "aws_s3_object" "dir_key" {
   bucket = data.aws_s3_bucket.app_secrets.bucket
   key    = "${var.env_name}/${each.key}/v1/"
   source = "/dev/null"
+  acl    = "private"
 }

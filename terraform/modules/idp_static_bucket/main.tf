@@ -182,4 +182,5 @@ resource "aws_s3_object" "cloudfront_custom_pages" {
   content_type           = "text/html"
   server_side_encryption = "AES256"
   etag                   = filemd5(each.value)
+  acl                    = "private"
 }

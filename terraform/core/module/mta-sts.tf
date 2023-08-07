@@ -35,6 +35,7 @@ resource "aws_s3_object" "mta_sts_txt_file" {
   content_type = "text/plain"
   # 15 minute cache TTL
   cache_control = "max-age=900"
+  acl           = "private"
 }
 
 resource "aws_cloudfront_distribution" "mta_sts_cdn" {

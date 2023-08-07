@@ -123,6 +123,7 @@ resource "aws_s3_object" "provision_sh" {
   key          = "${var.env}/user-data/${var.role}/provision.sh"
   content      = local.provision_sh
   content_type = "text/plain"
+  acl          = "private"
 }
 
 resource "aws_s3_object" "base_yaml" {
@@ -130,4 +131,5 @@ resource "aws_s3_object" "base_yaml" {
   key          = "${var.env}/user-data/${var.role}/base.yaml"
   content      = local.base_yaml
   content_type = "text/plain"
+  acl          = "private"
 }

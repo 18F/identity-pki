@@ -131,16 +131,19 @@ resource "aws_s3_object" "gitlab_metric_namespace" {
   bucket  = local.secrets_bucket
   key     = "${var.env_name}/gitlab_metric_namespace"
   content = local.gitlab_metric_namespace
+  acl     = "private"
 }
 resource "aws_s3_object" "gitlab_user_sync_metric_name" {
   bucket  = local.secrets_bucket
   key     = "${var.env_name}/gitlab_user_sync_metric_name"
   content = local.gitlab_user_sync_metric_name
+  acl     = "private"
 }
 resource "aws_s3_object" "gitlab_ci_ping_metric_name" {
   bucket  = local.secrets_bucket
   key     = "${var.env_name}/gitlab_ci_ping_metric_name"
   content = local.gitlab_ci_ping_metric_name
+  acl     = "private"
 }
 
 resource "aws_cloudwatch_metric_alarm" "gitlab_user_sync_failures" {

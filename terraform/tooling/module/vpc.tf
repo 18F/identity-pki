@@ -51,7 +51,7 @@ resource "aws_subnet" "auto_terraform_public_a" {
 }
 
 resource "aws_eip" "nat_gateway" {
-  vpc = true
+  domain = "vpc"
 }
 
 resource "aws_nat_gateway" "auto_terraform" {

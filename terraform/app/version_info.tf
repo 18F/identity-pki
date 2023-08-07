@@ -22,6 +22,7 @@ resource "aws_s3_object" "version_info" {
   provider = aws.version_info
   key      = "terraform-app/version_info/${var.env_name}.txt"
   bucket   = var.version_info_bucket
+  acl      = "private"
   content  = <<EOF
 main_commit=${data.external.version_info.result.identity-devops-commit}
 main_branch=${data.external.version_info.result.identity-devops-branch}

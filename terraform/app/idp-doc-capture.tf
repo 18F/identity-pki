@@ -123,7 +123,6 @@ resource "aws_ssm_parameter" "doc_capture_secrets" {
   name        = "${local.doc_capture_ssm_parameter_prefix}${each.key}"
   description = each.value
   type        = "SecureString"
-  overwrite   = false
   value       = "Starter value"
 
   lifecycle {

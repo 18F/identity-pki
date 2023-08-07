@@ -8,6 +8,7 @@ resource "aws_s3_object" "packer_config" {
 
   bucket       = var.artifact_bucket
   key          = "packer_config/${local.aws_alias}/${each.key}.${var.os_number}.var.hcl"
+  acl          = "private"
   content      = <<HCL
 aws_region = "${var.region}"
 aws_delay_seconds = "${var.packer_config["aws_delay_seconds"]}"

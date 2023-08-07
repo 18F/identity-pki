@@ -146,7 +146,6 @@ resource "aws_ssm_parameter" "account_alarm_slack_usw2" {
   type        = "String"
   value       = aws_sns_topic.slack_usw2[each.key].arn
   description = "Alarm notification topic for #${each.value}"
-  overwrite   = true
 }
 
 module "slack_lambda_usw2" {
@@ -236,7 +235,6 @@ resource "aws_ssm_parameter" "account_alarm_slack_use1" {
   type        = "String"
   value       = aws_sns_topic.slack_use1[each.key].arn
   description = "Alarm notification topic for #${each.value}"
-  overwrite   = true
 }
 
 module "slack_lambda_use1" {

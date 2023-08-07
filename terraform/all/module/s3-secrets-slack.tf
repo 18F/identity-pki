@@ -35,6 +35,7 @@ resource "aws_s3_object" "tfslackchannel_uw2" {
   key          = "tfslackchannel"
   content      = var.tf_slack_channel
   content_type = "text/plain"
+  acl          = "private"
 }
 
 output "main_secrets_bucket_uw2" {
@@ -80,6 +81,7 @@ resource "aws_s3_object" "tfslackchannel_ue1" {
   key          = "tfslackchannel"
   content      = var.tf_slack_channel
   content_type = "text/plain"
+  acl          = "private"
 }
 
 output "main_secrets_bucket_ue1" {
