@@ -9,7 +9,6 @@
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "idp_sync_static": true,
-      "enable_idp_cdn": true
     }
   },
   "override_attributes": {

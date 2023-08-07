@@ -1,8 +1,3 @@
-data "aws_ip_ranges" "route53" {
-  regions  = ["global"]
-  services = ["route53"]
-}
-
 locals {
   net_ssm_parameter_prefix = "/${var.env_name}/network/"
   ip_regex                 = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\/(?:[0-2][0-9]|[3][0-2])"
@@ -163,13 +158,14 @@ resource "aws_security_group" "idp" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.web.id]
+    security_groups = [aws_security_group.idp-alb.id]
   }
+
   ingress {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    security_groups = [aws_security_group.web.id]
+    security_groups = [aws_security_group.idp-alb.id]
   }
 
   # need 8834 to comm with Nessus Server
@@ -307,10 +303,10 @@ resource "aws_security_group" "pivcac" {
   # We should never need port 80 for PIVCAC ingress, because users should only
   # arrive via links/redirects from the IDP.
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.pivcac-elb.id]
   }
 
   # need 8834 to comm with Nessus Server
@@ -331,10 +327,40 @@ resource "aws_security_group" "pivcac" {
   vpc_id = module.network_uw2.vpc_id
 }
 
-# TODO rename to idp-alb
-resource "aws_security_group" "web" {
-  # TODO: description = "idp-alb security group allowing web traffic"
-  description = "Security group for web that allows web traffic from internet"
+resource "aws_security_group" "pivcac-elb" {
+  description = "pivcac-elb security group allowing web traffic"
+  vpc_id      = module.network_uw2.vpc_id
+
+  egress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
+  }
+
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  name = "${var.env_name}-pivcac-elb"
+
+  tags = {
+    Name = "${var.env_name}-pivcac-elb"
+  }
+}
+
+resource "aws_security_group" "idp-alb" {
+  description = "idp-alb security group allowing web traffic"
   vpc_id      = module.network_uw2.vpc_id
 
   # Allow outbound to the IDP subnets on 80/443.
@@ -348,6 +374,7 @@ resource "aws_security_group" "web" {
     protocol    = "tcp"
     cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
   }
+
   egress {
     from_port   = 443
     to_port     = 443
@@ -356,20 +383,20 @@ resource "aws_security_group" "web" {
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    prefix_list_ids = [module.network_uw2.cloudfront_prefix_list_id]
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [module.network_uw2.cloudfront_prefix_list_id]
   }
 
-  name = "${var.name}-web-${var.env_name}"
+  name = "${var.env_name}-idp-alb"
 
   tags = {
     Name = "${var.env_name}-idp-alb"

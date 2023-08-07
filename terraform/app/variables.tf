@@ -1,19 +1,7 @@
-variable "enable_idp_static_bucket" {
-  description = "Create public S3 bucket for storing IdP static assets"
-  type        = bool
-  default     = false
-}
-
 variable "force_destroy_idp_static_bucket" {
   description = "Allow destruction of IdP static bucket even if not empty"
   type        = bool
   default     = true
-}
-
-variable "enable_idp_cdn" {
-  description = "Enable CloudFront distribution serving from idp origin servers"
-  type        = bool
-  default     = false
 }
 
 variable "idp_static_bucket_cross_account_access" {

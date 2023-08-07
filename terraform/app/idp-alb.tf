@@ -1,6 +1,7 @@
 resource "aws_alb" "idp" {
-  name            = "${var.name}-idp-alb-${var.env_name}"
-  security_groups = [aws_security_group.web.id]
+  name = "${var.name}-idp-alb-${var.env_name}"
+  # TODO remove aws_security_group.web.id once new SG is in place
+  security_groups = [aws_security_group.idp-alb.id]
   subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
   access_logs {
@@ -22,10 +23,9 @@ locals {
   # SAN for cloudfront dns name to allow for quicker removal of CDN
   idp_subject_alt_names = var.env_name == "prod" ? ["secure.${var.root_domain}"] : ["idp.${var.env_name}.${var.root_domain}"]
   idp_cdn_root          = var.env_name == "prod" ? "" : "${var.env_name}.${var.root_domain}"
-  # Allows for dynamic configuration of aws_lb_listener_rule.idp_ssl, since listener
-  # rules will collide on the priority swapping from 0 <-> 100 for two listener rules
-  host_header_enabled = var.enable_idp_cdn == true ? [] : ["enabled"]
-  http_header_enabled = var.enable_idp_cdn == true ? ["enabled"] : []
+
+  host_header_enabled = []
+  http_header_enabled = ["enabled"]
 }
 
 # Create a TLS certificate with ACM

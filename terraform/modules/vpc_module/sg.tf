@@ -1,3 +1,8 @@
+# use instead of 0.0.0.0/0 in ALB security group rules
+data "aws_ec2_managed_prefix_list" "cloudfront" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
 # Create a security group with nothing in it that we can use to work around
 # Terraform warts and break bootstrapping loops. For example, since Terraform
 # can't handle a security group rule not having a group ID, we can put in this
@@ -252,17 +257,17 @@ resource "aws_security_group" "app-alb" {
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
   }
 
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
   }
 
   name = "${var.env_name}-app-alb"

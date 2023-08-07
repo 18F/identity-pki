@@ -27,7 +27,7 @@ output "db_subnet_ids" {
 }
 
 output "app_security_group" {
-  value = aws_security_group.app[0].id
+  value = var.apps_enabled == 1 ? aws_security_group.app[0].id : null
 }
 
 output "db_subnet" {
@@ -57,5 +57,9 @@ output "migration_sg_id" {
 }
 
 output "app_alb_sg_id" {
-  value = aws_security_group.app-alb[0].id
+  value = var.apps_enabled == 1 ? aws_security_group.app-alb[0].id : null
+}
+
+output "cloudfront_prefix_list_id" {
+  value = data.aws_ec2_managed_prefix_list.cloudfront.id
 }

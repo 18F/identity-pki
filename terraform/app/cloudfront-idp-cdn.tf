@@ -29,7 +29,6 @@ locals {
 
 # Create a TLS certificate with ACM
 module "acm-cert-idp-static-cdn" {
-  count  = var.enable_idp_cdn ? 1 : 0
   source = "github.com/18F/identity-terraform//acm_certificate?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/acm_certificate"
   providers = {
@@ -41,12 +40,15 @@ module "acm-cert-idp-static-cdn" {
   validation_zone_id        = var.route53_id
 }
 
-resource "aws_cloudfront_distribution" "idp_static_cdn" {
-  count = var.enable_idp_cdn ? 1 : 0
+moved {
+  from = module.acm-cert-idp-static-cdn[0]
+  to   = module.acm-cert-idp-static-cdn
+}
 
+resource "aws_cloudfront_distribution" "idp_static_cdn" {
   depends_on = [
-    module.acm-cert-idp[0].finished_id,
-    module.idp_static_bucket_uw2[0].bucket_regional_domain_name
+    module.acm-cert-idp.finished_id,
+    module.idp_static_bucket_uw2.bucket_regional_domain_name
   ]
 
   # Maximum http version supported
@@ -56,7 +58,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   origin {
     # Using regional S3 name here per:
     #  https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html#concept_S3Origin
-    domain_name = module.idp_static_bucket_uw2[0].bucket_regional_domain_name
+    domain_name = module.idp_static_bucket_uw2.bucket_regional_domain_name
     origin_id   = "static-idp-${var.env_name}"
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.cloudfront_oai.cloudfront_access_identity_path
@@ -83,7 +85,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   }
 
   web_acl_id = var.idp_cloudfront_waf_enabled ? (
-  data.aws_wafv2_web_acl.cloudfront_web_acl[count.index].arn) : ""
+  data.aws_wafv2_web_acl.cloudfront_web_acl[0].arn) : ""
 
   enabled         = true
   is_ipv6_enabled = true
@@ -126,7 +128,7 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
 
   # Swapping cert from previous static.${local.idp_origin_name} to the idp cert
   viewer_certificate {
-    acm_certificate_arn = module.acm-cert-idp-static-cdn[0].cert_arn
+    acm_certificate_arn = module.acm-cert-idp-static-cdn.cert_arn
     # TLS version should align with idp-alg setting
     minimum_protocol_version = "TLSv1.2_2018"
     ssl_support_method       = "sni-only"
@@ -162,22 +164,26 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
   price_class = "PriceClass_100"
 }
 
+moved {
+  from = aws_cloudfront_distribution.idp_static_cdn[0]
+  to   = aws_cloudfront_distribution.idp_static_cdn
+}
+
 # non-prod envs are currently configured to both idp.<env>.identitysandbox.gov
 # and <env>.identitysandbox.gov
 resource "aws_route53_record" "c_cloudfront_env" {
   count   = var.env_name == "prod" ? 0 : 1
   name    = "${var.env_name}.${var.root_domain}"
-  records = var.enable_idp_cdn ? [aws_cloudfront_distribution.idp_static_cdn[0].domain_name] : [aws_alb.idp.dns_name]
+  records = [aws_cloudfront_distribution.idp_static_cdn.domain_name]
   ttl     = "300"
   type    = "CNAME"
   zone_id = var.route53_id
 }
 
-# Swaps the idp.<env>.identitysandbox.gov or secure.login.gov to point at 
-# either cloudfront or alb depending on enable_idp_cdn toggle
+# points the idp.<env>.identitysandbox.gov or secure.login.gov at cloudfront
 resource "aws_route53_record" "c_cloudfront_idp" {
   name    = local.idp_domain_name
-  records = var.enable_idp_cdn ? [aws_cloudfront_distribution.idp_static_cdn[0].domain_name] : [aws_alb.idp.dns_name]
+  records = [aws_cloudfront_distribution.idp_static_cdn.domain_name]
   ttl     = "300"
   type    = "CNAME"
   zone_id = var.route53_id

@@ -1,8 +1,3 @@
-data "aws_ip_ranges" "route53" {
-  regions  = ["global"]
-  services = ["route53"]
-}
-
 locals {
   net_ssm_parameter_prefix = "/${var.env_name}/network/"
   network_layout           = module.network_layout.network_layout

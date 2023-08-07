@@ -139,8 +139,9 @@ resource "aws_autoscaling_group" "pivcac" {
 }
 
 resource "aws_elb" "pivcac" {
-  name            = "${var.env_name}-pivcac"
-  security_groups = [aws_security_group.web.id]
+  name = "${var.env_name}-pivcac"
+  # TODO remove aws_security_group.web.id once new SG is in place
+  security_groups = [aws_security_group.pivcac-elb.id]
   subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
 

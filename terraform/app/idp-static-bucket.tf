@@ -1,5 +1,4 @@
 module "idp_static_bucket_uw2" {
-  count  = var.enable_idp_static_bucket ? 1 : 0
   source = "../modules/idp_static_bucket"
 
   env_name                               = var.env_name
@@ -16,61 +15,6 @@ module "idp_static_bucket_uw2" {
 ##### moved blocks, remove once state moves are complete
 
 moved {
-  from = aws_s3_bucket.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_cors_configuration.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_cors_configuration.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_lifecycle_configuration.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_lifecycle_configuration.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_logging.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_logging.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_ownership_controls.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_ownership_controls.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_policy.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_policy.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_server_side_encryption_configuration.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_server_side_encryption_configuration.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_versioning.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_versioning.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_bucket_website_configuration.idp_static_bucket[0]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_bucket_website_configuration.idp_static_bucket
-}
-
-moved {
-  from = aws_s3_object.cloudfront_custom_pages["5xx-codes/503.html"]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_object.cloudfront_custom_pages["5xx-codes/503.html"]
-}
-
-moved {
-  from = aws_s3_object.cloudfront_custom_pages["maintenance/maintenance.html"]
-  to   = module.idp_static_bucket_uw2[0].aws_s3_object.cloudfront_custom_pages["maintenance/maintenance.html"]
-}
-
-moved {
-  from = module.idp_static_bucket_config[0]
-  to   = module.idp_static_bucket_uw2[0].module.idp_static_bucket_config
+  from = module.idp_static_bucket_uw2[0]
+  to   = module.idp_static_bucket_uw2
 }
