@@ -31,18 +31,29 @@ const (
 	// "BackupPolicyNotFoundFault".
 	ErrCodeBackupPolicyNotFoundFault = "BackupPolicyNotFoundFault"
 
+	// ErrCodeBlueGreenDeploymentAlreadyExistsFault for service response error code
+	// "BlueGreenDeploymentAlreadyExistsFault".
+	//
+	// A blue/green deployment with the specified name already exists.
+	ErrCodeBlueGreenDeploymentAlreadyExistsFault = "BlueGreenDeploymentAlreadyExistsFault"
+
+	// ErrCodeBlueGreenDeploymentNotFoundFault for service response error code
+	// "BlueGreenDeploymentNotFoundFault".
+	//
+	// BlueGreenDeploymentIdentifier doesn't refer to an existing blue/green deployment.
+	ErrCodeBlueGreenDeploymentNotFoundFault = "BlueGreenDeploymentNotFoundFault"
+
 	// ErrCodeCertificateNotFoundFault for service response error code
 	// "CertificateNotFound".
 	//
 	// CertificateIdentifier doesn't refer to an existing certificate.
 	ErrCodeCertificateNotFoundFault = "CertificateNotFound"
 
-	// ErrCodeCustomAvailabilityZoneAlreadyExistsFault for service response error code
-	// "CustomAvailabilityZoneAlreadyExists".
+	// ErrCodeCreateCustomDBEngineVersionFault for service response error code
+	// "CreateCustomDBEngineVersionFault".
 	//
-	// CustomAvailabilityZoneName is already used by an existing custom Availability
-	// Zone.
-	ErrCodeCustomAvailabilityZoneAlreadyExistsFault = "CustomAvailabilityZoneAlreadyExists"
+	// An error occurred while trying to create the CEV.
+	ErrCodeCreateCustomDBEngineVersionFault = "CreateCustomDBEngineVersionFault"
 
 	// ErrCodeCustomAvailabilityZoneNotFoundFault for service response error code
 	// "CustomAvailabilityZoneNotFound".
@@ -51,17 +62,43 @@ const (
 	// Zone identifier.
 	ErrCodeCustomAvailabilityZoneNotFoundFault = "CustomAvailabilityZoneNotFound"
 
-	// ErrCodeCustomAvailabilityZoneQuotaExceededFault for service response error code
-	// "CustomAvailabilityZoneQuotaExceeded".
+	// ErrCodeCustomDBEngineVersionAlreadyExistsFault for service response error code
+	// "CustomDBEngineVersionAlreadyExistsFault".
 	//
-	// You have exceeded the maximum number of custom Availability Zones.
-	ErrCodeCustomAvailabilityZoneQuotaExceededFault = "CustomAvailabilityZoneQuotaExceeded"
+	// A CEV with the specified name already exists.
+	ErrCodeCustomDBEngineVersionAlreadyExistsFault = "CustomDBEngineVersionAlreadyExistsFault"
+
+	// ErrCodeCustomDBEngineVersionNotFoundFault for service response error code
+	// "CustomDBEngineVersionNotFoundFault".
+	//
+	// The specified CEV was not found.
+	ErrCodeCustomDBEngineVersionNotFoundFault = "CustomDBEngineVersionNotFoundFault"
+
+	// ErrCodeCustomDBEngineVersionQuotaExceededFault for service response error code
+	// "CustomDBEngineVersionQuotaExceededFault".
+	//
+	// You have exceeded your CEV quota.
+	ErrCodeCustomDBEngineVersionQuotaExceededFault = "CustomDBEngineVersionQuotaExceededFault"
 
 	// ErrCodeDBClusterAlreadyExistsFault for service response error code
 	// "DBClusterAlreadyExistsFault".
 	//
 	// The user already has a DB cluster with the given identifier.
 	ErrCodeDBClusterAlreadyExistsFault = "DBClusterAlreadyExistsFault"
+
+	// ErrCodeDBClusterAutomatedBackupNotFoundFault for service response error code
+	// "DBClusterAutomatedBackupNotFoundFault".
+	//
+	// No automated backup for this DB cluster was found.
+	ErrCodeDBClusterAutomatedBackupNotFoundFault = "DBClusterAutomatedBackupNotFoundFault"
+
+	// ErrCodeDBClusterAutomatedBackupQuotaExceededFault for service response error code
+	// "DBClusterAutomatedBackupQuotaExceededFault".
+	//
+	// The quota for retained automated backups was exceeded. This prevents you
+	// from retaining any additional automated backups. The retained automated backups
+	// quota is the same as your DB cluster quota.
+	ErrCodeDBClusterAutomatedBackupQuotaExceededFault = "DBClusterAutomatedBackupQuotaExceededFault"
 
 	// ErrCodeDBClusterBacktrackNotFoundFault for service response error code
 	// "DBClusterBacktrackNotFoundFault".
@@ -157,7 +194,7 @@ const (
 	//
 	// The quota for retained automated backups was exceeded. This prevents you
 	// from retaining any additional automated backups. The retained automated backups
-	// quota is the same as your DB Instance quota.
+	// quota is the same as your DB instance quota.
 	ErrCodeDBInstanceAutomatedBackupQuotaExceededFault = "DBInstanceAutomatedBackupQuotaExceeded"
 
 	// ErrCodeDBInstanceNotFoundFault for service response error code
@@ -183,8 +220,8 @@ const (
 	// ErrCodeDBInstanceRoleQuotaExceededFault for service response error code
 	// "DBInstanceRoleQuotaExceeded".
 	//
-	// You can't associate any more AWS Identity and Access Management (IAM) roles
-	// with the DB instance because the quota has been reached.
+	// You can't associate any more Amazon Web Services Identity and Access Management
+	// (IAM) roles with the DB instance because the quota has been reached.
 	ErrCodeDBInstanceRoleQuotaExceededFault = "DBInstanceRoleQuotaExceeded"
 
 	// ErrCodeDBLogFileNotFoundFault for service response error code
@@ -213,24 +250,44 @@ const (
 	ErrCodeDBParameterGroupQuotaExceededFault = "DBParameterGroupQuotaExceeded"
 
 	// ErrCodeDBProxyAlreadyExistsFault for service response error code
-	// "DBProxyTargetExistsFault".
+	// "DBProxyAlreadyExistsFault".
 	//
-	// The specified proxy name must be unique for all proxies owned by your AWS
-	// account in the specified AWS Region.
-	ErrCodeDBProxyAlreadyExistsFault = "DBProxyTargetExistsFault"
+	// The specified proxy name must be unique for all proxies owned by your Amazon
+	// Web Services account in the specified Amazon Web Services Region.
+	ErrCodeDBProxyAlreadyExistsFault = "DBProxyAlreadyExistsFault"
+
+	// ErrCodeDBProxyEndpointAlreadyExistsFault for service response error code
+	// "DBProxyEndpointAlreadyExistsFault".
+	//
+	// The specified DB proxy endpoint name must be unique for all DB proxy endpoints
+	// owned by your Amazon Web Services account in the specified Amazon Web Services
+	// Region.
+	ErrCodeDBProxyEndpointAlreadyExistsFault = "DBProxyEndpointAlreadyExistsFault"
+
+	// ErrCodeDBProxyEndpointNotFoundFault for service response error code
+	// "DBProxyEndpointNotFoundFault".
+	//
+	// The DB proxy endpoint doesn't exist.
+	ErrCodeDBProxyEndpointNotFoundFault = "DBProxyEndpointNotFoundFault"
+
+	// ErrCodeDBProxyEndpointQuotaExceededFault for service response error code
+	// "DBProxyEndpointQuotaExceededFault".
+	//
+	// The DB proxy already has the maximum number of endpoints.
+	ErrCodeDBProxyEndpointQuotaExceededFault = "DBProxyEndpointQuotaExceededFault"
 
 	// ErrCodeDBProxyNotFoundFault for service response error code
 	// "DBProxyNotFoundFault".
 	//
-	// The specified proxy name doesn't correspond to a proxy owned by your AWS
-	// account in the specified AWS Region.
+	// The specified proxy name doesn't correspond to a proxy owned by your Amazon
+	// Web Services account in the specified Amazon Web Services Region.
 	ErrCodeDBProxyNotFoundFault = "DBProxyNotFoundFault"
 
 	// ErrCodeDBProxyQuotaExceededFault for service response error code
 	// "DBProxyQuotaExceededFault".
 	//
-	// Your AWS account already has the maximum number of proxies in the specified
-	// AWS Region.
+	// Your Amazon Web Services account already has the maximum number of proxies
+	// in the specified Amazon Web Services Region.
 	ErrCodeDBProxyQuotaExceededFault = "DBProxyQuotaExceededFault"
 
 	// ErrCodeDBProxyTargetAlreadyRegisteredFault for service response error code
@@ -243,15 +300,16 @@ const (
 	// ErrCodeDBProxyTargetGroupNotFoundFault for service response error code
 	// "DBProxyTargetGroupNotFoundFault".
 	//
-	// The specified target group isn't available for a proxy owned by your AWS
-	// account in the specified AWS Region.
+	// The specified target group isn't available for a proxy owned by your Amazon
+	// Web Services account in the specified Amazon Web Services Region.
 	ErrCodeDBProxyTargetGroupNotFoundFault = "DBProxyTargetGroupNotFoundFault"
 
 	// ErrCodeDBProxyTargetNotFoundFault for service response error code
 	// "DBProxyTargetNotFoundFault".
 	//
 	// The specified RDS DB instance or Aurora DB cluster isn't available for a
-	// proxy owned by your AWS account in the specified AWS Region.
+	// proxy owned by your Amazon Web Services account in the specified Amazon Web
+	// Services Region.
 	ErrCodeDBProxyTargetNotFoundFault = "DBProxyTargetNotFoundFault"
 
 	// ErrCodeDBSecurityGroupAlreadyExistsFault for service response error code
@@ -344,6 +402,12 @@ const (
 	// Domain doesn't refer to an existing Active Directory domain.
 	ErrCodeDomainNotFoundFault = "DomainNotFoundFault"
 
+	// ErrCodeEc2ImagePropertiesNotSupportedFault for service response error code
+	// "Ec2ImagePropertiesNotSupportedFault".
+	//
+	// The AMI configuration prerequisite has not been met.
+	ErrCodeEc2ImagePropertiesNotSupportedFault = "Ec2ImagePropertiesNotSupportedFault"
+
 	// ErrCodeEventSubscriptionQuotaExceededFault for service response error code
 	// "EventSubscriptionQuotaExceeded".
 	//
@@ -395,18 +459,6 @@ const (
 	// The IAM role is missing for exporting to an Amazon S3 bucket.
 	ErrCodeIamRoleNotFoundFault = "IamRoleNotFound"
 
-	// ErrCodeInstallationMediaAlreadyExistsFault for service response error code
-	// "InstallationMediaAlreadyExists".
-	//
-	// The specified installation medium has already been imported.
-	ErrCodeInstallationMediaAlreadyExistsFault = "InstallationMediaAlreadyExists"
-
-	// ErrCodeInstallationMediaNotFoundFault for service response error code
-	// "InstallationMediaNotFound".
-	//
-	// InstallationMediaID doesn't refer to an existing installation medium.
-	ErrCodeInstallationMediaNotFoundFault = "InstallationMediaNotFound"
-
 	// ErrCodeInstanceQuotaExceededFault for service response error code
 	// "InstanceQuotaExceeded".
 	//
@@ -441,6 +493,26 @@ const (
 	// be able to resolve this error by updating your subnet group to use different
 	// Availability Zones that have more storage available.
 	ErrCodeInsufficientStorageClusterCapacityFault = "InsufficientStorageClusterCapacity"
+
+	// ErrCodeInvalidBlueGreenDeploymentStateFault for service response error code
+	// "InvalidBlueGreenDeploymentStateFault".
+	//
+	// The blue/green deployment can't be switched over or deleted because there
+	// is an invalid configuration in the green environment.
+	ErrCodeInvalidBlueGreenDeploymentStateFault = "InvalidBlueGreenDeploymentStateFault"
+
+	// ErrCodeInvalidCustomDBEngineVersionStateFault for service response error code
+	// "InvalidCustomDBEngineVersionStateFault".
+	//
+	// You can't delete the CEV.
+	ErrCodeInvalidCustomDBEngineVersionStateFault = "InvalidCustomDBEngineVersionStateFault"
+
+	// ErrCodeInvalidDBClusterAutomatedBackupStateFault for service response error code
+	// "InvalidDBClusterAutomatedBackupStateFault".
+	//
+	// The automated backup is in an invalid state. For example, this automated
+	// backup is associated with an active cluster.
+	ErrCodeInvalidDBClusterAutomatedBackupStateFault = "InvalidDBClusterAutomatedBackupStateFault"
 
 	// ErrCodeInvalidDBClusterCapacityFault for service response error code
 	// "InvalidDBClusterCapacityFault".
@@ -488,6 +560,13 @@ const (
 	// to delete the parameter group, you can't delete it when the parameter group
 	// is in this state.
 	ErrCodeInvalidDBParameterGroupStateFault = "InvalidDBParameterGroupState"
+
+	// ErrCodeInvalidDBProxyEndpointStateFault for service response error code
+	// "InvalidDBProxyEndpointStateFault".
+	//
+	// You can't perform this operation while the DB proxy endpoint is in a particular
+	// state.
+	ErrCodeInvalidDBProxyEndpointStateFault = "InvalidDBProxyEndpointStateFault"
 
 	// ErrCodeInvalidDBProxyStateFault for service response error code
 	// "InvalidDBProxyStateFault".
@@ -596,8 +675,15 @@ const (
 	// ErrCodeKMSKeyNotAccessibleFault for service response error code
 	// "KMSKeyNotAccessibleFault".
 	//
-	// An error occurred accessing an AWS KMS key.
+	// An error occurred accessing an Amazon Web Services KMS key.
 	ErrCodeKMSKeyNotAccessibleFault = "KMSKeyNotAccessibleFault"
+
+	// ErrCodeNetworkTypeNotSupported for service response error code
+	// "NetworkTypeNotSupported".
+	//
+	// The network type is invalid for the DB instance. Valid nework type values
+	// are IPV4 and DUAL.
+	ErrCodeNetworkTypeNotSupported = "NetworkTypeNotSupported"
 
 	// ErrCodeOptionGroupAlreadyExistsFault for service response error code
 	// "OptionGroupAlreadyExistsFault".
@@ -614,7 +700,7 @@ const (
 	// ErrCodeOptionGroupQuotaExceededFault for service response error code
 	// "OptionGroupQuotaExceededFault".
 	//
-	// The quota of 20 option groups was exceeded for this AWS account.
+	// The quota of 20 option groups was exceeded for this Amazon Web Services account.
 	ErrCodeOptionGroupQuotaExceededFault = "OptionGroupQuotaExceededFault"
 
 	// ErrCodePointInTimeRestoreNotEnabledFault for service response error code
@@ -663,7 +749,7 @@ const (
 	// ErrCodeSNSInvalidTopicFault for service response error code
 	// "SNSInvalidTopic".
 	//
-	// SNS has responded that there is a problem with the SND topic specified.
+	// SNS has responded that there is a problem with the SNS topic specified.
 	ErrCodeSNSInvalidTopicFault = "SNSInvalidTopic"
 
 	// ErrCodeSNSNoAuthorizationFault for service response error code
@@ -691,6 +777,18 @@ const (
 	// The request would result in the user exceeding the allowed number of DB snapshots.
 	ErrCodeSnapshotQuotaExceededFault = "SnapshotQuotaExceeded"
 
+	// ErrCodeSourceClusterNotSupportedFault for service response error code
+	// "SourceClusterNotSupportedFault".
+	//
+	// The source DB cluster isn't supported for a blue/green deployment.
+	ErrCodeSourceClusterNotSupportedFault = "SourceClusterNotSupportedFault"
+
+	// ErrCodeSourceDatabaseNotSupportedFault for service response error code
+	// "SourceDatabaseNotSupportedFault".
+	//
+	// The source DB instance isn't supported for a blue/green deployment.
+	ErrCodeSourceDatabaseNotSupportedFault = "SourceDatabaseNotSupportedFault"
+
 	// ErrCodeSourceNotFoundFault for service response error code
 	// "SourceNotFound".
 	//
@@ -704,10 +802,17 @@ const (
 	// available across all DB instances.
 	ErrCodeStorageQuotaExceededFault = "StorageQuotaExceeded"
 
+	// ErrCodeStorageTypeNotAvailableFault for service response error code
+	// "StorageTypeNotAvailableFault".
+	//
+	// The aurora-iopt1 storage type isn't available, because you modified the DB
+	// cluster to use this storage type less than one month ago.
+	ErrCodeStorageTypeNotAvailableFault = "StorageTypeNotAvailableFault"
+
 	// ErrCodeStorageTypeNotSupportedFault for service response error code
 	// "StorageTypeNotSupported".
 	//
-	// Storage of the StorageType specified can't be associated with the DB instance.
+	// The specified StorageType can't be associated with the DB instance.
 	ErrCodeStorageTypeNotSupportedFault = "StorageTypeNotSupported"
 
 	// ErrCodeSubnetAlreadyInUse for service response error code
