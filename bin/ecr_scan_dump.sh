@@ -5,11 +5,9 @@
 # current directory and are named IMAGENAME-scan.txt.
 #
 
-
 REPOS=$(aws ecr describe-repositories | jq -r '.repositories[] | select(.repositoryName | test("blessed$")) | .repositoryName')
 
-for IMAGE in $REPOS ; do
-	REPO=$(echo "$IMAGE" | awk -F@ '{print $1}')
+for REPO in $REPOS ; do
 	IMAGENAME=$(echo "$REPO" | awk -F/ '{print $2}')
 	rm -rf "$IMAGENAME-scan.txt"
 	aws ecr describe-image-scan-findings \
