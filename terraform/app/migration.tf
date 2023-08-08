@@ -5,7 +5,7 @@ resource "aws_iam_instance_profile" "migration" {
   role = module.application_iam_roles.migration_iam_role_name
 }
 
-module "migration_usw2" {
+module "migration_uw2" {
   depends_on = [
     module.outboundproxy_uw2.proxy_asg_name,
     aws_cloudwatch_log_group.nginx_access_log
@@ -75,4 +75,9 @@ moved {
 moved {
   from = module.migration_recycle
   to   = module.migration_uw2.module.migration_recycle
+}
+
+moved {
+  from = module.migration_usw2
+  to   = module.migration_uw2
 }
