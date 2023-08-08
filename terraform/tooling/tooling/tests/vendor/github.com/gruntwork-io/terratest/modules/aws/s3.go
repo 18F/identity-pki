@@ -37,6 +37,13 @@ func FindS3BucketWithTagE(t testing.TestingT, awsRegion string, key string, valu
 		tagResponse, err := s3Client.GetBucketTagging(&s3.GetBucketTaggingInput{Bucket: bucket.Name})
 
 		if err != nil {
+			if strings.Contains(err.Error(), "NoSuchBucket") {
+				// Occasionally, the ListBuckets call will return a bucket that has been deleted by S3
+				// but hasn't yet been actually removed from the backend. Listing tags on that bucket
+				// will return this error. If the bucket has been deleted, it can't be the one to find,
+				// so just ignore this error, and keep checking the other buckets.
+				continue
+			}
 			if !strings.Contains(err.Error(), "AuthorizationHeaderMalformed") &&
 				!strings.Contains(err.Error(), "BucketRegionError") &&
 				!strings.Contains(err.Error(), "NoSuchTagSet") {
@@ -53,6 +60,36 @@ func FindS3BucketWithTagE(t testing.TestingT, awsRegion string, key string, valu
 	}
 
 	return "", nil
+}
+
+// GetS3BucketTags fetches the given bucket's tags and returns them as a string map of strings.
+func GetS3BucketTags(t testing.TestingT, awsRegion string, bucket string) map[string]string {
+	tags, err := GetS3BucketTagsE(t, awsRegion, bucket)
+	require.NoError(t, err)
+
+	return tags
+}
+
+// GetS3BucketTagsE fetches the given bucket's tags and returns them as a string map of strings.
+func GetS3BucketTagsE(t testing.TestingT, awsRegion string, bucket string) (map[string]string, error) {
+	s3Client, err := NewS3ClientE(t, awsRegion)
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := s3Client.GetBucketTagging(&s3.GetBucketTaggingInput{
+		Bucket: &bucket,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tags := map[string]string{}
+	for _, tag := range out.TagSet {
+		tags[aws.StringValue(tag.Key)] = aws.StringValue(tag.Value)
+	}
+
+	return tags, nil
 }
 
 // GetS3ObjectContents fetches the contents of the object in the given bucket with the given key and return it as a string.
@@ -108,6 +145,8 @@ func CreateS3BucketE(t testing.TestingT, region string, name string) error {
 
 	params := &s3.CreateBucketInput{
 		Bucket: aws.String(name),
+		// https://github.com/aws/aws-sdk-go/blob/v1.44.122/service/s3/api.go#L41646
+		ObjectOwnership: aws.String(s3.ObjectOwnershipObjectWriter),
 	}
 	_, err = s3Client.CreateBucket(params)
 	return err
