@@ -4,15 +4,8 @@
 # Images are built via the identity-devops GitLab pipeline.
 
 variables:
-  GITLAB_CI: 'true'
-  FF_SCRIPT_SECTIONS: 'true'
-  JUNIT_OUTPUT: 'true'
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
-  IDP_CI_SHA: 'sha256:6915b54a913ebcb9066fdfaa88c3d42bda1f4505cfb59b9d5848576705954621'
-
-#default:
-#  image: '${ECR_REGISTRY}/idp/ci@${IDP_CI_SHA}'
-
+  TEMP_IDP_WORKER_IMAGE_TAG: '53515035ccc3f4663b43ffc7a0ccdabe32ff698d'
 stages:
   - review
   - scan
@@ -88,25 +81,83 @@ review-app:
       ]
       EOF
       )
+    - |-
+      export IDP_ENV=$(cat <<EOF
+      [
+        {"name": "POSTGRES_SSLMODE", "value": "prefer"},
+        {"name": "POSTGRES_NAME", "value": "idp"},
+        {"name": "POSTGRES_HOST","value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-postgres.review-apps"},
+        {"name": "POSTGRES_USERNAME", "value": "postgres"},
+        {"name": "POSTGRES_PASSWORD", "value": "postgres"},
+        {"name": "POSTGRES_WORKER_SSLMODE", "value": "prefer"},
+        {"name": "POSTGRES_WORKER_NAME", "value": "idp-worker-jobs"},
+        {"name": "POSTGRES_WORKER_HOST", "value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-postgres.review-apps"},
+        {"name": "POSTGRES_WORKER_USERNAME", "value": "postgres"},
+        {"name": "POSTGRES_WORKER_PASSWORD", "value": "postgres"},
+        {"name": "RAILS_OFFLINE", "value": "true"},
+        {"name": "REDIS_IRS_ATTEMPTS_API_URL", "value": "redis://$CI_ENVIRONMENT_SLUG-identity-idp-chart-redis.review-apps:6379/2"},
+        {"name": "REDIS_THROTTLE_URL", "value": "redis://$CI_ENVIRONMENT_SLUG-identity-idp-chart-redis.review-apps:6379/1"},
+        {"name": "REDIS_URL", "value": "redis://$CI_ENVIRONMENT_SLUG-identity-idp-chart-redis.review-apps:6379"},
+        {"name": "ASSET_HOST", "value": "https://$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov"},
+        {"name": "DOMAIN_NAME", "value": "$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov"},
+        {"name": "LOGIN_DATACENTER", "value": "true" },
+        {"name": "LOGIN_DOMAIN", "value": "identitysandbox.gov"},
+        {"name": "LOGIN_ENV", "value": "$CI_ENVIRONMENT_SLUG" },
+        {"name": "LOGIN_HOST_ROLE", "value": "idp" },
+        {"name": "LOGIN_SKIP_REMOTE_CONFIG", "value": "true" }
+      ]
+      EOF
+      )
+    - |-
+      export WORKER_ENV=$(cat <<EOF
+      [
+        {"name": "POSTGRES_SSLMODE", "value": "prefer"},
+        {"name": "POSTGRES_NAME", "value": "idp"},
+        {"name": "POSTGRES_HOST", "value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-postgres.review-apps"},
+        {"name": "POSTGRES_USERNAME", "value": "postgres"},
+        {"name": "POSTGRES_PASSWORD", "value": "postgres"},
+        {"name": "POSTGRES_WORKER_SSLMODE", "value": "prefer"},
+        {"name": "POSTGRES_WORKER_NAME", "value": "idp-worker-jobs"},
+        {"name": "POSTGRES_WORKER_HOST", "value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-postgres.review-apps"},
+        {"name": "POSTGRES_WORKER_USERNAME", "value": "postgres"},
+        {"name": "POSTGRES_WORKER_PASSWORD", "value": "postgres"},
+        {"name": "RAILS_OFFLINE", "value": "true"},
+        {"name": "REDIS_IRS_ATTEMPTS_API_URL", "value": "redis://$CI_ENVIRONMENT_SLUG-identity-idp-chart-redis.review-apps:6379/2"},
+        {"name": "REDIS_THROTTLE_URL", "value": "redis://$CI_ENVIRONMENT_SLUG-identity-idp-chart-redis.review-apps:6379/1"},
+        {"name": "REDIS_URL", "value": "redis://$CI_ENVIRONMENT_SLUG-identity-idp-chart-redis.review-apps:6379"},
+        {"name": "ASSET_HOST", "value": "https://$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov"},
+        {"name": "DOMAIN_NAME", "value": "$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov"},
+        {"name": "LOGIN_DATACENTER", "value": "true" },
+        {"name": "LOGIN_DOMAIN", "value": "identitysandbox.gov"},
+        {"name": "LOGIN_ENV", "value": "$CI_ENVIRONMENT_SLUG" },
+        {"name": "LOGIN_HOST_ROLE", "value": "worker" },
+        {"name": "LOGIN_SKIP_REMOTE_CONFIG", "value": "true" }
+      ]
+      EOF
+      )
     - git clone -b cmccarthy/pivcac --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
+# Update helm command with idp and worker image repo/tag for blessed images once those repos are implemented    
     - >-
       helm upgrade --install --namespace review-apps
       --debug
-      --set idp.enabled="false"
-      --set postgresql.enabled="false"
-      --set redis.enabled="false"
-      --set worker.enabled="false"
       --set pivcac.image.repository="${ECR_REGISTRY}/identity-pivcac/review"
       --set pivcac.image.tag="${CI_COMMIT_SHA}"
-      --set pivcac.ingress.enabled=true
+      --set idp.image.repository="${ECR_REGISTRY}/identity-idp/review"
+      --set idp.image.tag="${TEMP_IDP_WORKER_IMAGE_TAG}"
+      --set worker.image.repository="${ECR_REGISTRY}/identity-idp/review"
+      --set worker.image.tag="${TEMP_IDP_WORKER_IMAGE_TAG}"
       --set pivcac.postgresql.database="identity_pki_production"
       --set-json pivcac.env="$PIVCAC_ENV"
+      --set-json idp.env="$IDP_ENV"
+      --set-json worker.env="$WORKER_ENV"
       --set-json pivcac.ingress.hosts="[{\"host\": \"$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov\", \"paths\": [{\"path\": \"/\", \"pathType\": \"Prefix\"}]}]"
+      --set-json idp.ingress.hosts="[{\"host\": \"$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov\", \"paths\": [{\"path\": \"/\", \"pathType\": \"Prefix\"}]}]"
       $CI_ENVIRONMENT_SLUG ./identity-idp-helm-chart
     - echo "DNS may take a while to propagate, so be patient if it doesn't show up right away"
     - echo "To access the rails console, first run 'aws-vault exec sandbox-power -- aws eks update-kubeconfig --name review_app'"
     - echo "Then run 'aws-vault exec sandbox-power -- kubectl exec -it service/$CI_ENVIRONMENT_SLUG-identity-idp-chart-pivcac -n review-apps -- /app/bin/rails console'"
-  after_script:
+    - echo "Address of IDP review app:"
+    - echo https://$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov
     - echo "Address of PIVCAC review app:"
     - echo https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
   environment:
@@ -138,10 +189,6 @@ stop-review-app:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE != "merge_request_event"
       when: never
-
-#include:
-#  - template: Jobs/SAST.gitlab-ci.yml
-#  - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 
 # Export the automated ECR scan results into a format Gitlab can use
 # Report schema https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/master/dist/container-scanning-report-format.json
