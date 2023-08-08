@@ -72,7 +72,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_analytics" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields name, @timestamp, @message\n| filter name in ['IdV: doc auth optional verify_wait submitted',\n                  'IdV: doc auth verify submitted',\n                  'IdV: doc auth verify_wait visited'] \n              and ispresent(properties.event_properties.proofing_results.context.stages.resolution.vendor_name)\n              and properties.event_properties.analytics_id = 'In Person Proofing'\n| count(*) as submits by properties.user_id\n| sort submits desc",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields name, @timestamp, @message\n| filter name in ['IdV: doc auth verify proofing results',\n                  'IdV: doc auth verify submitted',\n                  'IdV: doc auth verify_wait visited'] \n              and ispresent(properties.event_properties.proofing_results.context.stages.resolution.vendor_name)\n              and properties.event_properties.analytics_id = 'In Person Proofing'\n| count(*) as submits by properties.user_id\n| sort submits desc",
             "region" : "${var.region}",
             "stacked" : false,
             "title" : "Lexis Nexis / AAMVA Results",

@@ -377,11 +377,11 @@ module Cloudlib
     def get_event_metrics(deploys:, start_time:, end_time:)
       event_query_string = <<~CW
       fields @timestamp, @message, (name = 'IdV: doc auth image upload vendor submitted') as doc_auth_attempt, (name = 'IdV: doc auth image upload vendor submitted' and properties.event_properties.success) as doc_auth_success,
-      (name = 'IdV: doc auth optional verify_wait submitted') as verify_attempt, (name = 'IdV: doc auth optional verify_wait submitted' and properties.event_properties.success) as verify_success,
+      (name = 'IdV: doc auth verify proofing results') as verify_attempt, (name = 'IdV: doc auth verify proofing results' and properties.event_properties.success) as verify_success,
       (name = 'IdV: phone confirmation vendor') as phone_proof_attempt, (name = 'IdV: phone confirmation vendor' and properties.event_properties.success) as phone_proof_success,
       (name = 'IdV: final resolution' and properties.event_properties.success) as proofing_successful, (name = 'Multi-Factor Authentication') as two_fa_attempt,
       ((name = 'Multi-Factor Authentication') and properties.event_properties.success) as two_fa_success
-      | filter name in ['IdV: doc auth image upload vendor submitted', 'IdV: phone confirmation vendor', 'IdV: doc auth optional verify_wait submitted', 'IdV: final resolution', 'Multi-Factor Authentication'] and properties.git_sha like /(#{deploys.map {|x| "#{x.sha.slice(0, 8)}"}.join('|')})/
+      | filter name in ['IdV: doc auth image upload vendor submitted', 'IdV: phone confirmation vendor', 'IdV: doc auth verify proofing results', 'IdV: final resolution', 'Multi-Factor Authentication'] and properties.git_sha like /(#{deploys.map {|x| "#{x.sha.slice(0, 8)}"}.join('|')})/
       | stats sum(doc_auth_success)/sum(doc_auth_attempt) * 100 as doc_auth_success_percent, sum(verify_success)/sum(verify_attempt) * 100 as verify_success_percent, sum(phone_proof_success)/sum(phone_proof_attempt) * 100 as phone_proof_success_percent,
         sum(proofing_successful) as proofing_success, sum(two_fa_success)/sum(two_fa_attempt) * 100 as two_fa_success_percent by properties.git_sha as git_sha
       CW

@@ -155,7 +155,7 @@ locals {
       dimensions   = {}
       pattern      = <<EOT
         {
-          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.name="IdV: doc auth verify proofing results" &&
           $.properties.event_properties.proofing_results.context.stages.state_id.exception = "*" &&
           $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id"
         }
@@ -173,7 +173,7 @@ locals {
       # 442: "Document image resolution difference between each axis is outside the acceptable range."
       pattern = <<EOT
         {
-          $.name="IdV: doc auth image upload vendor submitted" && 
+          $.name="IdV: doc auth image upload vendor submitted" &&
           $.properties.event_properties.vendor = "Acuant" &&
           $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 438" &&
           $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 439" &&
@@ -189,7 +189,7 @@ locals {
       dimensions   = {}
       pattern      = <<EOT
         {
-          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.name="IdV: doc auth verify proofing results" &&
           $.properties.event_properties.proofing_results.context.stages.resolution.exception = "*" &&
           $.properties.event_properties.proofing_results.context.stages.resolution.vendor_name = "lexisnexis:instant_verify"
         }
@@ -228,7 +228,7 @@ locals {
       dimensions   = {}
       pattern      = <<EOT
         {
-          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.name="IdV: doc auth verify proofing results" &&
           $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id"
         }
       EOT
@@ -250,7 +250,7 @@ locals {
       dimensions   = {}
       pattern      = <<EOT
         {
-          $.name="IdV: doc auth optional verify_wait submitted" &&
+          $.name="IdV: doc auth verify proofing results" &&
           $.properties.event_properties.proofing_results.context.stages.resolution.vendor_name = "lexisnexis:instant_verify"
         }
       EOT

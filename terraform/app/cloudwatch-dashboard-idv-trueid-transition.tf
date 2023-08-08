@@ -135,7 +135,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '1') as iv_success, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '1') as aamva_success, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth optional verify_wait submitted'\n| stats sum(iv_success) as Instant_Verify_Success, sum(aamva_success) as AAMVA_Success by bin(1h)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '1') as iv_success, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '1') as aamva_success, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth verify proofing results'\n| stats sum(iv_success) as Instant_Verify_Success, sum(aamva_success) as AAMVA_Success by bin(1h)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Information Verify Success by Hour",
@@ -149,7 +149,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 12,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '0') as iv_failure, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '0') as aamva_failure, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth optional verify_wait submitted'\n| stats sum(iv_failure) as Instant_Verify_Failure, sum(aamva_failure) as AAMVA_Failure by bin(1h)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '0') as iv_failure, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '0') as aamva_failure, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth verify proofing results'\n| stats sum(iv_failure) as Instant_Verify_Failure, sum(aamva_failure) as AAMVA_Failure by bin(1h)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Information Verify Failure by Hour",

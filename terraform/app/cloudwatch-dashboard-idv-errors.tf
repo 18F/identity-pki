@@ -57,7 +57,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.0.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.0.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Addr1Zip_StateMatch",
@@ -71,7 +71,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 4,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.1.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.1.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "SsnFullNameMatch",
@@ -85,7 +85,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 8,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.2.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.2.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "SsnDeathMatchVerification",
@@ -99,7 +99,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 13,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.3.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.3.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "SSNSSAValid",
@@ -113,7 +113,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 17,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.4.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.4.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "IdentityOccupancyVerified",
@@ -127,7 +127,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.5.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.5.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "AddrDeliverable",
@@ -141,7 +141,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 4,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.6.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.6.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "AddrNotHighRisk",
@@ -155,7 +155,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 8,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.7.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.7.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "DOBFullVerified",
@@ -169,7 +169,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 12,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.8.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.8.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "DOBYearVerified",
@@ -183,7 +183,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_errors" {
         "x" : 16,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth optional verify_wait submitted' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.9.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
+          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter (\n (name = 'IdV: doc auth verify proofing results' and !properties.event_properties.success and\n `properties.event_properties.errors.Execute Instant Verify.0.ProductStatus`='fail' and \n `properties.event_properties.errors.Execute Instant Verify.0.Items.9.ItemStatus` = 'fail')\n)\n| stats count(*) as Total\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "LexIDDeathMatch",
