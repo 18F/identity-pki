@@ -169,7 +169,8 @@ namespace :certs do
     cert = Certificate.new(OpenSSL::X509::Certificate.new(File.read(args[:cert_path])))
     missing_certs = CertificateChainService.new.missing(cert).uniq(&:key_id)
     missing_certs.reverse.each do |missing_cert|
-      signing_cert = CertificateStore.instance[missing_cert.signing_key_id]
+      signing_cert = CertificateStore.instance[missing_cert.signing_key_id] ||
+        IssuingCaService.fetch_signing_key_for_cert(missing_cert)
       unless signing_cert
         puts 'Could not find signing certificate for missing certificate'
         next

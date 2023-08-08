@@ -135,8 +135,8 @@ review-app:
       ]
       EOF
       )
-    - git clone -b master --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
 # Update helm command with idp and worker image repo/tag for blessed images once those repos are implemented    
+    - git clone -b main --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
     - >-
       helm upgrade --install --namespace review-apps
       --debug
