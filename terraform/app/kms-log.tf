@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=8d46acecb5de09c9c1de9fdf1e04580006f7bcc6"
+  source = "github.com/18F/identity-terraform//kms_log?ref=b1e3f0deea6604d10789283bad84e28044e41a42"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -19,6 +19,8 @@ module "kms_logging" {
   lambda_identity_lambda_functions_gitrev = var.kms_log_lambda_identity_lambda_functions_gitrev
 
   lambda_kms_cw_processor_zip      = module.kms_lambda_processors_code.zip_output_path
+  cw_processor_memory_size         = var.kms_log_cw_processor_memory_size
+  cw_processor_storage_size        = var.kms_log_cw_processor_storage_size
   lambda_kms_ct_processor_zip      = module.kms_lambda_processors_code.zip_output_path
   lambda_kms_event_processor_zip   = module.kms_lambda_processors_code.zip_output_path
   lambda_slack_batch_processor_zip = module.kms_slack_batch_processor_code.zip_output_path

@@ -823,6 +823,25 @@ variable "kms_log_lambda_identity_lambda_functions_gitrev" {
   default     = "1815de9b0893548876138e7086391e210cc85813"
 }
 
+variable "kms_log_cw_processor_memory_size" {
+  description = "Defines the amount of memory in MB the KMS Log CloudWatch Processor can use at runtime"
+  type        = number
+  default     = 128
+  validation {
+    condition     = var.kms_log_cw_processor_memory_size >= 128 && var.kms_log_cw_processor_memory_size <= 10240
+    error_message = "The kms_log_cw_processor_memory_size must be between the values 512 MB and 10240 MB"
+  }
+}
+
+variable "kms_log_cw_processor_storage_size" {
+  description = "Defines the amount of ephemeral storage (/tmp) in MB available to the KMS Log CloudWatch Processor"
+  type        = number
+  default     = 512
+  validation {
+    condition     = var.kms_log_cw_processor_storage_size >= 512 && var.kms_log_cw_processor_storage_size <= 10240
+    error_message = "The kms_log_cw_processor_storage_size must be between the values 512 MB and 10240 MB"
+  }
+}
 
 variable "newrelic_alerts_enabled" {
   description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
