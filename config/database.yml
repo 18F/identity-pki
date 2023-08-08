@@ -31,5 +31,5 @@ production:
   username: <%= IdentityConfig.store.database_username %>
   host: <%= IdentityConfig.store.database_host %>
   password: <%= IdentityConfig.store.database_password %>
-  sslmode: 'verify-full'
+  sslmode: <%= IdentityConfig.store.database_sslmode %>
   sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'

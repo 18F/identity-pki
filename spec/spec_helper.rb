@@ -2,6 +2,7 @@ if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start 'rails' do
     add_filter '/config/'
+    add_filter '/k8files/'
   end
 end
 

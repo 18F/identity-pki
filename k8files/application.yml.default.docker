@@ -1,0 +1,24 @@
+dod_root_identifiers: "\
+  AD:0C:7A:75:5C:E5:F3:98:C4:79:98:0E:AC:28:FD:97:F4:E7:02:FC,\
+  17:4B:B8:26:BA:69:7A:AD:12:50:57:45:31:9E:57:BB:74:A5:DA:2F,\
+  49:74:BB:0C:5E:BA:7A:FE:02:54:EF:7B:A0:C6:95:C6:09:80:70:96,\
+  68:84:15:48:8C:54:70:7F:2D:12:58:0E:EC:1C:78:EF:3C:2E:59:64,\
+  6C:8A:94:A2:77:B1:80:72:1D:81:7A:16:AA:F2:DC:CE:66:EE:45:C0,\
+  BD:C1:B9:6B:4D:F4:1D:EC:30:90:BF:62:73:C0:84:33:F2:71:24:85,\
+  9C:16:31:A2:B4:29:8C:2E:04:62:57:87:11:E4:0F:4A:86:F4:75:48"
+
+production:
+  aws_region: us-west-2
+  client_cert_escaped: 'true'
+  client_cert_logger_s3_bucket_name: ['env', 'CLIENT_CERT_S3_BUCKET'] 
+  database_name: ['env', 'POSTGRES_NAME']
+  database_host: ['env', 'POSTGRES_HOST']
+  database_username: ['env', 'POSTGRES_USERNAME']
+  database_password: ['env', 'POSTGRES_PASSWORD']
+  database_sslmode: 'prefer'
+  token_encryption_key_salt: b51dacb05339fb559ffa7772c90b2d1f3541a0fedb152badcbc79430dc89e3c9c3c49b22da5b8d0e074c5ef16728133fb1ae0ec7914d40e608d44ef4b8b5349e
+  token_encryption_key_pepper: e5d0bd66e9528cbaac0bda517af540650e6e85d19842dcbfa0fd0fe4e4d8352c863ee5cf00fca3c2899721d8ee487445d56c9984eba91e838937fbb133225fb2
+  secret_key_base: 96bdf212d7448cf73431dc89b9450e4fb84c7cf19242f017b1b361ab288f6568bfc4349060da1566ee7b949a5ca358f45b145e8518b5395caa1ae379f5acb74c
+  piv_cac_verify_token_secret: 'a6ed2fb16320ae85a7a8e48f4b0eeb6afca5f1ac64af2a05a0c486df1c20b693987832a11f0910729f199b3ce5c7609fe6d580bed428d035ea8460990e38a382'
+  identity_idp_host: ['env', 'IDP_HOST']
+  domain_name: ['env', 'DOMAIN_NAME']

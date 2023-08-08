@@ -1,0 +1,86 @@
+#!/bin/bash
+set -euo pipefail
+
+# Deal with Arguments
+while getopts e:c: opt
+do
+  case $opt in
+    c) CERT_ENV="${OPTARG}" ;;
+    e) ENV="${OPTARG}"      ;;
+   \?) exit 1               ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ -z "${ENV:-}" ]]; then
+  echo "Must specify ENVIRONMENT (-e)" >&2
+  exit 1
+fi
+
+if [[ -z "${CERT_ENV:-}" ]]; then
+  CERT_ENV=$ENV
+fi
+
+# Set AWS Account/Region
+PROD_ENVIRONMENTS=("prod" "staging" "dm")
+AWS_ACCOUNT_NUM=""
+
+if [[ " ${PROD_ENVIRONMENTS[@]} " =~ " ${ENV} " ]]; then
+  AWS_ACCOUNT_NUM="555546682965"  
+else
+  AWS_ACCOUNT_NUM="894947205914"
+fi
+
+# Configure nginx
+sudo chmod og+w /opt/nginx/conf/nginx.conf
+sudo chmod og+w /opt/nginx/conf
+
+IP4_LIST=(`curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.prefixes[] | select(.service=="CLOUDFRONT_ORIGIN_FACING") | .ip_prefix'`)
+IP4_FORMATTED_LIST=() 
+for i in "${IP4_LIST[@]}";  
+do
+  IP4_FORMATTED_LIST+=("  set_real_ip_from $i;"); 
+done;
+sed -i '/<REAL_IP4_PLACEHOLDER>/r'<(printf %s\\n "${IP4_FORMATTED_LIST[@]}") /opt/nginx/conf/nginx.conf
+sed -i '/<REAL_IP4_PLACEHOLDER>/d' /opt/nginx/conf/nginx.conf
+
+IP6_LIST=(`curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.ipv6_prefixes[] | select(.service=="CLOUDFRONT") | .ipv6_prefix'`)
+IP6_FORMATTED_LIST=()
+for i in "${IP6_LIST[@]}";
+do
+  IP6_FORMATTED_LIST+=("  set_real_ip_from $i;");
+done;
+sed -i '/<REAL_IP6_PLACEHOLDER>/r'<(printf %s\\n "${IP6_FORMATTED_LIST[@]}") /opt/nginx/conf/nginx.conf
+sed -i '/<REAL_IP6_PLACEHOLDER>/d' /opt/nginx/conf/nginx.conf
+
+sudo chmod og-w /opt/nginx/conf/nginx.conf
+sudo chmod og-w /opt/nginx/conf
+
+# Fetch DHParam from AWS
+sudo -E -u root aws s3 cp s3://login-gov.secrets.${AWS_ACCOUNT_NUM}-us-west-2/${ENV}/dhparam /etc/ssl/certs/dhparam.pem
+
+# Fetch LetsEncrypt bundle from AWS
+sudo chmod ugo+rwx /usr/local/bin/*
+sudo chmod ug-w /usr/local/bin/*
+sudo -E -u root aws s3 cp s3://login-gov-pivcac-${ENV}.${AWS_ACCOUNT_NUM}-us-west-2/letsencrypt.${CERT_ENV}.tar.gz /root/letsencrypt.${CERT_ENV}.tar.gz > /dev/null 2>&1 || echo 'LetsEncrypt bundle does not exist in S3'
+
+# Set Cron Jobsbundle exec rake db:create db:migrate:monitor_concurrent --trace
+echo "@daily root flock -n /tmp/update_letsencrypt_certs.lock -c \"/usr/local/bin/update_letsencrypt_certs -e ${ENV} -c ${CERT_ENV}\" " | sudo tee /etc/cron.d/update_letsencrypt_certs
+sudo -E -u root chown root: /etc/cron.d/update_letsencrypt_certs
+sudo -E -u root chmod 700 /etc/cron.d/update_letsencrypt_certs
+
+# Check if bundle exists/is not null
+sudo -E -u root [ -s /root/letsencrypt.${CERT_ENV}.tar.gz ] && sudo -E -u root tar zxf /root/letsencrypt.${CERT_ENV}.tar.gz -C /etc || sudo -E -u root certbot certonly --agree-tos -n --dns-route53 -d *.${CERT_ENV}.pivcac.identitysandbox.gov --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
+
+sudo -E -u root certbot renew -n --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1' --key-type rsa --rsa-key-size 2048
+
+# Update Letsencrypt folder permissions
+sudo -E -u root chmod 755 /etc/letsencrypt/live
+sudo -E -u root chmod 755 /etc/letsencrypt/archive
+sudo -E -u root chmod -R 755 /etc/letsencrypt/archive/pivcac.identitysandbox.gov/*
+
+# Start nginx
+sudo -E -u root nginx
+
+# Start Passenger
+bundle exec puma
