@@ -146,7 +146,6 @@ review-app:
       --set idp.image.tag="${TEMP_IDP_WORKER_IMAGE_TAG}"
       --set worker.image.repository="${ECR_REGISTRY}/identity-idp/review"
       --set worker.image.tag="${TEMP_IDP_WORKER_IMAGE_TAG}"
-      --set pivcac.postgresql.database="identity_pki_production"
       --set-json pivcac.env="$PIVCAC_ENV"
       --set-json idp.env="$IDP_ENV"
       --set-json worker.env="$WORKER_ENV"
