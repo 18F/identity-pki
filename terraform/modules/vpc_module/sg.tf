@@ -256,18 +256,22 @@ resource "aws_security_group" "app-alb" {
     cidr_blocks = [for subnet in aws_subnet.app : subnet.cidr_block]
   }
 
+  # remove when HTTP access no longer needed
   ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    #prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # update once CloudFront is configured for the dashboard
   ingress {
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    #prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   name = "${var.env_name}-app-alb"
