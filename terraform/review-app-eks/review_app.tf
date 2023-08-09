@@ -20,7 +20,7 @@ locals {
 }
 
 module "review_app" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.28.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.32.1"
 
   # EKS Cluster VPC and Subnet mandatory config
   vpc_id             = module.vpc.vpc_id
