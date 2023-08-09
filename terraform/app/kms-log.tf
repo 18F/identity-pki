@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=c22921222cce5bd2e3d4f90933b975e829142237"
+  source = "github.com/18F/identity-terraform//kms_log?ref=0b68909c0c2ca3ed84912616f3f97d0f98bcd65b"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
