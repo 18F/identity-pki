@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-my_gem_path = Dir['./vendor/bundle/ruby/2.7.0/gems/**/lib']
+my_gem_path = Dir['./vendor/bundle/ruby/3.2.0/gems/**/lib']
 $LOAD_PATH.unshift(*my_gem_path)
 
 require 'json'

@@ -4,7 +4,7 @@ locals {
 
 module "kms_logging" {
 
-  source = "github.com/18F/identity-terraform//kms_log?ref=b1e3f0deea6604d10789283bad84e28044e41a42"
+  source = "github.com/18F/identity-terraform//kms_log?ref=c22921222cce5bd2e3d4f90933b975e829142237"
   #source = "../../../identity-terraform/kms_log"
 
   env_name                                = var.env_name
@@ -24,9 +24,17 @@ module "kms_logging" {
   lambda_kms_ct_processor_zip      = module.kms_lambda_processors_code.zip_output_path
   lambda_kms_event_processor_zip   = module.kms_lambda_processors_code.zip_output_path
   lambda_slack_batch_processor_zip = module.kms_slack_batch_processor_code.zip_output_path
+
+  depends_on = [
+    module.kms_lambda_processors_code.resource_check,
+    module.kms_slack_batch_processor_code.resource_check
+  ]
 }
 
 resource "null_resource" "kms_lambda_processors_build" {
+  triggers = {
+    install = sha1(file("${path.module}/lambda/kms_lambda_processors/scripts/install-deps.sh"))
+  }
   provisioner "local-exec" {
     command     = "./scripts/install-deps.sh"
     working_dir = "${path.module}/lambda/kms_lambda_processors"
