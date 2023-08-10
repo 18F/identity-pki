@@ -198,7 +198,7 @@ module "cloudfront_idp_cdn_alarms" {
   }
   alarm_actions = local.low_priority_alarm_actions_use1
   dimensions = {
-    DistributionId = aws_cloudfront_distribution.idp_static_cdn[count.index].id
+    DistributionId = aws_cloudfront_distribution.idp_static_cdn.id
     Region         = "Global"
   }
   threshold         = var.cdn_idp_static_assets_alert_threshold
