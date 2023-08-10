@@ -1648,6 +1648,8 @@ nginx['proxy_custom_buffer_size'] = '5k'
 ##! Define to enable GitLab Pages
 # pages_external_url "http://pages.example.com/"
 # gitlab_pages['enable'] = false
+pages_external_url '<%= @pages_external_url %>'
+gitlab_pages['enable'] = true
 
 ##! Configure to expose GitLab Pages on external IP address, serving the HTTP
 # gitlab_pages['external_http'] = []
@@ -1835,6 +1837,12 @@ nginx['proxy_custom_buffer_size'] = '5k'
 # pages_nginx['enable'] = true
 
 # gitlab_rails['pages_path'] = "/var/opt/gitlab/gitlab-rails/shared/pages"
+
+pages_nginx['enable'] = true
+pages_nginx['listen_port'] = 4443
+pages_nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.login.gov.crt"
+pages_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.login.gov.key"
+
 
 ################################################################################
 ## GitLab CI

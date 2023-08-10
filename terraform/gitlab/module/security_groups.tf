@@ -787,3 +787,29 @@ resource "aws_security_group" "rds_endpoint" {
 
   vpc_id = aws_vpc.default.id
 }
+
+resource "aws_security_group" "pages_alb" {
+  name        = "${var.env_name}-pages-alb"
+  description = "Controls access to gitlab pages"
+  vpc_id      = aws_vpc.default.id
+}
+
+resource "aws_security_group_rule" "pages_ingress" {
+  security_group_id = aws_security_group.pages_alb.id
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["159.142.0.0/16"]
+  description       = "Allow connection from GSA"
+}
+
+resource "aws_security_group_rule" "pages_vpc_egress" {
+  security_group_id = aws_security_group.pages_alb.id
+  type              = "egress"
+  description       = "Allow outbound to the target group"
+  from_port         = 4443
+  to_port           = 4443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_vpc.default.cidr_block]
+}
