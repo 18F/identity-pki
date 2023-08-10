@@ -88,7 +88,7 @@ review-app:
       ]
       EOF
       )
-    - git clone -b cmccarthy/pivcac --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
+    - git clone -b main --single-branch https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
     - >-
       helm upgrade --install --namespace review-apps
       --debug
@@ -183,7 +183,7 @@ ecr-scan:
     - echo $SCAN_FINDINGS
     - >
       echo $SCAN_FINDINGS |
-      jq -r '
+      jq -r 'if (.imageScanFindings.findings | length > 0) then
       {
         "version": "15.0.4",
         "scan": {
@@ -248,7 +248,10 @@ ecr-scan:
             }
           }
         ]
-      }' > gl-container-scanning-report.json
+      }
+      else
+        "No findings"
+      end' > gl-container-scanning-report.json
   artifacts:
     paths: 
       - gl-container-scanning-report.json
