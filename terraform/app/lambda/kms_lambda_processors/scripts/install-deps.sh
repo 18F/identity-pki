@@ -2,6 +2,8 @@
 set -eu
 cd "$(dirname "$0")/.."
 
+git rev-parse HEAD > REVISION.txt
+
 if [ -d "vendor/bundle/ruby/3.2.0/" ];then
 	echo "Lambda bundle has already been built."
 	echo "Skipping rebuild."
@@ -27,8 +29,6 @@ rm -rf "$lambda_directory/vendor/bundle"
 rm "$lambda_directory.zip"
 
 gem install bundler -v '~> 2.3.18'
-
-git rev-parse HEAD > REVISION.txt
 
 bundle install --deployment --without=development --jobs=4 --retry=3 --path "vendor/bundle" --gemfile "$lambda_directory/Gemfile"
 
