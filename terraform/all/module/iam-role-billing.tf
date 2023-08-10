@@ -16,46 +16,70 @@ module "billing-assumerole" {
     var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
   ])
 
+  # https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/migrate-granularaccess-iam-mapping-reference.html#mapping-for-aws-portalviewbilling
   iam_policies = [
     {
       policy_name        = "BillingReadOnly"
       policy_description = "Policy for reporting group read-only access to Billing ui"
       policy_document = [
         {
-          sid    = "BillingReadOnlyProvideAccessUntilMigration"
+          sid    = "BillingReadOnly"
           effect = "Allow"
           actions = [
-            "aws-portal:ViewBilling",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
-          sid    = "BillingReadOnlyProvideAccessAfterMigration"
-          effect = "Allow"
-          actions = [
-            "ce:Get*",
-            "ce:Describe*",
-            "ce:List*",
             "account:GetAccountInformation",
-            "billing:Get*",
-            "payments:List*",
-            "payments:Get*",
-            "tax:List*",
-            "tax:Get*",
-            "consolidatedbilling:Get*",
-            "consolidatedbilling:List*",
-            "invoicing:List*",
-            "invoicing:Get*",
-            "cur:Get*",
-            "cur:Validate*",
-            "freetier:Get*",
+            "billing:GetBillingData",
+            "billing:GetBillingDetails",
+            "billing:GetBillingNotifications",
+            "billing:GetBillingPreferences",
+            "billing:GetContractInformation",
+            "billing:GetCredits",
+            "billing:GetIAMAccessPreference",
+            "billing:GetSellerOfRecord",
+            "billing:ListBillingViews",
+            "ce:DescribeNotificationSubscription",
+            "ce:DescribeReport",
+            "ce:GetAnomalies",
+            "ce:GetAnomalyMonitors",
+            "ce:GetAnomalySubscriptions",
+            "ce:GetCostAndUsage",
+            "ce:GetCostAndUsageWithResources",
+            "ce:GetCostCategories",
+            "ce:GetCostForecast",
+            "ce:GetDimensionValues",
+            "ce:GetPreferences",
+            "ce:GetReservationCoverage",
+            "ce:GetReservationPurchaseRecommendation",
+            "ce:GetReservationUtilization",
+            "ce:GetRightsizingRecommendation",
+            "ce:GetSavingsPlansCoverage",
+            "ce:GetSavingsPlansPurchaseRecommendation",
+            "ce:GetSavingsPlansUtilization",
+            "ce:GetSavingsPlansUtilizationDetails",
+            "ce:GetTags",
+            "ce:GetUsageForecast",
+            "ce:ListCostAllocationTags",
+            "ce:ListSavingsPlansPurchaseRecommendationGeneration",
+            "consolidatedbilling:GetAccountBillingRole",
+            "consolidatedbilling:ListLinkedAccounts",
+            "cur:GetClassicReport",
+            "cur:GetClassicReportPreferences",
+            "cur:ValidateReportDestination",
+            "freetier:GetFreeTierAlertPreference",
+            "freetier:GetFreeTierUsage",
+            "invoicing:GetInvoiceEmailDeliveryPreferences",
+            "invoicing:GetInvoicePDF",
+            "invoicing:ListInvoiceSummaries",
+            "payments:GetPaymentInstrument",
+            "payments:GetPaymentStatus",
+            "payments:ListPaymentPreferences",
+            "tax:GetTaxInheritance",
+            "tax:GetTaxRegistrationDocument",
+            "tax:ListTaxRegistrations"
           ]
           resources = [
             "*",
           ]
-        },
+        }
       ]
     },
   ]
