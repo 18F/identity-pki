@@ -47,6 +47,14 @@ resource "aws_iam_role_policy" "pivcac-ssm-access" {
   policy = var.ssm_policy
 }
 
+# add-on policy permitting access to us-east-1 ssm-logs bucket and SSM KMS key
+resource "aws_iam_role_policy" "pivcac-ssm-access-ue1" {
+  count  = var.ssm_access_enabled && var.create_ue1_ssm_policy ? 1 : 0
+  name   = "${var.env_name}-pivcac-ssm-access-ue1"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.ssm_kms_key_ue1.json
+}
+
 resource "aws_iam_role_policy" "pivcac-sns-publish-alerts" {
   name   = "${var.env_name}-pivcac-sns-publish-alerts"
   role   = aws_iam_role.pivcac.id

@@ -184,7 +184,7 @@ locals {
 }
 
 module "ssm_uw2" {
-  source = "github.com/18F/identity-terraform//ssm?ref=16554935ff6fe92b77a29a3bcd4b04072d65e264"
+  source = "github.com/18F/identity-terraform//ssm?ref=0e5e7c62b940abc34b9661e1af8cbfda8f3f359e"
   #source = "../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"
@@ -205,7 +205,7 @@ moved {
 
 module "ssm_ue1" {
   count  = var.enable_us_east_1_infra ? 1 : 0
-  source = "github.com/18F/identity-terraform//ssm?ref=16554935ff6fe92b77a29a3bcd4b04072d65e264"
+  source = "github.com/18F/identity-terraform//ssm?ref=0e5e7c62b940abc34b9661e1af8cbfda8f3f359e"
   #source = "../../../identity-terraform/ssm"
   providers = {
     aws = aws.use1
@@ -229,10 +229,26 @@ resource "aws_iam_role" "ssm-access" {
 }
 
 # Role policy that associates it with the ssm_access_role_policy
-resource "aws_iam_role_policy" "ssm-access" {
-  name   = "${var.env_name}-ssm-access"
+resource "aws_iam_role_policy" "ssm_access_uw2" {
+  name   = "${var.env_name}-ssm-access-uw2"
   role   = aws_iam_role.ssm-access.id
   policy = module.ssm_uw2.ssm_access_role_policy
+  lifecycle { create_before_destroy = true }
+}
+
+moved {
+  from = aws_iam_role_policy.ssm-access
+  to   = aws_iam_role_policy.ssm_access_uw2
+}
+
+# for us-east-1 as well
+resource "aws_iam_role_policy" "ssm_access_ue1" {
+  count = var.enable_us_east_1_infra ? 1 : 0
+
+  name   = "${var.env_name}-ssm-access-ue1"
+  role   = aws_iam_role.ssm-access.id
+  policy = module.ssm_ue1[count.index].ssm_access_role_policy
+  lifecycle { create_before_destroy = true }
 }
 
 # IAM instance profile using the ssm-access role

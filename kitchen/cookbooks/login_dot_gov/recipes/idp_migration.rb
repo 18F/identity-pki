@@ -85,3 +85,12 @@ if idp_artifacts_enabled
     not_if { artifacts_downloaded.call }
   end
 end
+
+if node.fetch('login_dot_gov').fetch('allow_migration_console_access')
+  include_recipe 'login_dot_gov::fix_permissions'
+
+  execute 'Fix Chef log directory permissions' do
+    command "chown -R #{node['login_dot_gov']['web_system_user']} /srv/idp/releases/chef/log/"
+    only_if '[ -d /srv/idp/releases/chef/log/ ]'
+  end
+end

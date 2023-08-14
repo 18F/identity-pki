@@ -58,11 +58,12 @@ module "outboundproxy_launch_template" {
   ami_id_map     = var.ami_id_map
   default_ami_id = var.default_ami_id
 
-  instance_type             = var.instance_type_outboundproxy
-  use_spot_instances        = var.use_spot_instances
-  iam_instance_profile_name = aws_iam_instance_profile.obproxy.name
-  security_group_ids        = [var.proxy_security_group_id, var.base_security_group_id]
-  user_data                 = module.outboundproxy_user_data.rendered_cloudinit_config
+  instance_type      = var.instance_type_outboundproxy
+  use_spot_instances = var.use_spot_instances
+  iam_instance_profile_name = var.external_instance_profile == "" ? (
+  aws_iam_instance_profile.obproxy[0].name) : var.external_instance_profile
+  security_group_ids = [var.proxy_security_group_id, var.base_security_group_id]
+  user_data          = module.outboundproxy_user_data.rendered_cloudinit_config
 
   instance_tags = var.proxy_for == "" ? null : {
     proxy_for = var.proxy_for

@@ -43,8 +43,6 @@ initialize() {
   
   APP_DIR="${GIT_DIR}/terraform/app"
   AWS_ACCT_NUM=$(ave aws sts get-caller-identity | jq -r '.Account')
-  AWS_REGION=$(cat "${PRIVATE_REPO}/env/account_global_${AWS_ACCT_NUM}.sh" |
-    grep -m 1 TERRAFORM_STATE_BUCKET_REGION | awk -F'"' '{print $2}')
 }
 
 # disable prevent_destroy and deletion_protection configs for Aurora databases

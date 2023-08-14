@@ -979,3 +979,26 @@ data "aws_iam_policy_document" "pivcac_cert_buckets_role_policy" {
   }
 }
 
+# provide access to ssm-logs bucket and SSM KMS key in us-east-1, if enabled
+data "aws_iam_policy_document" "ssm_kms_key_ue1" {
+  statement {
+    sid = "S3LoggingAccessForSSMInUSEast1"
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.${var.env_name}-ssm-logs.${data.aws_caller_identity.current.account_id}-us-east-1/*"
+    ]
+  }
+  # KMS
+  statement {
+    sid = "KMSDecryptionAccessInUSEast1"
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey",
+    ]
+    resources = [
+      var.ssm_kms_key_ue1
+    ]
+  }
+}

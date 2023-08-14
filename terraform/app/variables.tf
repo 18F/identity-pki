@@ -624,7 +624,7 @@ EOM
 }
 
 variable "base_ami_prod_ue1" {
-  default     = "ami-028ce75484671cd88" # 2023-07-11 Ubuntu 20.04
+  default     = "" # 2023-07-11 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
@@ -638,7 +638,7 @@ EOM
 }
 
 variable "rails_ami_prod_ue1" {
-  default     = "ami-021af6c9bbc4e1a45" # 2023-07-11 Ubuntu 20.04
+  default     = "" # 2023-07-11 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -686,6 +686,10 @@ locals {
     "login-gov.secrets",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
+  secrets_bucket_ue1 = join(".", [
+    "login-gov.secrets",
+    "${data.aws_caller_identity.current.account_id}-us-east-1"
+  ])
   acct_type = data.aws_caller_identity.current.account_id == "555546682965" ? (
   "prod") : "sandbox"
 
@@ -695,11 +699,15 @@ locals {
   bootstrap_private_git_ref = var.bootstrap_private_git_ref != "" ? (
   var.bootstrap_private_git_ref) : "main"
 
+  bootstrap_private_s3_ssh_key_url_ue1 = "s3://${local.secrets_bucket_ue1}/common/id_ecdsa.id-do-private.deploy"
+
   bootstrap_main_s3_ssh_key_url = var.bootstrap_main_s3_ssh_key_url != "" ? (
     var.bootstrap_main_s3_ssh_key_url
   ) : "s3://${local.secrets_bucket}/common/id_ecdsa.identity-devops.deploy"
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
+
+  bootstrap_main_s3_ssh_key_url_ue1 = "s3://${local.secrets_bucket_ue1}/common/id_ecdsa.identity-devops.deploy"
 
   account_default_ami_id = local.acct_type == "prod" ? (
   var.base_ami_prod_uw2) : var.base_ami_sandbox_uw2

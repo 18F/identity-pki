@@ -15,6 +15,15 @@ EOM
   default     = ""
 }
 
+variable "external_instance_profile" {
+  type        = string
+  description = <<EOM
+Name of an externally-created IAM instance profile for outboundproxy hosts.
+Will skip creation of aws_iam_instance_profile.obproxy resource if set.
+EOM
+  default     = ""
+}
+
 variable "create_cpu_policy" {
   type        = bool
   description = "Whether or not to create the obproxy-cpu Auto Scaling Policy."

@@ -126,6 +126,14 @@ resource "aws_iam_role_policy" "app-ssm-access" {
   policy = var.ssm_policy
 }
 
+# add-on policy permitting access to us-east-1 ssm-logs bucket and SSM KMS key
+resource "aws_iam_role_policy" "app-ssm-access-ue1" {
+  count  = var.apps_enabled == 1 && var.ssm_access_enabled && var.create_ue1_ssm_policy ? 1 : 0
+  name   = "${var.env_name}-app-ssm-access-ue1"
+  role   = aws_iam_role.app[count.index].id
+  policy = data.aws_iam_policy_document.ssm_kms_key_ue1.json
+}
+
 resource "aws_iam_role_policy" "app-sns-publish-alerts" {
   count  = var.apps_enabled
   name   = "${var.env_name}-app-sns-publish-alerts"
