@@ -92,12 +92,7 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
   if node['identity_gitlab']['allowed_images'] == true
-    allowed_images = ConfigLoader.load_config_or_nil(node, 'gitlab_env_runner_allowed_images')
-    if allowed_images.nil?
-      node.run_state['allowed_images'] = ConfigLoader.load_config(node, 'gitlab_env_runner_allowed_images', common: true).chomp.split().grep_v(/^#/)
-    else
-      node.run_state['allowed_images'] = allowed_images.chomp.split().grep_v(/^#/)
-    end
+    node.run_state['allowed_images'] = [gitlab_ecr_registry + '/**/blessed@sha256:*']
   else
     # allowed images feature is turned off, so allow everything.
     node.run_state['allowed_images'] = []
