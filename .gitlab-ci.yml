@@ -5,7 +5,7 @@
 
 variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
-  TEMP_IDP_WORKER_IMAGE_TAG: '53515035ccc3f4663b43ffc7a0ccdabe32ff698d'
+  TEMP_IDP_WORKER_IMAGE_TAG: '69a91390df6deb2873b290583868c557483c5871'
 stages:
   - review
   - scan
@@ -76,7 +76,7 @@ review-app:
         {"name": "POSTGRES_HOST","value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-pivcac-postgres.review-apps"},
         {"name": "POSTGRES_USERNAME", "value": "postgres"},
         {"name": "POSTGRES_PASSWORD", "value": "pivcac"},
-        {"name": "IDP_HOST", "value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-idp.review-apps"},
+        {"name": "IDP_HOST", "value": "$CI_ENVIRONMENT_SLUG.review-app.identitysandbox.gov"},
         {"name": "DOMAIN_NAME", "value": "$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov"}
       ]
       EOF
@@ -104,7 +104,9 @@ review-app:
         {"name": "LOGIN_DOMAIN", "value": "identitysandbox.gov"},
         {"name": "LOGIN_ENV", "value": "$CI_ENVIRONMENT_SLUG" },
         {"name": "LOGIN_HOST_ROLE", "value": "idp" },
-        {"name": "LOGIN_SKIP_REMOTE_CONFIG", "value": "true" }
+        {"name": "LOGIN_SKIP_REMOTE_CONFIG", "value": "true" },
+        {"name": "PIV_CAC_SERVICE_URL", "value": "https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov/"},
+        {"name": "PIV_CAC_VERIFY_TOKEN_URL", "value": "https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov/"}
       ]
       EOF
       )
@@ -131,7 +133,9 @@ review-app:
         {"name": "LOGIN_DOMAIN", "value": "identitysandbox.gov"},
         {"name": "LOGIN_ENV", "value": "$CI_ENVIRONMENT_SLUG" },
         {"name": "LOGIN_HOST_ROLE", "value": "worker" },
-        {"name": "LOGIN_SKIP_REMOTE_CONFIG", "value": "true" }
+        {"name": "LOGIN_SKIP_REMOTE_CONFIG", "value": "true" },
+        {"name": "PIV_CAC_SERVICE_URL", "value": "https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov/"},
+        {"name": "PIV_CAC_VERIFY_TOKEN_URL", "value": "https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov/"}
       ]
       EOF
       )
