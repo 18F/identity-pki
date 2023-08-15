@@ -598,6 +598,13 @@ users:
     - devops
     - lg-all
     - lg-public
+  nick.soutouras:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    - lg-all
+    - lg-public
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
