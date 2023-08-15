@@ -17,6 +17,7 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
     effect = "Deny"
     actions = [
       "rds:DeleteDBCluster",
+      "rds:RemoveFromGlobalCluster",
     ]
     resources = [
       "arn:aws:rds:*:*:cluster:*int*",
@@ -29,6 +30,7 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
     effect = "Deny"
     actions = [
       "rds:DeleteGlobalCluster",
+      "rds:RemoveFromGlobalCluster",
     ]
     resources = [
       "arn:aws:rds:*:*:global-cluster:*int*",
