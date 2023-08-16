@@ -12,18 +12,10 @@ resource "aws_iam_role" "dlm_lifecycle_role" {
           "Statement": [
               {
                   "Effect": "Allow",
-                  "Action": "ec2:CreateTags",
-                  "Resource": [
-                      "arn:aws:ec2:*::snapshot/*",
-                      "arn:aws:ec2:*::image/*"
-                  ]
-              },
-              {
-                  "Effect": "Allow",
                   "Action": [
+                      "ec2:CreateImage",
                       "ec2:DescribeImages",
                       "ec2:DescribeInstances",
-                      "ec2:DescribeImageAttribute",
                       "ec2:DescribeVolumes",
                       "ec2:DescribeSnapshots"
                   ],
@@ -31,27 +23,35 @@ resource "aws_iam_role" "dlm_lifecycle_role" {
               },
               {
                   "Effect": "Allow",
-                  "Action": "ec2:DeleteSnapshot",
-                  "Resource": "arn:aws:ec2:*::snapshot/*"
+                  "Action": [
+                    "ec2:DeleteSnapshot",
+                    "ec2:CreateTags"
+                  ],
+                  "Resource": "arn:aws:ec2:${data.aws_region.current.name}::snapshot/*",
+                  "Condition": {
+                      "StringEquals": {
+                          "ec2:Owner": "${data.aws_caller_identity.current.account_id}"
+                      }
+                  }
               },
               {
                   "Effect": "Allow",
                   "Action": [
-                      "ec2:ResetImageAttribute",
-                      "ec2:DeregisterImage",
-                      "ec2:CreateImage",
                       "ec2:CopyImage",
-                      "ec2:ModifyImageAttribute"
-                  ],
-                  "Resource": "*"
-              },
-              {
-                  "Effect": "Allow",
-                  "Action": [
+                      "ec2:CreateTags",
+                      "ec2:DeregisterImage",
+                      "ec2:DescribeImageAttribute",
+                      "ec2:DisableImageDeprecation",
                       "ec2:EnableImageDeprecation",
-                      "ec2:DisableImageDeprecation"
+                      "ec2:ModifyImageAttribute",
+                      "ec2:ResetImageAttribute"
                   ],
-                  "Resource": "arn:aws:ec2:*::image/*"
+                  "Resource": "arn:aws:ec2:${data.aws_region.current.name}::image/*",
+                  "Condition": {
+                      "StringEquals": {
+                          "ec2:Owner": "${data.aws_caller_identity.current.account_id}"
+                      }
+                  }
               }
           ]
       }

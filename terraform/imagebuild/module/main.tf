@@ -34,11 +34,17 @@ module "ami_dlm_lifecycle_usw2" {
 }
 
 module "ami_dlm_lifecycle_use1" {
+  count  = contains(var.ami_regions, "us-east-1") ? 1 : 0
   source = "../../modules/ami_dlm_lifecycle"
 
   providers = {
     aws = aws.use1
   }
+}
+
+moved {
+  from = module.ami_dlm_lifecycle_use1
+  to   = module.ami_dlm_lifecycle_use1[0]
 }
 
 resource "aws_s3_object" "bigfix_folder" {
