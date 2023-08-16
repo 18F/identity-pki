@@ -10,6 +10,10 @@ module Cloudlib
   class AppS3Secret
     attr_reader :app, :env, :remote_file, :region
 
+    # To get current values, run the following in an IDP console:
+    # puts IdentityConfig.key_types.filter { |key, type| type == :json }.map { |key, _type| key.to_s }.sort.inspect
+    IDP_JSON_KEYS = ['aamva_sp_banlist_issuers','aamva_supported_jurisdictions','address_identity_proofing_supported_country_codes','allowed_ialmax_providers','attribute_encryption_key_queue','country_phone_number_overrides','deleted_user_accounts_report_configs','disposable_email_services','gpo_designated_receiver_pii','hmac_fingerprinter_key_queue','idv_getting_started_a_b_testing','idv_tmx_test_csp_disabled_emails','idv_tmx_test_js_disabled_emails','nonessential_email_banlist','phone_recaptcha_country_score_overrides,','pinpoint_sms_configs','pinpoint_voice_configs','pinpoint_voice_configs','risc_notifications_rate_limit_overrides','saml_endpoint_configs','skip_encryption_allowed_list','sp_issuer_user_counts_report_configs','valid_authn_contexts','verification_errors_report_configs','voip_allowed_phones']
+
     def initialize(app: nil, env: nil, remote_file: nil, dry_run: false, region: nil)
       @app = app
       @env = env
@@ -23,7 +27,8 @@ module Cloudlib
       UploadDownloadEdit.new(
         bucket: bucket,
         prefix: app_secret_path,
-        dry_run: dry_run?
+        dry_run: dry_run?,
+        app: app,
       ).download(destination: destination)
     end
 
@@ -32,7 +37,8 @@ module Cloudlib
       UploadDownloadEdit.new(
         bucket: bucket,
         prefix: app_secret_path,
-        dry_run: dry_run?
+        dry_run: dry_run?,
+        app: app,
       ).upload(source: source)
     end
 
@@ -41,6 +47,7 @@ module Cloudlib
         bucket: bucket,
         prefix: app_secret_path,
         dry_run: dry_run?,
+        app: app,
       ).edit(validate_file: validate_file, autoconfirm: autoconfirm)
     end
 
@@ -85,11 +92,12 @@ module Cloudlib
     end
 
     class UploadDownloadEdit
-      attr_reader :bucket, :prefix
+      attr_reader :bucket, :prefix, :app
 
-      def initialize(bucket:, prefix:, dry_run: false)
+      def initialize(bucket:, prefix:, app:, dry_run: false)
         @bucket = bucket
         @prefix = prefix
+        @app = app
         @dry_run = dry_run
       end
 
@@ -228,6 +236,8 @@ module Cloudlib
           end
           raise "smart/curly quotes in YAML detected [“”‘’]" if has_smart_quotes
 
+          validate_idp_json_keys(parsed['production']) if app == 'idp'
+
           true
         when '.json'
           require 'json'
@@ -238,6 +248,16 @@ module Cloudlib
         end
       rescue => err
         [false, err]
+      end
+
+      def validate_idp_json_keys(parsed_content)
+        parsed_content.slice(*IDP_JSON_KEYS).all? do |key,value|
+          JSON.parse(value)
+        rescue JSON::ParserError => err
+          raise "invalid JSON in #{key} key"
+        end
+
+        true
       end
     end
 
