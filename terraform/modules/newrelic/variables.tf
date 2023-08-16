@@ -129,9 +129,11 @@ variable "error_dashboard_site" {
 variable "staticsite_fixed_string" {
   description = "Text that must be in the response for all monitored static sites"
   type        = string
-  # The following should be set in the login.gov brochure site at all times:
-  #  <meta sys-status="login.gov site up and running">
-  default = "login.gov site up and running"
+  # The following should be set in the Login.gov brochure site at all times:
+  #  <meta name="system-status" content="Login.gov site up and running" />
+  # This 'content' value is case sensitive and must match the value of the tag:
+  # https://github.com/18F/identity-site/blob/main/_includes/meta.html
+  default = "Login.gov site up and running"
 }
 
 variable "memory_free_threshold_byte" {
