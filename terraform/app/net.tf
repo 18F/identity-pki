@@ -73,6 +73,128 @@ resource "aws_security_group" "cache" {
   vpc_id = module.network_uw2.vpc_id
 }
 
+resource "aws_security_group" "app" {
+  count       = var.apps_enabled
+  description = "Security group for sample app servers"
+
+  vpc_id = module.network_uw2.vpc_id
+
+  # TODO: limit this to what is actually needed
+  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
+  egress {
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = [module.network_uw2.secondary_cidr]
+  }
+
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.outbound_subnets
+  }
+
+  # need to get packages and stuff (conditionally)
+  # outbound_subnets can be set to "0.0.0.0/0" to allow access to the internet
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = var.outbound_subnets
+  }
+
+  # github
+  egress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = local.github_ipv4
+  }
+
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app-alb[count.index].id]
+  }
+
+  ingress {
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app-alb[count.index].id]
+  }
+
+  name = "${var.env_name}-app"
+
+  tags = {
+    Name = "${var.name}-app_security_group-${var.env_name}"
+    role = "app"
+  }
+}
+
+resource "aws_security_group" "app-alb" {
+  count       = var.apps_enabled
+  description = "App ALB group allowing Internet traffic"
+  vpc_id      = module.network_uw2.vpc_id
+
+  # Allow outbound to the VPC so that we can get to the app hosts.
+  # We use cidr_blocks rather than security_groups here so that we avoid a
+  # bootstrapping cycle and will still remove unmanaged rules.
+  # https://github.com/terraform-providers/terraform-provider-aws/issues/3095
+  egress {
+    description = "Permit HTTP to public subnets for app"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
+  }
+  egress {
+    description = "Permit HTTPS to public subnets for app"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [for subnet in module.network_uw2.app_subnet : subnet.cidr_block]
+  }
+
+  # remove when HTTP access no longer needed
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    #prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # update once CloudFront is configured for the dashboard
+  ingress {
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    #prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  name = "${var.env_name}-app-alb"
+
+  tags = {
+    Name = "${var.env_name}-app-alb"
+  }
+}
+
+moved {
+  from = module.network_uw2.aws_security_group.app
+  to   = aws_security_group.app
+}
+
+moved {
+  from = module.network_uw2.aws_security_group.app-alb
+  to   = aws_security_group.app-alb
+}
+
 resource "aws_security_group" "idp" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
@@ -664,7 +786,6 @@ module "network_use1" {
   }
 
   source                    = "../modules/vpc_module"
-  apps_enabled              = var.apps_enabled
   aws_services              = local.aws_endpoints
   az                        = local.network_layout["us-east-1"][var.env_type]._zones
   env_name                  = var.env_name
@@ -685,7 +806,6 @@ module "network_use1" {
 
 module "network_uw2" {
   source                    = "../modules/vpc_module"
-  apps_enabled              = var.apps_enabled
   aws_services              = local.aws_endpoints
   az                        = local.network_layout[var.region][var.env_type]._zones
   env_name                  = var.env_name
@@ -700,6 +820,7 @@ module "network_uw2" {
   rds_db_port               = var.rds_db_port
   region                    = "us-west-2"
   secondary_cidr_block      = local.network_layout[var.region][var.env_type]._network
+  security_group_app_id     = var.apps_enabled == 1 ? aws_security_group.app[0].id : ""
   security_group_idp_id     = aws_security_group.idp.id
   security_group_pivcac_id  = aws_security_group.pivcac.id
   security_group_worker_id  = aws_security_group.worker.id
@@ -754,18 +875,8 @@ moved {
 }
 
 moved {
-  from = aws_security_group.app
-  to   = module.network_uw2.aws_security_group.app
-}
-
-moved {
   from = aws_security_group.null
   to   = module.network_uw2.aws_security_group.null
-}
-
-moved {
-  from = aws_security_group.app-alb
-  to   = module.network_uw2.aws_security_group.app-alb
 }
 
 moved {
