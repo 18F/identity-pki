@@ -10,7 +10,7 @@ resource "aws_lb" "gitlab-pages" {
 
   access_logs {
     bucket  = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
-    prefix  = "${var.env_name}/gitlab-waf"
+    prefix  = "${var.env_name}/gitlab-pages"
     enabled = true
   }
 
@@ -36,7 +36,7 @@ resource "aws_lb_target_group_attachment" "pages" {
 }
 
 resource "aws_lb_listener" "gitlab-pages" {
-  load_balancer_arn = aws_lb.gitlab-waf.arn
+  load_balancer_arn = aws_lb.pages.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
