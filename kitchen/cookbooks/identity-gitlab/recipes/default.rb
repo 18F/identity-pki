@@ -57,7 +57,7 @@ end
 # must come after external_fqdn
 email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
-pages_external_url = "pages.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}"
+pages_external_url = "https://pages.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/"
 
 target_url = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
                'https://secure.login.gov/api/saml/auth2023'
