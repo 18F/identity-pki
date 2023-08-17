@@ -742,7 +742,7 @@ users:
     - lg-public
   sudheer.dandamudi:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - sdandamudi
     gitlab_groups:
