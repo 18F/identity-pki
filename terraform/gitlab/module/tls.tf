@@ -38,7 +38,7 @@ resource "aws_acm_certificate_validation" "gitlab" {
 # cert for gitlab pages, attached to the lb
 resource "aws_acm_certificate" "gitlab-pages" {
   domain_name               = "pages.${var.env_name}.${var.root_domain}"
-  subject_alternative_names = "*.pages.${var.env_name}.${var.root_domain}"
+  subject_alternative_names = ["*.pages.${var.env_name}.${var.root_domain}"]
   validation_method         = "DNS"
 
   tags = {
