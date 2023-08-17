@@ -36,7 +36,7 @@ resource "aws_lb_target_group_attachment" "pages" {
 }
 
 resource "aws_lb_listener" "gitlab-pages" {
-  load_balancer_arn = aws_lb.pages.arn
+  load_balancer_arn = aws_lb.gitlab-pages.arn
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-FS-1-2-Res-2020-10"
