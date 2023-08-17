@@ -76,3 +76,6 @@ repos:
   identity_pivcac_review_cache:
     name: "identity-pivcac/review/cache"
     <<: *all_write_template
+  gitlab_dast:
+    name: "gitlab/dast"
+    <<: *all_write_template
