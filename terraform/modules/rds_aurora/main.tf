@@ -160,6 +160,7 @@ resource "aws_rds_cluster" "aurora" {
   lifecycle {
     prevent_destroy = true
     ignore_changes = [
+      replication_source_identifier,
       global_cluster_identifier,
       master_password,
       master_username,
@@ -199,6 +200,12 @@ resource "aws_rds_cluster_instance" "aurora" {
   performance_insights_kms_key_id = (
     var.pi_enabled ? data.aws_kms_key.rds_alias.arn : ""
   )
+
+  lifecycle {
+    ignore_changes = [
+      performance_insights_kms_key_id
+    ]
+  }
 }
 
 # Application Auto Scaling (if desired)

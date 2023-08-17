@@ -83,7 +83,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "waf_logs" {
 }
 
 module "waf_log_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//s3_config?ref=0b68909c0c2ca3ed84912616f3f97d0f98bcd65b"
   #source = "../../../../identity-terraform/s3_config"
 
   bucket_name_override = aws_s3_bucket.waf_logs.id

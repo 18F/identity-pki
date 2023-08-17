@@ -27,8 +27,13 @@ module "application_iam_roles" {
   ssm_policy                     = module.ssm_uw2.ssm_access_role_policy
   ssm_access_enabled             = var.ssm_access_enabled
   ipv4_secondary_cidr            = module.network_uw2.secondary_cidr
+  create_ue1_ssm_policy          = var.enable_us_east_1_infra
+  ssm_kms_key_ue1                = var.enable_us_east_1_infra ? module.ssm_ue1[0].ssm_kms_arn : ""
 
-  depends_on = [module.ssm_uw2]
+  depends_on = [
+    module.ssm_uw2,
+    module.ssm_ue1
+  ]
 }
 
 moved {

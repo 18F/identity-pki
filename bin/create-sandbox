@@ -60,29 +60,33 @@ EOM
 }
 
 1_clear_log_groups() {
-  for LOG_GROUP in $(ave aws logs describe-log-groups |
-    jq --arg TF "${TF_ENV}" -r '.logGroups[]|
-    select(.logGroupName|startswith($TF)).logGroupName') ; do
-      ave aws logs delete-log-group \
-        --log-group-name ${LOG_GROUP}
+  for REGION in 'us-west-2' 'us-east-1' ; do
+    for LOG_GROUP in $(ave aws logs describe-log-groups --region ${REGION} |
+      jq --arg TF "${TF_ENV}" -r '.logGroups[]|
+      select(.logGroupName|startswith($TF)).logGroupName') ; do
+        ave aws logs delete-log-group \
+          --log-group-name ${LOG_GROUP} --region ${REGION}
+    done
   done
 }
 
 2_app_secrets() {
-  BUCKET="login-gov.app-secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
-  for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
-      awk '{print $NF}' | tr -d '/') ; do
-        ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY}/v1/application.yml - |
-          sed -E "s/${SOURCE_ENV}(\.|-)/${TF_ENV}\1/" |
-          ave aws s3 cp - s3://${BUCKET}/${TF_ENV}/${KEY}/v1/application.yml >/dev/null
+  for BUCKET in $(ave -r aws s3 ls | grep 'app-secrets.' | awk '{print $NF}') ; do
+    for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
+        awk '{print $NF}' | tr -d '/') ; do
+          ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY}/v1/application.yml - |
+            sed -E "s/${SOURCE_ENV}(\.|-)/${TF_ENV}\1/" |
+            ave aws s3 cp - s3://${BUCKET}/${TF_ENV}/${KEY}/v1/application.yml >/dev/null
+    done
   done
 }
 
 3_regular_secrets() {
-  BUCKET="login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
-  for KEY in $(cat bin/lib/build-keys) ; do
-      ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY} \
-                s3://${BUCKET}/${TF_ENV}/${KEY} >/dev/null
+  for BUCKET in $(ave -r aws s3 ls | grep '\.secrets.' | awk '{print $NF}') ; do
+    for KEY in $(cat bin/lib/build-keys) ; do
+        ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY} \
+                  s3://${BUCKET}/${TF_ENV}/${KEY} >/dev/null
+    done
   done
 }
 

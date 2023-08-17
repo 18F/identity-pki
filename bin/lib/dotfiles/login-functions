@@ -58,6 +58,11 @@ TBD
 EOF
   [[ $# == 0 ]] && badopt
   local CL_TABLE EC2_TYPE EC2_ACCT
+  local AV_REGION='us-west-2'
+  if [[ ${1} == 'ue1' ]] ; then
+    AV_REGION='us-east-1'
+    shift 1
+  fi
   local EC2_ENV="${2}"
   case ${EC2_ENV} in
     gitlab-production) EC2_ACCT="tooling-prod"    ;;
@@ -86,16 +91,16 @@ EOF
       *) [[ ${opt} =~ 'e' ]] || badopt ${1} ;;
     esac
     case "${opt}" in
-      e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV})                     ;;
-      l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE})     ;;
-      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE}           ;;
-      r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE}                       ;;
-      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-}                    ;;
-      L) run_av ssm-instance --newest asg-${EC2_ENV}-${EC2_TYPE}            ;;
-      S) run_av ssm-instance -d sudo --newest asg-${EC2_ENV}-${EC2_TYPE}    ;;
-      F) run_av ssm-instance -d tail-cw --newest asg-${EC2_ENV}-${EC2_TYPE} ;;
-      D) run_av ssm-instance -d ${3-} --newest asg-${EC2_ENV}-${EC2_TYPE}   ;;
-      *) badopt ${opt}                                                      ;;
+      e) CL_TABLE=$(run_av ls-servers -Hlqe ${EC2_ENV} -R ${AV_REGION})                     ;;
+      l) CL_TABLE=$(run_av ls-servers -Hlqn asg-${EC2_ENV}-${EC2_TYPE} -R ${AV_REGION})     ;;
+      c) run_av scale-in-old-instances -qf ${EC2_ENV} ${EC2_TYPE} -R ${AV_REGION}           ;;
+      r) run_av asg-recycle -q ${EC2_ENV} ${EC2_TYPE} -R ${AV_REGION}                       ;;
+      s) run_av asg-size -q ${EC2_ENV} ${EC2_TYPE} ${3-} -R ${AV_REGION}                    ;;
+      L) run_av ssm-instance -R ${AV_REGION} --newest asg-${EC2_ENV}-${EC2_TYPE}            ;;
+      S) run_av ssm-instance -R ${AV_REGION} -d sudo --newest asg-${EC2_ENV}-${EC2_TYPE}    ;;
+      F) run_av ssm-instance -R ${AV_REGION} -d tail-cw --newest asg-${EC2_ENV}-${EC2_TYPE} ;;
+      D) run_av ssm-instance -R ${AV_REGION} -d ${3-} --newest asg-${EC2_ENV}-${EC2_TYPE}   ;;
+      *) badopt ${opt} ;;
     esac
   done
   [[ -z "${CL_TABLE}" ]] || echo "${CL_TABLE}" |

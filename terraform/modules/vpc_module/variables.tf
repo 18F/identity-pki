@@ -36,21 +36,6 @@ variable "fisma_tag" {
   default = "Q-LG"
 }
 
-#variable "enable_data_services" {
-#  description = "Condition to build subnets using CIDR range from network_layout module for data_services"
-#  type        = bool
-#}
-#
-#variable "enable_app" {
-#  description = "Condition to build subnets using CIDR range from network_layout module for app"
-#  type        = bool
-#}
-
-variable "apps_enabled" {
-  description = "Whether or not to build the dashboard/app RDS database + app hosts."
-  default     = 1
-}
-
 variable "rds_db_port" {
   type        = number
   description = "Database port number"
@@ -97,14 +82,42 @@ EOM
   default     = {}
 }
 
+variable "security_group_app_id" {
+  type        = string
+  description = <<EOM
+(OPTIONAL) ID of the Security Group used by app/dashboard hosts in the current region.
+Used to provide access to the DB subnets/Security Group.
+Leave blank if app hosts are not being created in this region.
+EOM
+  default     = ""
+}
+
 variable "security_group_idp_id" {
-  default = ""
+  type        = string
+  description = <<EOM
+(OPTIONAL) ID of the Security Group used by idp hosts in the current region.
+Used to provide access to the DB subnets/Security Group.
+Leave blank if idp hosts are not being created in this region.
+EOM
+  default     = ""
 }
 
 variable "security_group_pivcac_id" {
-  default = ""
+  type        = string
+  description = <<EOM
+(OPTIONAL) ID of the Security Group used by pivcac hosts in the current region.
+Used to provide access to the DB subnets/Security Group.
+Leave blank if pivcac hosts are not being created in this region.
+EOM
+  default     = ""
 }
 
 variable "security_group_worker_id" {
-  default = ""
+  type        = string
+  description = <<EOM
+(OPTIONAL) ID of the Security Group used by worker hosts in the current region.
+Used to provide access to the DB subnets/Security Group.
+Leave blank if worker hosts are not being created in this region.
+EOM
+  default     = ""
 }

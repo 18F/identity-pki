@@ -11,7 +11,7 @@ locals {
 module "git2s3_src" {
   count = data.aws_caller_identity.current.account_id == "894947205914" ? 1 : 0
   #source = "../../../../identity-terraform/git2s3_artifacts"
-  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
+  source = "github.com/18F/identity-terraform//git2s3_artifacts?ref=0e5e7c62b940abc34b9661e1af8cbfda8f3f359e"
   providers = {
     aws = aws.usw2
   }
@@ -26,6 +26,25 @@ module "git2s3_src" {
   #artifact_bucket      = "login-gov-public-artifacts-us-west-2"
   bucket_name_prefix = "login-gov"
   sse_algorithm      = "AES256"
+}
+
+module "ami_dlm_lifecycle_usw2" {
+  source = "../../modules/ami_dlm_lifecycle"
+
+}
+
+module "ami_dlm_lifecycle_use1" {
+  count  = contains(var.ami_regions, "us-east-1") ? 1 : 0
+  source = "../../modules/ami_dlm_lifecycle"
+
+  providers = {
+    aws = aws.use1
+  }
+}
+
+moved {
+  from = module.ami_dlm_lifecycle_use1
+  to   = module.ami_dlm_lifecycle_use1[0]
 }
 
 resource "aws_s3_object" "bigfix_folder" {

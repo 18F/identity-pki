@@ -236,7 +236,7 @@ install_tf_version() {
     echo >&2 "+ cd '$tmpdir'"
     cd "$tmpdir"
 
-    run curl -Sf --remote-name-all \
+    run curl -Sfk --remote-name-all \
         "${download_prefix}/${checksum_file}"{,.${TF_GPG_KEY_ID}.sig} \
         "${download_prefix}/${download_basename}"
 

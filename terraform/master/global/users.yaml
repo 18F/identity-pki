@@ -598,6 +598,13 @@ users:
     - devops
     - lg-all
     - lg-public
+  nick.soutouras:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    - lg-all
+    - lg-public
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
@@ -735,7 +742,7 @@ users:
     - lg-public
   sudheer.dandamudi:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - sdandamudi
     gitlab_groups:
@@ -749,6 +756,13 @@ users:
     - sujana09
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-public
+  tahinee.felixmarin:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
     - lg-all
     - lg-public
   thomas.apodaca:

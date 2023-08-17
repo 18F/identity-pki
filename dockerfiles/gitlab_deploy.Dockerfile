@@ -1,12 +1,12 @@
-FROM public.ecr.aws/docker/library/alpine:3
+FROM public.ecr.aws/docker/library/ruby:3.2.2-alpine
 
 COPY dockerfiles/gitlab_deploy.sh /usr/local/bin/gitlab_deploy.sh
 
 RUN apk add aws-cli git curl bash jq coreutils tzdata
 
 # install terraform
-ENV TF_VERSION=1.4.6
-ENV TF_SHA256=e079db1a8945e39b1f8ba4e513946b3ab9f32bd5a2bdf19b9b186d22c5a3d53b
+ENV TF_VERSION=1.5.5
+ENV TF_SHA256=ad0c696c870c8525357b5127680cd79c0bdf58179af9acd091d43b1d6482da4a
 
 RUN curl -s "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" > tf.zip && \
 	echo "${TF_SHA256}  tf.zip" | sha256sum -c - && \

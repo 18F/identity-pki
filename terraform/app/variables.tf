@@ -574,28 +574,28 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-024d102efb9d0bfc2" # 2023-08-08 Ubuntu 20.04
+  default     = "ami-0094694c7661b4a8a" # 2023-08-15 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_uw2" {
-  default     = "ami-0f01ee99f47e70c0f" # 2023-08-08 Ubuntu 20.04
+  default     = "ami-04b4ebf31f45bedc6" # 2023-08-15 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-044b9f5a287cc7e86" # 2023-08-08 Ubuntu 20.04
+  default     = "ami-0b753687c1fea12c0" # 2023-08-15 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_uw2" {
-  default     = "ami-019dcb8e0d62ebddd" # 2023-08-08 Ubuntu 20.04
+  default     = "ami-02aae9a879a59c5cc" # 2023-08-15 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -617,28 +617,28 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
-  default     = "ami-0d9aa6475f8a176b8" # 2023-08-08 Ubuntu 20.04
+  default     = "ami-0e0b4847a9dd463cd" # 2023-08-15 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_ue1" {
-  default     = "ami-028ce75484671cd88" # 2023-07-11 Ubuntu 20.04
+  default     = "" # 2023-07-11 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
-  default     = "ami-0a7c500b2cfda9e5e" # 2023-08-08 Ubuntu 20.04
+  default     = "ami-0652d82d476fc3e68" # 2023-08-15 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_ue1" {
-  default     = "ami-021af6c9bbc4e1a45" # 2023-07-11 Ubuntu 20.04
+  default     = "" # 2023-07-11 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -686,6 +686,10 @@ locals {
     "login-gov.secrets",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
+  secrets_bucket_ue1 = join(".", [
+    "login-gov.secrets",
+    "${data.aws_caller_identity.current.account_id}-us-east-1"
+  ])
   acct_type = data.aws_caller_identity.current.account_id == "555546682965" ? (
   "prod") : "sandbox"
 
@@ -695,11 +699,15 @@ locals {
   bootstrap_private_git_ref = var.bootstrap_private_git_ref != "" ? (
   var.bootstrap_private_git_ref) : "main"
 
+  bootstrap_private_s3_ssh_key_url_ue1 = "s3://${local.secrets_bucket_ue1}/common/id_ecdsa.id-do-private.deploy"
+
   bootstrap_main_s3_ssh_key_url = var.bootstrap_main_s3_ssh_key_url != "" ? (
     var.bootstrap_main_s3_ssh_key_url
   ) : "s3://${local.secrets_bucket}/common/id_ecdsa.identity-devops.deploy"
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
+
+  bootstrap_main_s3_ssh_key_url_ue1 = "s3://${local.secrets_bucket_ue1}/common/id_ecdsa.identity-devops.deploy"
 
   account_default_ami_id = local.acct_type == "prod" ? (
   var.base_ami_prod_uw2) : var.base_ami_sandbox_uw2

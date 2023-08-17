@@ -26,10 +26,6 @@ output "db_subnet_ids" {
   value = aws_db_subnet_group.aurora.subnet_ids
 }
 
-output "app_security_group" {
-  value = var.apps_enabled == 1 ? aws_security_group.app[0].id : null
-}
-
 output "db_subnet" {
   description = "Data-services subnets"
   value       = aws_subnet.data-services
@@ -54,10 +50,6 @@ output "security_group_id" {
 
 output "migration_sg_id" {
   value = aws_security_group.migration.id
-}
-
-output "app_alb_sg_id" {
-  value = var.apps_enabled == 1 ? aws_security_group.app-alb[0].id : null
 }
 
 output "cloudfront_prefix_list_id" {

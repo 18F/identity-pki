@@ -72,6 +72,27 @@ variable "ssm_policy" {
   default     = ""
 }
 
+variable "create_ue1_ssm_policy" {
+  description = <<EOM
+(OPTIONAL) Whether or not to create and attach IAM role policies permitting access
+to the alias/var.env_name-kms-ssm KMS key created in us-east-1, if it exists
+(i.e. through module.ssm_ue1 in terraform/app).
+EOM
+  type        = bool
+  default     = false
+}
+
+variable "ssm_kms_key_ue1" {
+  description = <<EOM
+(OPTIONAL) ARN of the alias/var.env_name-kms-ssm KMS key created in us-east-1,
+if it exists (i.e. through module.ssm_ue1 in terraform/app). Passed to the
+aws_iam_policy_document.ssm_kms_key_ue1 data source to provide access to the key
+to any/all IAM roles. Leave blank unless this key exists and should be accessed!
+EOM
+  type        = string
+  default     = ""
+}
+
 variable "identity_sms_iam_role_name_idp" {
   description = "IAM role assumed by the IDP for cross-account access into the above identity-sms-* account."
   default     = "idp-pinpoint"
