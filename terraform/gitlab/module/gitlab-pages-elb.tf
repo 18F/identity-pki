@@ -30,11 +30,6 @@ resource "aws_lb_target_group" "gitlab-pages" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "pages" {
-  target_group_arn = aws_lb_target_group.gitlab-pages.arn
-  target_id        = aws_lb.gitlab-pages.arn
-}
-
 resource "aws_lb_listener" "gitlab-pages" {
   load_balancer_arn = aws_lb.gitlab-pages.arn
   port              = 443
