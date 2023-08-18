@@ -22,7 +22,7 @@ resource "aws_lb" "gitlab-pages" {
 resource "aws_lb_target_group" "gitlab-pages" {
   name        = "${var.env_name}-gitlab-pages"
   target_type = "alb"
-  port        = 4443
+  port        = 443
   protocol    = "TCP"
   vpc_id      = aws_vpc.default.id
   health_check {
@@ -33,6 +33,7 @@ resource "aws_lb_target_group" "gitlab-pages" {
 resource "aws_lb_target_group_attachment" "pages" {
   target_group_arn = aws_lb_target_group.gitlab-pages.arn
   target_id        = aws_lb.gitlab-pages.arn
+  port             = 4443
 }
 
 resource "aws_lb_listener" "gitlab-pages" {
