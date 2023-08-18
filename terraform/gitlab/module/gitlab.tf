@@ -56,7 +56,7 @@ module "gitlab_launch_template" {
 
 resource "aws_autoscaling_group" "gitlab" {
   name              = "${var.env_name}-gitlab"
-  target_group_arns = [aws_lb_target_group.gitlab.arn, aws_lb_target_group.gitlab-ssh.arn]
+  target_group_arns = [aws_lb_target_group.gitlab.arn, aws_lb_target_group.gitlab-ssh.arn, aws_lb_target_group.gitlab-pages.arn]
 
   launch_template {
     id      = module.gitlab_launch_template.template_id
