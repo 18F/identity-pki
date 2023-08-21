@@ -12,5 +12,8 @@ package 'ubuntu-advantage-tools' do
   options '-o DPkg::Lock::Timeout=240'
 end
 
+execute 'pro config set apt_news=false'
+execute 'pro refresh config'
+
 execute 'pro enable esm-apps'
 execute 'apt update'
