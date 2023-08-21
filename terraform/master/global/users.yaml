@@ -437,7 +437,7 @@ users:
     - lg-public
   kevin.masters:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - kmasters
     gitlab_groups:
