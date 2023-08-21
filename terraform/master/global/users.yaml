@@ -181,7 +181,7 @@ users:
     - lg-public
   dawei.wang:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - daweiwang
     gitlab_groups:
