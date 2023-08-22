@@ -164,5 +164,6 @@ if prompt_yn "Continue?" ; then
   done
   echo_green "Pipeline execution(s) started in \`login-${ACCOUNT}\`!"
   echo "Check the AWS CodePipeline/CodeBuild console for build progress."
+  echo "You can also use bin/follow-images to follow the logs in CloudWatch!"
 fi
 echo
