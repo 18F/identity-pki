@@ -64,6 +64,56 @@ EOM
   alarm_actions             = local.in_person_alarm_actions
 }
 
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_auth_high_persistent_network_errors" {
+  count = var.idp_worker_alarms_enabled
+
+  metric_name = "usps-refresh-token-network-error"
+  namespace   = "${var.env_name}/idp-in-person-proofing"
+  period      = "1020" # 12 minutes cron + 5 minutes buffer
+  statistic   = "Maximum"
+
+  alarm_name          = "${var.env_name}-IDPUSPSProofing-Auth-HighPersistentNetworkErrors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "3"
+  datapoints_to_alarm = "3"
+  threshold           = "1"
+
+  alarm_description = <<EOM
+Calls to the USPS IPPaaS API from the authentication job are getting persistent network errors.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+}
+
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_high_persistent_network_errors" {
+  count = var.idp_worker_alarms_enabled
+
+  metric_name = "usps-proofing-network-error-percent"
+  namespace   = "${var.env_name}/idp-in-person-proofing"
+  period      = "2100" # 30 minutes cron + 5 minutes buffer
+  statistic   = "Average"
+
+  alarm_name          = "${var.env_name}-IDPUSPSProofing-HighPersistentNetworkErrors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "3"
+  datapoints_to_alarm = "3"
+  threshold           = "50"
+
+  alarm_description = <<EOM
+Calls to the USPS IPPaaS API from the proofing job are getting persistent network errors.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+}
+
 resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_minutes_since_enrollment_established" {
   count = var.idp_worker_alarms_enabled
 

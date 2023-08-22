@@ -344,6 +344,18 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    idp_usps_proofing_network_error_percent = {
+      name         = "usps-proofing-network-error-percent"
+      pattern      = "{ ($.name = \"GetUspsProofingResultsJob: Job completed\") }"
+      metric_value = "$.properties.event_properties.percent_enrollments_network_error"
+      dimensions   = {}
+    },
+    idp_usps_refresh_token_network_error = {
+      name         = "usps-refresh-token-network-error"
+      pattern      = "{ $.name = \"UspsAuthTokenRefreshJob: Network error\" }"
+      metric_value = 1
+      dimensions   = {}
+    },
     idp_usps_proofing_results_perform_exception = {
       name         = "usps-proofing-unexpected-exception"
       pattern      = "{ $.name = \"GetUspsProofingResultsJob: Exception raised\" }"
