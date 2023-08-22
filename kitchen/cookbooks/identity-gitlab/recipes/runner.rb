@@ -91,37 +91,30 @@ if node.run_state['is_it_an_env_runner'] == 'true'
 
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
-  if node['identity_gitlab']['allowed_images'] == true
-    node.run_state['allowed_images'] = [gitlab_ecr_registry + '/**/blessed@sha256:*']
-  else
-    # allowed images feature is turned off, so allow everything.
-    node.run_state['allowed_images'] = []
-  end
   node.run_state['allowed_services'] = ['']
 else
   node.run_state['runner_tag'] = node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = aws_account_id
-  # this actually allows all services/images if it is empty.  Otherwise, you can fill this with
-  # images like "foo/bar:baz" or "foo@sha256-423f234f..." or whatever.
-  node.run_state['allowed_images'] = []
   node.run_state['allowed_services'] = []
 end
 
-# get the repos from allowed_images and make a list to be used with the ecr-helper stuff
-repohosts = [
-  '034795980528.dkr.ecr.us-west-2.amazonaws.com',
-  '217680906704.dkr.ecr.us-west-2.amazonaws.com',
-  '894947205914.dkr.ecr.us-west-2.amazonaws.com',
-]
-reporegex = /[0-9]*.dkr.ecr.*.amazonaws.com/
-node.run_state['allowed_images'].each do |repo|
-  if repo =~ reporegex
-    repohost = reporegex.match(repo)[0]
-    repohosts.append(repohost)
-  end
+if aws_account_id == node['identity_gitlab']['production_aws_account_id']
+  # used by ecr-helper
+  repohosts = ["#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"]
+  node.run_state['allowed_images'] = ["#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*"]
+else
+  # used by ecr-helper
+  repohosts = [
+    "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com",
+    "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com",
+  ]
+  node.run_state['allowed_images'] = [
+    "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
+    "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
+  ]
 end
-repolist = repohosts.uniq.map { |repohost| ',"' + repohost + '": "ecr-login"' }.join
 
+repolist = repohosts.uniq.map { |repohost| ',"' + repohost + '": "ecr-login"' }.join
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
