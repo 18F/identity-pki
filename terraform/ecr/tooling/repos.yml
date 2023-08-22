@@ -62,6 +62,12 @@ repos:
   gitlab_test:
     name: "cd/gitlab_test"
     <<: *all_write_template
+  gitlab_deploy_blessed:
+    name: "cd/gitlab_deploy/blessed"
+    <<: *readonly_template
+  gitlab_test_blessed:
+    name: "cd/gitlab_test/blessed"
+    <<: *readonly_template
   golang:
     name: "ecr-public/docker/library/golang"
     <<: *all_write_template
