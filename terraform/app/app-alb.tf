@@ -25,14 +25,10 @@ resource "aws_alb_listener" "app" {
   }
 }
 
-# Create a TLS certificate with ACM
-module "acm-cert-apps-combined" {
-  count  = var.apps_enabled
-  source = "github.com/18F/identity-terraform//acm_certificate?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../identity-terraform/acm_certificate"
+locals {
 
-  domain_name = "sp.${var.env_name}.${var.root_domain}"
-  subject_alternative_names = [
+  app_domain_name = "sp.${var.env_name}.${var.root_domain}"
+  app_alternative_names = [
     "app.${var.env_name}.${var.root_domain}",
     "apps.${var.env_name}.${var.root_domain}",
     "dashboard.${var.env_name}.${var.root_domain}",
@@ -40,7 +36,19 @@ module "acm-cert-apps-combined" {
     "sp-rails.${var.env_name}.${var.root_domain}",
     "sp-sinatra.${var.env_name}.${var.root_domain}",
   ]
-  validation_zone_id = var.route53_id
+
+}
+
+
+# Create a TLS certificate with ACM
+module "acm-cert-apps-combined" {
+  count  = var.apps_enabled
+  source = "github.com/18F/identity-terraform//acm_certificate?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/acm_certificate"
+
+  domain_name               = local.app_domain_name
+  subject_alternative_names = local.app_alternative_names
+  validation_zone_id        = var.route53_id
 }
 
 resource "aws_alb_listener" "app-ssl" {
@@ -56,6 +64,22 @@ resource "aws_alb_listener" "app-ssl" {
   default_action {
     target_group_arn = aws_alb_target_group.app-ssl[0].id
     type             = "forward"
+  }
+}
+
+resource "aws_lb_listener_rule" "app_ssl" {
+  count        = var.apps_enabled
+  listener_arn = aws_alb_listener.app-ssl[0].arn
+  priority     = 100
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.app-ssl[0].arn
+  }
+  condition {
+    http_header {
+      http_header_name = local.cloudfront_security_header.name
+      values           = local.cloudfront_security_header.value
+    }
   }
 }
 

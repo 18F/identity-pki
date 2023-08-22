@@ -53,6 +53,7 @@ variable "route53_id" {
 }
 
 variable "apps_enabled" {
+  type        = number
   description = "Whether or not to build the dashboard/app RDS database + app hosts."
   default     = 1
 }
@@ -1295,6 +1296,15 @@ EOM
 variable "idp_cloudfront_waf_enabled" {
   description = <<EOM
 Enable or disable WAFv2 rule association with idp CloudFront distribution.
+Requires a corresponding, active environment/config in the terraform/waf directory.
+EOM
+  type        = bool
+  default     = false
+}
+
+variable "app_cloudfront_waf_enabled" {
+  description = <<EOM
+Enable or disable WAFv2 rule association with app CloudFront distribution.
 Requires a corresponding, active environment/config in the terraform/waf directory.
 EOM
   type        = bool
