@@ -40,7 +40,7 @@ if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
 
   execute 'deploy sync static assets step' do
     # Sync based on size only (not create time) and ignore asset manifest
-    command "aws s3 sync --size-only --cache-control max-age=#{static_cdn_max_age} --exclude '.sprockets-manifest-*.json' --exclude '.manifest.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
+    command "aws s3 sync --size-only --cache-control max-age=#{static_cdn_max_age} --exclude '.manifest.json' #{release_path}/public/assets s3://#{static_bucket}/assets"
     user node['login_dot_gov']['system_user']
     group node['login_dot_gov']['system_user']
     ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
