@@ -81,17 +81,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "idp_doc_capture" {
   }
 }
 
-resource "aws_s3_bucket_cors_configuration" "idp_doc_capture" {
-  bucket = aws_s3_bucket.idp_doc_capture.id
-
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["POST", "PUT"]
-    allowed_origins = ["https://${local.doc_capture_domain_name}"]
-    expose_headers  = ["x-amz-request-id", "x-amz-id-2"]
-  }
-}
-
 module "idp_doc_capture_bucket_config" {
   source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/s3_config"

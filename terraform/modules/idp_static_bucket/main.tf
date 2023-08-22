@@ -81,7 +81,6 @@ resource "aws_s3_bucket_cors_configuration" "idp_static_bucket" {
 
   # Allow JS in subdomains, including idp., to access fonts/etc
   cors_rule {
-    allowed_headers = ["*"]
     allowed_methods = ["GET"]
     allowed_origins = ["https://*.${var.root_domain}"]
     expose_headers  = ["ETag"]
