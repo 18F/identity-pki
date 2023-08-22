@@ -98,23 +98,16 @@ else
   node.run_state['allowed_services'] = []
 end
 
-if aws_account_id == node['identity_gitlab']['production_aws_account_id']
-  # used by ecr-helper
-  repohosts = ["#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com"]
-  node.run_state['allowed_images'] = ["#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*"]
-else
-  # used by ecr-helper
-  repohosts = [
-    "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com",
-    "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com",
-  ]
-  node.run_state['allowed_images'] = [
-    "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
-    "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
-  ]
-end
+repohosts = [
+  "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com",
+  "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com",
+].uniq
+node.run_state['allowed_images'] = [
+  "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
+  "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
+].uniq
 
-repolist = repohosts.uniq.map { |repohost| ',"' + repohost + '": "ecr-login"' }.join
+repolist = repohosts.map { |repohost| ',"' + repohost + '": "ecr-login"' }.join
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
 
