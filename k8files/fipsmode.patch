@@ -1,0 +1,11 @@
+--- nginx-1.18.0.orig/src/event/ngx_event_openssl.c     2020-04-21 14:09:01.000000000 +0000
++++ nginx-1.18.0/src/event/ngx_event_openssl.c  2020-10-14 23:31:36.050855091 +0000
+@@ -164,6 +164,8 @@
+
+ #endif
+
++    FIPS_mode_set(1);
++
+ #ifndef SSL_OP_NO_COMPRESSION
+     {
+     /*
