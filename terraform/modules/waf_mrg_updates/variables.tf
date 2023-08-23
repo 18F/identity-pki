@@ -34,6 +34,5 @@ variable "prefix" {
 }
 
 variable "sns_to_slack" {
-  description = "ARN of SNS topic to send notification (in list format)"
-  type        = list(string)
+  description = "ARN of SNS topic to send notification"
 }

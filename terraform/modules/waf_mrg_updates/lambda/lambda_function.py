@@ -14,32 +14,31 @@ account_id = boto3.client("sts").get_caller_identity()["Account"]
 def send_message_to_sns(message):
     # Sending notification to SNS#
     print("Hi from within send_message_to_sns function", message)
-    sns_topic_list = json.loads(os.environ["notification_topic"])
-    for item in sns_topic_list:
-        print("Here is the topic", item)
-        subject = message["Subject"] 
-        msg = message["Message"]
-        timestamp = message["Timestamp"]
-        rg_version = message["MessageAttributes"]["major_version"]["Value"]
+    sns_topic = os.environ["notification_topic"]
+    print("Here is the topic", sns_topic)
+    subject = message["Subject"] 
+    msg = message["Message"]
+    timestamp = message["Timestamp"]
+    rg_version = message["MessageAttributes"]["major_version"]["Value"]
 
-        final_msg = (
-            subject + '\n'
-            + "Message: "
-            + "\""
-            + msg 
-            + "\""
-            + "\nTimestamp: "
-            + timestamp + '\n'
-            + "Major_version: "
-            + rg_version
-        )
-        
-        response = sns.publish(
-            TargetArn=item,
-            Message=json.dumps({"default": (final_msg)}),
-            MessageStructure="json",
-        )
-        print("Here is the response", response)
+    final_msg = (
+        subject + '\n'
+        + "Message: "
+        + "\""
+        + msg 
+        + "\""
+        + "\nTimestamp: "
+        + timestamp + '\n'
+        + "Major_version: "
+        + rg_version
+    )
+    
+    response = sns.publish(
+        TargetArn=sns_topic,
+        Message=json.dumps({"default": (final_msg)}),
+        MessageStructure="json",
+    )
+    print("Here is the response", response)
 
 
 def lambda_handler(event, context):

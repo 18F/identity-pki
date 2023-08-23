@@ -20,7 +20,7 @@ resource "aws_lambda_function" "lambda_to_slack_notify" {
 
   environment {
     variables = {
-      notification_topic = jsonencode(var.sns_to_slack)
+      notification_topic = var.sns_to_slack
     }
   }
 }

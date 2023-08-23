@@ -3,11 +3,6 @@ provider "aws" {
   allowed_account_ids = ["894947205914"] # require identity-sandbox
 }
 
-provider "aws" {
-  alias  = "use1"
-  region = "us-east-1"
-}
-
 # Stub remote config
 terraform {
   backend "s3" {
@@ -114,6 +109,7 @@ module "main" {
       "mhenke"
     ]
   }
+  enable_waf_mrg_update_notifications = true
 }
 
 module "macie-bucket-scans-sandbox" {
@@ -137,12 +133,4 @@ output "primary_zone_dnssec_ksks" {
 
 output "primary_zone_active_ds_value" {
   value = module.main.primary_zone_active_ds_value
-}
-
-module "waf_mrg_update_notify" {
-  source = "../../modules/waf_mrg_updates/"
-  providers = {
-    aws = aws.use1
-  }
-  sns_to_slack = ["arn:aws:sns:us-east-1:894947205914:slack-otherevents"]
 }
