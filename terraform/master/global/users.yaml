@@ -75,6 +75,11 @@ users:
     - pm
     - lg-all
     - lg-public
+  annie.hirshman:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - ahirshman
   anthony.barbara:
     aws_groups:
     - secopsnonprod
