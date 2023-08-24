@@ -100,7 +100,7 @@ else
   node.run_state['runner_tag'] = node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = aws_account_id
   node.run_state['allowed_services'] = []
-  node.run_state['allowed_images'] = ["**/*:*"]
+  node.run_state['allowed_images'] = []
 end
 
 repohosts = [
