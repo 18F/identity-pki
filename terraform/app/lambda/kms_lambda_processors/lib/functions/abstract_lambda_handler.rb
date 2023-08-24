@@ -28,7 +28,7 @@ module Functions
     def initialize(log_level: Logger::INFO, dry_run: true)
       @dry_run = dry_run
       log.level = log_level
-      log.info("super#initialize, dry_run: #{dry_run.inspect}")
+      log.debug("super#initialize, dry_run: #{dry_run.inspect}")
     end
 
     # @return [Boolean] Whether we are currently running in dry run mode.
@@ -88,8 +88,8 @@ module Functions
     # @see #lambda_main
     #
     def self.process(event:, context:)
-      log.info('Instantiating handler to process lambda event')
-      log.info("Current git revision: #{deployed_git_revision}")
+      log.debug('Instantiating handler to process lambda event')
+      log.debug("Current git revision: #{deployed_git_revision}")
       # Lambda defaults to real run mode
       new_with_env_config(dry_run_default: false)
         .lambda_main(event: event, context: context)
@@ -124,22 +124,16 @@ module Functions
     #
     def self.new_with_env_config(dry_run_default: true, **kwargs)
       # Enable debug mode if $DEBUG is set and nonempty
-      if ENV['DEBUG'] && !ENV['DEBUG'].empty?
-        dry_run = true
+      if ENV['DEBUG'] == 'true'
         log_level = Logger::DEBUG
       else
-        dry_run = dry_run_default
         log_level = Logger::INFO
       end
 
-      # Disable dry run and run in real mode if REAL_RUN is set
-      if ENV['REAL_RUN'] && !ENV['REAL_RUN'].empty?
-        dry_run = false
-      end
-
-      # override log level from $LOG_LEVEL if provided
-      if ENV['LOG_LEVEL'] && !ENV['LOG_LEVEL'].empty?
-        log_level = Integer(ENV.fetch('LOG_LEVEL'))
+      if ENV['DRY_RUN'] == 'true'
+        dry_run = true
+      else
+        dry_run = dry_run_default
       end
 
       log.debug('Initializing with config from env')
@@ -153,4 +147,3 @@ module Functions
   end
 
 end
-
