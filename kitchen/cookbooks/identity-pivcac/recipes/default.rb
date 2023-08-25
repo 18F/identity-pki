@@ -1,56 +1,40 @@
-case node[:platform_version]
-when '16.04'
-  package 'python-pip'
-  execute 'install certbot via pip' do
-    command 'pip install certbot certbot_dns_route53'
-    not_if 'pip show certbot && pip show certbot_dns_route53'
+snap_certbot_cmds = {
+  'set http proxy':'snap set system proxy.http=http://obproxy.login.gov.internal:3128',
+  'set https proxy':'snap set system proxy.https=http://obproxy.login.gov.internal:3128',
+  'install certbot from snap':'snap install certbot --stable --classic',
+  'trust route53 plugin':'snap set certbot trust-plugin-with-root=ok',
+  'install certbot route53 plugin from snap':'snap install certbot-dns-route53 --stable --classic'
+}
+
+snap_certbot_cmds.each_pair do |cmd_name, cmd_exec|
+  execute cmd_name do
+    command cmd_exec
   end
-when '18.04', '20.04'
-    execute 'set http proxy' do
-      command "snap set system proxy.http=http://obproxy.login.gov.internal:3128"
-    end
-    execute 'set https proxy' do
-      command "snap set system proxy.https=http://obproxy.login.gov.internal:3128"
-    end
-    execute 'install certbot from snap' do
-      command 'snap install certbot --stable --classic'
-    end
-    execute 'trust route53 plugin' do
-      command "snap set certbot trust-plugin-with-root=ok"
-    end
-    execute 'install certbot route53 plugin from snap' do
-      command 'snap install certbot-dns-route53 --stable --classic'
-    end
-else
-  raise "Unexpected platform_version: #{node[:platform_version].inspect}"
 end
 
 include_recipe 'identity-pivcac::update_letsencrypt_certs'
 
-base_dir	= "/srv/pki-rails"
-deploy_dir	= "#{base_dir}/current/public"
-shared_path	= "#{base_dir}/shared"
-production_user	= node.fetch(:identity_shared_attributes).fetch(:production_user)
-system_user	= node.fetch(:identity_shared_attributes).fetch(:system_user)
+base_dir    = "/srv/pki-rails"
+deploy_dir  = "#{base_dir}/current/public"
+shared_path = "#{base_dir}/shared"
+app_name    = 'pivcac'
 
 directory shared_path do
-  owner system_user
-  group system_user
+  owner node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
   recursive true
 end
-
-app_name = 'pivcac'
 
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
-deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
+deploy_branch  = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 
 # TODO: stop using deprecated deploy resource
 deploy "#{base_dir}" do
   action :deploy
 
-  user system_user
+  user node['login_dot_gov']['system_user']
 
   # Don't try to use database.yml in /shared.
   symlink_before_migrate({})
@@ -75,8 +59,8 @@ deploy "#{base_dir}" do
     end
 
     directory "#{shared_path}/config/certs" do
-      group system_user
-      owner production_user
+      group node['login_dot_gov']['system_user']
+      owner node['login_dot_gov']['web_system_user']
       recursive true
     end
 
@@ -123,24 +107,17 @@ end
 
 %w{config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
-    group system_user
-    owner production_user
+    group node['login_dot_gov']['system_user']
+    owner node['login_dot_gov']['web_system_user']
     recursive true
-    subscribes :create, "deploy[/srv/pki-rails]", :before
+    subscribes :create, "deploy[#{base_dir}]", :before
   end
 end
 
-web_writable_dirs = [
-  'log',
-  'tmp/cache',
-  'tmp/pids',
-  'tmp/sockets',
-]
-
-web_writable_dirs.each do |dir|
-  directory "#{shared_path}/#{dir}" do
-    owner system_user
-    group production_user
+%w{cache pids sockets}.each do |dir|
+  directory "#{shared_path}/tmp/#{dir}" do
+    owner node['login_dot_gov']['system_user']
+    group node['login_dot_gov']['web_system_user']
     mode '0775'
     recursive true
   end
@@ -151,24 +128,22 @@ execute "rbenv exec bundle exec rake db:create db:migrate:monitor_concurrent --t
   environment({
     'RAILS_ENV' => "production"
   })
-  user system_user
+  user node['login_dot_gov']['system_user']
 end
 
 # ensure application.yml is readable by web user
-file '/srv/pki-rails/current/config/application.yml' do
-  group production_user
+file "#{base_dir}/current/config/application.yml" do
+  group node['login_dot_gov']['web_system_user']
 end
 
-execute "chown -R #{production_user} #{shared_path}/log"
-
 directory "#{deploy_dir}/api" do
-  owner node.fetch('login_dot_gov').fetch('system_user')
+  owner node['login_dot_gov']['system_user']
   recursive true
   action :create
 end
 
 login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
-  owner node.fetch('login_dot_gov').fetch('system_user')
+  owner node['login_dot_gov']['system_user']
   branch deploy_branch
 end
 
@@ -187,8 +162,16 @@ end
 
 cron_d 'update_cert_revocations' do
   hour '*/4'
-  user production_user
+  user node['login_dot_gov']['web_system_user']
   command update_revocations_with_lock
+end
+
+# set log directory permissions
+directory "#{shared_path}/log" do
+  owner node['login_dot_gov']['web_system_user']
+  group node['login_dot_gov']['web_system_user']
+  mode '0775'
+  recursive true
 end
 
 # Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
