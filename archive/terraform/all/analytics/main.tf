@@ -10,7 +10,7 @@ terraform {
 }
 
 module "main" {
-  source             = "../module"
+  source = "../module"
 
   iam_account_alias = "login-analytics"
   account_roles_map = {

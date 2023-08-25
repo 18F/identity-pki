@@ -18,6 +18,10 @@ output "db_security_group" {
   value = aws_security_group.db.id
 }
 
+output "db_nacl_id" {
+  value = aws_network_acl.db.id
+}
+
 output "db_subnet_group" {
   value = aws_db_subnet_group.aurora.id
 }

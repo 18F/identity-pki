@@ -9,3 +9,12 @@ output "dms_source_endpoint_arn" {
 output "dms_target_endpoint_arn" {
   value = aws_dms_endpoint.aurora_target.endpoint_arn
 }
+
+output "dms_role" {
+  value = aws_iam_role.dms
+}
+
+output "dms_policy_arn" {
+  value = aws_iam_role.dms.arn
+}
+
