@@ -1,5 +1,4 @@
-data "aws_caller_identity" "current" {
-}
+data "aws_caller_identity" "current" {}
 
 locals {
   secrets_bucket = join(".", [
@@ -28,23 +27,18 @@ module "git2s3_src" {
   sse_algorithm      = "AES256"
 }
 
-module "ami_dlm_lifecycle_usw2" {
-  source = "../../modules/ami_dlm_lifecycle"
+module "ami_lifecycle_usw2" {
+  source = "../../modules/ami_lifecycle"
 
 }
 
-module "ami_dlm_lifecycle_use1" {
+module "ami_lifecycle_use1" {
   count  = contains(var.ami_regions, "us-east-1") ? 1 : 0
-  source = "../../modules/ami_dlm_lifecycle"
+  source = "../../modules/ami_lifecycle"
 
   providers = {
     aws = aws.use1
   }
-}
-
-moved {
-  from = module.ami_dlm_lifecycle_use1
-  to   = module.ami_dlm_lifecycle_use1[0]
 }
 
 resource "aws_s3_object" "bigfix_folder" {
