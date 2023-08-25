@@ -1,0 +1,31 @@
+# run in foreground instead of via daemon
+worker_processes 1;
+daemon off;
+
+events {}
+http {
+  upstream rails_upstream {
+    server 127.0.0.1:8442;
+  }
+
+  server {
+    listen  8443 ssl;
+    server_name identity_pki;
+
+    ssl_certificate      local-certs/server.crt;
+    ssl_certificate_key  local-certs/server.key;
+    ssl_verify_client optional_no_ca; # on;
+    ssl_verify_depth 10;
+
+    location / {
+      proxy_redirect off;
+      proxy_pass http://rails_upstream;
+      proxy_set_header X-Client-Verify $ssl_client_verify;
+      proxy_set_header X-Client-S-Dn $ssl_client_s_dn;
+      proxy_set_header X-Client-I-Dn $ssl_client_i_dn;
+      proxy_set_header X-Client-Serial $ssl_client_serial;
+      proxy_set_header X-Client-Fingerprint $ssl_client_fingerprint;
+      proxy_set_header X-Client-Cert $ssl_client_escaped_cert;
+    }
+  }
+}
