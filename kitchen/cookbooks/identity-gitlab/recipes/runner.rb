@@ -92,21 +92,21 @@ if node.run_state['is_it_an_env_runner'] == 'true'
   node.run_state['runner_tag'] = node.environment + '-' + node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = node.run_state['gitlab_ecr_repo_accountid']
   node.run_state['allowed_services'] = ['']
+  node.run_state['allowed_images'] = [
+    "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
+    "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
+  ].uniq
 else
   node.run_state['runner_tag'] = node.run_state['gitlab_runner_pool_name']
   node.run_state['ecr_accountid'] = aws_account_id
   node.run_state['allowed_services'] = []
+  node.run_state['allowed_images'] = []
 end
 
 repohosts = [
   "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com",
   "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com",
 ].uniq
-node.run_state['allowed_images'] = [
-  "#{node['identity_gitlab']['production_aws_account_id']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
-  "#{node.run_state['ecr_accountid']}.dkr.ecr.#{aws_region}.amazonaws.com/**/blessed@sha256:*",
-].uniq
-
 repolist = repohosts.map { |repohost| ',"' + repohost + '": "ecr-login"' }.join
 
 directory '/etc/systemd/system/gitlab-runner.service.d'
