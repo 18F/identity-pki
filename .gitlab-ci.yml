@@ -80,10 +80,10 @@ review-app:
         {"name": "CLIENT_CERT_S3_BUCKET", "value": "login-gov-pivcac-public-cert-reviewapp.894947205914-us-west-2"},
         {"name": "POSTGRES_SSLMODE", "value": "prefer"},
         {"name": "POSTGRES_NAME", "value": "identity_pki_production"},
-        {"name": "POSTGRES_HOST","value": "$CI_ENVIRONMENT_SLUG-identity-idp-chart-pivcac-postgres.review-apps"},
+        {"name": "POSTGRES_HOST","value": "$CI_ENVIRONMENT_SLUG-login-chart-pivcac-pg.review-apps"},
         {"name": "POSTGRES_USERNAME", "value": "postgres"},
         {"name": "POSTGRES_PASSWORD", "value": "pivcac"},
-        {"name": "IDP_HOST", "value": "rails-app-test-identity-idp-chart-idp.review-apps"},
+        {"name": "IDP_HOST", "value": "rails-app-test-login-chart-idp.review-apps"},
         {"name": "DOMAIN_NAME", "value": "$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov"}
       ]
       EOF
@@ -105,7 +105,7 @@ review-app:
       $CI_ENVIRONMENT_SLUG ./identity-idp-helm-chart
     - echo "DNS may take a while to propagate, so be patient if it doesn't show up right away"
     - echo "To access the rails console, first run 'aws-vault exec sandbox-power -- aws eks update-kubeconfig --name review_app'"
-    - echo "Then run 'aws-vault exec sandbox-power -- kubectl exec -it service/$CI_ENVIRONMENT_SLUG-identity-idp-chart-pivcac -n review-apps -- /app/bin/rails console'"
+    - echo "Then run 'aws-vault exec sandbox-power -- kubectl exec -it service/$CI_ENVIRONMENT_SLUG-login-chart-pivcac -n review-apps -- /app/bin/rails console'"
   after_script:
     - echo "Address of PIVCAC review app:"
     - echo https://$CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
