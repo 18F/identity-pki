@@ -27,7 +27,13 @@ PIV/CAC support for login.gov.
   rbenv alias 3.0 3.0.6 # create the version alias
   ```
 
-2. Make sure Postgres is running.
+1. Make sure you have Nginx installed.
+
+  ```
+  $ brew install nginx
+  ```
+
+1. Make sure Postgres is running.
 
   For example, if you've installed the laptop script on OS X, you can start the services like this:
 
@@ -35,14 +41,14 @@ PIV/CAC support for login.gov.
   $ brew services start postgresql
   ```
 
-3. Create the development and test databases:
+1. Create the development and test databases:
 
   ```
   $ psql -c "CREATE DATABASE identity_pki_dev;"
   $ psql -c "CREATE DATABASE identity_pki_test;"
   ```
 
-4. Run the following command to set up the environment
+1. Run the following command to set up the environment
 
   - The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. To keep it simple, try `salty pickles`.
 
@@ -55,7 +61,7 @@ PIV/CAC support for login.gov.
   This command copies sample configuration files, installs required gems
   and sets up the database.
 
-5. Run the app server with:
+1. Run the app server with:
 
   ```
   $ make run
