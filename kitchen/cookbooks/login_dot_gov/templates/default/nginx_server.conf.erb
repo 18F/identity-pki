@@ -118,6 +118,11 @@ server {
       client_max_body_size 10M;
     }
 
+    location ^~ /api/service_provider {
+      add_header Strict-Transport-Security $sts_value;
+      client_max_body_size 30k;
+    }
+
     location ^~ /service_providers/ {
       add_header Strict-Transport-Security $sts_value;
       client_max_body_size 2M;

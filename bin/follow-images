@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Follow CodeBuild logs for AMI image builds
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} -a AWS_ACCOUNT -t TYPE
+
+Runs \`aws logs tail --follow --format short\` on the most recent stream from
+/aws/codebuild/login-image-\$TYPE CloudWatch Logs in the login-\$AWS_ACCOUNT account.
+
+Executed via \`aws-vault exec \$AWS_ACCOUNT-admin\`; requires FullAdministrator
+role/access to be set in ~/.aws/config as a result.
+
+EOM
+}
+
+verify_root_repo
+while getopts a:t:h opt
+do
+  case $opt in
+    a) ACCOUNT="${OPTARG}"    ;;
+    t) TYPE="${OPTARG}"       ;;
+    h) usage && exit 0        ;;
+    *) raise 'Invalid option' ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${ACCOUNT} ]] ; then
+  raise 'AWS account must be specified with -a flag'
+fi
+if ! [[ "${TYPE}" =~ (base|rails) ]] ; then
+  raise "TYPE must be \`base\` or \`rails\`; specify with -t flag"
+fi
+
+get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
+
+echo_cyan "Finding newest build run for login-image-${TYPE} CodeBuild project..."
+BUILD_ID=$(ave aws codebuild list-builds-for-project \
+  --project-name login-image-${TYPE} --max-items 1 --query ids | jq -r '.[]')
+echo_cyan "Verifying status of build run '${BUILD_ID}'..."
+BUILD_STATUS=$(ave aws codebuild batch-get-builds --ids ${BUILD_ID} \
+  --query 'builds[].buildStatus' | jq -r '.[]')
+if [[ "${BUILD_STATUS}" != "IN_PROGRESS" ]] ; then
+  echo_yellow "Status of ${BUILD_ID} is '${BUILD_STATUS}';"
+  if ! prompt_yn "continue with log tailing operation?" ; then
+    echo_green "Stopping."
+    exit 0
+  fi
+fi
+
+LOG_STREAM=$(echo ${BUILD_ID} | awk -F':' '{print $NF}')
+echo_green "Following log stream ID '${LOG_STREAM}'; press CTRL-C to exit."
+trap "echo && echo_green 'Finished following ${BUILD_ID} in login-${ACCOUNT}.'" INT
+ave aws logs tail /aws/codebuild/login-image-${TYPE} \
+  --log-stream-names ${LOG_STREAM} --follow --format short

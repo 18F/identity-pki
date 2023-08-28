@@ -11,7 +11,7 @@ resource "aws_route53_record" "app_external" {
   count   = var.apps_enabled
   name    = "app.${var.env_name}.${var.root_domain}"
   zone_id = var.route53_id
-  records = [aws_alb.app[count.index].dns_name]
+  records = [aws_cloudfront_distribution.app_cdn[0].domain_name]
   ttl     = "300"
   type    = "CNAME"
 }

@@ -82,7 +82,7 @@ module IdentityKMSMonitor
     def process_record(record)
       log.info("event: #{record.inspect}")
       body = JSON.parse(record.fetch('body'))
-      log.info("record body: #{body.inspect}")
+      log.debug("record body: #{body.inspect}")
 
       originate_sns = body.fetch('Type', :nil)
       if originate_sns == "Notification"
@@ -201,12 +201,12 @@ module IdentityKMSMonitor
             }
             )
         end
-        log.info "dynamo query took #{duration.round(6)} seconds"
+        log.debug "dynamo query took #{duration.round(6)} seconds"
       rescue Aws::DynamoDB::Errors::ServiceError => error
         log.error "Failure looking up event: #{error.inspect}"
         raise
       end
-      log.info "Database query result: #{result.inspect}"
+      log.debug "Database query result: #{result.inspect}"
       # It's unlikely but technically possible that we could have multiple
       # results here. By default these are ordered by the range key, Timestamp.
       # We want to focus on uncorrelated ones first, so we sort by Correlated
@@ -242,7 +242,7 @@ module IdentityKMSMonitor
       begin
         log.info "Writing event with params: #{params.inspect}"
         duration = Benchmark.realtime { dynamo.put_item(params) }
-        log.info "put_item took #{duration.round(6)} seconds"
+        log.debug "put_item took #{duration.round(6)} seconds"
       rescue Aws::DynamoDB::Errors::ServiceError => error
         log.info "Failure adding event: #{error.inspect}"
       end

@@ -47,18 +47,6 @@ aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
 aws_region = Chef::Recipe::AwsMetadata.get_aws_region
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
 
-#configure squid
-template '/etc/squid/squid.conf' do
-    source 'squid.conf.erb'
-    owner 'root'
-    group 'root'
-    mode '0644'
-    variables ({
-        vpc_cidr: "#{aws_vpc_cidr}"
-    })
-    notifies :restart, 'service[squid]', :delayed
-end
-
 # Find alternative domain allowlists
 # TODO: We use this same pattern in runner.rb. Refactor into a lib?
 resource = Aws::EC2::Resource.new(region: Chef::Recipe::AwsMetadata.get_aws_region)
@@ -107,8 +95,27 @@ template '/etc/squid/ip-allowlist.conf' do
     mode '0644'
     owner 'root'
     group 'root'
+end
+
+#configure squid
+template '/etc/squid/squid.conf' do
+    source 'squid.conf.erb'
+    owner 'root'
+    group 'root'
+    mode '0644'
+    variables ({
+        vpc_cidr: "#{aws_vpc_cidr}"
+    })
     notifies :restart, 'service[squid]', :delayed
 end
+
+execute 'squid_parse' do
+    command 'squid -k parse'
+  end
+
+  execute 'squid_debug' do
+    command 'squid -k debug'
+  end
 
 service 'squid' do
     supports :restart => true, :reload => true

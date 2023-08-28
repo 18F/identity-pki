@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
     metric {
       namespace   = "AWS/AutoScaling"
       metric_name = "GroupMinSize"
-      period      = "60"
+      period      = "120"
       stat        = "Minimum"
       dimensions = {
         AutoScalingGroupName = var.asg_name
@@ -45,7 +45,7 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
     metric {
       namespace   = "AWS/AutoScaling"
       metric_name = "GroupInServiceInstances"
-      period      = "60"
+      period      = "120"
       stat        = "Minimum"
       dimensions = {
         AutoScalingGroupName = var.asg_name
@@ -56,7 +56,7 @@ resource "aws_cloudwatch_metric_alarm" "insufficient-instances" {
   comparison_operator = "GreaterThanThreshold"
   # Allow a dip of one under minimum
   threshold          = 1
-  evaluation_periods = 1
+  evaluation_periods = 2
   treat_missing_data = var.treat_missing_data
   alarm_actions      = var.alarm_actions
   ok_actions         = var.alarm_actions

@@ -75,6 +75,11 @@ users:
     - pm
     - lg-all
     - lg-public
+  annie.hirshman:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - ahirshman
   anthony.barbara:
     aws_groups:
     - secopsnonprod
@@ -181,7 +186,7 @@ users:
     - lg-public
   dawei.wang:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - daweiwang
     gitlab_groups:
@@ -437,7 +442,7 @@ users:
     - lg-public
   kevin.masters:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - kmasters
     gitlab_groups:

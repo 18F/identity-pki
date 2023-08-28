@@ -53,6 +53,7 @@ variable "route53_id" {
 }
 
 variable "apps_enabled" {
+  type        = number
   description = "Whether or not to build the dashboard/app RDS database + app hosts."
   default     = 1
 }
@@ -574,28 +575,28 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-0094694c7661b4a8a" # 2023-08-15 Ubuntu 20.04
+  default     = "ami-012b9e82ddb5d7a34" # 2023-08-22 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_uw2" {
-  default     = "ami-04b4ebf31f45bedc6" # 2023-08-15 Ubuntu 20.04
+  default     = "ami-0edc13efc82d17d3d" # 2023-08-22 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-0b753687c1fea12c0" # 2023-08-15 Ubuntu 20.04
+  default     = "ami-026e6e79feffa6dd1" # 2023-08-22 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_uw2" {
-  default     = "ami-02aae9a879a59c5cc" # 2023-08-15 Ubuntu 20.04
+  default     = "ami-06f2db6eefb74d701" # 2023-08-22 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -617,7 +618,7 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
-  default     = "ami-0e0b4847a9dd463cd" # 2023-08-15 Ubuntu 20.04
+  default     = "ami-05424189f1402350e" # 2023-08-22 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
@@ -631,7 +632,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
-  default     = "ami-0652d82d476fc3e68" # 2023-08-15 Ubuntu 20.04
+  default     = "ami-015d427a57579400b" # 2023-08-22 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
@@ -1295,6 +1296,15 @@ EOM
 variable "idp_cloudfront_waf_enabled" {
   description = <<EOM
 Enable or disable WAFv2 rule association with idp CloudFront distribution.
+Requires a corresponding, active environment/config in the terraform/waf directory.
+EOM
+  type        = bool
+  default     = false
+}
+
+variable "app_cloudfront_waf_enabled" {
+  description = <<EOM
+Enable or disable WAFv2 rule association with app CloudFront distribution.
 Requires a corresponding, active environment/config in the terraform/waf directory.
 EOM
   type        = bool

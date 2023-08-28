@@ -110,7 +110,7 @@ default['login_dot_gov']['app_secrets_bucket'] = "login-gov.app-secrets." \
 default['login_dot_gov']['static_cdn_max_age'] = 31536000
 
 # how long to wait for curl localhost to finish at end of bootstrapping
-default['login_dot_gov']['passenger_prewarm_timeout']                 = 30
+default['login_dot_gov']['passenger_prewarm_timeout']                 = 45
 
 # Read proxy configuration from files placed by cloud-init, if present. If the
 # files are empty or not present, set the variables to nil.
