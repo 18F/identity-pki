@@ -21,6 +21,7 @@ database_username: ''
 database_sslmode: ''
 domain_name: ''
 identity_idp_host: 'localhost'
+log_to_stdout: false
 openssl_verify_enabled: 'true'
 newrelic_license_key : ''
 nonce_bloom_filter_hash_count: '4'
