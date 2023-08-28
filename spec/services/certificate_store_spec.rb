@@ -85,7 +85,7 @@ RSpec.describe CertificateStore do
       leaf_certs.each do |cert|
         issuer = CertificateStore.instance[cert.signing_key_id]
         certificate_id = OpenSSL::OCSP::CertificateId.new(
-          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest::SHA1.new
+          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest.new('SHA1')
         )
         mapping[certificate_id] = {
           subject: cert,
