@@ -74,14 +74,15 @@ func TestBlockedOrigin(t *testing.T) {
   }
   // Load value from environment variables
   idp_origin_fqdn :=  os.Getenv("IDP_ORIGIN_HOSTNAME")
-  idp_fqdn :=  os.Getenv("IDP_HOSTNAME")
   url := fmt.Sprintf("https://%s", idp_origin_fqdn)
-  // Get response and check to make sure it redirected from origin dns name to cloudfront dns name
-  response := ReturnResponse(url)
+  // Get an error and check to make sure the origin dns name is inaccessible outside of cloudfront dns name
+  _, err := http.Get(url)
+  if err == nil {
+    panic("IDP is accessible outside of CloudFront")
+  }
   fmt.Printf("Checking direct access to: %s\n", url)
-  assert.Equal(t, 200, response.StatusCode)
-  assert.Equal(t, fmt.Sprintf("%s:443", idp_fqdn), response.Request.URL.Host)
-  fmt.Printf("Successfully redirected to: https://%s\n", response.Request.URL.Host)
+  assert.NotNil(t, err)
+  fmt.Printf("Direct access is inaccessible at: %s\n", url)
 }
 
 /* 
