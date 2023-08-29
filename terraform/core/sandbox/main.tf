@@ -109,6 +109,7 @@ module "main" {
       "mhenke"
     ]
   }
+  enable_waf_mrg_update_notifications = true
 }
 
 module "macie-bucket-scans-sandbox" {

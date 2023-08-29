@@ -176,3 +176,8 @@ through the WAFv2 web ACL(s) to restricted endpoints.
 EOM
   default     = []
 }
+
+variable "enable_waf_mrg_update_notifications" {
+  type    = bool
+  default = false
+}
