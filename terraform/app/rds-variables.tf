@@ -27,7 +27,7 @@ locals {
       },
     ],
     # BigInt: Set logical replication for change data capture (cdc)
-    var.enable_dms_migration ? [{
+    (var.enable_dms_migration || var.enable_dms_analytics) ? [{
       name   = "rds.logical_replication",
       value  = "1",
       method = "pending-reboot"
