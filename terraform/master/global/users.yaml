@@ -343,6 +343,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - login-security
   jeremy.curcio:
     aws_groups:
     - apponcall
@@ -603,6 +604,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - login-security
   nick.soutouras:
     aws_groups:
     - analytics
@@ -843,6 +845,7 @@ users:
     - appdev
     - pm
     - antifraud
+    - login-security
     can_create_group:
     - true
 groups:
@@ -864,7 +867,25 @@ groups:
       by the public.
   bots:
     description: Gitlab automation accounts
+  login-security:
+    description: Security Team Project and Documentation Management
 projects:
+  login-security/login-security-compliance:
+    groups:
+      login-security:
+        access: maintainer
+  login-security/login-security-review:
+    groups:
+      login-security:
+        access: maintainer
+  login-security/login-security-handbook:
+    groups:
+      login-security:
+        access: maintainer     
+  login-security/login-security-ops:
+    groups:
+      login-security:
+        access: maintainer 
   lg/identity-devops:
     groups:
       devops:
