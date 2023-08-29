@@ -65,6 +65,7 @@ resource "aws_alb_listener" "app-ssl" {
     type = "redirect"
 
     redirect {
+      host        = local.app_domain_name
       port        = "443"
       protocol    = "HTTPS"
       status_code = "HTTP_301"
