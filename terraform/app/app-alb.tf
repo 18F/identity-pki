@@ -62,8 +62,13 @@ resource "aws_alb_listener" "app-ssl" {
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {
-    target_group_arn = aws_alb_target_group.app-ssl[0].id
-    type             = "forward"
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 

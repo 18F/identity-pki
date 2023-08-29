@@ -162,20 +162,19 @@ resource "aws_security_group" "app-alb" {
 
   # remove when HTTP access no longer needed
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-    #prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "Permit HTTP from Cloudfront Edge Resources"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    prefix_list_ids = [module.network_uw2.cloudfront_prefix_list_id]
   }
 
-  # update once CloudFront is configured for the dashboard
   ingress {
-    from_port = 443
-    to_port   = 443
-    protocol  = "tcp"
-    #prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
-    cidr_blocks = ["0.0.0.0/0"]
+    description     = "Permit HTTPS from Cloudfront Edge Resources"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    prefix_list_ids = [module.network_uw2.cloudfront_prefix_list_id]
   }
 
   name = "${var.env_name}-app-alb"
