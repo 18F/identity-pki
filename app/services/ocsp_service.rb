@@ -43,7 +43,7 @@ class OcspService
   def certificate_id
     @certificate_id ||= begin
       issuer = authority.certificate
-      digest = OpenSSL::Digest::SHA1.new
+      digest = OpenSSL::Digest.new('SHA1')
       OpenSSL::OCSP::CertificateId.new(subject.x509_cert, issuer.x509_cert, digest)
     end
   end
