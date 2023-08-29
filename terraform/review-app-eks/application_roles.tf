@@ -9,8 +9,6 @@ module "application_iam_roles" {
   cloudfront_oai_iam_arn         = "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2GMERCRI9EAR7"
   idp_doc_capture_arn            = "arn:aws:s3:::login-gov-idp-doc-capture-dev.894947205914-us-west-2"
   idp_doc_capture_kms_arn        = "arn:aws:kms:us-west-2:894947205914:key/d299e045-f0ca-4e37-81eb-ce037c67fa5e"
-  attempts_api_bucket_arn        = "arn:aws:s3:::login-gov-attempts-dev.894947205914-us-west-2"
-  attempts_api_kms_arn           = "arn:aws:kms:us-west-2:894947205914:key/74082d7e-e3cb-40f0-8bd1-64625ac6136e"
   kinesis_bucket_arn             = "arn:aws:s3:::login-gov-athena-queries-dev.894947205914-us-west-2"
   kinesis_kms_key_arn            = "arn:aws:kms:us-west-2:894947205914:key/77e31a6f-8464-4bad-9c7f-b7247844e66a"
   slack_events_sns_hook_arn      = "arn:aws:sns:us-west-2:894947205914:slack-hook-otherevents"

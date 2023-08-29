@@ -52,11 +52,6 @@ EOM
   default     = false
 }
 
-variable "attempts_api_bucket_arn" {
-  description = "The ARN of the attempts API bucket"
-  type        = string
-}
-
 variable "ssm_access_enabled" {
   description = <<EOM
 Whether or not to attach SSM access policies to IAM roles.
@@ -110,11 +105,6 @@ variable "escrow_bucket_id" {
 
 variable "cloudfront_oai_iam_arn" {
   description = "The ARN of the IAM identity associated with the CloudFront Origin Access Identity (OAI)"
-  type        = string
-}
-
-variable "attempts_api_kms_arn" {
-  description = "The ARN of the attempts API KMS key"
   type        = string
 }
 

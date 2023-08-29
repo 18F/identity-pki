@@ -4,10 +4,6 @@ locals {
   # at least for the time being. TODO: figure out a better way to do this
   # dynamically / with proper resource importing/naming/etc.
 
-  idp_attempts_redis_clusters = [for i in range(
-    1, 3
-  ) : format("%s-%03d", "${var.env_name}-idp-attempts", i)]
-
   idp_redis_clusters = [for i in range(
     1, (var.elasticache_redis_num_cache_clusters + 1)
   ) : format("%s-%03d", "${var.env_name}-idp", i)]
@@ -20,7 +16,7 @@ locals {
     1, (var.elasticache_redis_ratelimit_num_cache_clusters + 1)
   ) : format("%s-%03d", "${var.env_name}-ratelimit", i)] : []
 
-  redis_clusters = setunion(local.idp_attempts_redis_clusters, local.idp_redis_clusters, local.idp_redis_cache_clusters, local.idp_redis_ratelimit_clusters)
+  redis_clusters = setunion(local.idp_redis_clusters, local.idp_redis_cache_clusters, local.idp_redis_ratelimit_clusters)
 }
 
 # Extract network performance info using an aws_ec2_instance_type data source.
@@ -30,10 +26,6 @@ locals {
 
 data "aws_ec2_instance_type" "idp_network" {
   instance_type = trimprefix(var.elasticache_redis_node_type, "cache.")
-}
-
-data "aws_ec2_instance_type" "idp_attempts_network" {
-  instance_type = trimprefix(var.elasticache_redis_attempts_api_node_type, "cache.")
 }
 
 data "aws_ec2_instance_type" "idp_cache_network" {
@@ -68,7 +60,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -96,7 +92,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -123,7 +123,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -150,7 +154,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -177,7 +185,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -204,7 +216,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -231,7 +247,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true
@@ -258,78 +278,11 @@ EOM
     CacheClusterId = each.key
   }
 
-  depends_on = [aws_elasticache_replication_group.idp, aws_elasticache_replication_group.idp_attempts, aws_elasticache_replication_group.cache, aws_elasticache_replication_group.ratelimit]
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_attempts_network" {
-  for_each            = toset(local.idp_attempts_redis_clusters)
-  alarm_name          = "${each.key}-Redis-NetworkUsage-Critical"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-
-  # NetworkBytesIn / NetworkBytesOut are in GB/min, while the network_performance
-  # attribute of aws_ec2_instance_type is in Gbps. Conversion is done thusly:
-  #
-  #  threshold GB/minute = Gbps * 1/8 * 60 * 0.01 * threshold_percentage
-  #  (or, simplified:)
-  #  threshold GB/minute = Gbps * 0.075 * threshold_percentage
-  #
-  # where:
-  #   1/8  =  bytes  -> bits
-  #    60  =   sec   -> min
-  #   0.01 = percent -> factor
-  threshold = tonumber(
-    regex(
-      "[0-9]+",
-      data.aws_ec2_instance_type.idp_attempts_network.network_performance
-  )) * 0.075 * var.elasticache_redis_alarm_threshold_network
-
-  alarm_description = <<EOM
-Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
-EOM
-  alarm_actions     = local.high_priority_alarm_actions
-
-  metric_query {
-    id          = "e1"
-    expression  = "SUM(METRICS())/1073741824" # Conversion of bytes to GB/minute
-    label       = "Total Network Throughput"
-    return_data = "true"
-  }
-
-  metric_query {
-    id = "m1"
-
-    metric {
-      metric_name = "NetworkBytesIn"
-      namespace   = "AWS/ElastiCache"
-      period      = "60"
-      stat        = "Average"
-
-      dimensions = {
-        CacheClusterId = each.key
-      }
-    }
-  }
-  metric_query {
-    id = "m2"
-
-    metric {
-      metric_name = "NetworkBytesOut"
-      namespace   = "AWS/ElastiCache"
-      period      = "60"
-      stat        = "Average"
-
-      dimensions = {
-        CacheClusterId = each.key
-      }
-    }
-  }
-  depends_on = [aws_elasticache_replication_group.idp_attempts]
+  depends_on = [
+    aws_elasticache_replication_group.idp,
+    aws_elasticache_replication_group.cache,
+    aws_elasticache_replication_group.ratelimit
+  ]
 
   lifecycle {
     create_before_destroy = true

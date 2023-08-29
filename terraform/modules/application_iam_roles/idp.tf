@@ -175,17 +175,3 @@ resource "aws_iam_role_policy" "idp-xray-publish" {
   role   = aws_iam_role.idp.id
   policy = data.aws_iam_policy_document.xray-publish-policy.json
 }
-
-resource "aws_iam_policy" "attempts_api" {
-  name   = "${var.env_name}-attempts-api-s3-policy"
-  policy = data.aws_iam_policy_document.attempts_api.json
-}
-
-resource "aws_iam_role_policy_attachment" "attempts_api" {
-  for_each = toset([
-    aws_iam_role.idp.name,
-    aws_iam_role.worker.name
-  ])
-  role       = each.key
-  policy_arn = aws_iam_policy.attempts_api.arn
-}

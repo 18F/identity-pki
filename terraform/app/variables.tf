@@ -69,12 +69,6 @@ variable "elasticache_redis_node_type" {
   default     = "cache.t3.micro"
 }
 
-variable "elasticache_redis_attempts_api_node_type" {
-  type        = string
-  description = "Instance type used for redis attempts api elasticache. Changes incur downtime."
-  default     = "cache.t3.micro"
-}
-
 variable "elasticache_redis_cache_node_type" {
   type        = string
   description = "Instance type used for redis elasticache. Changes incur downtime."

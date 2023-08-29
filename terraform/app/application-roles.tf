@@ -10,8 +10,6 @@ module "application_iam_roles" {
   escrow_bucket_id               = aws_s3_bucket.escrow.id
   cloudfront_oai_iam_arn         = aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn
   idp_doc_capture_arn            = aws_s3_bucket.idp_doc_capture.arn
-  attempts_api_bucket_arn        = aws_s3_bucket.attempts_api.arn
-  attempts_api_kms_arn           = aws_kms_key.attempts_api_kms.arn
   kinesis_bucket_arn             = module.kinesis-firehose.kinesis_firehose_stream_bucket.arn
   kinesis_kms_key_arn            = module.kinesis-firehose.kinesis_firehose_stream_bucket_kms_key.arn
   gitlab_env_runner_role_arn     = try(module.env-runner[0].runner_role_arn, null)
@@ -94,11 +92,6 @@ moved {
 moved {
   from = aws_iam_role.events_log_glue_crawler
   to   = module.application_iam_roles.aws_iam_role.events_log_glue_crawler
-}
-
-moved {
-  from = aws_iam_policy.attempts_api
-  to   = module.application_iam_roles.aws_iam_policy.attempts_api
 }
 
 moved {
