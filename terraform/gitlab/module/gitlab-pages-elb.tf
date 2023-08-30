@@ -48,8 +48,8 @@ resource "aws_route53_record" "gitlab-pages-public" {
   name    = "pages.${var.env_name}"
   type    = "A"
   alias {
-    name                   = aws_lb.gitlab.dns_name
-    zone_id                = aws_lb.gitlab.zone_id
+    name                   = aws_lb.gitlab-pages.dns_name
+    zone_id                = aws_lb.gitlab-pages.zone_id
     evaluate_target_health = true
   }
 }
@@ -59,8 +59,8 @@ resource "aws_route53_record" "gitlab-pages-private" {
   name    = "pages.${var.env_name}.${var.root_domain}"
   type    = "A"
   alias {
-    name                   = aws_lb.gitlab.dns_name
-    zone_id                = aws_lb.gitlab.zone_id
+    name                   = aws_lb.gitlab-pages.dns_name
+    zone_id                = aws_lb.gitlab-pages.zone_id
     evaluate_target_health = true
   }
 }
