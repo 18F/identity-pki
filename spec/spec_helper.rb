@@ -1,8 +1,19 @@
 if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start 'rails' do
+    track_files '{app,lib}/**/*.rb'
+
+    add_group 'Controllers', 'app/controllers'
+    add_group 'Services', 'app/services'
+    add_group 'Helpers', 'app/helpers'
+    add_group 'Models', 'app/models'
     add_filter '/config/'
     add_filter '/k8files/'
+    add_filter %r{^/spec/}
+    add_filter '/vendor/bundle/'
+    add_filter %r{^/db/}
+    add_filter %r{^/\.gem/}
+    add_filter %r{/vendor/ruby/}
   end
 end
 
