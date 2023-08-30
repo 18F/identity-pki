@@ -405,6 +405,7 @@ locals {
           "lambda:RemovePermission",
           "lambda:TagResource",
           "lambda:UntagResource",
+          "lambda:GetLayerVersion",
           "lambda:UpdateEventSourceMapping",
           "lambda:UpdateFunctionCode",
           "lambda:UpdateFunctionConfiguration",
