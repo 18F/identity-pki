@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,14 +26,33 @@ var region = os.Getenv("REGION")
 var env_name = os.Getenv("ENV_NAME")
 var recycle = os.Getenv("RECYCLE")
 
-func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) *ssm.GetCommandInvocationOutput {
+var idp_asg = env_name + "-idp"
+var worker_asg = env_name + "-worker"
+var app_asg = env_name + "-app"
+var outboundproxy_asg = env_name + "-outboundproxy"
+var pivcac_asg = env_name + "-pivcac"
+
+func RunCommandOnInstance(t *testing.T, instance_string string, command string) *ssm.GetCommandInvocationOutput {
+	outputs := RunCommandOnInstances(t, []string{instance_string}, command)
+	return outputs[0]
+}
+
+func RunCommandOnInstances(t *testing.T, instancestrings []string, command string) []*ssm.GetCommandInvocationOutput {
 	var instances []*string
 	for _, instance := range instancestrings {
 		instances = append(instances, aws_sdk.String(instance))
 	}
 
 	// Wait for SSM to get active
-	aws.WaitForSsmInstance(t, region, instancestrings[0], 900*time.Second)
+	var wg sync.WaitGroup
+	for _, instancestring := range instancestrings {
+		wg.Add(1)
+		go func(i string) {
+			defer wg.Done()
+			aws.WaitForSsmInstance(t, region, i, 900*time.Second)
+		}(instancestring)
+	}
+	wg.Wait()
 
 	// ssm in and do the command
 	myssm := aws.NewSsmClient(t, region)
@@ -49,17 +69,28 @@ func RunCommandOnInstances(t *testing.T, instancestrings []string, command strin
 	require.NoError(t, err)
 
 	// Wait until it's done
-	cmdinvocation := &ssm.GetCommandInvocationInput{
-		CommandId:  output.Command.CommandId,
-		InstanceId: instances[0],
-	}
-	err = myssm.WaitUntilCommandExecuted(cmdinvocation)
-	require.NoError(t, err)
+	results := make(chan *ssm.GetCommandInvocationOutput, len(instances))
+	for _, instance := range instances {
+		go func(i *string) {
+			cmdinvocation := &ssm.GetCommandInvocationInput{
+				CommandId:	output.Command.CommandId,
+				InstanceId: i,
+			}
+			myssm.WaitUntilCommandExecuted(cmdinvocation)
+			cmdoutput, _ := myssm.GetCommandInvocation(cmdinvocation)
 
-	// return output of command
-	cmdoutput, err := myssm.GetCommandInvocation(cmdinvocation)
-	require.NoError(t, err)
-	return cmdoutput
+			results <- cmdoutput
+		}(instance)
+	}
+
+	outputs := []*ssm.GetCommandInvocationOutput{}
+	for range instances {
+		cmdOut := <-results
+		outputs = append(outputs, cmdOut)
+	}
+
+	// return outputs of commands
+	return outputs
 }
 
 func ASGRecycle(t *testing.T, asgName string) {
