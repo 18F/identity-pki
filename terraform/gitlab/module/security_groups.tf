@@ -161,13 +161,22 @@ resource "aws_security_group" "gitlab" {
     )
   }
 
-  # Accept traffic from the WAF-enabled ALB
+  # Accept traffic from the ALBs
   ingress {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.waf_alb.id,
+    ]
+  }
+
+  ingress {
+    from_port = 4443
+    to_port   = 4443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.pages_alb.id,
     ]
   }
 
