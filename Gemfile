@@ -1,14 +1,14 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
-ruby '~> 3.0'
+ruby '~> 3.2'
 
 gem 'rails', '~> 7.0.7'
 
 gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk-s3'
 gem 'bloomfilter-rb'
-gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v3.4.1'
+gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v3.4.2'
 gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.0'
 gem 'mini_cache'
 gem 'newrelic_rpm', '~> 8.0'
