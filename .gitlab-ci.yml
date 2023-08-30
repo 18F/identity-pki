@@ -268,6 +268,12 @@ build_idp_ci_container:
     dockerfile: idp_ci.Dockerfile
     ecr_repo: idp/ci
 
+build_pivcac_ci_container:
+  extends: .build_template
+  variables:
+    dockerfile: pivcac_ci.Dockerfile
+    ecr_repo: pivcac/ci
+
 # Grab ECR scans and import into gitlab
 scan_gitlab_deploy_container:
   extends: .container_scan_template
@@ -310,6 +316,13 @@ scan_idp_ci_container:
     ecr_repo: idp/ci
   needs:
     - build_idp_ci_container
+
+scan_pivcac_ci_container:
+  extends: .container_scan_template
+  variables:
+    ecr_repo: pivcac/ci
+  needs:
+    - build_pivcac_ci_container
 
 # IDP environments and their jobs
 .include_idp_jobs_template:
