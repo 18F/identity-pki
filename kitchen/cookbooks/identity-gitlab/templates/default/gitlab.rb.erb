@@ -1840,9 +1840,8 @@ gitlab_pages['enable'] = true
 
 pages_nginx['enable'] = true
 pages_nginx['listen_port'] = 4443
-pages_nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.login.gov.crt"
-pages_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.login.gov.key"
-
+pages_nginx['ssl_certificate'] = "/etc/gitlab/ssl/<%= @external_fqdn %>.crt"
+pages_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/<%= @external_fqdn %>.key"
 
 ################################################################################
 ## GitLab CI

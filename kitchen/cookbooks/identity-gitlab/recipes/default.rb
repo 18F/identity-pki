@@ -132,6 +132,7 @@ template '/etc/gitlab/gitlab.rb' do
       backup_s3_bucket: backup_s3_bucket,
       postgres_version: postgres_version,
       external_url: external_url,
+      external_fqdn: external_fqdn,
       pages_external_url: pages_external_url,
       db_password: db_password,
       db_host: db_host,
