@@ -114,3 +114,15 @@ resource "aws_dms_s3_endpoint" "analytics_export" {
 
   depends_on = [aws_iam_role_policy.dms_s3]
 }
+
+resource "aws_dms_s3_endpoint" "analytics_export_headers" {
+  count = var.enable_dms_analytics ? 1 : 0
+
+  endpoint_id             = "${var.env_name}-analytics-export-headers"
+  endpoint_type           = "target"
+  bucket_name             = aws_s3_bucket.analytics_export[count.index].id
+  service_access_role_arn = module.dms[0].dms_role.arn
+  add_column_name         = true
+
+  depends_on = [aws_iam_role_policy.dms_s3]
+}
