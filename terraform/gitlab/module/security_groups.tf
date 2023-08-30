@@ -809,8 +809,9 @@ resource "aws_security_group_rule" "pages_ingress" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = ["159.142.0.0/16"]
-  description       = "Allow connection from GSA"
+  cidr_blocks       = ["0.0.0.0/0"]
+  # cidr_blocks       = ["159.142.0.0/16"]
+  description = "Allow connection from everybody"
 }
 
 resource "aws_security_group_rule" "pages_vpc_egress" {
