@@ -21,6 +21,7 @@ locals {
     "127.0.0.1",
     "169.254.169.254",
     "169.254.169.123",
+    "44.230.151.136",
     ".login.gov.internal",
     "metadata.google.internal",
     ], formatlist("%s.${var.region}.amazonaws.com", [
