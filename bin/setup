@@ -5,7 +5,7 @@ require 'yaml'
 include FileUtils
 
 # path to your application root.
-APP_ROOT = Pathname.new File.expand_path('../../', __FILE__)
+APP_ROOT = File.expand_path('..', __dir__)
 
 def run(command)
   abort "command failed (#{$?}): #{command}" unless system command
