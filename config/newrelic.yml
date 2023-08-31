@@ -1,13 +1,22 @@
-production:
-  agent_enabled: true
-  app_name: pivcac.<%= Identity::Hostdata.env %>.<%= Identity::Hostdata.domain %>
+common: &default_settings
+  code_level_metrics:
+    enabled: false
   # Application log forwarding should always be disabled
   application_logging:
     forwarding:
       enabled: false
+development:
+  <<: *default_settings
+  monitor_mode: false
+production:
+  <<: *default_settings
+  agent_enabled: true
+  app_name: pivcac.<%= Identity::Hostdata.env %>.<%= Identity::Hostdata.domain %>
   host: gov-collector.newrelic.com
   audit_log:
     enabled: false
+  browser_monitoring:
+    auto_instrument: false
   error_collector:
     capture_source: true
     enabled: true
@@ -27,3 +36,6 @@ production:
     record_sql: obfuscated
   proxy_host:
   proxy_port:
+test:
+  <<: *default_settings
+  monitor_mode: false
