@@ -1668,7 +1668,7 @@ gitlab_pages['enable'] = true
 # gitlab_pages['insecure_ciphers'] = false
 
 ##! Configure to enable health check endpoint on GitLab Pages
-# gitlab_pages['status_uri'] = "/@status"
+gitlab_pages['status_uri'] = "/-/healthcheck"
 
 ##! Tune the maximum number of concurrent connections GitLab Pages will handle.
 ##! Default to 0 for unlimited connections.
@@ -1822,6 +1822,11 @@ gitlab_pages['enable'] = true
 # gitlab_pages['env'] = {
 #   'SSL_CERT_DIR' => "#{node['package']['install-dir']}/embedded/ssl/certs/"
 # }
+gitlab_pages['env'] = {
+  'SSL_CERT_DIR' => "/opt/gitlab/embedded/ssl/certs/",
+  'https_proxy' => "http://obproxy.login.gov.internal:3128"
+}
+
 
 ################################################################################
 ## GitLab Pages NGINX

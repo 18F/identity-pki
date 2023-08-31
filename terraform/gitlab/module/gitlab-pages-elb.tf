@@ -27,8 +27,8 @@ resource "aws_lb_target_group" "gitlab-pages" {
   vpc_id      = aws_vpc.default.id
   health_check {
     protocol = "HTTPS"
-    port     = 443
-    matcher  = "302"
+    port     = 4443
+    path     = "/-/healthcheck"
   }
 }
 
