@@ -1,4 +1,4 @@
-FROM ruby:3.2.2-slim
+FROM ruby:3.2.2-slim-bullseye
 
 SHELL ["/bin/bash", "-c"]
 
