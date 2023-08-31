@@ -43,6 +43,7 @@ group :test do
   gem 'factory_bot_rails', '>= 5.2.0'
   gem 'fakefs', require: 'fakefs/safe'
   gem 'rails-controller-testing', '>= 1.0.4'
+  gem 'rspec_junit_formatter'
   gem 'shoulda-matchers', '~> 3.1', '>= 3.1.3', require: false
   gem 'simplecov', '>= 0.13.0'
   gem 'timecop'

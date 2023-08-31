@@ -306,6 +306,8 @@ GEM
       rspec-mocks (~> 3.9)
       rspec-support (~> 3.9)
     rspec-support (3.10.3)
+    rspec_junit_formatter (0.6.0)
+      rspec-core (>= 2, < 4, != 2.12.0)
     rubocop (1.50.1)
       json (~> 2.3)
       parallel (~> 1.10)
@@ -400,6 +402,7 @@ DEPENDENCIES
   redacted_struct (~> 1.0)
   rgl
   rspec-rails (>= 3.8.3)
+  rspec_junit_formatter
   rubocop
   rubocop-performance (~> 1.17)
   rubocop-rails (>= 2.19.0)

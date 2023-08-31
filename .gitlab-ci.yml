@@ -76,11 +76,15 @@ specs:
     when: always
     paths:
       - coverage/
+      - rspec.xml
+      - rspec.json
+    reports:
+      junit: rspec.xml
   script:
     - *bundle_install
     - "echo -e \"test:\n  nonce_bloom_filter_server: 'redis://redis:6379/0'\" > config/application.yml"
     - bundle exec rake db:setup --trace
-    - bundle exec rspec
+    - bundle exec rspec --format documentation --format RspecJunitFormatter --out rspec.xml --format json --out rspec.json
 
 lint:
   stage: test
