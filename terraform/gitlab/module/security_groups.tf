@@ -810,8 +810,7 @@ resource "aws_security_group_rule" "pages_ingress" {
   to_port           = 443
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  # cidr_blocks       = ["159.142.0.0/16"]
-  description = "Allow connection from everybody"
+  description       = "Allow connection from everybody"
 }
 
 resource "aws_security_group_rule" "pages_vpc_egress" {
@@ -821,5 +820,15 @@ resource "aws_security_group_rule" "pages_vpc_egress" {
   from_port         = 4443
   to_port           = 4443
   protocol          = "tcp"
-  cidr_blocks       = [aws_vpc.default.cidr_block]
+  cidr_blocks       = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+}
+
+resource "aws_security_group_rule" "pages_vpc_healthcheck_egress" {
+  security_group_id = aws_security_group.pages_alb.id
+  type              = "egress"
+  description       = "Allow outbound to the target group"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
 }

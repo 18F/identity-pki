@@ -27,6 +27,8 @@ resource "aws_lb_target_group" "gitlab-pages" {
   vpc_id      = aws_vpc.default.id
   health_check {
     protocol = "HTTPS"
+    port     = 443
+    matcher  = "302"
   }
 }
 
@@ -46,6 +48,17 @@ resource "aws_lb_listener" "gitlab-pages" {
 resource "aws_route53_record" "gitlab-pages-public" {
   zone_id = var.route53_id
   name    = "pages.${var.env_name}"
+  type    = "A"
+  alias {
+    name                   = aws_lb.gitlab-pages.dns_name
+    zone_id                = aws_lb.gitlab-pages.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "gitlab-pages-wildcard" {
+  zone_id = var.route53_id
+  name    = "*.pages.${var.env_name}"
   type    = "A"
   alias {
     name                   = aws_lb.gitlab-pages.dns_name
