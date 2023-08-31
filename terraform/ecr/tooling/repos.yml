@@ -74,6 +74,9 @@ repos:
   idp_ci:
     name: "idp/ci"
     <<: *all_write_template
+  pivcac_ci:
+    name: "pivcac/ci"
+    <<: *all_write_template
   nginx:
     name: "ecr-public/nginx/nginx"
     <<: *all_write_template
