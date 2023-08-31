@@ -51,7 +51,7 @@ module X509Helpers
       revocation.add_extension(ext)
       crl.add_revoked(revocation)
     end
-    crl.sign(root_key, OpenSSL::Digest::SHA256.new)
+    crl.sign(root_key, OpenSSL::Digest.new('SHA256'))
     crl
   end
 
@@ -161,7 +161,7 @@ module X509Helpers
     end
 
     add_certificate_extensions(root_ca, root_ca, *extensions)
-    root_ca.sign(root_key, OpenSSL::Digest::SHA256.new)
+    root_ca.sign(root_key, OpenSSL::Digest.new('SHA256'))
     [root_ca, root_key]
   end
 
@@ -210,7 +210,7 @@ module X509Helpers
     end
 
     add_certificate_extensions(cert, root_ca, *extensions)
-    cert.sign(root_key, OpenSSL::Digest::SHA256.new)
+    cert.sign(root_key, OpenSSL::Digest.new('SHA256'))
     [cert, key]
   end
 
@@ -265,7 +265,7 @@ module X509Helpers
     end
 
     add_certificate_extensions(cert, root_ca, *extensions)
-    cert.sign(root_key, OpenSSL::Digest::SHA256.new)
+    cert.sign(root_key, OpenSSL::Digest.new('SHA256'))
     cert
   end
 
@@ -287,7 +287,7 @@ module X509Helpers
         **root_options
       )
       root_cert_id = OpenSSL::OCSP::CertificateId.new(
-        root, root, OpenSSL::Digest::SHA1.new
+        root, root, OpenSSL::Digest.new('SHA1')
       )
       root_certs << {
         type: :root,
@@ -310,7 +310,7 @@ module X509Helpers
           **intermediate_options
         )
         intermediate_cert_id = OpenSSL::OCSP::CertificateId.new(
-          intermediate, root, OpenSSL::Digest::SHA1.new
+          intermediate, root, OpenSSL::Digest.new('SHA1')
         )
         intermediate_certs << {
           type: :intermediate,
@@ -336,7 +336,7 @@ module X509Helpers
             **leaf_options
           )
           leaf_cert_id = OpenSSL::OCSP::CertificateId.new(
-            leaf, intermediate, OpenSSL::Digest::SHA1.new
+            leaf, intermediate, OpenSSL::Digest.new('SHA1')
           )
           leaf_certs << {
             type: :leaf,

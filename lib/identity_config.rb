@@ -53,7 +53,6 @@ class IdentityConfig
     converted_value = CONVERTERS.fetch(type).call(value, options: options)
     raise "#{key} is required but is not present" if converted_value.nil?
 
-
     @key_types[key] = type
 
     @written_env[key] = converted_value
@@ -81,6 +80,7 @@ class IdentityConfig
     config.add(:http_open_timeout, type: :integer)
     config.add(:http_read_timeout, type: :integer)
     config.add(:identity_idp_host, type: :string)
+    config.add(:log_to_stdout, type: :boolean)
     config.add(:login_certificate_bundle_file, type: :string)
     config.add(:newrelic_license_key)
     config.add(:nonce_bloom_filter_enabled, type: :boolean)
