@@ -20,6 +20,7 @@ gem 'rgl'
 
 group :development, :test do
   gem 'bullet', '>= 6.0.2'
+  gem 'brakeman', require: false
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
   gem 'rubocop', require: false
@@ -29,7 +30,6 @@ end
 
 group :development do
   gem 'better_errors', '>= 2.5.1'
-  gem 'brakeman', require: false
   gem 'bummr', require: false
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
@@ -39,6 +39,7 @@ end
 
 group :test do
   gem 'axe-matchers', '~> 1.3.4'
+  gem 'bundler-audit', require: false
   gem 'database_cleaner'
   gem 'factory_bot_rails', '>= 5.2.0'
   gem 'fakefs', require: 'fakefs/safe'
