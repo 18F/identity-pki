@@ -23,8 +23,16 @@ check: lint test
 lint:
 	@echo "--- rubocop ---"
 	bundle exec rubocop
+	@echo "--- brakeman ---"
+	bundle exec brakeman
 	@echo "--- bundler-audit ---"
 	bundle exec bundler-audit check --update
+	@echo "--- lint Gemfile.lock ---"
+	make lint_gemfile_lock
+
+lint_gemfile_lock: Gemfile Gemfile.lock ## Lints the Gemfile and its lockfile
+	@bundle check
+	@git diff-index --quiet HEAD Gemfile.lock || (echo "Error: There are uncommitted changes after running 'bundle install'"; exit 1)
 
 lintfix:
 	@echo "--- rubocop fix ---"
