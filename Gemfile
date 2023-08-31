@@ -20,6 +20,7 @@ gem 'rgl'
 
 group :development, :test do
   gem 'bullet', '>= 6.0.2'
+  gem 'brakeman', require: false
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
   gem 'rubocop', require: false
@@ -29,7 +30,6 @@ end
 
 group :development do
   gem 'better_errors', '>= 2.5.1'
-  gem 'brakeman', require: false
   gem 'bummr', require: false
   gem 'guard-rspec', require: false
   gem 'overcommit', require: false
