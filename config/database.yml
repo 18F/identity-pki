@@ -25,6 +25,9 @@ development:
 
 test:
   <<: *defaults
+  database: <%= ENV['POSTGRES_DB'] || "identity_pki_#{Rails.env}" %>
+  user: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
 
 production:
   <<: *defaults

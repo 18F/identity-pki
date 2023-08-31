@@ -6,7 +6,26 @@
 variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
   IDP_WORKER_IMAGE_TAG: 'main'
+  PIVCAC_CI_SHA: 'sha256:87767eb8daa6703c247d5a4baa5e19eddc58bc051f01070903f24d9f8a6c9267'
+
+default:
+  image: '${ECR_REGISTRY}/pivcac/ci@${PIVCAC_CI_SHA}'
+
+.bundle_install: &bundle_install
+  - bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/ruby
+
+.build_cache:
+  - &ruby_cache
+    key:
+      files:
+        - Gemfile.lock
+    paths:
+      - vendor/ruby
+    policy: pull
+
 stages:
+  - build
+  - test
   - review
   - scan
 
@@ -18,6 +37,102 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event" || $CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "stages/prod"'
     - if: '$CI_MERGE_REQUEST_IID || $CI_EXTERNAL_PULL_REQUEST_IID'
+
+install:
+  stage: build
+  variables:
+    RAILS_ENV: test
+  cache:
+    - <<: *ruby_cache
+      policy: pull-push
+
+  script:
+    - echo "'$CI_PIPELINE_SOURCE'"
+    - echo "'$CI_MERGE_REQUEST_IID'"
+    - echo "'$CI_EXTERNAL_PULL_REQUEST_IID'"
+    - echo 'ok'
+    - *bundle_install
+
+specs:
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  variables:
+    COVERAGE: 'true'
+    DOCKER_DB_HOST: db-postgres
+    POSTGRES_DB: identity_idp_test
+    POSTGRES_USER: postgres_user
+    POSTGRES_PASSWORD: postgres_password
+    POSTGRES_HOST_AUTH_METHOD: trust
+    RAILS_ENV: test
+  services:
+    - name: postgres:13.9
+      alias: db-postgres
+      command: ['--fsync=false', '--synchronous_commit=false', '--full_page_writes=false']
+    - name: redis:7.0
+      alias: db-redis
+  artifacts:
+    expire_in: 31d
+    when: always
+    paths:
+      - coverage/
+      - rspec.xml
+      - rspec.json
+    reports:
+      junit: rspec.xml
+  script:
+    - *bundle_install
+    - "echo -e \"test:\n  nonce_bloom_filter_server: 'redis://redis:6379/0'\" > config/application.yml"
+    - bundle exec rake db:setup --trace
+    - bundle exec rspec --format documentation --format RspecJunitFormatter --out rspec.xml --format json --out rspec.json
+
+lint:
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  script:
+    - *bundle_install
+    - make lint
+
+check_certificate_bundle:
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  variables:
+    DOCKER_DB_HOST: db-postgres
+    POSTGRES_DB: identity_idp_test
+    POSTGRES_USER: postgres_user
+    POSTGRES_PASSWORD: postgres_password
+    POSTGRES_HOST_AUTH_METHOD: trust
+    RAILS_ENV: test
+  services:
+    - name: postgres:13.9
+      alias: db-postgres
+      command: ['--fsync=false', '--synchronous_commit=false', '--full_page_writes=false']
+  script:
+    - *bundle_install
+    - bundle exec rake db:setup --trace
+    - bundle exec rake certs:check_certificate_bundle
+
+check_expiring_certificates:
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  variables:
+    DOCKER_DB_HOST: db-postgres
+    POSTGRES_DB: identity_idp_test
+    POSTGRES_USER: postgres_user
+    POSTGRES_PASSWORD: postgres_password
+    POSTGRES_HOST_AUTH_METHOD: trust
+    RAILS_ENV: test
+  services:
+    - name: postgres:13.9
+      alias: db-postgres
+      command: ['--fsync=false', '--synchronous_commit=false', '--full_page_writes=false']
+  script:
+    - *bundle_install
+    - bundle exec rake db:setup --trace
+    - bundle exec rake certs:print_expiring
 
 # Build a container image async, and don't block CI tests
 # Cache intermediate images for 1 week (168 hours)
