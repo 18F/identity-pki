@@ -120,6 +120,9 @@ GEM
     bummr (0.5.0)
       rainbow
       thor
+    bundler-audit (0.9.1)
+      bundler (>= 1.2.0, < 3)
+      thor (~> 1.0)
     byebug (11.1.3)
     childprocess (4.0.0)
     choice (0.2.0)
@@ -384,6 +387,7 @@ DEPENDENCIES
   brakeman
   bullet (>= 6.0.2)
   bummr
+  bundler-audit
   database_cleaner
   factory_bot_rails (>= 5.2.0)
   fakefs
