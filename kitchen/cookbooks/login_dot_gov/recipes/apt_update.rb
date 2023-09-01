@@ -12,8 +12,26 @@ package 'ubuntu-advantage-tools' do
   options '-o DPkg::Lock::Timeout=240'
 end
 
-execute 'pro config set apt_news=false'
+execute 'ubuntu_advantage_set_news' do
+  command <<-EOF
+    if [ "`sudo ua status --format=json | jq -r '.config.ua_config.apt_news'`" == true ]; then
+        sudo pro config set apt_news=false 
+    fi
+  EOF
+  ignore_failure false
+  action :run
+end
+
 execute 'pro refresh config'
 
-execute 'pro enable esm-apps'
+execute 'ubuntu_advantage_esm_apps' do
+  command <<-EOF
+    if [ "`sudo ua status --format=json | jq -r '.services[] | select(.name=="esm-apps") | .status'`" == disabled ]; then
+        sudo ua enable esm-apps --assume-yes 
+    fi
+  EOF
+  ignore_failure false
+  action :run
+end
+
 execute 'apt update'
