@@ -4,7 +4,7 @@ resource "aws_lb" "gitlab-pages" {
     aws_security_group.pages_alb.id,
   ]
   internal = false
-  subnets  = [for zone in local.network_zones : aws_subnet.apps[zone].id]
+  subnets  = [for zone in local.network_zones : aws_subnet.public-ingress[zone].id]
 
   load_balancer_type = "application"
 
