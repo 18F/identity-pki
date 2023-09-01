@@ -161,13 +161,22 @@ resource "aws_security_group" "gitlab" {
     )
   }
 
-  # Accept traffic from the WAF-enabled ALB
+  # Accept traffic from the ALBs
   ingress {
     from_port = 443
     to_port   = 443
     protocol  = "tcp"
     security_groups = [
       aws_security_group.waf_alb.id,
+    ]
+  }
+
+  ingress {
+    from_port = 4443
+    to_port   = 4443
+    protocol  = "tcp"
+    security_groups = [
+      aws_security_group.pages_alb.id,
     ]
   }
 
@@ -786,4 +795,40 @@ resource "aws_security_group" "rds_endpoint" {
   }
 
   vpc_id = aws_vpc.default.id
+}
+
+resource "aws_security_group" "pages_alb" {
+  name        = "${var.env_name}-pages-alb"
+  description = "Controls access to gitlab pages"
+  vpc_id      = aws_vpc.default.id
+}
+
+resource "aws_security_group_rule" "pages_ingress" {
+  security_group_id = aws_security_group.pages_alb.id
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow connection from everybody"
+}
+
+resource "aws_security_group_rule" "pages_vpc_egress" {
+  security_group_id = aws_security_group.pages_alb.id
+  type              = "egress"
+  description       = "Allow outbound to the target group"
+  from_port         = 4443
+  to_port           = 4443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
+}
+
+resource "aws_security_group_rule" "pages_vpc_healthcheck_egress" {
+  security_group_id = aws_security_group.pages_alb.id
+  type              = "egress"
+  description       = "Allow outbound to the target group"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_vpc.default.cidr_block, aws_vpc_ipv4_cidr_block_association.secondary_cidr.cidr_block]
 }

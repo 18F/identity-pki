@@ -57,6 +57,7 @@ end
 # must come after external_fqdn
 email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
+pages_external_url = "https://pages.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/"
 
 target_url = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
                'https://secure.login.gov/api/saml/auth2023'
@@ -131,6 +132,8 @@ template '/etc/gitlab/gitlab.rb' do
       backup_s3_bucket: backup_s3_bucket,
       postgres_version: postgres_version,
       external_url: external_url,
+      external_fqdn: external_fqdn,
+      pages_external_url: pages_external_url,
       db_password: db_password,
       db_host: db_host,
       root_password: root_password,

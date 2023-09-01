@@ -1648,6 +1648,8 @@ nginx['proxy_custom_buffer_size'] = '5k'
 ##! Define to enable GitLab Pages
 # pages_external_url "http://pages.example.com/"
 # gitlab_pages['enable'] = false
+pages_external_url '<%= @pages_external_url %>'
+gitlab_pages['enable'] = true
 
 ##! Configure to expose GitLab Pages on external IP address, serving the HTTP
 # gitlab_pages['external_http'] = []
@@ -1666,7 +1668,7 @@ nginx['proxy_custom_buffer_size'] = '5k'
 # gitlab_pages['insecure_ciphers'] = false
 
 ##! Configure to enable health check endpoint on GitLab Pages
-# gitlab_pages['status_uri'] = "/@status"
+gitlab_pages['status_uri'] = "/-/healthcheck"
 
 ##! Tune the maximum number of concurrent connections GitLab Pages will handle.
 ##! Default to 0 for unlimited connections.
@@ -1820,6 +1822,11 @@ nginx['proxy_custom_buffer_size'] = '5k'
 # gitlab_pages['env'] = {
 #   'SSL_CERT_DIR' => "#{node['package']['install-dir']}/embedded/ssl/certs/"
 # }
+gitlab_pages['env'] = {
+  'SSL_CERT_DIR' => "/opt/gitlab/embedded/ssl/certs/",
+  'https_proxy' => "http://obproxy.login.gov.internal:3128"
+}
+
 
 ################################################################################
 ## GitLab Pages NGINX
@@ -1835,6 +1842,11 @@ nginx['proxy_custom_buffer_size'] = '5k'
 # pages_nginx['enable'] = true
 
 # gitlab_rails['pages_path'] = "/var/opt/gitlab/gitlab-rails/shared/pages"
+
+pages_nginx['enable'] = true
+pages_nginx['listen_port'] = 4443
+pages_nginx['ssl_certificate'] = "/etc/gitlab/ssl/<%= @external_fqdn %>.crt"
+pages_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/<%= @external_fqdn %>.key"
 
 ################################################################################
 ## GitLab CI

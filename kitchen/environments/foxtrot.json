@@ -5,7 +5,7 @@
     "chef_type": "environment",
     "default_attributes": {
       "login_dot_gov": {
-        "deploy_branch_default": "abarbara/foxtrotgitlab"
+        "deploy_branch_default": "stages/gitlabfoxtrot"
       }
     },
     "override_attributes": {

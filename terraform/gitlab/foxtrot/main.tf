@@ -12,7 +12,7 @@ terraform {
 module "main" {
   source = "../module"
 
-  bootstrap_main_git_ref_default = "abarbara/foxtrotgitlab"
+  bootstrap_main_git_ref_default = "stages/gitlabfoxtrot"
   env_name                       = "foxtrot"
   env_type                       = "tooling-sandbox"
   region                         = "us-west-2"
