@@ -1,0 +1,7 @@
+---
+BUNDLE_RETRY: "3"
+BUNDLE_PATH: "vendor/bundle"
+BUNDLE_JOBS: "4"
+BUNDLE_CLEAN: "true"
+BUNDLE_DEPLOYMENT: "true"
+BUNDLE_WITHOUT: "test"
