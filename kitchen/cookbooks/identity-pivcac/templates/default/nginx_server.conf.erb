@@ -14,13 +14,12 @@ server {
     ssl on;
     server_name  <%= @server_name or raise 'no @server_name' %>;
 
-
     ssl_certificate      /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/fullchain.pem;
     ssl_certificate_key  /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/privkey.pem;
     ssl_verify_client optional_no_ca; # on;
     ssl_verify_depth 10;
 
-    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH:!ECDHE-RSA-AES256-SHA384:!ECDHE-RSA-AES256-SHA:!DHE-RSA-AES256-SHA256:!DHE-RSA-AES256-SHA';
     ssl_dhparam /etc/ssl/certs/dhparam.pem;
     ssl_prefer_server_ciphers on;
     ssl_protocols TLSv1.2;
