@@ -39,12 +39,15 @@ module Salesforcelib
       SQL
 
       arr = results.map do |result|
+        # the contact center uses this email as a placeholder
+        email = result.Customer_Email_address__c == 'noemail@noemail.com' ? nil : result.Customer_Email_address__c
+
         SupportCase.new(
           internal_id: result.Id,
           case_number: result.CaseNumber,
-          customer_email: result.Customer_Email_address__c,
+          customer_email: email || '[not found]',
           created_date: result.CreatedDate,
-          found: true,
+          found: !!email,
         )
       end
 

@@ -70,11 +70,11 @@ if pad_case_numbers
 end
 
 cases = Salesforcelib::Client.new.find_cases(case_numbers, include_missing: true)
+emails = cases.select(&:found?).map(&:customer_email)
 
 email_to_uuid = {}
 
-if include_uuids
-  emails = cases.select(&:found?).map(&:customer_email)
+if include_uuids && !emails.empty?
 
   require_relative '../cloudlib/lib/cloudlib/idp_command.rb'
 
