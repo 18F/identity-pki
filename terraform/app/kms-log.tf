@@ -17,39 +17,89 @@ module "kms_logging" {
   kmslog_lambda_debug                     = var.kms_log_kmslog_lambda_debug
   lambda_identity_lambda_functions_gitrev = var.kms_log_lambda_identity_lambda_functions_gitrev
 
-  lambda_kms_cw_processor_zip      = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_cw_processor_zip      = module.kms_cloudwatch_processor_code.zip_output_path
   cw_processor_memory_size         = var.kms_log_cw_processor_memory_size
   cw_processor_storage_size        = var.kms_log_cw_processor_storage_size
-  lambda_kms_ct_processor_zip      = module.kms_lambda_processors_code.zip_output_path
-  lambda_kms_event_processor_zip   = module.kms_lambda_processors_code.zip_output_path
+  lambda_kms_ct_processor_zip      = module.kms_cloudtrail_processor_code.zip_output_path
+  lambda_kms_event_processor_zip   = module.kms_event_processor_code.zip_output_path
   lambda_slack_batch_processor_zip = module.kms_slack_batch_processor_code.zip_output_path
 
   depends_on = [
-    module.kms_lambda_processors_code.resource_check,
+    module.kms_cloudwatch_processor_code.resource_check,
+    module.kms_cloudtrail_processor_code.resource_check,
+    module.kms_event_processor_code.resource_check,
     module.kms_slack_batch_processor_code.resource_check
   ]
 }
 
-resource "null_resource" "kms_lambda_processors_build" {
+resource "null_resource" "kms_lambda_directory_monitor" {
+  for_each = toset(["kms_cloudtrail_processor", "kms_cloudwatch_processor", "kms_event_processor"])
   triggers = {
-    install = sha1(file("${path.module}/lambda/kms_lambda_processors/scripts/install-deps.sh"))
-  }
-  provisioner "local-exec" {
-    command     = "./scripts/install-deps.sh"
-    working_dir = "${path.module}/lambda/kms_lambda_processors"
+    dir_sha = sha1(join("", [for f in fileset("${path.module}/lambda/${each.key}/", "*") : f == "REVISION.txt" ? "" : filesha1("${path.module}/lambda/${each.key}/${f}")]))
   }
 }
 
-module "kms_lambda_processors_code" {
+
+data "external" "gitrev" {
+  program = [
+    "git", "log", "-1", "HEAD",
+    "--pretty=format:{ \"commit\": \"%H\" }",
+  ]
+}
+
+resource "local_file" "lambda_revision_txt" {
+  for_each        = toset(["kms_cloudtrail_processor", "kms_cloudwatch_processor", "kms_event_processor"])
+  content         = data.external.gitrev.result.commit
+  filename        = "${path.module}/lambda/${each.key}/REVISION.txt"
+  file_permission = "0644"
+
+  lifecycle {
+    ignore_changes = [
+      content
+    ]
+    replace_triggered_by = [
+      null_resource.kms_lambda_directory_monitor
+    ]
+  }
+}
+
+module "kms_cloudtrail_processor_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
+
+  source_code_filename = "lib/kms_monitor/cloudtrail.rb"
+  source_dir           = "${path.module}/lambda/kms_cloudtrail_processor/"
+  zip_filename         = "${path.module}/lambda/kms_cloudtrail_processor.zip"
+
+  depends_on = [
+    local_file.lambda_revision_txt
+  ]
+}
+
+module "kms_cloudwatch_processor_code" {
   source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../../identity-terraform/null_archive"
 
   source_code_filename = "lib/kms_monitor/cloudwatch.rb"
-  source_dir           = "${path.module}/lambda/kms_lambda_processors/"
-  zip_filename         = "${path.module}/lambda/kms_lambda_processors.zip"
+  source_dir           = "${path.module}/lambda/kms_cloudwatch_processor/"
+  zip_filename         = "${path.module}/lambda/kms_cloudwatch_processor.zip"
 
+  depends_on = [
+    local_file.lambda_revision_txt
+  ]
+}
 
-  depends_on = [null_resource.kms_lambda_processors_build]
+module "kms_event_processor_code" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../../identity-terraform/null_archive"
+
+  source_code_filename = "lib/kms_monitor/events_generator.rb"
+  source_dir           = "${path.module}/lambda/kms_event_processor/"
+  zip_filename         = "${path.module}/lambda/kms_event_processor.zip"
+
+  depends_on = [
+    local_file.lambda_revision_txt
+  ]
 }
 
 module "kms_slack_batch_processor_code" {
