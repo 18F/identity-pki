@@ -1,0 +1,17 @@
+common: &default_settings
+  code_level_metrics:
+    enabled: false
+  # Application log forwarding should always be disabled
+  application_logging:
+    forwarding:
+      enabled: false
+production:
+  <<: *default_settings
+  agent_enabled: false
+  audit_log:
+    enabled: false
+  browser_monitoring:
+    auto_instrument: false
+  log_level: info
+  monitor_mode: false
+  log_file_path: 'STDOUT'
