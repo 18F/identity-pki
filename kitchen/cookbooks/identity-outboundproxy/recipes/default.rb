@@ -111,11 +111,16 @@ end
 
 execute 'squid_parse' do
     command 'squid -k parse'
-  end
+end
 
-  execute 'squid_debug' do
+execute 'squid_debug' do
     command 'squid -k debug'
-  end
+end
+
+execute 'enable_squid_apparmor' do
+    command 'aa-enforce /etc/apparmor.d/usr.sbin.squid'
+    notifies :restart, 'service[squid]', :delayed
+end
 
 service 'squid' do
     supports :restart => true, :reload => true
