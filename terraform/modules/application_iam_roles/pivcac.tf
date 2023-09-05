@@ -47,6 +47,12 @@ resource "aws_iam_role_policy" "pivcac-ssm-access" {
   policy = var.ssm_policy
 }
 
+resource "aws_iam_role_policy" "pivcac-ec2-tags" {
+  name   = "${var.env_name}-pivcac-ec2-tags"
+  role   = aws_iam_role.pivcac.id
+  policy = data.aws_iam_policy_document.ec2-tags.json
+}
+
 # add-on policy permitting access to us-east-1 ssm-logs bucket and SSM KMS key
 resource "aws_iam_role_policy" "pivcac-ssm-access-ue1" {
   count  = var.ssm_access_enabled && var.create_ue1_ssm_policy ? 1 : 0

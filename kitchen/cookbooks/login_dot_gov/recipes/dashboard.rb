@@ -78,6 +78,11 @@ deploy "#{base_dir}" do
   #user node.fetch('login_dot_gov').fetch('system_user')
 end
 
+execute 'tag instance from git repo sha' do
+  command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:app,Value=$(cd #{base_dir}/current && git rev-parse HEAD)"
+  ignore_failure true
+end
+
 execute "chown-data-www" do
   command "chown -R #{node['login_dot_gov']['system_user']}: #{base_dir}"
   action :nothing

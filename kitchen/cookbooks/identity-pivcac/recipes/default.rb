@@ -94,6 +94,11 @@ deploy "#{base_dir}" do
 
 end
 
+execute 'tag instance from git repo sha' do
+  command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:pivcac,Value=$(cd #{base_dir}/current && git rev-parse HEAD)"
+  ignore_failure true
+end
+
 template "/opt/nginx/conf/sites.d/pivcac.conf" do
   notifies :restart, "service[passenger]"
   source 'nginx_server.conf.erb'

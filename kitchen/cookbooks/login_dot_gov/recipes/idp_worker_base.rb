@@ -74,6 +74,11 @@ git release_path do
   revision deploy_branch
 end
 
+execute 'tag instance from git repo sha' do
+  command "aws ec2 create-tags --region #{node['ec2']['region']} --resources #{node['ec2']['instance_id']} --tags Key=gitsha:worker,Value=$(cd #{release_path} && git rev-parse HEAD)"
+  ignore_failure true
+end
+
 if ENV['TEST_KITCHEN']
   directory '/home/ubuntu/.bundle/cache' do
     action :delete

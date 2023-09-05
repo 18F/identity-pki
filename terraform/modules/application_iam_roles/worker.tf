@@ -10,6 +10,12 @@ resource "aws_iam_role_policy" "worker_doc_capture" {
   policy = data.aws_iam_policy_document.idp_doc_capture.json
 }
 
+resource "aws_iam_role_policy" "worker-ec2-tags" {
+  name   = "${var.env_name}-worker-ec2-tags"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.ec2-tags.json
+}
+
 resource "aws_iam_role_policy" "worker-download-artifacts" {
   name   = "${var.env_name}-worker-artifacts"
   role   = aws_iam_role.worker.id

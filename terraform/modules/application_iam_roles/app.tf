@@ -126,6 +126,13 @@ resource "aws_iam_role_policy" "app-ssm-access" {
   policy = var.ssm_policy
 }
 
+resource "aws_iam_role_policy" "app-ec2-tags" {
+  count  = var.apps_enabled
+  name   = "${var.env_name}-app-ec2-tags"
+  role   = aws_iam_role.app[count.index].id
+  policy = data.aws_iam_policy_document.ec2-tags.json
+}
+
 # add-on policy permitting access to us-east-1 ssm-logs bucket and SSM KMS key
 resource "aws_iam_role_policy" "app-ssm-access-ue1" {
   count  = var.apps_enabled == 1 && var.ssm_access_enabled && var.create_ue1_ssm_policy ? 1 : 0

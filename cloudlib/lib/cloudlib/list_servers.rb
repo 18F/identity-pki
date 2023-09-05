@@ -23,7 +23,14 @@ module Cloudlib
       'launch-time' => proc { |i| i.launch_time.to_s },
       'uptime' => proc { |i| pretty_time(Time.now - i.launch_time) },
       'AZ' => proc { |i| i.placement.availability_zone },
-      'sha' => proc { |i| (Cloudlib::EC2.fetch_tag(i, 'gitsha:idp', allow_nil: true) || '')[0..8] },
+      'sha' => proc do |i|
+        (
+          Cloudlib::EC2.fetch_tag(i, 'gitsha:idp', allow_nil: true) ||
+          Cloudlib::EC2.fetch_tag(i, 'gitsha:app', allow_nil: true) ||
+          Cloudlib::EC2.fetch_tag(i, 'gitsha:pivcac', allow_nil: true) ||
+          Cloudlib::EC2.fetch_tag(i, 'gitsha:worker', allow_nil: true) ||
+         '')[0..8]
+      end,
     }.freeze
 
     HEADER_ALIASES = {
