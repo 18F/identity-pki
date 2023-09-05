@@ -204,23 +204,12 @@ resource "aws_dms_replication_task" "bigint" {
         {
           "rule-type" : "selection",
           "rule-id" : "1",
-          "rule-name" : "include_all_tables",
+          "rule-name" : "select_events_table",
           "object-locator" : {
             "schema-name" : "public",
-            "table-name" : "%"
+            "table-name" : "events"
           },
           "rule-action" : "include",
-          "filters" : []
-        },
-        {
-          "rule-type" : "selection",
-          "rule-id" : "4",
-          "rule-name" : "exclude_service_providers",
-          "object-locator" : {
-            "schema-name" : "public",
-            "table-name" : "service_providers"
-          },
-          "rule-action" : "exclude",
           "filters" : []
         },
         {
@@ -238,6 +227,19 @@ resource "aws_dms_replication_task" "bigint" {
             "column-name" : "%",
             "data-type" : "int4"
           }
+        },
+        {
+          "rule-type" : "transformation",
+          "rule-id" : "3",
+          "rule-name" : "add_table_prefix",
+          "rule-target" : "table",
+          "object-locator" : {
+            "schema-name" : "%",
+            "table-name" : "%"
+          },
+          "rule-action" : "add-prefix",
+          "value" : "zznew_",
+          "old-value" : null
         }
       ]
     }
