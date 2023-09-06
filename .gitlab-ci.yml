@@ -23,11 +23,9 @@
 
 stages:
   - build
-  - scan
   - test
   - deploy
   - post_deploy
-  - nessus_scan
   - smoke_test
   - gitlabproduction_deploy
 
@@ -50,7 +48,7 @@ variables:
 
 .nessus_scan:
   timeout: 2h # Nessus scan runs long, takes awhile to finish
-  stage: nessus_scan
+  stage: smoke_test
   allow_failure: true
   rules:
     - if: $CI_SERVER_HOST != "gitlab.login.gov"
@@ -339,7 +337,7 @@ variables:
       dast: nessus-report.json
 
 .container_scan_template:
-  stage: scan
+  stage: test
   interruptible: true
   allow_failure: true
   rules:
