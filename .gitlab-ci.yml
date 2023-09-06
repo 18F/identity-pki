@@ -27,6 +27,7 @@ stages:
   - test
   - deploy
   - post_deploy
+  - nessus_scan
   - smoke_test
   - gitlabproduction_deploy
 
@@ -45,6 +46,297 @@ variables:
   TEST_IMAGE_DIGEST: "sha256:b63e41e7c2bb95b2eef9cd4bfce31ef53c0f8b6fd9ea2f38b6074646e0850419"
   GITDEPLOY_IMAGE_DIGEST: "sha256:1a5784d7a0ca8557f22e976ae43f5fc53ea5226afbaf501d41435d8285adb06a"
   GITTEST_IMAGE_DIGEST: "sha256:960feb0eb38ee8096ad1030911643384f1148dc4fd2af1b1b898bd107d3f5878"
+  NESSUS_URL: "https://44.230.151.136:8834"
+
+.nessus_scan:
+  timeout: 2h # Nessus scan runs long, takes awhile to finish
+  stage: nessus_scan
+  allow_failure: true
+  rules:
+    - if: $CI_SERVER_HOST != "gitlab.login.gov"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $branch
+  image: 
+    name: python:3.9.17
+    entrypoint: [""]
+  before_script:
+    - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
+    - chmod +x jq-linux64
+    - mv jq-linux64 /usr/local/bin/jq
+  script:
+    # Find the scan id by searching through the names of all scans
+    - >
+      SCAN_ID=$(curl -k -s -X GET "$NESSUS_URL/scans" -H "X-ApiKeys: accessKey=$NESSUS_ACCESS_KEY; secretKey=$NESSUS_SECRET_KEY" | jq ".scans[] | select(.name | contains(\"$scan_env\")).id") &&
+      if [ -z "$SCAN_ID" ]; then
+          echo "No scan found containing the environment string: $scan_env";
+          exit 0;
+      fi
+    # Launch the Nessus scan for the environment
+    - 'curl -k -X POST "$NESSUS_URL/scans/$SCAN_ID/launch" -H "X-ApiKeys: accessKey=$NESSUS_ACCESS_KEY; secretKey=$NESSUS_SECRET_KEY"'
+    # Wait on scan to complete before attempting the export to csv
+    - >
+      while [[ "$SCAN_STATUS" != "completed" ]]
+      do
+          sleep 300  # Wait for 5 minutes before checking again.
+          SCAN_STATUS=$(curl -k -s -X GET "$NESSUS_URL/scans/$SCAN_ID" -H "X-ApiKeys: accessKey=$NESSUS_ACCESS_KEY; secretKey=$NESSUS_SECRET_KEY" | jq -r ".info.status")
+          echo "Waiting on scan for $SCAN_ID to complete, current status $SCAN_STATUS"
+      done
+    # Initiate the export.
+    - |
+      FILE_ID=$(curl -s -k -X POST -H "X-ApiKeys: accessKey=$NESSUS_ACCESS_KEY; secretKey=$NESSUS_SECRET_KEY" -H 'Content-Type: application/json' -d '{"format": "csv"}' "$NESSUS_URL/scans/$SCAN_ID/export" | jq -r ".file")
+      if [ -z "$FILE_ID" ]
+      then
+          echo "Failed to initiate the export. Exiting."
+          exit 1
+      fi
+    # Check the status of the export.
+    - |
+      while [[ "$EXPORT_STATUS" != "ready" ]]
+      do
+          sleep 60  # Wait for 1 minute before checking again.
+          EXPORT_STATUS=$(curl -s -k -X GET -H "X-ApiKeys: accessKey=$NESSUS_ACCESS_KEY; secretKey=$NESSUS_SECRET_KEY" "$NESSUS_URL/scans/$SCAN_ID/export/$FILE_ID/status" | jq -r ".status")
+          if [[ "$EXPORT_STATUS" == "error" ]]
+          then
+              echo "Export encountered an error. Exiting."
+              exit 1
+          fi
+      done
+    # Download the exported file.
+    - 'curl -s -k -X GET -H "X-ApiKeys: accessKey=$NESSUS_ACCESS_KEY; secretKey=$NESSUS_SECRET_KEY" "$NESSUS_URL/scans/$SCAN_ID/export/$FILE_ID/download" -o scan.csv'
+    - python bin/lib/convert.py scan.csv
+    # Grab the results of our Nessus scan without CIS Benchmark because that has a special format
+    # Validate report schema locally using https://docs.gitlab.com/ee/development/integrations/secure.html#report
+    - >
+      jq --arg env "$scan_env" -r '
+        if (length > 0 and any(.[]; .Risk and (.Risk != "PASSED" and .Risk != "FAILED" and .Risk != "WARNING"))) then
+        {
+          "version": "15.0.4",
+          "scan": {
+            "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "scanner": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "analyzer": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "scanned_resources": [
+              {
+                "method": "GET",
+                "url": ("https://" + $env + ".identitysandbox.gov"),
+                "type": "url"
+              }
+            ],
+            "status": "success",
+            "type": "dast"
+          },
+          "vulnerabilities": [
+            .[] | 
+            select(.Risk and .Risk != "PASSED" and .Risk != "FAILED" and .Risk != "WARNING") |
+            {
+              "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+              "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+              "description": .Description,
+              "severity": (
+                  if .Risk == "CRITICAL" then "Critical"
+                  elif .Risk == "HIGH" then "High"
+                  elif .Risk == "MEDIUM" then "Medium"
+                  elif .Risk == "LOW" then "Low"
+                  elif .Risk == "INFO" then "Info"
+                  elif .Risk == "NONE" or .Risk == "PASSED" then "Unknown"
+                  elif .Risk == "WARNING" then "Info" # Mapping to Info for now
+                  else "Unknown"
+              end
+              ),
+              "solution": .Solution,
+              "identifiers": [
+                {
+                  "type": "cve",
+                  "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
+                  "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+                }
+              ],
+              "links": [
+                {
+                  "name": ($env + " - " + .Name),
+                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
+                }
+              ],
+              "location": {
+                "hostname": .Host
+              }
+            }
+          ]
+        }
+      else
+      {
+        "version": "15.0.4",
+        "scan": {
+          "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+          "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+          "scanner": {
+            "id": "Nessus",
+            "name": "Nessus Scan",
+            "version": "1.0.0",
+            "vendor": {
+              "name": "Tenable"
+            }
+          },
+          "analyzer": {
+            "id": "Nessus",
+            "name": "Nessus Scan",
+            "version": "1.0.0",
+            "vendor": {
+              "name": "Tenable"
+            }
+          },
+          "scanned_resources": [
+            {
+              "method": "GET",
+              "url": ("https://" + $env + ".identitysandbox.gov"),
+              "type": "url"
+            }
+          ],
+          "status": "success",
+          "type": "dast"
+        },
+        "vulnerabilities": []
+      }
+      end' < scan.json > gl-nessus-scanning-report.json
+    # Grab the results of our Nessus scan CIS Benchmark and put into special format
+    - >
+      jq --arg env "$scan_env" -r '
+        if (length > 0 and any(.[]; .Risk and (.Risk == "FAILED" or .Risk == "WARNING"))) then
+        {
+          "version": "15.0.4",
+          "scan": {
+            "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "scanner": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "analyzer": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "scanned_resources": [
+              {
+                "method": "GET",
+                "url": ("https://" + $env + ".identitysandbox.gov"),
+                "type": "url"
+              }
+            ],
+            "status": "success",
+            "type": "dast"
+          },
+          "vulnerabilities": [
+            .[] | 
+            select(.Risk == "FAILED" or .Risk == "WARNING") |
+            {
+              "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+              "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+              "description": .Description,
+              "severity": (
+                  if .Risk == "CRITICAL" then "Critical"
+                  elif .Risk == "HIGH" then "High"
+                  elif .Risk == "MEDIUM" then "Medium"
+                  elif .Risk == "LOW" then "Low"
+                  elif .Risk == "INFO" then "Info"
+                  elif .Risk == "NONE" or .Risk == "PASSED" then "Unknown"
+                  elif .Risk == "WARNING" then "Info"
+                  else "Unknown" 
+                  end
+              ),
+              "solution": .Solution,
+              "identifiers": [
+                {
+                  "type": "cve",
+                  "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
+                  "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0]))
+                }
+              ],
+              "links": [
+                {
+                  "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
+                }
+              ],
+              "location": {
+                "hostname": .Host
+              }
+            }
+          ]
+        }
+        else
+        {
+          "version": "15.0.4",
+          "scan": {
+            "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "scanner": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "analyzer": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "scanned_resources": [
+              {
+                "method": "GET",
+                "url": ("https://" + $env + ".identitysandbox.gov"),
+                "type": "url"
+              }
+            ],
+            "status": "success",
+            "type": "dast"
+          },
+          "vulnerabilities": []
+        }
+      end' < scan.json > gl-cis-benchmark-scanning-report.json
+    # Merge the reports together so there is one dast report
+    - >
+      jq -s '{
+        version: .[0].version,
+        scan: .[0].scan,
+        vulnerabilities: ([.[0].vulnerabilities, .[1].vulnerabilities] | flatten)
+      }' gl-cis-benchmark-scanning-report.json gl-nessus-scanning-report.json > nessus-report.json
+  artifacts:
+    paths:
+      - nessus-report.json
+    reports:
+      dast: nessus-report.json
 
 .container_scan_template:
   stage: scan
@@ -323,6 +615,23 @@ scan_pivcac_ci_container:
     ecr_repo: pivcac/ci
   needs:
     - build_pivcac_ci_container
+
+# Run nessus scan after environment deploy and import to Security report dashboard
+nessus_scan_dev_environment:
+  extends: .nessus_scan
+  needs:
+    - env-dev
+  variables:
+    scan_env: dev
+    branch: "main" # Needs to match the branch variable in env-scanners and be the default branch to avoid errors in Gitlab and import scan results correctly
+
+nessus_scan_gitstaging_environment:
+  extends: .nessus_scan
+  needs:
+    - deploy_gitstaging
+  variables:
+    scan_env: "gitlab staging"
+    branch: "main"
 
 # IDP environments and their jobs
 .include_idp_jobs_template:
