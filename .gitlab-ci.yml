@@ -619,16 +619,12 @@ scan_pivcac_ci_container:
 # Run nessus scan after environment deploy and import to Security report dashboard
 nessus_scan_dev_environment:
   extends: .nessus_scan
-  needs:
-    - env-dev
   variables:
     scan_env: dev
     branch: "main" # Needs to match the branch variable in env-scanners and be the default branch to avoid errors in Gitlab and import scan results correctly
 
 nessus_scan_gitstaging_environment:
   extends: .nessus_scan
-  needs:
-    - deploy_gitstaging
   variables:
     scan_env: "gitlab staging"
     branch: "main"
