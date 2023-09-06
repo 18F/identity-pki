@@ -33,7 +33,12 @@ fileConfigs:
         <match kube.app.var.log.containers.**>
           @type  rewrite_tag_filter
           <rule>
-           key log
+            key log
+            pattern /[0-9]{4}\\/(0[1-9]|1[0-2])\\/(0[1-9]|[1-2][0-9]|3[0-1]) (2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9] \\[info\\] [1-9][0-9]#\\d+: \\*\\d+ client/
+            tag nginx_error.log
+          </rule>
+          <rule>
+            key log
             pattern /events.log/
             tag events.log
           </rule>
@@ -51,6 +56,16 @@ fileConfigs:
             key log
             pattern /telephony.log/
             tag telephony.log
+          </rule>
+          <rule>
+            key log
+            pattern /nginx_access.log/
+            tag nginx_access.log
+          </rule>
+          <rule>
+            key log
+            pattern /OverallController/
+            tag production.log
           </rule>
         </match>
 
@@ -86,6 +101,30 @@ fileConfigs:
             aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
           </record>
         </filter>
+        <filter nginx_access.log>
+          @type record_transformer
+          enable_ruby true
+          <record>
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/var/log/nginx/access.log
+            aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
+          </record>
+        </filter>
+        <filter nginx_error.log>
+          @type record_transformer
+          enable_ruby true
+          <record>
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/var/log/nginx/error.log
+            aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
+          </record>
+        </filter>
+        <filter production.log>
+          @type record_transformer
+          enable_ruby true
+          <record>
+            aws_log_group_name $${record["kubernetes"]["labels"]["app.kubernetes.io/instance"]}_/srv/pki-rails/shared/log/production.log
+            aws_log_stream_name $${record["kubernetes"]["pod_name"]}.$${record["kubernetes"]["labels"]["app.kubernetes.io/name"]}
+          </record>
+        </filter>
 
   03_dispatch.conf: |-
       #<label @DISPATCH>
@@ -113,9 +152,9 @@ fileConfigs:
       region "${region}"
       log_group_name_key aws_log_group_name
       log_stream_name_key aws_log_stream_name
+      message_keys log_processed
       remove_log_stream_name_key true
       remove_log_group_name_key true
-      message_keys log_processed
       auto_create_stream true
     </match>
     <match kms.log>
@@ -123,9 +162,9 @@ fileConfigs:
       region "${region}"
       log_group_name_key aws_log_group_name
       log_stream_name_key aws_log_stream_name
+      message_keys log_processed
       remove_log_stream_name_key true
       remove_log_group_name_key true
-      message_keys log_processed\, log
       auto_create_stream true
     </match>
     <match workers.log>
@@ -133,9 +172,9 @@ fileConfigs:
       region "${region}"
       log_group_name_key aws_log_group_name
       log_stream_name_key aws_log_stream_name
+      message_keys log_processed
       remove_log_stream_name_key true
       remove_log_group_name_key true
-      message_keys log_processed
       auto_create_stream true
     </match>
     <match telephony.log>
@@ -143,8 +182,38 @@ fileConfigs:
       region "${region}"
       log_group_name_key aws_log_group_name
       log_stream_name_key aws_log_stream_name
+      message_keys log_processed
       remove_log_stream_name_key true
       remove_log_group_name_key true
+      auto_create_stream true
+    </match>
+    <match nginx_access.log>
+      @type cloudwatch_logs
+      region "${region}"
+      log_group_name_key aws_log_group_name
+      log_stream_name_key aws_log_stream_name
       message_keys log_processed
+      remove_log_stream_name_key true
+      remove_log_group_name_key true
+      auto_create_stream true
+    </match>
+    <match nginx_error.log>
+      @type cloudwatch_logs
+      region "${region}"
+      log_group_name_key aws_log_group_name
+      log_stream_name_key aws_log_stream_name
+      message_keys log
+      remove_log_stream_name_key true
+      remove_log_group_name_key true
+      auto_create_stream true
+    </match>
+    <match production.log>
+      @type cloudwatch_logs
+      region "${region}"
+      log_group_name_key aws_log_group_name
+      log_stream_name_key aws_log_stream_name
+      message_keys log_processed
+      remove_log_stream_name_key true
+      remove_log_group_name_key true
       auto_create_stream true
     </match>
