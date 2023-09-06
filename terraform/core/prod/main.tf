@@ -86,6 +86,11 @@ module "main" {
           "ttl"     = "900",
         },
         {
+          "name"    = "www.",
+          "records" = ["www.login.gov.external-domains-production.cloud.gov."],
+          "ttl"     = "900",
+        },
+        {
           "name"    = "data.",
           "records" = ["data.login.gov.external-domains-production.cloud.gov."],
           "ttl"     = "900",
