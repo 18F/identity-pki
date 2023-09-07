@@ -23,10 +23,10 @@
 
 stages:
   - build
-  - test
+  - pre_deploy_test
   - deploy
   - post_deploy
-  - smoke_test
+  - test
   - scan
   - gitlabproduction_deploy
 
@@ -790,7 +790,7 @@ env-aduth:
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test/blessed@$GITTEST_IMAGE_DIGEST
-  stage: smoke_test
+  stage: test
   script:
     - echo "Somebody set us up the deploy" ; exit 1
   artifacts:
@@ -822,7 +822,7 @@ recycle_runner_gitstaging:
     name: ${ENV_NAME}
   tags:
     - ${ENV_NAME}-env-runner
-  stage: smoke_test
+  stage: test
   allow_failure: true
   script:
     - touch unallowed.txt
@@ -848,7 +848,7 @@ run_unallowed_image_gitstaging:
     name: ${ENV_NAME}
   tags:
     - test-pool
-  stage: smoke_test
+  stage: test
   script:
     - test ! -f unallowed.txt
   rules:
@@ -1047,7 +1047,7 @@ test_unallowed_image_alpha:
     - run_unallowed_image_alpha
 
 test_images_exist:
-  stage: test
+  stage: pre_deploy_test
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
