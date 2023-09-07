@@ -154,7 +154,7 @@ variables:
                   elif .Risk == "MEDIUM" then "Medium"
                   elif .Risk == "LOW" then "Low"
                   elif .Risk == "INFO" then "Info"
-                  elif .Risk == "NONE" or .Risk == "PASSED" then "Unknown"
+                  elif .Risk == "None" or .Risk == "PASSED" then "Info"
                   elif .Risk == "WARNING" then "Info" # Mapping to Info for now
                   else "Unknown"
               end
@@ -263,7 +263,7 @@ variables:
                   elif .Risk == "MEDIUM" then "Medium"
                   elif .Risk == "LOW" then "Low"
                   elif .Risk == "INFO" then "Info"
-                  elif .Risk == "NONE" or .Risk == "PASSED" then "Unknown"
+                  elif .Risk == "None" or .Risk == "PASSED" then "Info"
                   elif .Risk == "WARNING" then "Info"
                   else "Unknown" 
                   end
