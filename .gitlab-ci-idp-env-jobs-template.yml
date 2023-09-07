@@ -2,7 +2,7 @@
 stages:
   - deploy
   - post_deploy
-  - smoke_test
+  - test
 
 post_deploy:
   environment:
@@ -59,7 +59,7 @@ test:
     ACCOUNT_ID: $AWS_ACCOUNT_ID
   image:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/env_test/blessed@$TEST_IMAGE_DIGEST
-  stage: smoke_test
+  stage: test
   artifacts:
     reports:
       junit: testlogs/*.xml
@@ -88,7 +88,7 @@ run_allowed_image:
     name: ${ENV_NAME}
   tags:
     - test-pool
-  stage: smoke_test
+  stage: test
   allow_failure: true
   image:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine:latest
@@ -104,7 +104,7 @@ run_unallowed_image:
     name: ${ENV_NAME}
   tags:
     - ${ENV_NAME}-env-runner
-  stage: smoke_test
+  stage: test
   allow_failure: true
   image:
     name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine:latest
@@ -120,7 +120,7 @@ test_unallowed_image:
     name: ${ENV_NAME}
   tags:
     - test-pool
-  stage: smoke_test
+  stage: test
   needs:
     - run_unallowed_image
     - run_allowed_image
