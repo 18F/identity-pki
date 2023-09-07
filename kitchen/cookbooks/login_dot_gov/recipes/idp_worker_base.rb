@@ -313,10 +313,19 @@ end
 
 include_recipe 'login_dot_gov::dhparam'
 
-execute 'enable nginx service' do
-  command 'systemctl enable nginx.service'
+template '/etc/apparmor.d/usr.sbin.nginx' do
+  source 'usr.sbin.nginx.erb'
+  owner 'root'
+  group 'root'
+  mode '0755'
 end
 
-execute 'start nginx service' do
-  command 'systemctl start nginx.service'
+execute 'enable_nginx_apparmor' do
+  command 'aa-complain /etc/apparmor.d/usr.sbin.nginx'
+  notifies :restart, 'service[nginx]'
+end
+
+service 'nginx' do
+  supports status: true, restart: true, reload: true
+  action [ :enable, :start ]
 end

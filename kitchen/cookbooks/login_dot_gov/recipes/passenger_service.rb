@@ -17,7 +17,6 @@ export PASSENGER_NATIVE_SUPPORT_OUTPUT_DIR='#{native_support_dir}'
   EOM
 end
 
-
 service 'passenger' do
   action :nothing
   supports restart: true, status: true
@@ -28,6 +27,19 @@ cpu_count      = node.fetch('cpu').fetch('total')
 primary_role = File.read('/etc/login.gov/info/role').chomp
 
 if primary_role != 'worker'
+  
+  template '/etc/apparmor.d/opt.ruby_build.shims.passenger' do
+    source 'opt.ruby_build.shims.passenger.erb'
+    owner 'root'
+    group 'root'
+    mode '0755'
+  end
+
+  execute 'enable_passenger_apparmor' do
+    command 'aa-complain /etc/apparmor.d/opt.ruby_build.shims.passenger'
+    notifies :restart, 'service[passenger]'
+  end
+
   execute 'scale nginx worker count with instance cpu count' do
     command "sed -i -e 's/worker_processes.*/worker_processes #{cpu_count};/' #{nginx_conf}"
     notifies :restart, 'service[passenger]'
