@@ -934,3 +934,27 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-terraform:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-cookbooks:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-base-image:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
