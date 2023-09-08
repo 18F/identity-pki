@@ -149,14 +149,15 @@ variables:
               "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
               "description": .Description,
               "severity": (
-                  if .Risk == "CRITICAL" then "Critical"
-                  elif .Risk == "HIGH" then "High"
-                  elif .Risk == "MEDIUM" then "Medium"
-                  elif .Risk == "LOW" then "Low"
-                  elif .Risk == "INFO" then "Info"
+                  if .Risk == "CRITICAL" or .Risk == "Critical" then "Critical"
+                  elif .Risk == "HIGH" or .Risk == "High" then "High"
+                  elif .Risk == "MEDIUM" or .Risk == "Medium" then "Medium"
+                  elif .Risk == "LOW" or .Risk == "Low" then "Low"
+                  elif .Risk == "INFO" or .Risk == "Info" then "Info"
                   elif .Risk == "None" or .Risk == "PASSED" then "Info"
-                  elif .Risk == "WARNING" then "Info" # Mapping to Info for now
-                  else "Unknown"
+                  elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
+                  else "Unknown" 
+                  end
               end
               ),
               "solution": .Solution,
@@ -258,13 +259,13 @@ variables:
               "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
               "description": .Description,
               "severity": (
-                  if .Risk == "CRITICAL" then "Critical"
-                  elif .Risk == "HIGH" then "High"
-                  elif .Risk == "MEDIUM" then "Medium"
-                  elif .Risk == "LOW" then "Low"
-                  elif .Risk == "INFO" then "Info"
+                  if .Risk == "CRITICAL" or .Risk == "Critical" then "Critical"
+                  elif .Risk == "HIGH" or .Risk == "High" then "High"
+                  elif .Risk == "MEDIUM" or .Risk == "Medium" then "Medium"
+                  elif .Risk == "LOW" or .Risk == "Low" then "Low"
+                  elif .Risk == "INFO" or .Risk == "Info" then "Info"
                   elif .Risk == "None" or .Risk == "PASSED" then "Info"
-                  elif .Risk == "WARNING" then "Info"
+                  elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
                   else "Unknown" 
                   end
               ),
