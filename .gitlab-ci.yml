@@ -158,7 +158,6 @@ variables:
                   elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
                   else "Unknown" 
                   end
-              end
               ),
               "solution": .Solution,
               "identifiers": [
