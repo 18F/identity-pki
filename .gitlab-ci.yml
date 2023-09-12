@@ -57,7 +57,7 @@ variables:
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: never
     - if: $CI_COMMIT_BRANCH == $branch
-  image: 
+  image:
     name: python:3.9.17
     entrypoint: [""]
   before_script:
@@ -142,7 +142,7 @@ variables:
             "type": "dast"
           },
           "vulnerabilities": [
-            .[] | 
+            .[] |
             select(.Risk and .Risk != "PASSED" and .Risk != "FAILED" and .Risk != "WARNING") |
             {
               "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
@@ -156,7 +156,7 @@ variables:
                   elif .Risk == "INFO" or .Risk == "Info" then "Info"
                   elif .Risk == "None" or .Risk == "PASSED" then "Info"
                   elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
-                  else "Unknown" 
+                  else "Unknown"
                   end
               ),
               "solution": .Solution,
@@ -251,7 +251,7 @@ variables:
             "type": "dast"
           },
           "vulnerabilities": [
-            .[] | 
+            .[] |
             select(.Risk == "FAILED" or .Risk == "WARNING") |
             {
               "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
@@ -265,7 +265,7 @@ variables:
                   elif .Risk == "INFO" or .Risk == "Info" then "Info"
                   elif .Risk == "None" or .Risk == "PASSED" then "Info"
                   elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
-                  else "Unknown" 
+                  else "Unknown"
                   end
               ),
               "solution": .Solution,
@@ -358,7 +358,7 @@ variables:
     - build-pool
   image:
     name: amazon/aws-cli
-    entrypoint: [""] 
+    entrypoint: [""]
   before_script:
     - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
     - chmod +x jq-linux64
@@ -477,7 +477,7 @@ variables:
       }
       end' > gl-container-scanning-report.json
   artifacts:
-    paths: 
+    paths:
       - gl-container-scanning-report.json
     reports:
       container_scanning: gl-container-scanning-report.json
@@ -662,7 +662,7 @@ env-agnes:
   extends: .include_idp_jobs_template
   variables:
     ENV_NAME: agnes
-    branch: "main"
+    branch: "stages/agnes"
 
 env-joy:
   extends: .include_idp_jobs_template
