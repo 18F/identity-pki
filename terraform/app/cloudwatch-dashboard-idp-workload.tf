@@ -692,10 +692,10 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "properties": {
                 "metrics": [
                     %{if var.idp_cluster_instances >= 2~}
-                    [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_uw2.reader_instances~}
-                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ]
+                    [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ],
                     %{endfor~}
+                    [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
                     %{endif~}
                     %{if var.idp_cluster_instances == 1~}
                     [ "AWS/RDS", "DiskQueueDepth", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
@@ -725,10 +725,10 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "properties": {
                 "metrics": [
                     %{if var.idp_cluster_instances >= 2~}
-                    [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_uw2.reader_instances~}
-                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ]
+                    [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ],
                     %{endfor~}
+                    [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
                     %{endif~}
                     %{if var.idp_cluster_instances == 1~}
                     [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
@@ -758,10 +758,10 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "properties": {
                     "metrics": [
                         %{if var.idp_cluster_instances >= 2~}
-                        [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                         %{for id in module.idp_aurora_uw2.reader_instances~}
-                        [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ]
+                        [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ],
                         %{endfor~}
+                        [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
                         %{endif~}
                         %{if var.idp_cluster_instances == 1~}
                         [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
@@ -791,10 +791,10 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
             "properties": {
                 "metrics": [
                     %{if var.idp_cluster_instances >= 2~}
-                    [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ],
                     %{for id in module.idp_aurora_uw2.reader_instances~}
-                    [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ]
+                    [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ],
                     %{endfor~}
+                    [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
                     %{endif~}
                     %{if var.idp_cluster_instances == 1~}
                     [ "AWS/RDS", "NetworkTransmitThroughput", "DBInstanceIdentifier", "${module.idp_aurora_uw2.writer_instance}", { "label": "AuroraDB (Writer Instance)" } ]
