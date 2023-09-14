@@ -61,13 +61,13 @@ resource "aws_cloudwatch_log_group" "pinpoint_event_logger" {
   retention_in_days = 365
 }
 
-resource "aws_cloudwatch_log_metric_filter" "send_by_country" {
-  name           = "SendByCountry"
+resource "aws_cloudwatch_log_metric_filter" "successful_send_by_country" {
+  name           = "SuccessfulSMSByCountry"
   pattern        = "{ $.event_type = \"_SMS.SUCCESS\"}"
   log_group_name = aws_cloudwatch_log_group.pinpoint_event_logger.name
 
   metric_transformation {
-    name      = "Country"
+    name      = "SuccessfulSMS"
     namespace = "PinpointMetrics"
     value     = 1
 
@@ -79,47 +79,49 @@ resource "aws_cloudwatch_log_metric_filter" "send_by_country" {
   }
 }
 
-data "external" "country_codes" {
-  program = [
-    "aws", "route53", "list-geo-locations",
-    "--query", "{\"country_codes\":to_string(GeoLocationDetailsList[?not_null(CountryCode)] | [?length(CountryCode) == `2`].CountryCode)}"
-  ]
-}
+resource "aws_cloudwatch_log_metric_filter" "successful_send_all" {
+  name           = "SuccessfulSMSAll"
+  pattern        = "{ $.event_type = \"_SMS.SUCCESS\"}"
+  log_group_name = aws_cloudwatch_log_group.pinpoint_event_logger.name
 
-locals {
-  country_codes = toset(jsondecode(data.external.country_codes.result.country_codes))
-}
+  metric_transformation {
+    name      = "SuccessfulSMS"
+    namespace = "PinpointMetrics"
+    value     = 1
 
-resource "aws_cloudwatch_metric_alarm" "send_by_country" {
-  for_each            = local.country_codes
-  alarm_name          = "sms-${each.key}-country-anomaly"
-  evaluation_periods  = "2"
-  threshold_metric_id = "e1"
-
-  comparison_operator = "GreaterThanUpperThreshold"
-
-  metric_query {
-    id          = "e1"
-    expression  = "ANOMALY_DETECTION_BAND(m1,30)"
-    label       = "Sent (Expected)"
-    return_data = true
+    unit = "Count"
   }
+}
 
-  metric_query {
-    id          = "m1"
-    return_data = "true"
+resource "aws_cloudwatch_log_metric_filter" "failed_send_by_country" {
+  name           = "FailedSMSByCountry"
+  pattern        = "{ $.event_type = \"_SMS.FAILURE\"}"
+  log_group_name = aws_cloudwatch_log_group.pinpoint_event_logger.name
 
-    metric {
-      metric_name = "Country"
-      namespace   = "PinpointMetrics"
-      period      = "360"
-      stat        = "Sum"
-      unit        = "Count"
+  metric_transformation {
+    name      = "FailedSMS"
+    namespace = "PinpointMetrics"
+    value     = 1
 
-      dimensions = {
-        iso_country_code = each.key
-      }
+    dimensions = {
+      iso_country_code = "$.attributes.iso_country_code",
     }
+
+    unit = "Count"
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "failed_send_all" {
+  name           = "FailedSMSAll"
+  pattern        = "{ $.event_type = \"_SMS.FAILURE\"}"
+  log_group_name = aws_cloudwatch_log_group.pinpoint_event_logger.name
+
+  metric_transformation {
+    name      = "FailedSMS"
+    namespace = "PinpointMetrics"
+    value     = 1
+
+    unit = "Count"
   }
 }
 
