@@ -6,7 +6,7 @@
 variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
   IDP_WORKER_IMAGE_TAG: 'main'
-  PIVCAC_CI_SHA: 'sha256:1b280037c653d00685e10890afe01f83c943ed409a810c398ee9dcb90cdfbd11'
+  PIVCAC_CI_SHA: 'sha256:41c2b811ee61aa06c662e2d631812cda04d06a0dd15e177ec04997dcaeb1cc9c'
   CI: 'true'
 
 default:
