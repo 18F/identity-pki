@@ -700,6 +700,30 @@ resource "aws_security_group" "worker" {
   vpc_id = module.network_uw2.vpc_id
 }
 
+data "aws_ip_ranges" "uswest2_ec2" {
+  regions  = ["us-west-2"]
+  services = ["ec2"]
+}
+
+resource "aws_security_group" "nessus" {
+  count       = var.env_name == "prod" ? 1 : 0
+  description = "Nessus Server"
+  name        = "ec2_from_uswest2"
+
+  ingress {
+    from_port        = "8834"
+    to_port          = "8834"
+    protocol         = "tcp"
+    cidr_blocks      = data.aws_ip_ranges.uswest2_ec2.cidr_blocks
+    ipv6_cidr_blocks = data.aws_ip_ranges.uswest2_ec2.ipv6_cidr_blocks
+  }
+
+  tags = {
+    CreateDate = data.aws_ip_ranges.uswest2_ec2.create_date
+    SyncToken  = data.aws_ip_ranges.uswest2_ec2.sync_token
+  }
+}
+
 module "vpc_flow_cloudwatch_filters" {
   source = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/vpc_flow_cloudwatch_filters"
