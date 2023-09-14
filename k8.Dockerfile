@@ -1,4 +1,4 @@
-FROM ruby:3.0.5-slim
+FROM ruby:3.2.2-slim-bullseye
 
 SHELL ["/bin/bash", "-c"]
 
@@ -141,6 +141,7 @@ RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
     mkdir -p ${RAILS_ROOT}/tmp/sockets; chmod -R 0755 ${RAILS_ROOT}/tmp/sockets; \
     mkdir -p ${RAILS_ROOT}/config/puma; chmod -R 0755 ${RAILS_ROOT}/config/puma; 
 COPY --chown=app --chmod=755 ./k8files/application.yml.default.docker ./config/application.yml
+COPY --chown=app --chmod=755 ./k8files/newrelic.yml ./config/newrelic.yml
 COPY --chown=app --chmod=755 ./k8files/puma_production ./config/puma/production.rb
 
 # Expose port the app runs on

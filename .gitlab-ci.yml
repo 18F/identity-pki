@@ -6,7 +6,8 @@
 variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
   IDP_WORKER_IMAGE_TAG: 'main'
-  PIVCAC_CI_SHA: 'sha256:87767eb8daa6703c247d5a4baa5e19eddc58bc051f01070903f24d9f8a6c9267'
+  PIVCAC_CI_SHA: 'sha256:41c2b811ee61aa06c662e2d631812cda04d06a0dd15e177ec04997dcaeb1cc9c'
+  CI: 'true'
 
 default:
   image: '${ECR_REGISTRY}/pivcac/ci@${PIVCAC_CI_SHA}'
@@ -339,9 +340,10 @@ ecr-scan:
     - >
       while true; do
         SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/review --image-id imageTag=$CI_COMMIT_SHA --query 'imageScanStatus.status' --output text || true)
-        if [ "$SCAN_STATUS" == "ACTIVE" ]; then
+        if echo "$SCAN_STATUS" | grep -q "ACTIVE"; then
+          echo "Scan Complete"
           break
-        elif [ "$SCAN_STATUS" == "FAILED" ]; then
+        elif echo "$SCAN_STATUS" | grep -q "FAILED"; then
           echo "ECR scan failed"
           exit 1
         else
