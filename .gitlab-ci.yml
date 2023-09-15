@@ -357,8 +357,8 @@ variables:
   tags:
     - build-pool
   image:
-    name: amazon/aws-cli
-    entrypoint: [""]
+    name: $ECR_REGISTRY/ecr-public/aws-cli/aws-cli
+    entrypoint: [""] 
   before_script:
     - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
     - chmod +x jq-linux64
@@ -745,7 +745,7 @@ env-aduth:
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
     # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_deploy/blessed@$GITDEPLOY_IMAGE_DIGEST
+    name: $ECR_REGISTRY/cd/gitlab_deploy/blessed@$GITDEPLOY_IMAGE_DIGEST
   stage: deploy
   variables:
     GIT_SUBMODULE_STRATEGY: normal
@@ -789,7 +789,7 @@ env-aduth:
     # If you want to update this image, you will need to edit it here, and in
     # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
     # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/gitlab_test/blessed@$GITTEST_IMAGE_DIGEST
+    name: $ECR_REGISTRY/cd/gitlab_test/blessed@$GITTEST_IMAGE_DIGEST
   stage: test
   script:
     - echo "Somebody set us up the deploy" ; exit 1
@@ -815,7 +815,7 @@ recycle_runner_gitstaging:
 
 .run_unallowed_image_template:
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine:latest
+    name: $ECR_REGISTRY/ecr-public/docker/library/alpine:latest
   environment:
     action: verify
     url: https://${DOMAIN}/
@@ -883,7 +883,7 @@ deploygitlabproduction_trigger:
     name: gitlabproduction
     url: https://gitlab.login.gov/
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+    name: $ECR_REGISTRY/ecr-public/docker/library/alpine
   script:
     - apk --no-cache add curl jq
     - curl --request POST --form token="$GITSTAGING_PIPELINE_TRIGGER_TOKEN" --form ref=main --form "variables[ENV_NAME]=production" "https://gitlab.gitstaging.gitlab.login.gov/api/v4/projects/$GITSTAGING_DEPLOY_PROJECT_ID/trigger/pipeline" > /tmp/curl.out
@@ -1053,9 +1053,9 @@ test_images_exist:
       changes:
         - .gitlab-ci.yml
   image:
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/ecr-public/docker/library/alpine
+    name: $ECR_REGISTRY/ecr-public/aws-cli/aws-cli
+    entrypoint: [""] 
   script:
-    - apk add aws-cli
     - aws ecr describe-images --repository-name cd/env_deploy/blessed --image-ids imageDigest=$DEPLOY_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/env_stop/blessed --image-ids imageDigest=$STOP_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/env_test/blessed --image-ids imageDigest=$TEST_IMAGE_DIGEST

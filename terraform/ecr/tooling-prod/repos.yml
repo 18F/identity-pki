@@ -15,7 +15,10 @@ readonly_template: &readonly_template
 repos:
   alpine:
     name: "ecr-public/docker/library/alpine"
-    <<: *all_write_template
+    <<: *readonly_template
+  aws_cli:
+    name: "ecr-public/aws-cli/aws-cli"
+    <<: *readonly_template
   env_deploy:
     name: "cd/env_deploy"
     <<: *all_write_template
@@ -48,7 +51,7 @@ repos:
     <<: *readonly_template
   golang:
     name: "ecr-public/docker/library/golang"
-    <<: *all_write_template
+    <<: *readonly_template
   idp_ci:
     name: "idp/ci"
     <<: *all_write_template
@@ -57,13 +60,13 @@ repos:
     <<: *all_write_template
   postgres:
     name: "ecr-public/docker/library/postgres"
-    <<: *all_write_template
+    <<: *readonly_template
   redis:
     name: "ecr-public/docker/library/redis"
-    <<: *all_write_template
+    <<: *readonly_template
   ruby:
     name: "ecr-public/docker/library/ruby"
-    <<: *all_write_template
+    <<: *readonly_template
   tf_deploy:
     name: "cd/tf_deploy"
     <<: *all_write_template
