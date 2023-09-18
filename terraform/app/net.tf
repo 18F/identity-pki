@@ -718,6 +718,14 @@ resource "aws_security_group" "nessus" {
     ipv6_cidr_blocks = data.aws_ip_ranges.uswest2_ec2.ipv6_cidr_blocks
   }
 
+  # needed for ssm
+  egress {
+    from_port        = "443"
+    to_port          = "443"
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+
   tags = {
     CreateDate = data.aws_ip_ranges.uswest2_ec2.create_date
     SyncToken  = data.aws_ip_ranges.uswest2_ec2.sync_token
