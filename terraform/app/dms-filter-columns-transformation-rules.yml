@@ -1,0 +1,479 @@
+- table: identities
+  schema: public
+  include_columns:
+    - id
+    - service_provider
+    - last_authenticated_at
+    - user_id
+    - created_at
+    - updated_at
+    - session_uuid
+    - uuid
+    - verified_attributes
+    - verified_at
+    - last_consented_at
+    - last_ial1_authenticated_at
+    - last_ial2_authenticated_at
+    - deleted_at
+    - aal
+    - nonce
+    - requested_aal_value
+
+- table: iaa_orders
+  schema: public
+  include_columns:
+    - id
+    - order_number
+    - mod_number
+    - start_date
+    - end_date
+    - estimated_amount
+    - pricing_model
+    - iaa_gtc_id
+
+- table: in_person_enrollments
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - profile_id
+    - enrollment_code
+    - status_check_attempted_at
+    - status_updated_at
+    - status
+    - created_at
+    - updated_at
+    - current_address_matches_id
+    - unique_id
+    - enrollment_established_at
+    - issuer
+    - follow_up_survey_sent
+    - early_reminder_sent
+    - late_reminder_sent
+    - deadline_passed_sent
+    - proofed_at
+    - capture_secondary_id_enabled
+    - status_check_completed_at
+    - ready_for_status_check
+    - notification_sent_at
+
+- table: account_reset_requests
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - requested_at
+    - cancelled_at
+    - reported_fraud_at
+    - granted_at
+    - created_at
+    - updated_at
+    - requesting_issuer
+
+- table: agency_identities
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - agency_id
+    - uuid
+
+- table: auth_app_configurations
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - name
+    - totp_timestamp
+    - created_at
+    - updated_at
+
+- table: backup_code_configurations
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - used_at
+    - code_cost
+    - created_at
+    - updated_at
+
+- table: deleted_users
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - uuid
+    - user_created_at
+    - deleted_at
+
+- table: devices
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - cookie_uuid
+    - user_agent
+    - last_used_at
+    - last_ip
+    - created_at
+    - updated_at
+
+- table: document_capture_sessions
+  schema: public
+  include_columns:
+    - id
+    - uuid
+    - result_id
+    - user_id
+    - created_at
+    - updated_at
+    - requested_at
+    - issuer
+    - cancelled_at
+    - ocr_confirmation_pending
+
+- table: email_addresses
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - confirmed_at
+    - confirmation_sent_at
+    - created_at
+    - updated_at
+    - last_sign_in_at
+
+- table: events
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - event_type
+    - created_at
+    - updated_at
+    - device_id
+    - ip
+    - disavowed_at
+
+- table: fraud_review_requests
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - uuid
+    - irs_session_id
+    - login_session_id
+    - created_at
+    - updated_at
+
+- table: partner_account_statuses
+  schema: public
+  include_columns:
+    - id
+    - name
+    - order
+    - partner_name
+
+- table: integration_statuses
+  schema: public
+  include_columns:
+    - id
+    - name
+    - order
+    - partner_name
+
+- table: letter_requests_to_usps_ftp_logs
+  schema: public
+  include_columns:
+    - id
+    - ftp_at
+    - letter_requests_count
+
+- table: monthly_auth_counts
+  schema: public
+  include_columns:
+    - id
+    - issuer
+    - year_month
+    - user_id
+    - auth_count
+
+- table: notification_phone_configurations
+  schema: public
+  include_columns:
+    - id
+    - in_person_enrollment_id
+    - created_at
+    - updated_at
+
+- table: integration_usages
+  schema: public
+  include_columns:
+    - id
+    - iaa_order_id
+    - integration_id
+
+- table: integrations
+  schema: public
+  include_columns:
+    - id
+    - issuer
+    - name
+    - dashboard_identifier
+    - partner_account_id
+    - integration_status_id
+    - service_provider_id
+
+- table: profiles
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - active
+    - verified_at
+    - activated_at
+    - created_at
+    - updated_at
+    - deactivation_reason
+    - proofing_components
+    - reproof_at
+    - initiating_service_provider_issuer
+    - fraud_review_pending_at
+    - fraud_rejection_at
+    - gpo_verification_pending_at
+    - fraud_pending_reason
+
+- table: phone_configurations
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - delivery_preference
+    - mfa_enabled
+    - confirmation_sent_at
+    - confirmed_at
+    - created_at
+    - updated_at
+    - made_default_at
+
+- table: phone_number_opt_outs
+  schema: public
+  include_columns:
+    - id
+    - uuid
+    - created_at
+    - updated_at
+
+- table: piv_cac_configurations
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - name
+    - created_at
+    - updated_at
+    - x509_issuer
+
+- table: proofing_components
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - document_check
+    - document_type
+    - source_check
+    - resolution_check
+    - address_check
+    - verified_at
+    - created_at
+    - updated_at
+    - liveness_check
+    - device_fingerprinting_vendor
+    - threatmetrix
+    - threatmetrix_review_status
+    - threatmetrix_risk_rating
+    - threatmetrix_policy_score
+
+- table: registration_logs
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - registered_at
+
+- table: security_events
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - event_type
+    - jti
+    - issuer
+    - created_at
+    - updated_at
+    - occurred_at
+
+- table: sign_in_restrictions
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - service_provider
+    - created_at
+    - updated_at
+
+- table: sp_costs
+  schema: public
+  include_columns:
+    - id
+    - issuer
+    - agency_id
+    - cost_type
+    - created_at
+    - updated_at
+    - ial
+    - transaction_id
+
+- table: sp_return_logs
+  schema: public
+  include_columns:
+    - id
+    - requested_at
+    - request_id
+    - ial
+    - issuer
+    - user_id
+    - returned_at
+    - billable
+
+- table: usps_confirmation_codes
+  schema: public
+  include_columns:
+    - id
+    - profile_id
+    - code_sent_at
+    - created_at
+    - updated_at
+    - bounced_at
+
+- table: usps_confirmations
+  schema: public
+  include_columns:
+    - id
+    - created_at
+    - updated_at
+
+- table: users
+  schema: public
+  include_columns:
+    - id
+    - reset_password_sent_at
+    - remember_created_at
+    - created_at
+    - updated_at
+    - confirmed_at
+    - second_factor_attempts_count
+    - uuid
+    - second_factor_locked_at
+    - phone_confirmed_at
+    - direct_otp_sent_at
+    - unique_session_id
+    - otp_delivery_preference
+    - remember_device_revoked_at
+    - email_language
+    - accepted_terms_at
+    - encrypted_recovery_code_digest_generated_at
+    - suspended_at
+    - reinstated_at
+
+- table: partner_accounts
+  schema: public
+  include_columns:
+    - id
+    - name
+    - description
+    - requesting_agency
+    - became_partner
+    - agency_id
+    - partner_account_status_id
+    - crm_id
+
+- table: iaa_gtcs
+  schema: public
+  include_columns:
+    - id
+    - gtc_number
+    - mod_number
+    - start_date
+    - end_date
+    - estimated_amount
+    - partner_account_id
+
+- table: service_providers
+  schema: public
+  include_columns:
+    - id
+    - issuer
+    - friendly_name
+    - description
+    - metadata_url
+    - acs_url
+    - assertion_consumer_logout_service_url
+    - logo
+    - sp_initiated_login_url
+    - return_to_sp_url
+    - attribute_bundle
+    - created_at
+    - updated_at
+    - active
+    - approved
+    - native
+    - redirect_uris
+    - agency_id
+    - failure_to_proof_url
+    - ial
+    - piv_cac
+    - piv_cac_scoped_by_email
+    - pkce
+    - push_notification_url
+    - help_text
+    - allow_prompt_login
+    - signed_response_message_requested
+    - remote_logo_key
+    - launch_date
+    - iaa
+    - iaa_start_date
+    - iaa_end_date
+    - app_id
+    - default_aal
+    - email_nameid_format_allowed
+    - use_legacy_name_id_behavior
+    - irs_attempts_api_enabled
+    - in_person_proofing_enabled
+
+- table: agencies
+  schema: public
+  include_columns:
+    - id
+    - name
+    - abbreviation
+
+- table: webauthn_configurations
+  schema: public
+  include_columns:
+    - id
+    - user_id
+    - name
+    - created_at
+    - updated_at
+    - platform_authenticator
+    - transports
+
+- table: suspended_emails
+  schema: public
+  include_columns:
+      - id
+      - email_address_id
+      - created_at
+      - updated_at

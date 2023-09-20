@@ -1,0 +1,6 @@
+- schema: public
+  table:  identities
+  action: exclude
+- schema: public
+  table:  '%'
+  action: include
