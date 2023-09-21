@@ -144,7 +144,7 @@ Options:
         s3_client.put_object(
           bucket: bucket,
           key: key,
-          body: file,
+          body: file
         )
       end
     end
@@ -165,7 +165,7 @@ Options:
       s3_client.get_object(
         bucket: bucket,
         key: key,
-        response_target: transfer_config.path,
+        response_target: transfer_config.path
       )
     end
   end
@@ -199,7 +199,7 @@ Options:
   end
 
   def s3_client
-    @s3_client ||= Aws::S3::Client.new
+    @s3_client ||= Aws::S3::Client.new(force_path_style: false)
   end
 
   def build_s3_path(key)
@@ -215,7 +215,7 @@ Options:
       end
 
       if account_id && !account_id.empty?
-        "login-gov.transfer-utility.#{account_id}-us-west-2"
+        "login-gov-transfer-utility-#{account_id}-us-west-2"
       end
     end
   end

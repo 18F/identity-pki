@@ -2,6 +2,7 @@
 # so that it can be merged with var.ssm_cmd_doc_map in the ssm module
 
 locals {
+  transfer_utility_bucket = "login-gov-transfer-utility-${data.aws_caller_identity.current.account_id}-${var.region}"
   locust_cmds = {
     "locust-leader" = {
       command = [
@@ -11,7 +12,7 @@ locals {
         "for i in `seq 1 $(($(nproc)-2))`; do NUM_USERS={{NUMUSERS}} /usr/local/bin/id-locust {{TEST}} {{ENV}} -w 127.0.0.1 & done",
         "TMOUT=900000 NUM_USERS={{NUMUSERS}} /usr/local/bin/id-locust {{TEST}} {{ENV}} -u {{USERS}} -r {{SPAWNRATE}} -n {{NUMUSERS}} -t {{RUNTIME}} -m -p",
         "cp /var/log/loadtest/* /tmp/pocust/",
-        "aws s3 cp /tmp/pocust/ s3://login-gov.transfer-utility.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/out/pocust/ --recursive",
+        "aws s3 cp /tmp/pocust/ s3://${local.transfer_utility_bucket}/${var.env_name}/out/pocust/ --recursive",
       ]
       description = "Initiates the locust master service and local workers with remaining cores"
       logging     = false
@@ -99,7 +100,7 @@ locals {
         "cd /etc/login.gov/repos/identity-loadtest/",
         "git describe --always --tags >> /tmp/pocust/$(hostname)-pocust.txt",
         "echo '#Uploading locust output files'",
-        "aws s3 cp /tmp/pocust/* s3://login-gov.transfer-utility.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/out/pocust/",
+        "aws s3 cp /tmp/pocust/* s3://${local.transfer_utility_bucket}/${var.env_name}/out/pocust/",
         "echo '#Cleaning up locust output files'",
         "rm -rf /tmp/pocust",
         "rm -f /var/log/load_test/*'"
@@ -119,7 +120,7 @@ locals {
         "echo '# Configuration' >> /tmp/pocust/$(hostname)-pocust.txt",
         "for f in {{IDPFILES}}; do sudo sha256sum --tag $f >> /tmp/pocust/$(hostname)-pocust.txt ; done",
         "echo '#Uploading output files'",
-        "aws s3 cp /tmp/pocust/* s3://login-gov.transfer-utility.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/out/pocust/",
+        "aws s3 cp /tmp/pocust/* s3://${local.transfer_utility_bucket}/${var.env_name}/out/pocust/",
         "rm -rf /tmp/pocust"
       ]
       description = "Footprints idp host and uploads results to transfer-utility"

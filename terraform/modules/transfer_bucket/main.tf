@@ -6,7 +6,7 @@ locals {
 }
 
 resource "aws_s3_bucket" "transfer_utility" {
-  bucket        = "${var.bucket_name_prefix}.${var.bucket_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket        = "${var.bucket_name_prefix}-${var.bucket_name}-${data.aws_caller_identity.current.account_id}-${var.region}"
   force_destroy = var.force_destroy
 
   tags = {
@@ -18,7 +18,7 @@ resource "aws_s3_bucket" "transfer_utility" {
 resource "aws_s3_bucket_logging" "transfer_utility_logging" {
   bucket        = aws_s3_bucket.transfer_utility.id
   target_bucket = var.logs_bucket
-  target_prefix = "${var.bucket_name_prefix}.${var.bucket_name}.${data.aws_caller_identity.current.account_id}-${var.region}/"
+  target_prefix = "${aws_s3_bucket.transfer_utility.id}/"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "transfer_utility_lifecycle" {
@@ -138,8 +138,7 @@ module "transfer_utility_bucket_config" {
   #source = "../../../../identity-terraform/s3_config"
   depends_on = [aws_s3_bucket.transfer_utility]
 
-  bucket_name_prefix   = var.bucket_name_prefix
-  bucket_name          = var.bucket_name
+  bucket_name_override = aws_s3_bucket.transfer_utility.id
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_arn
 }

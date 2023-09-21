@@ -712,8 +712,8 @@ data "aws_iam_policy_document" "ses_email_role_policy" {
 }
 
 locals {
-  transfer_bucket = join(".", [
-    "arn:aws:s3:::login-gov.transfer-utility",
+  transfer_bucket = join("-", [
+    "arn:aws:s3:::login-gov-transfer-utility",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
     ]
   )
@@ -749,7 +749,7 @@ data "aws_iam_policy_document" "transfer_utility_policy" {
       "s3:ListBucket",
     ]
     resources = [
-      "${local.transfer_bucket}",
+      local.transfer_bucket,
     ]
   }
   statement {
