@@ -1,5 +1,7 @@
 resource "aws_sqs_queue" "usps" {
   name = "usps-${var.env_name}-queue"
+
+  kms_master_key_id = local.aws_kms_key_alias
 }
 
 output "sqs_arn" {

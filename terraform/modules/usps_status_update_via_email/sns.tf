@@ -6,6 +6,7 @@ resource "aws_sns_topic" "usps_topic" {
   http_success_feedback_role_arn    = aws_iam_role.usps_SNSSuccessFeedback.arn
   http_failure_feedback_role_arn    = aws_iam_role.usps_SNSFailureFeedback.arn
   http_success_feedback_sample_rate = 100
+  kms_master_key_id                 = local.aws_kms_key_alias
 }
 
 resource "aws_sns_topic_policy" "usps_topic_policy" {
