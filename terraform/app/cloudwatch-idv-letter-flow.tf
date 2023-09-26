@@ -100,7 +100,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
         "region": "${var.region}",
         "stacked": false,
         "view": "bar",
-        "title": "Phone attempts before requesting/enqueueing letter (data since Aug 8, 2023)"
+        "title": "Phone attempts before requesting/enqueueing letter (data since Aug 9, 2023)"
       }
     },
     {
@@ -114,7 +114,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
         "region": "${var.region}",
         "stacked": false,
         "view": "table",
-        "title": "Percentage of zero phone attempts before requesting letter (data since Aug 8, 2023)"
+        "title": "Percentage of zero phone attempts before requesting letter (data since Aug 9, 2023)"
       }
     },
     {
@@ -127,7 +127,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
         "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, properties.event_properties.pending_profile_pending_reasons as reasons, @message\n| filter name in [\n    'Password Reset: Password Submitted'\n] and properties.event_properties.pending_profile_invalidated and properties.event_properties.pending_profile_pending_reasons like /gpo_verification_pending/\n| stats count(*)\nby bin(1day) as period\n| sort period asc",
         "region": "${var.region}",
         "stacked": false,
-        "title": "Password resets while letter pending (data since July 27, 2023)",
+        "title": "Password resets while letter pending (data since July 28, 2023)",
         "view": "bar"
       }
     },
@@ -156,7 +156,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
         "region": "${var.region}",
         "stacked": false,
         "view": "bar",
-        "title": "Num attempts to enter verification code (data since Aug 8, 2023)"
+        "title": "Num attempts to enter verification code (data since Aug 9, 2023)"
       }
     },
     {
@@ -169,7 +169,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
         "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name = 'IdV: GPO verification submitted' and properties.event_properties.success = 1 and properties.event_properties.letter_count > 1\n| stats count(*) by properties.event_properties.which_letter as which_letter\n| sort properties.event_properties.which_letter asc",
         "region": "${var.region}",
         "stacked": false,
-        "title": "Which letter code, with multipe letters (data since Aug 8, 2023)",
+        "title": "Which letter code, with multipe letters (data since Aug 9, 2023)",
         "view": "table"
       }
     },
@@ -183,7 +183,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
         "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name in ['IdV: USPS address letter requested', 'IdV: USPS address letter enqueued']\n| filter properties.new_event\n| filter properties.event_properties.resend = 1\n| fields (name = 'IdV: USPS address letter requested') as @requested\n| fields (name = 'IdV: USPS address letter enqueued') as @enqueued\n| stats sum(@requested) as requested, sum(@enqueued) as enqueued  by ceil(properties.event_properties.hours_since_first_letter/24) as days_since_first_letter\n| sort days_since_first_letter asc",
         "region": "${var.region}",
         "stacked": false,
-        "title": "Days since first letter (data since Aug 17, 2023)",
+        "title": "Days since first letter (data since Aug 18, 2023)",
         "view": "table"
       }
     }
