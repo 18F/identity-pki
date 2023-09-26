@@ -19,6 +19,7 @@ module "main" {
   sns_topic_alert_critical = "slack-events"
   sns_topic_alert_warning  = "slack-events"
   pinpoint_spend_limit     = 100000 # USD monthly
+  sms_support_api_endpoint = "https://idp.int.identitysandbox.gov/api/country-support.json"
 }
 
 output "pinpoint_app_id" {

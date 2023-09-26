@@ -125,6 +125,68 @@ resource "aws_cloudwatch_log_metric_filter" "failed_send_all" {
   }
 }
 
+data "http" "phone_support" {
+  url = var.sms_support_api_endpoint
+
+  request_headers = {
+    Accept = "application/json"
+  }
+}
+
+locals {
+  supported_country_codes      = toset([for key, value in jsondecode(data.http.phone_support.response_body).countries : key if value.supports_sms])
+  alarm_volume_alert_countries = setsubtract(local.supported_country_codes, toset(split(var.ignored_countries, ",")))
+}
+
+resource "aws_cloudwatch_metric_alarm" "send_by_country" {
+  for_each   = local.alarm_volume_alert_countries
+  alarm_name = "sms-country-volume-too-high"
+
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  datapoints_to_alarm = "1"
+  threshold           = var.sms_unexpected_country_alarm_threshold
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [data.aws_sns_topic.alert_warning.arn]
+
+  metric_query {
+    id          = "total_send"
+    expression  = "(successful_send + failed_send)"
+    label       = "Total SMS Send Attempts"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "failed_send"
+
+    metric {
+      metric_name = "FailedSendByCountry"
+      namespace   = "PinpointMetrics"
+      period      = 3600
+      stat        = "Sum"
+
+      dimensions = {
+        iso_country_code = each.key
+      }
+    }
+  }
+
+  metric_query {
+    id = "successful_send"
+
+    metric {
+      metric_name = "SuccessfulSendByCountry"
+      namespace   = "PinpointMetrics"
+      period      = 3600
+      stat        = "Sum"
+
+      dimensions = {
+        iso_country_code = each.key
+      }
+    }
+  }
+}
+
 module "lambda_zip" {
   source = "github.com/18F/identity-terraform//null_archive?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../../identity-terraform/null_archive"

@@ -53,6 +53,13 @@ variable "pinpoint_event_logger_lambda_name" {
   default     = "pinpoint_event_logger"
 }
 
+variable "sms_support_api_endpoint" {
+  type        = string
+  description = <<EOM
+  The Login.gov IDP API endpoint that contains the telephony support information for the given environment.
+  EOM
+}
+
 variable "sms_unexpected_country_alarm_threshold" {
   type        = number
   default     = 100
@@ -62,7 +69,6 @@ variable "sms_unexpected_country_alarm_threshold" {
   limit in an hour will trigger an alert to slack"
   EOM
 }
-
 
 variable "ignored_countries" {
   type        = string
