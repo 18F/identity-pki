@@ -54,9 +54,11 @@ repos:
     <<: *readonly_template
   idp_ci:
     name: "idp/ci"
+    lifecycle_policies_enabled: false
     <<: *all_write_template
   pivcac_ci:
     name: "pivcac/ci"
+    lifecycle_policies_enabled: false
     <<: *all_write_template
   postgres:
     name: "ecr-public/docker/library/postgres"

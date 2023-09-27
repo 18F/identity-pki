@@ -46,6 +46,7 @@ data "aws_iam_policy_document" "ecr_repo" {
 }
 
 resource "aws_ecr_lifecycle_policy" "ecr_repo" {
+  count      = var.lifecycle_policies_enabled ? 1 : 0
   repository = aws_ecr_repository.ecr_repo.name
 
   policy = <<EOF

@@ -39,3 +39,8 @@ variable "prod_accountid" {
   description = "prod account ID, so prod can replicate images"
   type        = string
 }
+
+variable "lifecycle_policies_enabled" {
+  description = "whether to enable repository lifecycle policies"
+  type        = bool
+}
