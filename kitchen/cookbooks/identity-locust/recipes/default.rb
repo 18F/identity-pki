@@ -18,9 +18,11 @@ end
 
 package %w(python3 python3-dev python3-pip libssl-dev libffi-dev)
 
-# make python 3 default
-execute 'update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1'
-execute 'update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2'
+# Removes the system installed version of blinker.
+# This is re-installed during the install_locust step.
+package 'python3-blinker' do
+  action :remove
+end
 
 # upgrade pip
 execute 'python3 -m pip install --upgrade pip'
