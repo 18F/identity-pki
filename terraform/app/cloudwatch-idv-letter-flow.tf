@@ -40,7 +40,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter (name = 'IdV: GPO verification submitted' and properties.event_properties.success) or name = 'IdV: USPS address letter enqueued'\n| fields (name = 'IdV: GPO verification submitted') as @confirmed,\n  (name = 'IdV: USPS address letter enqueued' and\n!properties.event_properties.resend) as @sent\n| parse properties.event_properties.enqueued_at '*T*' @enqueued_at_day, @enqueued_at_time\n| stats sum(@sent) as sent, sum(@confirmed) as confirmed by @enqueued_at_day\n| sort @enqueued_at_day asc",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter (name in ['IdV: enter verify by mail code submitted', 'IdV: GPO verification submitted'] and properties.event_properties.success) or name = 'IdV: USPS address letter enqueued'\n| fields (name in ['IdV: enter verify by mail code submitted', 'IdV: GPO verification submitted']) as @confirmed,\n  (name = 'IdV: USPS address letter enqueued' and\n!properties.event_properties.resend) as @sent\n| parse properties.event_properties.enqueued_at '*T*' @enqueued_at_day, @enqueued_at_time\n| stats sum(@sent) as sent, sum(@confirmed) as confirmed by @enqueued_at_day\n| sort @enqueued_at_day asc",
         "region": "${var.region}",
         "stacked": false,
         "title": "Letter send and confirmation by enqueued at (including resends)",
@@ -68,7 +68,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
       "x": 18,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter (name = 'IdV: GPO verification submitted' and properties.event_properties.success) or name = 'IdV: USPS address letter enqueued'\n| fields (name = 'IdV: GPO verification submitted') as @confirmed,\n  (name = 'IdV: USPS address letter enqueued' and\n!properties.event_properties.resend) as @sent\n| parse properties.event_properties.enqueued_at '*T*' @enqueued_at_day, @enqueued_at_time\n| stats sum(@confirmed) / sum(@sent) * 100 as success_rate, sum(@sent) as total_sent, sum(@confirmed) as total_confirmed",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter (name in ['IdV: enter verify by mail code submitted', 'IdV: GPO verification submitted'] and properties.event_properties.success) or name = 'IdV: USPS address letter enqueued'\n| fields (name in ['IdV: enter verify by mail code submitted', 'IdV: GPO verification submitted']) as @confirmed,\n  (name = 'IdV: USPS address letter enqueued' and\n!properties.event_properties.resend) as @sent\n| parse properties.event_properties.enqueued_at '*T*' @enqueued_at_day, @enqueued_at_time\n| stats sum(@confirmed) / sum(@sent) * 100 as success_rate, sum(@sent) as total_sent, sum(@confirmed) as total_confirmed",
         "region": "${var.region}",
         "stacked": false,
         "title": "Letter send and confirmation stats (including resends)",
@@ -82,7 +82,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name in ['IdV: USPS address visited', 'IdV: USPS address letter requested', 'IdV: USPS address letter enqueued', 'IdV: GPO verification visited', 'IdV: GPO verification submitted']\n| fields (name = 'IdV: USPS address visited' and properties.new_event) as @letter_request_visited,\n  (name = 'IdV: USPS address letter requested' and\n!properties.event_properties.resend and properties.new_event) as @letter_request_submitted,\n  (name = 'IdV: USPS address letter enqueued' and\n!properties.event_properties.resend) as @letter_enqueued,\n  (name = 'IdV: GPO verification visited' and properties.new_event) as\n@code_verification_visited,\n  (name = 'IdV: GPO verification submitted' and\nproperties.event_properties.success and properties.new_event) as @code_verification_submitted_success\n| stats sum(@letter_request_visited) as letter_request_visited,\n  sum(@letter_request_submitted) as letter_request_submitted,\n  sum(@letter_enqueued) as letter_enqueued,\n  sum(@code_verification_visited) as code_verification_visited,\n  sum(@code_verification_submitted_success) as\ncode_verification_submitted_success\n  by bin(1year)",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | # NOTE: Some event names were changed for LG-10530 (https://github.com/18F/identity-idp/pull/9136)\nfields @timestamp, @message\n| filter name in [\n'IdV: request letter visited', \n'IdV: USPS address visited', \n'IdV: USPS address letter requested', \n'IdV: USPS address letter enqueued', \n'IdV: enter verify by mail code visited', \n'IdV: enter verify by mail code submitted', \n'IdV: GPO verification visited', \n'IdV: GPO verification submitted']\n| fields \n  (name in ['IdV: request letter visited', 'IdV: USPS address visited'] and properties.new_event) as @letter_request_visited,\n  (name = 'IdV: USPS address letter requested' and !properties.event_properties.resend and properties.new_event) as @letter_request_submitted,\n  (name = 'IdV: USPS address letter enqueued' and !properties.event_properties.resend) as @letter_enqueued,\n  (name in ['IdV: enter verify by mail code visited', 'IdV: GPO verification visited'] and properties.new_event) as @code_verification_visited,\n  (name in ['IdV: enter verify by mail code submitted', 'IdV: GPO verification submitted'] and properties.event_properties.success and properties.new_event) as @code_verification_submitted_success\n\n| stats sum(@letter_request_visited) as letter_request_visited,\n  sum(@letter_request_submitted) as letter_request_submitted,\n  sum(@letter_enqueued) as letter_enqueued,\n  sum(@code_verification_visited) as code_verification_visited,\n  sum(@code_verification_submitted_success) as code_verification_submitted_success\n  by bin(1year)",
         "region": "${var.region}",
         "stacked": false,
         "title": "Letter flow funnel",
@@ -152,7 +152,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name in [\n    'IdV: GPO verification submitted' ]\n| stats count(properties.event_properties.attempts) by properties.event_properties.attempts as count\n| sort count asc ",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name in [\n  'IdV: enter verify by mail code submitted',  'IdV: GPO verification submitted' ]\n| stats count(properties.event_properties.attempts) by properties.event_properties.attempts as count\n| sort count asc ",
         "region": "${var.region}",
         "stacked": false,
         "view": "bar",
@@ -166,7 +166,7 @@ resource "aws_cloudwatch_dashboard" "idv_letter_flow" {
       "x": 9,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name = 'IdV: GPO verification submitted' and properties.event_properties.success = 1 and properties.event_properties.letter_count > 1\n| stats count(*) by properties.event_properties.which_letter as which_letter\n| sort properties.event_properties.which_letter asc",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name in ['IdV: enter verify by mail code submitted', 'IdV: GPO verification submitted'] and properties.event_properties.success = 1 and properties.event_properties.letter_count > 1\n| stats count(*) by properties.event_properties.which_letter as which_letter\n| sort properties.event_properties.which_letter asc",
         "region": "${var.region}",
         "stacked": false,
         "title": "Which letter code, with multipe letters (data since Aug 9, 2023)",
