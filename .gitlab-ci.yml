@@ -553,12 +553,6 @@ build_env_test_container:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
 
-build_idp_ci_container:
-  extends: .build_template
-  variables:
-    dockerfile: idp_ci.Dockerfile
-    ecr_repo: idp/ci
-
 build_pivcac_ci_container:
   extends: .build_template
   variables:
@@ -600,13 +594,6 @@ scan_env_test_container:
     ecr_repo: cd/env_test
   needs:
     - build_env_test_container
-
-scan_idp_ci_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: idp/ci
-  needs:
-    - build_idp_ci_container
 
 scan_pivcac_ci_container:
   extends: .container_scan_template
