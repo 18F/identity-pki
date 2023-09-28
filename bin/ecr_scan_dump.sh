@@ -13,6 +13,6 @@ for REPO in $REPOS ; do
 	aws ecr describe-image-scan-findings \
 		--repository-name "$REPO" \
 		--image-id imageTag="latest" \
-		--output json | jq .imageScanFindings.enhancedFindings | jq -r '(. | map(leaf_paths) | unique) as $cols | map (. as $row | ($cols | map(. as $col | $row | getpath($col)))) as $rows | ([($cols | map(. | map(tostring) | join(".")))] + $rows) | map(@csv) | .[]' > "$IMAGENAME-scan.csv"
+		--output json | jq .imageScanFindings.enhancedFindings | jq -r '(. | map(paths(scalars)) | unique) as $cols | map (. as $row | ($cols | map(. as $col | $row | getpath($col)))) as $rows | ([($cols | map(. | map(tostring) | join(".")))] + $rows) | map(@csv) | .[]' > "$IMAGENAME-scan.csv"
 done
 
