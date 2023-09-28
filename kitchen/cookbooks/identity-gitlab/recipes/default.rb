@@ -171,7 +171,7 @@ end
 
 remote_file 'rds_ca_bundle' do
   path '/etc/gitlab/ssl/rds_ca_bundle.pem'
-  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+  source 'https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem'
   owner 'root'
   group 'root'
   mode '644'

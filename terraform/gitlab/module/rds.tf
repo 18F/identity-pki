@@ -19,6 +19,7 @@ resource "aws_db_instance" "gitlab" {
 
   backup_retention_period = var.rds_backup_retention_period
   backup_window           = var.rds_backup_window
+  ca_cert_identifier      = var.rds_ca_cert_identifier
   db_subnet_group_name    = aws_db_subnet_group.gitlab.id
   identifier              = "${var.name}-${var.env_name}-gitlab"
   maintenance_window      = var.rds_maintenance_window

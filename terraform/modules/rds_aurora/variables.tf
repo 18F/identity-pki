@@ -332,3 +332,8 @@ variable "dr_restore_to_time" {
   default     = ""
 }
 
+variable "rds_ca_cert_identifier" {
+  type        = string
+  description = "Identifier of AWS RDS Certificate Authority Certificate"
+  default     = "rds-ca-2019"
+}

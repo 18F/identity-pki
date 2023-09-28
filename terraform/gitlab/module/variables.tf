@@ -485,3 +485,9 @@ variable "ubuntu_os_version_string" {
   type    = string
   default = "Ubuntu 20.04"
 }
+
+variable "rds_ca_cert_identifier" {
+  type        = string
+  description = "Identifier of AWS RDS Certificate Authority Certificate"
+  default     = "rds-ca-2019"
+}

@@ -20,7 +20,7 @@ remote_file '/usr/local/share/aws/rds-combined-ca-bundle.pem' do
   mode 0755
   owner 'root'
   sensitive true # nothing sensitive but using to remove unnecessary output
-  source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+  source 'https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem'
 end
 
 directory parent_release_path do

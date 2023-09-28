@@ -55,7 +55,7 @@ deploy "#{base_dir}" do
       mode 0755
       owner 'root'
       sensitive true # nothing sensitive but using to remove unnecessary output
-      source 'https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem'
+      source 'https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem'
     end
 
     directory "#{shared_path}/config/certs" do

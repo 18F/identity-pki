@@ -174,6 +174,7 @@ resource "aws_rds_cluster_instance" "aurora" {
   count      = var.primary_cluster_instances # must be 1 on first creation
   identifier = "${local.db_name}-${count.index + 1}"
 
+  ca_cert_identifier   = var.rds_ca_cert_identifier
   cluster_identifier   = aws_rds_cluster.aurora.id
   engine               = var.db_engine
   engine_version       = var.db_engine_version

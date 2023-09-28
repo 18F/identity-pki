@@ -21,6 +21,9 @@ login-gov-<%= node.chef_environment %>-gitlabcache-<%= @aws_account_id %>-<%= @a
 # includes amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com and gitlab dr backup buckets
 .s3.us-east-2.amazonaws.com
 
+# CA certificates for RDS
+truststore.pki.rds.amazonaws.com
+
 # Kaniko
 deb.debian.org
 security.debian.org
