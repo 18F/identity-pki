@@ -17,13 +17,14 @@ module "waf_sets" {
       "^/api.*",
     ]
     exclusions = [
-      "^/api/v4/analytics/group_activity/(issues|merge_requests|new_members)_count",
-      "^/api/v4/users.json",
       "^/api/graphql.*",
+      "^/api/v4/analytics/group_activity/(issues|merge_requests|new_members)_count",
+      "^/api/v4/groups/[0-9]+/invitations",
       "^/api/v4/projects/[0-9]+/issues/[0-9]+/(related_merge_requests|award_emoji)",
       "^/api/v4/projects/[0-9]+/repository/(branches|tags)",
-      "^/api/v4/users/[0-9]+",
-      "^/api/v4/users/[0-9]+/status",
+      "^/api/v4/projects/[0-0]+/templates/issues/Feature_Request",
+      "^/api/v4/users.json",
+      "^/api/v4/users/[0-9]+(/status)?",
     ]
   }
 }
