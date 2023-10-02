@@ -385,7 +385,7 @@ users:
     aws_groups:
     - appdev
     ec2_username:
-    - jmax
+    - jmax-gsa
     gitlab_groups:
     - appdev
     - lg-all
