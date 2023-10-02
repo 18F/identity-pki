@@ -96,8 +96,13 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     %{for id in module.idp_aurora_uw2.reader_instances~}
                     [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ],
                     %{endfor~}
-                    [ "AWS/ElastiCache", ".", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Cache (1)" } ],
-                    [ "...", "${var.env_name}-idp-002", { "label": "Cache (2)" } ]
+                    [ "AWS/ElastiCache", ".", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Primary Cache (1)" } ],
+                    [ "...", "${var.env_name}-idp-002", { "label": "Primary Cache (2)" } ]
+                    %{if var.enable_redis_ratelimit_instance~}
+                    , [ "...", "${var.env_name}-ratelimit-001", { "label": "Rate Limit Cache (1)" } ],
+                    [ "...", "${var.env_name}-ratelimit-002", { "label": "Rate Limit Cache (2)" } ]
+                    %{endif~}
+
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -184,8 +189,12 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     [ "...", "${id}", { "label": "AuroraDB (Replica ${index(module.idp_aurora_uw2.reader_instances, id) + 1})" } ],
                     %{endfor~}
 
-                    [ "AWS/ElastiCache", "CurrConnections", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Cache (1)" } ],
-                    [ "...", "${var.env_name}-idp-002", { "label": "Cache (2)" } ]
+                    [ "AWS/ElastiCache", "CurrConnections", "CacheClusterId", "${var.env_name}-idp-001", { "label": "Primary Cache (1)" } ],
+                    [ "...", "${var.env_name}-idp-002", { "label": "Primary Cache (2)" } ]
+                    %{if var.enable_redis_ratelimit_instance~}
+                    , [ "...", "${var.env_name}-ratelimit-001", { "label": "Rate Limit Cache (1)" } ],
+                    [ "...", "${var.env_name}-ratelimit-002", { "label": "Rate Limit Cache (2)" } ]
+                    %{endif~}
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -568,6 +577,10 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                 "metrics": [
                   [ "AWS/ElastiCache", "EngineCPUUtilization", "CacheClusterId", "${aws_elasticache_replication_group.idp.id}-001", "CacheNodeId", "0001", { "color": "#2ca02c", "label": "${aws_elasticache_replication_group.idp.id}-001" } ],
                   [ "AWS/ElastiCache", "EngineCPUUtilization", "CacheClusterId", "${aws_elasticache_replication_group.idp.id}-002", "CacheNodeId", "0001", { "color": "#ff7f0e", "label": "${aws_elasticache_replication_group.idp.id}-002" } ]
+                  %{if var.enable_redis_ratelimit_instance~}
+                    , [ "...", "${aws_elasticache_replication_group.ratelimit[0].id}-001", "CacheNodeId", "0001", { "label": "${aws_elasticache_replication_group.ratelimit[0].id}-001" } ],
+                    [ "...", "${aws_elasticache_replication_group.ratelimit[0].id}-002", "CacheNodeId", "0001", { "label": "${aws_elasticache_replication_group.ratelimit[0].id}-002" } ]
+                  %{endif~}
                 ],
                 "view": "timeSeries",
                 "stacked": false,
