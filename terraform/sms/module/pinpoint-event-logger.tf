@@ -140,7 +140,7 @@ locals {
 
 resource "aws_cloudwatch_metric_alarm" "send_by_country" {
   for_each   = local.alarm_volume_alert_countries
-  alarm_name = "sms-country-volume-too-high"
+  alarm_name = "sms-country-${each.key}-volume-too-high"
 
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
