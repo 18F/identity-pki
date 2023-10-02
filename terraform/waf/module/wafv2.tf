@@ -312,6 +312,14 @@ resource "aws_wafv2_web_acl" "alb" {
         name        = "AWSManagedRulesAmazonIpReputationList"
         vendor_name = "AWS"
 
+        rule_action_override {
+          action_to_use {
+            block {}
+          }
+
+          name = "AWSManagedIPDDoSList"
+        }
+
         dynamic "rule_action_override" {
           for_each = var.ip_reputation_ruleset_exclusions
 
