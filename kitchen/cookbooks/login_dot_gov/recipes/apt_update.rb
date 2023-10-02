@@ -18,7 +18,10 @@ execute 'ubuntu_advantage_set_news' do
   action :run
 end
 
-execute 'pro refresh config'
+execute 'pro refresh config' do
+  ignore_failure true
+  action :run
+end
 
 execute 'ubuntu_advantage_esm_apps' do
   command <<-EOF
