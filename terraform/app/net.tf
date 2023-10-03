@@ -726,6 +726,15 @@ resource "aws_security_group" "nessus" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # RDS scan access
+  egress {
+    description = "Allow RDS DB scans"
+    from_port   = var.rds_db_port
+    to_port     = var.rds_db_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
     CreateDate = data.aws_ip_ranges.uswest2_ec2.create_date
     SyncToken  = data.aws_ip_ranges.uswest2_ec2.sync_token
