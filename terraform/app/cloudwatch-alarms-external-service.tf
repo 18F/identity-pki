@@ -49,6 +49,29 @@ EOM
   evaluation_periods  = 1
 }
 
+resource "aws_cloudwatch_metric_alarm" "idv_high_proofing_resolution_result_missing" {
+  alarm_name        = "${aws_autoscaling_group.idp.name}-idv-proofing-resolution-result-missing-rate"
+  alarm_description = <<EOM
+${aws_autoscaling_group.idp.name}: IdV: proofing resolution result missing
+rate is above ${var.idv_high_proofing_resolution_result_missing_threshold} occurrences over a period of 15 mins.
+
+Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html#proofing-resolution-result-missing-alert
+%{if var.env_name == "prod"}
+Notifying:%{for handle in var.slack_proofing_groups} @${handle}%{endfor}
+%{endif}
+EOM
+
+  metric_name = "idv-proofing-resolution-result-missing"
+  namespace   = "${var.env_name}/idp-ialx"
+  period      = 900
+  statistic   = "Sum"
+
+  alarm_actions       = local.low_priority_alarm_actions
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.idv_high_proofing_resolution_result_missing_threshold
+  evaluation_periods  = 1
+}
+
 resource "aws_cloudwatch_metric_alarm" "idp_high_tps" {
   for_each = var.idp_external_service_alarms_enabled == 1 ? {
     for service, config in var.external_service_alarms : service => config

@@ -1017,6 +1017,11 @@ variable "doc_auth_vendors" {
   default     = {}
 }
 
+variable "idv_high_proofing_resolution_result_missing_threshold" {
+  description = "Threshold of how many events need to occur within the period to trigger the alert"
+  default     = 3
+}
+
 variable "external_service_alarms" {
   type = map(object({
     long_name          = string

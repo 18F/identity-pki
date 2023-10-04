@@ -276,8 +276,17 @@ locals {
           $.properties.event_properties.vendor = "TrueID"
         }
       EOT
+    },
+    idv_proofing_resolution_result_missing = {
+      name         = "idv-proofing-resolution-result-missing"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: proofing resolution result missing"
+        }
+      EOT
     }
-
   }
 
   idp_kms_auth_filters = {
