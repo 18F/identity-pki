@@ -75,6 +75,15 @@ users:
     - pm
     - lg-all
     - lg-public
+  andrew.mcdaniel:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - amcdaniel
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   annie.hirshman:
     aws_groups:
     - analytics
@@ -881,11 +890,11 @@ projects:
   login-security/login-security-handbook:
     groups:
       login-security:
-        access: maintainer     
+        access: maintainer
   login-security/login-security-ops:
     groups:
       login-security:
-        access: maintainer 
+        access: maintainer
   lg/identity-devops:
     groups:
       devops:
