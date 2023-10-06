@@ -781,19 +781,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  thomas.apodaca:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    git_username:
-    - tomas-nava
-    email:
-    - thomas.apodaca@gsa.gov
-    ec2_username:
-    - tapodaca
   thomas.emerick:
     aws_groups:
     - analytics
