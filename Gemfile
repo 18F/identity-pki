@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source 'http://rubygems.org'
 
 ruby "~> #{File.read(File.join(__dir__, '.ruby-version')).strip}"
 

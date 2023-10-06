@@ -802,15 +802,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  timothy.bradley:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - tbradley
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   timothy.spencer:
     aws_groups:
     - devops
