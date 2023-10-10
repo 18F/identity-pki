@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/ruby:3.2.2-alpine
+FROM public.ecr.aws/docker/library/alpine:3
 
 COPY dockerfiles/terraform_apply.sh /usr/local/bin/terraform_apply.sh
 

@@ -627,18 +627,6 @@ nessus_scan_gitstaging_environment:
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
 
-env-tspencer:
-  extends: .include_idp_jobs_template
-  variables:
-    ENV_NAME: tspencer
-    branch: "stages/tspencer"
-
-env-pauldoom:
-  extends: .include_idp_jobs_template
-  variables:
-    ENV_NAME: pauldoom
-    branch: "stages/pauldoom"
-
 env-ursula:
   extends: .include_idp_jobs_template
   variables:
@@ -960,6 +948,8 @@ test_unallowed_image_charlie:
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
   extends: .deploy_gitlab_template
+  image:
+    name: 217680906704.dkr.ecr.us-west-2.amazonaws.com/tspencer/tspencertestreview:alpinetest
   variables:
     env: bravo
     url: https://gitlab.identitysandbox.gov/

@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/ruby:3.2.2-alpine
+FROM public.ecr.aws/docker/library/alpine:3
 
 COPY dockerfiles/gitlab_deploy.sh /usr/local/bin/gitlab_deploy.sh
 
