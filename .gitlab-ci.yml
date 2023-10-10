@@ -948,8 +948,6 @@ test_unallowed_image_charlie:
 # deploy jobs for gitlabbravo env here.
 deploy_bravo:
   extends: .deploy_gitlab_template
-  image:
-    name: 217680906704.dkr.ecr.us-west-2.amazonaws.com/tspencer/tspencertestreview:alpinetest
   variables:
     env: bravo
     url: https://gitlab.identitysandbox.gov/
