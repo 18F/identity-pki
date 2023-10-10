@@ -3,7 +3,6 @@ source 'https://rubygems.org'
 ruby "~> #{File.read(File.join(__dir__, '.ruby-version')).strip}"
 
 group :development do
-  gem 'devise'
   gem 'colorize'
   gem 'pry'
   gem 'pry-byebug', '~> 3.9'
