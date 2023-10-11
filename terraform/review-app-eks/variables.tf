@@ -25,5 +25,5 @@ variable "pivcac_dnszone" {
 variable "ecr_repo_names" {
   description = "list of ecr repos to create"
   type        = list(string)
-  default     = ["idp", "worker", "pivcac", "app"]
+  default     = ["idp", "worker", "pivcac", "app", "dashboard"]
 }
