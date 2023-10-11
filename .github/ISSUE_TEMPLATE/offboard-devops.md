@@ -46,6 +46,6 @@ each of the tasks below. This is to show that each task was completed at a speci
     ```
   - [ ] Merge PR upon approval
 - [ ] Remove from New Relic [via the Users page](https://account.newrelic.com/accounts/1376370/users)
-- [ ] Remove from OpsGenie [via the Users page](https://login-gov.app.opsgenie.com/settings/users/)
+- [ ] Remove from Splunk On-Call [via the Users page](https://portal.victorops.com/dash/gsa_login#/users)
 
 <!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
