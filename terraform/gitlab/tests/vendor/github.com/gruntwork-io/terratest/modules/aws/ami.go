@@ -192,6 +192,50 @@ func GetUbuntu1604AmiE(t testing.TestingT, region string) (string, error) {
 	return GetMostRecentAmiIdE(t, region, CanonicalAccountId, filters)
 }
 
+// GetUbuntu2004Ami gets the ID of the most recent Ubuntu 20.04 HVM x86_64 EBS GP2 AMI in the given region.
+func GetUbuntu2004Ami(t testing.TestingT, region string) string {
+	amiID, err := GetUbuntu2004AmiE(t, region)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return amiID
+}
+
+// GetUbuntu2004AmiE gets the ID of the most recent Ubuntu 20.04 HVM x86_64 EBS GP2 AMI in the given region.
+func GetUbuntu2004AmiE(t testing.TestingT, region string) (string, error) {
+	filters := map[string][]string{
+		"name":                             {"*ubuntu-focal-20.04-amd64-server-*"},
+		"virtualization-type":              {"hvm"},
+		"architecture":                     {"x86_64"},
+		"root-device-type":                 {"ebs"},
+		"block-device-mapping.volume-type": {"gp2"},
+	}
+
+	return GetMostRecentAmiIdE(t, region, CanonicalAccountId, filters)
+}
+
+// GetUbuntu2204Ami gets the ID of the most recent Ubuntu 22.04 HVM x86_64 EBS GP2 AMI in the given region.
+func GetUbuntu2204Ami(t testing.TestingT, region string) string {
+	amiID, err := GetUbuntu2204AmiE(t, region)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return amiID
+}
+
+// GetUbuntu2204AmiE gets the ID of the most recent Ubuntu 22.04 HVM x86_64 EBS GP2 AMI in the given region.
+func GetUbuntu2204AmiE(t testing.TestingT, region string) (string, error) {
+	filters := map[string][]string{
+		"name":                             {"*ubuntu-jammy-22.04-amd64-server-*"},
+		"virtualization-type":              {"hvm"},
+		"architecture":                     {"x86_64"},
+		"root-device-type":                 {"ebs"},
+		"block-device-mapping.volume-type": {"gp2"},
+	}
+
+	return GetMostRecentAmiIdE(t, region, CanonicalAccountId, filters)
+}
+
 // GetCentos7Ami returns a CentOS 7 public AMI from the given region.
 // WARNING: you may have to accept the terms & conditions of this AMI in AWS MarketPlace for your AWS Account before
 // you can successfully launch the AMI.
