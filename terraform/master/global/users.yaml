@@ -738,6 +738,13 @@ users:
     - lg-public
     ec2_username:
     - sconnolly
+  stacey.evans:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - sevans
+    gitlab_groups:
+    - pm
   stacey.mainero:
     aws_groups:
     - fraudopsnonprod
