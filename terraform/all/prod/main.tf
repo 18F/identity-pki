@@ -119,9 +119,9 @@ module "main" {
   ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
+    "SupportEngineer"   = [],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
-    "FraudOps" = [{ "*" = ["review-pass", "review-reject", "uuid-lookup"] }],
+    "FraudOps" = [],
   }
 
   ssm_command_access_map = {

@@ -157,9 +157,9 @@ module "main" {
   ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [{ "*" = ["uuid-lookup"] }],
+    "SupportEngineer"   = [],
     "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"          = [{ "*" = ["review-pass", "review-reject", "uuid-lookup"] }],
+    "FraudOps"          = [],
   }
 
   ssm_command_access_map = {

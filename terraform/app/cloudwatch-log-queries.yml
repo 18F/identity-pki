@@ -291,7 +291,7 @@ ssm/aws-ssm-commands:
     ## Uncomment to search for activity by a specific user
     # | filter userIdentity like /paul.doom/
     ## Uncomment to search for activity by a specific ssm document name
-    # | filter documentName like /ssm-document-review-pass/
+    # | filter documentName like /action-account/
     ## Uncomment to search for activity by a specific source address
     # | filter sourceIPAddress like /8.8.8.8/
     ## Uncomment to search for activity by a specific sessionId

@@ -144,24 +144,9 @@ locals {
       description = "Run id-rails-console with --write set"
       logging     = false
     }
-    "uuid-lookup" = {
-      command     = "/usr/local/bin/id-uuid-lookup"
-      description = "Run users:lookup_by_email via id-uuid-lookup"
-      logging     = true
-    }
     "passenger-stat" = {
       command     = "sudo systemctl status passenger.service| grep Active"
       description = "Check status of passenger via systemctl, report Active line"
-      logging     = true
-    }
-    "review-pass" = {
-      command     = "/usr/local/bin/id-users-review-pass"
-      description = "Run users:review:pass via id-users-review-pass"
-      logging     = true
-    }
-    "review-reject" = {
-      command     = "/usr/local/bin/id-users-review-reject"
-      description = "Run users:review:reject via id-users-review-reject"
       logging     = true
     }
   }
