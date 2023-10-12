@@ -25,6 +25,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  alex.rowley:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - arowley
+    gitlab_groups:
+    - pm
   alexander.bradley:
     aws_groups:
     - apponcall
