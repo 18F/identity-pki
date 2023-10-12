@@ -627,18 +627,6 @@ nessus_scan_gitstaging_environment:
   trigger:
     include: .gitlab-ci-idp-env-jobs-template.yml
 
-env-tspencer:
-  extends: .include_idp_jobs_template
-  variables:
-    ENV_NAME: tspencer
-    branch: "stages/tspencer"
-
-env-pauldoom:
-  extends: .include_idp_jobs_template
-  variables:
-    ENV_NAME: pauldoom
-    branch: "stages/pauldoom"
-
 env-ursula:
   extends: .include_idp_jobs_template
   variables:
