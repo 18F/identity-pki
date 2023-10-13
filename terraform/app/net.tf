@@ -742,12 +742,22 @@ resource "aws_security_group" "nessus" {
 }
 
 module "vpc_flow_cloudwatch_filters" {
-  source = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../identity-terraform/vpc_flow_cloudwatch_filters"
+  source = "github.com/18F/identity-terraform//vpc_flow_cloudwatch_filters?ref=06c8ddd069ed1eea84785033f87b7560eaf0ef6f"
+  #source     = "../../../identity-terraform/vpc_flow_cloudwatch_filters"
   depends_on = [module.network_uw2]
 
   env_name      = var.env_name
   alarm_actions = [var.slack_events_sns_hook_arn]
+  vpc_flow_rejections_internal_fields = {
+    action  = "action=REJECT"
+    srcAddr = "srcAddr=172.16.* || srcAddr=100.106.*"
+  }
+  vpc_flow_rejections_unexpected_fields = {
+    action  = "action=REJECT"
+    srcAddr = "srcAddr=172.16.* || srcAddr=100.106.*"
+    dstAddr = "dstAddr!=192.88.99.255"
+    srcPort = "srcPort!=26 && srcPort!=443 && srcPort!=3128 && srcPort!=5044"
+  }
 }
 
 resource "aws_ssm_parameter" "net_outboundproxy" {

@@ -84,6 +84,43 @@ resource "aws_flow_log" "flow_log" {
   iam_role_arn    = var.flow_log_iam_role_arn
   vpc_id          = aws_vpc.default.id
   traffic_type    = "ALL"
+  log_format = join(" ",
+    [
+      "$${version}",
+      "$${account-id}",
+      "$${interface-id}",
+      "$${srcaddr}",
+      "$${dstaddr}",
+      "$${srcport}",
+      "$${dstport}",
+      "$${protocol}",
+      "$${packets}",
+      "$${bytes}",
+      "$${start}",
+      "$${end}",
+      "$${action}",
+      "$${log-status}",
+      "$${vpc-id}",
+      "$${subnet-id}",
+      "$${instance-id}",
+      "$${tcp-flags}",
+      "$${type}",
+      "$${pkt-srcaddr}",
+      "$${pkt-dstaddr}",
+      "$${region}",
+      "$${az-id}",
+      "$${sublocation-type}",
+      "$${sublocation-id}",
+      "$${pkt-src-aws-service}",
+      "$${pkt-dst-aws-service}",
+      "$${flow-direction}",
+      "$${traffic-path}"
+    ]
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
