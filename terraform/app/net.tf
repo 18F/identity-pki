@@ -726,6 +726,15 @@ resource "aws_security_group" "nessus" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # needed for apt-get
+  egress {
+    description = "Allow apt-get to work"
+    from_port   = "80"
+    to_port     = "80"
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   # RDS scan access
   egress {
     description = "Allow RDS DB scans"
