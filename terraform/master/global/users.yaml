@@ -718,6 +718,13 @@ users:
     - lg-public
     can_create_group:
     - true
+  shanice.musiitwa:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - smusiitwa
+    gitlab_groups:
+    - devops
   shannon.alexander-navarro:
     aws_groups:
     - appdev
