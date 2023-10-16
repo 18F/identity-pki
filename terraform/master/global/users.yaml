@@ -482,6 +482,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  kirsten.green:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - kgreen
+    gitlab_groups:
+    - lg-public
   laurie.cole:
     aws_groups:
     - analytics
