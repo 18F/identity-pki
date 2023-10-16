@@ -482,6 +482,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  laurie.cole:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - lcole
+    gitlab_groups:
+    - lg-public
   louise.hoffman:
     aws_groups:
     - fraudops
