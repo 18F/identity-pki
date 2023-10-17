@@ -87,3 +87,9 @@ repos:
   gitlab_dast:
     name: "gitlab/dast"
     <<: *all_write_template
+  identity_dashboard_review:
+    name: "identity-idp/dashboard"
+    <<: *all_write_template
+  identity_dashboard_review_cache:
+    name: "identity-idp/dashboard/cache"
+    <<: *all_write_template
