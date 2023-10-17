@@ -14,7 +14,8 @@ module "acm-cert-app-static-cdn" {
 resource "aws_cloudfront_distribution" "app_cdn" {
   count = var.apps_enabled
   depends_on = [
-    module.acm-cert-apps-combined.finished_id
+    module.acm-cert-apps-combined.finished_id,
+    aws_cloudfront_function.block_cloudfront_host_header
   ]
 
   http_version = var.cloudfront_http_version
@@ -51,6 +52,11 @@ resource "aws_cloudfront_distribution" "app_cdn" {
 
     cache_policy_id          = data.aws_cloudfront_cache_policy.managed_caching_disabled.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.idp_origin.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.block_cloudfront_host_header.arn
+    }
 
     min_ttl                = 0
     viewer_protocol_policy = "redirect-to-https"

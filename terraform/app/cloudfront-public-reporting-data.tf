@@ -26,7 +26,8 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
 
   depends_on = [
     aws_s3_bucket.public_reporting_data,
-    module.acm-cert-public-reporting-data-cdn.finished_id
+    module.acm-cert-public-reporting-data-cdn.finished_id,
+    aws_cloudfront_function.block_cloudfront_host_header
   ]
 
   origin {
@@ -51,6 +52,11 @@ resource "aws_cloudfront_distribution" "public_reporting_data_cdn" {
 
     cache_policy_id          = data.aws_cloudfront_cache_policy.public_reporting_data_cache_policy.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.block_cloudfront_host_header.arn
+    }
 
     min_ttl                = 0
     viewer_protocol_policy = "https-only"
