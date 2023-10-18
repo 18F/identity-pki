@@ -980,3 +980,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-dashboard:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
