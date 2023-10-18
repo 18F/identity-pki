@@ -33,6 +33,23 @@ module "fraudops-assumerole" {
           ]
         }
       ]
+    },
+    {
+      policy_name        = "FraudOpsCloudwatchLogsQuery"
+      policy_description = "Allow FraudOps query a subset of Cloudwatch Logs, used by bin/query-cloudwatch"
+      policy_document = [
+        {
+          sid    = "GetQuery"
+          effect = "Allow"
+          actions = [
+            "logs:StartQuery",
+            "logs:GetQueryResults"
+          ]
+          resources = [
+            "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:*_/srv/*/shared/log/*"
+          ]
+        }
+      ]
     }
   ]
 }
