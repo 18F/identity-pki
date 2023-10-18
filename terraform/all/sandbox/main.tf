@@ -157,7 +157,6 @@ module "main" {
   ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [],
     "Terraform"         = [{ "*" = ["*"] }],
     "FraudOps"          = [],
   }
@@ -165,7 +164,6 @@ module "main" {
   ssm_command_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [],
     "Terraform"         = [{ "*" = ["*"] }],
     "FraudOps"          = [{ "*" = ["data-pull", "action-account"] }],
   }

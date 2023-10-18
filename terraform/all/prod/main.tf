@@ -119,7 +119,6 @@ module "main" {
   ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
     "FraudOps" = [],
   }
@@ -127,7 +126,6 @@ module "main" {
   ssm_command_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
-    "SupportEngineer"   = [],
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
     "FraudOps" = [{ "*" = ["data-pull", "action-account"] }],
   }
