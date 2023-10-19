@@ -2,8 +2,8 @@
 resource "aws_cloudwatch_metric_alarm" "idp_sms_send_rate_high_alarm" {
   alarm_name                = "${var.env_name}-idp-sms-send-rate-high"
   comparison_operator       = "GreaterThanThreshold"
-  evaluation_periods        = "2"
-  datapoints_to_alarm       = "2"
+  evaluation_periods        = "5"
+  datapoints_to_alarm       = "5"
   metric_name               = "pinpoint-telephony-sms-sent"
   namespace                 = "${var.env_name}/idp-authentication"
   period                    = "60"
