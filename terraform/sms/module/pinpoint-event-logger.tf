@@ -160,7 +160,7 @@ resource "aws_cloudwatch_metric_alarm" "send_by_country" {
     id = "failed_send"
 
     metric {
-      metric_name = "FailedSendByCountry"
+      metric_name = aws_cloudwatch_log_metric_filter.failed_send_by_country.id
       namespace   = "PinpointMetrics"
       period      = 3600
       stat        = "Sum"
@@ -175,7 +175,7 @@ resource "aws_cloudwatch_metric_alarm" "send_by_country" {
     id = "successful_send"
 
     metric {
-      metric_name = "SuccessfulSendByCountry"
+      metric_name = aws_cloudwatch_log_metric_filter.successful_send_by_country.id
       namespace   = "PinpointMetrics"
       period      = 3600
       stat        = "Sum"
