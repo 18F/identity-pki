@@ -482,7 +482,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-  kirsten.green:
+  kirsten.a.green:
     aws_groups:
     - analytics
     ec2_username:
