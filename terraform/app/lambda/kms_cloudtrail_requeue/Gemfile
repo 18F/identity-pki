@@ -1,0 +1,13 @@
+# frozen_string_literal: false
+
+ruby '3.2.2'
+
+source 'https://rubygems.org'
+
+group 'test' do
+  gem 'rspec', '~> 3.10'
+  gem 'rspec_junit_formatter', '~> 0.4'
+end
+
+gem 'aws-sdk-sqs', '~> 1.62.0'
+gem 'rexml', '~> 3.2.6'

@@ -808,6 +808,12 @@ variable "kms_log_ct_queue_message_retention_seconds" {
   default     = 345600 # 4 days
 }
 
+variable "kms_log_ct_requeue_concurrency" {
+  description = "Defines the number of requeue lambda's to initiate every hour"
+  type        = number
+  default     = 1
+}
+
 variable "kms_log_dynamodb_retention_days" {
   description = "Number of days to retain kms log records in DynamoDB"
   type        = number

@@ -9,6 +9,7 @@ ENV['DDB_TABLE'] = 'fake_table'
 ENV['RETENTION_DAYS'] = '365'
 ENV['SNS_EVENT_TOPIC_ARN'] = 'arn:aws:sns:us-south:19820810:mytopic'
 ENV['CT_QUEUE_URL'] = 'https://us-north.queue.amazonaws.com/19410519/login-kms-ct-events'
+ENV['CT_REQUEUE_URL'] = 'https://us-north.queue.amazonaws.com/19410519/login-kms-cloudtrail-requeue'
 ENV['MAX_SKEW_SECONDS'] = '5'
 
 RSpec.describe IdentityKMSMonitor::CloudTrailToDynamoHandler do
@@ -16,13 +17,15 @@ RSpec.describe IdentityKMSMonitor::CloudTrailToDynamoHandler do
     it 'writes a match to an existing DB entry' do
       fake_sns = Aws::SNS::Client.new(stub_responses: true)
       fake_sns.stub_responses(:publish, nil)
+      fake_sqs = Aws::SQS::Client.new(stub_responses: true)
+      fake_sqs.stub_responses(:delete_message, nil)
       fake_dynamo = Aws::DynamoDB::Client.new(stub_responses: true)
       fake_record = {"UUID"=>"ad891a65-1984-0707-b422-b61cd5f9c861-password-digest",
                      "Timestamp"=>"2019-03-08T13:32:07Z",
                      "Correlated"=>"0",
                      "CWData"=>"some cloudwatch data"}
       fake_dynamo.stub_responses(:query, {items: [fake_record]})
-      instance = IdentityKMSMonitor::CloudTrailToDynamoHandler.new(dynamo: fake_dynamo, sns: fake_sns)
+      instance = IdentityKMSMonitor::CloudTrailToDynamoHandler.new(dynamo: fake_dynamo, sns: fake_sns, sqs: fake_sqs)
       instance.process_event(test_event)
 
       # verify the query used the correct time range
@@ -43,6 +46,7 @@ RSpec.describe IdentityKMSMonitor::CloudTrailToDynamoHandler do
     it 'requeues an entry when no matching database entry exists' do
       fake_sqs = Aws::SQS::Client.new(stub_responses: true)
       fake_sqs.stub_responses(:send_message, nil)
+      fake_sqs.stub_responses(:delete_message, nil)
       fake_dynamo = Aws::DynamoDB::Client.new(stub_responses: true)
       fake_dynamo.stub_responses(:query, {items: []})
       instance = IdentityKMSMonitor::CloudTrailToDynamoHandler.new(dynamo: fake_dynamo, sqs: fake_sqs)
@@ -57,13 +61,15 @@ RSpec.describe IdentityKMSMonitor::CloudTrailToDynamoHandler do
     it 'alerts SNS when retries are all used up' do
       retried_event = test_event
       retried_event["Records"][0]["messageAttributes"]["RetryCount"][
-        "stringValue"] = '42'
+        "stringValue"] = '13'
       fake_sns = Aws::SNS::Client.new(stub_responses: true)
       fake_sns.stub_responses(:publish, nil)
       fake_dynamo = Aws::DynamoDB::Client.new(stub_responses: true)
       fake_dynamo.stub_responses(:query, {items: []})
       fake_dynamo.stub_responses(:put_item, nil)
-      instance = IdentityKMSMonitor::CloudTrailToDynamoHandler.new(dynamo: fake_dynamo, sns: fake_sns)
+      fake_sqs = Aws::SQS::Client.new(stub_responses: true)
+      fake_sqs.stub_responses(:delete_message, nil)
+      instance = IdentityKMSMonitor::CloudTrailToDynamoHandler.new(dynamo: fake_dynamo, sns: fake_sns, sqs: fake_sqs)
       instance.process_event(retried_event)
 
       # verify the non-correlated item was written to the database

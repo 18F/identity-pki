@@ -32,6 +32,7 @@ module IdentityKMSMonitor
         @retention_seconds = Integer(
           ENV.fetch('RETENTION_DAYS')) * (60 * 60 * 24)
         @cloudtrail_queue_url = ENV.fetch('CT_QUEUE_URL')
+        @cloudtrail_requeue_url = ENV.fetch('CT_REQUEUE_URL')
         @max_skew_seconds = Integer(ENV.fetch('MAX_SKEW_SECONDS', '8'))
       rescue StandardError
         log.error('Failed to create DynamoDB client. Do you have AWS creds?')
@@ -85,7 +86,7 @@ module IdentityKMSMonitor
       log.debug("record body: #{body.inspect}")
 
       originate_sns = body.fetch('Type', :nil)
-      if originate_sns == "Notification"
+      if originate_sns == 'Notification'
         body = JSON.parse(body.fetch('Message'))
       end
       ctevent = CloudTrailEvent.new
@@ -115,10 +116,10 @@ module IdentityKMSMonitor
         insert_into_db(ctevent.get_key, dbrecord.fetch('Timestamp'), body,
                        dbrecord.fetch('CWData'), 1)
         log_event_sns(ctevent, body.fetch('id'), true)
-      elsif retrycount <= 42
-        # put message back on queue
+      elsif retrycount <= 12
+        # put message on requeue service
         log.info('No matching CloudWatch event found. Requeuing this event.')
-        delay = calculate_delay(retrycount)
+        delay = calculate_delay
         put_message_queue(body, delay, retrycount)
       else
         # all retries exhausted, put record in table uncorrelated
@@ -145,9 +146,9 @@ module IdentityKMSMonitor
         @sns.publish(
           topic_arn: @sns_event_topic_arn,
           message: logentry.to_json
-                     )
-      rescue Aws::DynamoDB::Errors::ServiceError => error
-        log.error "Failure publishing to SNS: #{error.inspect}"
+        )
+      rescue Aws::DynamoDB::Errors::ServiceError => e
+        log.error "Failure publishing to SNS: #{e.inspect}"
         raise
       end
     end
@@ -155,7 +156,7 @@ module IdentityKMSMonitor
     def put_message_queue(message_body, message_delay, message_retrycount)
       bodystring = message_body.to_json
       @sqs.send_message(
-        queue_url: @cloudtrail_queue_url,
+        queue_url: @cloudtrail_requeue_url,
         message_body: bodystring,
         delay_seconds: message_delay,
         message_attributes: {
@@ -164,9 +165,9 @@ module IdentityKMSMonitor
             data_type: 'Number',
           },
         }
-                        )
-    rescue Aws::SQS::Errors::ServiceError => error
-      log.error "Failure publishing to SQS: #{error.inspect}"
+      )
+    rescue Aws::SQS::Errors::ServiceError => e
+      log.error "Failure publishing to SQS: #{e.inspect}"
       raise
     end
 
@@ -176,8 +177,15 @@ module IdentityKMSMonitor
       Integer(attributes.fetch(attribute_key, {})['stringValue'] || 0)
     end
 
-    def calculate_delay(counter)
-      [900, (counter**2) * 30].min
+    def calculate_delay
+      fifteen_minutes = 15 * 60
+
+      now = Time.now
+      future = now + fifteen_minutes
+
+      return fifteen_minutes if future.hour != now.hour
+
+      return 0
     end
 
     def get_db_record(uuid, timestamp_min, timestamp_max)
@@ -202,8 +210,8 @@ module IdentityKMSMonitor
             )
         end
         log.debug "dynamo query took #{duration.round(6)} seconds"
-      rescue Aws::DynamoDB::Errors::ServiceError => error
-        log.error "Failure looking up event: #{error.inspect}"
+      rescue Aws::DynamoDB::Errors::ServiceError => e
+        log.error "Failure looking up event: #{e.inspect}"
         raise
       end
       log.debug "Database query result: #{result.inspect}"
@@ -277,7 +285,7 @@ module IdentityKMSMonitor
     attr_accessor :context, :operation, :uuid, :timestamp, :cloudtrail_id,
                   :late_correlation, :correlated
 
-    def to_h(_options = {})
+    def to_h(_options={})
       {
         uuid: @uuid,
         operation: @operation,
