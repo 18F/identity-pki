@@ -22,7 +22,7 @@ module "kms_logging" {
   cw_processor_storage_size        = var.kms_log_cw_processor_storage_size
   lambda_kms_ct_processor_zip      = module.kms_cloudtrail_processor_code.zip_output_path
   lambda_kms_ct_requeue_zip        = module.kms_cloudtrail_requeue_code.zip_output_path
-  ct_reqeueue_concurrency          = var.kms_log_ct_requeue_concurrency
+  ct_requeue_concurrency           = var.kms_log_ct_requeue_concurrency
   lambda_kms_event_processor_zip   = module.kms_event_processor_code.zip_output_path
   lambda_slack_batch_processor_zip = module.kms_slack_batch_processor_code.zip_output_path
 
