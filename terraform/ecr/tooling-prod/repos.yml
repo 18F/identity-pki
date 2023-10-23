@@ -93,3 +93,6 @@ repos:
   identity_dashboard_review_cache:
     name: "identity-idp/dashboard/cache"
     <<: *all_write_template
+  dashboard_ci:
+    name: "dashboard/ci"
+    <<: *all_write_template
