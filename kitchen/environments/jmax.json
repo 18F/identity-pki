@@ -1,5 +1,5 @@
 {
-  "name": "jmax-gsa",
+  "name": "jmax",
   "description": "",
   "json_class": "Chef::Environment",
   "chef_type": "environment",
