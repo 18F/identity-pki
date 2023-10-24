@@ -489,5 +489,5 @@ variable "ubuntu_os_version_string" {
 variable "rds_ca_cert_identifier" {
   type        = string
   description = "Identifier of AWS RDS Certificate Authority Certificate"
-  default     = "rds-ca-2019"
+  default     = "rds-ca-rsa2048-g1"
 }

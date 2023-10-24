@@ -344,3 +344,9 @@ if setting/upgrading worker DB cluster to Aurora Serverless v2
 EOM
   default     = []
 }
+
+variable "rds_ca_cert_identifier" {
+  type        = string
+  description = "Identifier of AWS RDS Certificate Authority Certificate"
+  default     = "rds-ca-rsa2048-g1"
+}
