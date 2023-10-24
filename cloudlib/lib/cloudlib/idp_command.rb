@@ -2,8 +2,13 @@
 # frozen_string_literal: true
 
 require_relative '../cloudlib.rb'
+require 'base64'
+require 'csv'
+require 'json'
 require 'optparse'
 require 'shellwords'
+require 'terminal-table'
+require 'zlib'
 
 # Helps run a command/document on IDP boxes
 class IDPCommand
@@ -13,6 +18,7 @@ class IDPCommand
     :subcommand,
     :reason,
     :investigator,
+    :format,
     keyword_init: true
   )
 
@@ -25,6 +31,7 @@ class IDPCommand
       subcommand: [],
       reason: nil,
       investigator: nil,
+      format: :table,
     )
 
     parser = OptionParser.new do |opts|
@@ -75,6 +82,18 @@ class IDPCommand
         config.host = name
       end
 
+      opts.on('--csv', 'Outputs results as a CSV ') do |fmt|
+        config.format = :csv
+      end
+
+      opts.on('--json', 'Outputs results as JSON') do |fmt|
+        config.format = :json
+      end
+
+      opts.on('--table', 'Outputs results in a table (default)') do |fmt|
+        config.format = :table
+      end
+
       opts.on('--help') do
         puts opts
         exit 0
@@ -93,7 +112,7 @@ class IDPCommand
       retry
     end
 
-    config.subcommand = [*ordered_args, *unrecognized_flags]
+    config.subcommand = [*ordered_args, *unrecognized_flags, "--#{config.format}", "--deflate"]
 
     if config.host.to_s.empty?
       stderr.puts "ERROR: Missing server group (use one of --host, --any, --newest, --oldest)"
@@ -149,8 +168,49 @@ class IDPCommand
     response = run(command: command)
 
     if response.status == 'Success'
-      stdout.puts response.standard_output_content
+      output = JSON.parse(Zlib::Inflate.inflate(Base64.decode64(response.standard_output_content)))
+
+      formatted_output = if output.kind_of?(Hash)
+        JSON.pretty_generate(output)
+      else
+        format_table(output)
+      end
+
+      stdout.puts formatted_output
+    else
       exit 1
+    end
+  end
+
+  # @param [Array<Array<String>>] output
+  # @return [String]
+  def format_table(output)
+    case config.format
+    when :json
+      headers, *body = output
+
+      objects = body.map do |values|
+        headers.zip(values).to_h
+      end
+
+      JSON.pretty_generate(output)
+    when :table
+      table = Terminal::Table.new
+      header, *body = output
+      table << header
+      table << :separator
+      body.each do |row|
+        table << row
+      end
+      table.to_s
+    when :csv
+      CSV.generate do |csv|
+        output.each do |row|
+          csv << row
+        end
+      end
+    else
+      raise "unknown format=#{config.format}"
     end
   end
 end
