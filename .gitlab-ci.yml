@@ -559,6 +559,12 @@ build_pivcac_ci_container:
     dockerfile: pivcac_ci.Dockerfile
     ecr_repo: pivcac/ci
 
+build_dashboard_ci_container:
+  extends: .build_template
+  variables:
+    dockerfile: dashboard_ci.Dockerfile
+    ecr_repo: dashboard/ci
+
 # Grab ECR scans and import into gitlab
 scan_gitlab_deploy_container:
   extends: .container_scan_template
