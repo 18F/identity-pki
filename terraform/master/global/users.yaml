@@ -603,19 +603,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  mossadeq.zia:
-    aws_groups:
-    - devops
-    - secops
-    - keymasters
-    - orgadmin
-    - socreadonly
-    ec2_username:
-    - mzia
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
   nadya.primak:
     aws_groups:
     - apponcall
