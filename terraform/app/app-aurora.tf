@@ -19,6 +19,7 @@ module "dashboard_aurora_uw2" {
   db_subnet_group        = module.network_uw2.db_subnet_group
   db_security_group      = module.network_uw2.db_security_group
   db_publicly_accessible = local.nessus_public_access_mode
+  rds_ca_cert_identifier = var.rds_ca_cert_identifier
 
   retention_period    = var.rds_backup_retention_period
   backup_window       = var.rds_backup_window
