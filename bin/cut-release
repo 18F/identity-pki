@@ -53,14 +53,18 @@ else
      sed '1d;$d')
 fi
 
+REGULAR_PRS=$(echo "${RELEASE_PRS}" | grep -v BREAKING) || true
 if [[ $(echo "${RELEASE_PRS}" | grep BREAKING) ]] ; then
   BREAKING_PRS="
 BREAKING CHANGES:
-$(echo "${RELEASE_PRS}" | grep BREAKING | sed -E 's/\(BREAKING\)| \| BREAKING//g')
+$(echo "${RELEASE_PRS}" | grep BREAKING | sed -E 's/\(BREAKING\)| \| BREAKING//g')"
+  if [[ ! -z ${REGULAR_PRS:-} ]] ; then
+  REGULAR_PRS="
 
-REGULAR CHANGES:"
+REGULAR CHANGES:
+$(echo "${REGULAR_PRS}")"
+  fi
 fi
-REGULAR_PRS=$(echo "${RELEASE_PRS}" | grep -v BREAKING)
 
 run git checkout -b release/v${NEW_RELEASE}
 run bundle exec rake release
