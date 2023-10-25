@@ -50,7 +50,7 @@ data "external" "gitrev" {
 }
 
 resource "local_file" "lambda_revision_txt" {
-  for_each        = toset(["kms_cloudtrail_processor", "kms_cloudwatch_processor", "kms_event_processor", "kms_cloudtrail_reqeue"])
+  for_each        = toset(["kms_cloudtrail_processor", "kms_cloudwatch_processor", "kms_event_processor", "kms_cloudtrail_requeue"])
   content         = data.external.gitrev.result.commit
   filename        = "${path.module}/lambda/${each.key}/REVISION.txt"
   file_permission = "0644"
