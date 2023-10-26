@@ -3,6 +3,9 @@ resource "aws_s3_bucket" "athena_query_results" {
     "login-gov-athena-queries-${var.env_name}",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
+
+  # Setting force_destroy to fix an error this module causes in bin/destroy-sandbox
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_ownership_controls" "athena_query_results" {
