@@ -88,10 +88,10 @@ repos:
     name: "gitlab/dast"
     <<: *all_write_template
   identity_dashboard_review:
-    name: "identity-idp/dashboard"
+    name: "identity-dashboard/review"
     <<: *all_write_template
   identity_dashboard_review_cache:
-    name: "identity-idp/dashboard/cache"
+    name: "identity-dashboard/review/cache"
     <<: *all_write_template
   dashboard_ci:
     name: "dashboard/ci"
