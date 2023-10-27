@@ -399,7 +399,7 @@ users:
     - lg-public
   john.maxwell:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - jmax-gsa
     gitlab_groups:
