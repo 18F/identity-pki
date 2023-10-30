@@ -76,7 +76,6 @@ def lambda_handler(event, context):
 #function to hide email desination from mail section
 
 def mail_section(mail_destination, headers_destination, common_headers, conv):
-        print("Hidding destination email from mail section")
         zz = []
         for recipient_email in mail_destination:
             #print(recipient_email)
@@ -104,4 +103,4 @@ def mail_section(mail_destination, headers_destination, common_headers, conv):
 def hide_destination_email(email):
     position = email.index("@")
     updated_email = email[position:]
-    return(updated_email)  
+    return(updated_email)
