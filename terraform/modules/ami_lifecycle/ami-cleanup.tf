@@ -48,14 +48,8 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
     ]
 
     resources = [
-      "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:snapshot/*"
+      "arn:aws:ec2:${data.aws_region.current.name}::snapshot/*"
     ]
-
-    condition {
-      test     = "StringEquals"
-      values   = ["ec2:Owner"]
-      variable = data.aws_caller_identity.current.account_id
-    }
   }
 
   statement {
@@ -66,14 +60,8 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
     ]
 
     resources = [
-      "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:image/*"
+      "arn:aws:ec2:${data.aws_region.current.name}::image/*"
     ]
-
-    condition {
-      test     = "StringEquals"
-      values   = ["ec2:Owner"]
-      variable = data.aws_caller_identity.current.account_id
-    }
   }
 }
 
