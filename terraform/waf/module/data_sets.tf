@@ -12,6 +12,8 @@ locals {
     "block_list_v6",
     "privileged_ips_v4",
     "privileged_ips_v6",
+    "override_ips_v4",
+    "override_ips_v6",
   ]
 }
 

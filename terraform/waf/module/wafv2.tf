@@ -282,6 +282,63 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
+  dynamic "rule" {
+    for_each = length(data.aws_wafv2_ip_set.acl["override_ips_v4"].addresses) > 0 ? [1] : []
+    content {
+      name     = "OverrideAwsIpAddresses"
+      priority = 150
+      action {
+        allow {}
+      }
+      statement {
+        or_statement {
+          # Support matching in case of direct access or through CDN
+          statement {
+            ip_set_reference_statement {
+              arn = data.aws_wafv2_ip_set.acl["override_ips_v4"].arn
+            }
+          }
+          dynamic "statement" {
+            for_each = length(data.aws_wafv2_ip_set.acl["override_ips_v6"].addresses) > 0 ? [1] : []
+            content {
+              ip_set_reference_statement {
+                arn = data.aws_wafv2_ip_set.acl["override_ips_v6"].arn
+              }
+            }
+          }
+          statement {
+            ip_set_reference_statement {
+              arn = data.aws_wafv2_ip_set.acl["override_ips_v4"].arn
+              ip_set_forwarded_ip_config {
+                header_name       = "X-Forwarded-For"
+                position          = "FIRST"
+                fallback_behavior = "NO_MATCH"
+              }
+            }
+          }
+          dynamic "statement" {
+            for_each = length(data.aws_wafv2_ip_set.acl["override_ips_v6"].addresses) > 0 ? [1] : []
+            content {
+              ip_set_reference_statement {
+                arn = data.aws_wafv2_ip_set.acl["override_ips_v6"].arn
+                ip_set_forwarded_ip_config {
+                  header_name       = "X-Forwarded-For"
+                  position          = "FIRST"
+                  fallback_behavior = "NO_MATCH"
+                }
+              }
+            }
+          }
+        }
+      }
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-OverrideAwsIpAddresses-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
   rule {
     name     = "AWSManagedRulesAmazonIpReputationList"
     priority = 200

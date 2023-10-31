@@ -169,3 +169,21 @@ resource "aws_wafv2_ip_set" "privileged_ips_v6" {
   ip_address_version = "IPV6"
   addresses          = local.privileged_cidrs_v6
 }
+
+resource "aws_wafv2_ip_set" "override_ips_v4" {
+  count              = 1
+  name               = "${local.web_acl_name}-override-ips-v4"
+  description        = "${local.web_acl_name} Override IPv4 CIDRs"
+  scope              = var.wafv2_web_acl_scope
+  ip_address_version = "IPV4"
+  addresses          = var.override_cidr_blocks_v4
+}
+
+resource "aws_wafv2_ip_set" "override_ips_v6" {
+  count              = 1
+  name               = "${local.web_acl_name}-override-ips-v6"
+  description        = "${local.web_acl_name} Override IPv6 CIDRs"
+  scope              = var.wafv2_web_acl_scope
+  ip_address_version = "IPV6"
+  addresses          = var.override_cidr_blocks_v6
+}

@@ -29,6 +29,24 @@ EOM
   default     = []
 }
 
+variable "override_cidr_blocks_v4" {
+  type        = list(string)
+  description = <<EOM
+List of additional IPv4 CIDR blocks caught by the AWS Managed Rules
+that should be allowed access through the WAFv2 web ACL(s).
+EOM
+  default     = []
+}
+
+variable "override_cidr_blocks_v6" {
+  type        = list(string)
+  description = <<EOM
+List of additional IPv6 CIDR blocks caught by the AWS Managed Rules
+that should be allowed access through the WAFv2 web ACL(s).
+EOM
+  default     = []
+}
+
 variable "header_block_regex" {
   type = list(object({
     field_name = string

@@ -55,6 +55,10 @@ module "main" {
   mta_sts_report_mailboxes      = ["tls.reports@gsa.gov", "tls-reports@login.gov"]
   mta_sts_mode                  = "enforce"
 
+  override_cidr_blocks_v4 = [
+    "72.28.3.80/32"
+  ]
+
   bucket_list_uw2 = [
     "894947205914-awsmacietrail-dataevent",
     "894947205914-tf",

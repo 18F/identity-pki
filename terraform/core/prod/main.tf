@@ -189,6 +189,10 @@ module "main" {
 
   ##### WAF #####
 
+  override_cidr_blocks_v4 = [
+
+  ]
+
   # Uncomment to use header_block_regex filter
   #header_block_regex = yamldecode(file("header_block_regex.yml"))
 
