@@ -82,7 +82,8 @@ data "aws_iam_policy_document" "fluentd" {
       "logs:DescribeLogStreams",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
-      "logs:PutLogEvents"
+      "logs:PutLogEvents",
+      "logs:putRetentionPolicy",
     ]
 
     resources = ["*"]
