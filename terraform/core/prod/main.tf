@@ -190,7 +190,7 @@ module "main" {
   ##### WAF #####
 
   override_cidr_blocks_v4 = [
-
+    "72.28.3.80/32"
   ]
 
   # Uncomment to use header_block_regex filter
