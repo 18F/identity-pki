@@ -52,6 +52,8 @@ module "gitlab_launch_template" {
   template_tags = {
     main_git_ref = module.gitlab_user_data.main_git_ref
   }
+
+  block_device_mappings = var.gitlab_block_device_mappings
 }
 
 resource "aws_autoscaling_group" "gitlab" {

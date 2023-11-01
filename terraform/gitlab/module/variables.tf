@@ -491,3 +491,29 @@ variable "rds_ca_cert_identifier" {
   description = "Identifier of AWS RDS Certificate Authority Certificate"
   default     = "rds-ca-rsa2048-g1"
 }
+
+variable "gitlab_block_device_mappings" {
+  type = list(object({
+    device_name  = optional(string)
+    no_device    = optional(string)
+    virtual_name = optional(string)
+    ebs = optional(list(object({
+      delete_on_termination = optional(bool)
+      encrypted             = optional(bool)
+      iops                  = optional(number)
+      kms_key_id            = optional(string)
+      snapshot_id           = optional(string)
+      volume_size           = optional(number)
+      volume_type           = optional(string)
+    })))
+  }))
+  default = [
+    {
+      device_name = "/dev/sdf"
+      ebs = [{
+        volume_size = 150 # Base ami default is 100
+        volume_type = "gp3"
+      }]
+    }
+  ]
+}

@@ -104,6 +104,31 @@ filesystem 'gitlab' do
   action [:create, :enable, :mount]
 end
 
+# Extending the /var filesystem for bigger temporary backup generation
+# backups are in /var/opt/gitlab/backups
+execute 'pvresize_nvme1n1' do
+  command 'pvresize /dev/nvme1n1'
+  action :run
+  user 'root'
+  group 'root'
+end
+
+# Map 100% of the free space to the /var filesystem
+execute 'lvextend_securefolders-variables' do
+  command 'lvextend -l +100%FREE /dev/mapper/securefolders-variables'
+  action :run
+  user 'root'
+  group 'root'
+end
+
+# Resize the filesystem to use the new space
+execute 'resize2fs_securefolders-variables' do
+  command 'resize2fs /dev/mapper/securefolders-variables'
+  action :run
+  user 'root'
+  group 'root'
+end
+
 package 'postfix'
 package 'openssh-server'
 package 'ca-certificates'
