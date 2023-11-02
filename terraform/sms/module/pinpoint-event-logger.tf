@@ -135,12 +135,17 @@ data "http" "phone_support" {
 
 locals {
   supported_country_codes      = toset([for key, value in jsondecode(data.http.phone_support.response_body).countries : key if value.supports_sms])
-  alarm_volume_alert_countries = setsubtract(local.supported_country_codes, toset(split(var.ignored_countries, ",")))
+  ignored_country_codes        = toset(split(",", var.ignored_countries))
+  alarm_volume_alert_countries = setsubtract(local.supported_country_codes, local.ignored_country_codes)
 }
 
 resource "aws_cloudwatch_metric_alarm" "send_by_country" {
-  for_each   = local.alarm_volume_alert_countries
-  alarm_name = "sms-country-${each.key}-volume-too-high"
+  for_each          = local.alarm_volume_alert_countries
+  alarm_name        = "sms-country-${each.key}-volume-too-high"
+  alarm_description = <<EOM
+${var.env}: More than 100 SMS have been sent to phone numbers in ${each.key} in the last hour. This may a problem with delivery or malicious usage.
+See https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+EOM
 
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
