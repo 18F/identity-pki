@@ -36,7 +36,7 @@ module "review_app" {
     spot = {
       node_group_name = "${var.cluster_name}-managed-spot"
       min_size        = 1
-      max_size        = 40
+      max_size        = 60
       desired_size    = 2
       subnet_ids      = module.vpc.private_subnets
       capacity_type   = "SPOT"
