@@ -1,5 +1,12 @@
 ---
 users:
+  adalis.morales:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - amorales
+    gitlab_groups:
+    - lg-people
   akhlaq.khan:
     aws_groups:
     - analytics
