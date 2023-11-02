@@ -473,6 +473,13 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  ken.myers:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - kmyers
+    gitlab_groups:
+    - lg-people
   kimball.bighorse:
     aws_groups:
     - apponcall
