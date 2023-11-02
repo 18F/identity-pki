@@ -511,7 +511,7 @@ variable "gitlab_block_device_mappings" {
     {
       device_name = "/dev/sdf"
       ebs = [{
-        volume_size = 150 # Base ami default is 100
+        volume_size = 300 # Base ami default is 100
         volume_type = "gp3"
       }]
     }
