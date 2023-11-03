@@ -32,8 +32,8 @@ end
 
 # install docker-credential-ecr-login so we can auth to ECR
 # (from https://github.com/awslabs/amazon-ecr-credential-helper/releases)
-remote_file '/usr/local/bin/docker-credential-ecr-login' do
-  source "https://amazon-ecr-credential-helper-releases.s3.us-east-2.amazonaws.com/#{node['identity_gitlab']['amazon_ecr_credential_helper_version']}/linux-amd64/docker-credential-ecr-login"
+cookbook_file '/usr/local/bin/docker-credential-ecr-login' do
+  source 'docker-credential-ecr-login-0.7.1.linux-amd64'
   mode '0755'
   owner 'root'
   group 'root'
