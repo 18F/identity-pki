@@ -4,8 +4,9 @@
 #
 
 # gitlab versions are set here
-default['identity_gitlab']['gitlab_version'] = '15.11.13-ee.0' # https://packages.gitlab.com/gitlab/gitlab-ee
-default['identity_gitlab']['gitlab_runner_version'] = '15.11.1' # https://packages.gitlab.com/runner/gitlab-runner
+default['identity_gitlab']['gitlab_version'] = '16.5.1-ee.0' # https://packages.gitlab.com/gitlab/gitlab-ee
+default['identity_gitlab']['gitlab_runner_version'] = '16.5.0' # https://packages.gitlab.com/runner/gitlab-runner
+default['identity_gitlab']['amazon_ecr_credential_helper_version'] = '0.7.1' # https://github.com/awslabs/amazon-ecr-credential-helper/releases
 
 # turn on allowed_images if this is true
 default['identity_gitlab']['allowed_images'] = true
