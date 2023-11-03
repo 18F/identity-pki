@@ -56,7 +56,7 @@ if [ ${MISSING_KEYS} -gt 0 ]; then
 fi
 
 ID_USER=$(whoami) || true
-if [[ "${ID_USER}" =~ ^(root|ssm-user|ubuntu|ec2-user) ]] || [ -z "$ID_USER" ] ; then
+if [[ "${ID_USER}" =~ ^(root|ssm-user|ubuntu|ec2-user|websrv|appinstall) ]] || [ -z "$ID_USER" ] ; then
   ID_USER="${GSA_USERNAME:-}"
   if [ -z "$ID_USER" ] ; then
     echo 'Username invalid! Set via GSA_USERNAME env var or SSMSessionRunAs session tag'
