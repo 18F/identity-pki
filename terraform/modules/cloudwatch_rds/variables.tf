@@ -14,6 +14,18 @@ variable "db_instance_class" {
   default     = "db.r5.large"
 }
 
+variable "rds_aurora_alarm_threshold_cpu" {
+  type        = number
+  description = "Alert Threshhold for Aurora cpu utilization"
+  default     = 70
+}
+
+variable "rds_aurora_alarm_threshold_cpu_high" {
+  type        = number
+  description = "Critical Alert Threshhold for Aurora cpu utilization"
+  default     = 80
+}
+
 variable "rds_storage_threshold" {
   type        = number
   description = <<EOM

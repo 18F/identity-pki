@@ -58,7 +58,7 @@ EOM
       metric_name         = "NetworkThroughput"
       threshold           = local.rds_instance_network_performance[var.db_instance_class] * 1000000000 * 0.7
       alarm_description   = <<EOM
-Network Utilization in PostgreSQL Data is high -
+Network Utilization in PostgreSQL Database is high -
 Check RDS Instance, evalutate network usage and resize if necessary.
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
@@ -69,8 +69,30 @@ EOM
       metric_name         = "NetworkThroughput"
       threshold           = local.rds_instance_network_performance[var.db_instance_class] * 1000000000 * 0.9
       alarm_description   = <<EOM
-Network Utilization in PostgreSQL Data is Critical -
+Network Utilization in PostgreSQL Database is Critical -
 Check RDS Instance, evalutate network usage and resize if necessary.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
+EOM
+    },
+    HighCpuUtilization = {
+      comparison_operator = "GreaterThanThreshold"
+      metric_name         = "CPUUtilization"
+      threshold           = var.rds_aurora_alarm_threshold_cpu
+      alarm_description   = <<EOM
+CPU Utilization in PostgreSQL Database is high -
+Check RDS Instance, evalutate CPU usage and resize if necessary.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
+EOM
+    },
+    CriticalCpuUtilization = {
+      comparison_operator = "GreaterThanThreshold"
+      metric_name         = "CPUUtilization"
+      threshold           = var.rds_aurora_alarm_threshold_cpu_high
+      alarm_description   = <<EOM
+CPU Utilization in PostgreSQL Database is Critical -
+Check RDS Instance, evalutate CPU usage and resize if necessary.
 
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
 EOM
