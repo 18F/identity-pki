@@ -25,9 +25,9 @@ module "db_aurora" {
   rds_db_arn                = aws_db_instance.primary.arn # externally-created resource
   primary_cluster_instances = 1
   key_admin_role_name       = "KMSAdministrator"
-  db_instance_class         = var.rds_instance_class_aurora
-  db_engine                 = var.rds_engine_aurora
-  db_engine_version         = var.rds_engine_version_aurora
+  db_instance_class         = var.rds_instance_class
+  db_engine                 = var.rds_engine
+  db_engine_version         = var.rds_engine_version_uw2
   db_port                   = var.rds_db_port
   retention_period          = var.rds_backup_retention_period
   backup_window             = var.rds_backup_window

@@ -7,10 +7,10 @@ module "worker_aurora_uw2" {
   rds_password = var.rds_password_worker_jobs
   rds_username = var.rds_username_worker_jobs
 
-  db_instance_class = var.rds_instance_class_worker_jobs_aurora
-  db_engine         = var.rds_engine_aurora
-  db_engine_mode    = var.rds_engine_mode_aurora
-  db_engine_version = var.rds_engine_version_worker_jobs_aurora
+  db_instance_class = var.rds_instance_class_worker
+  db_engine         = var.rds_engine
+  db_engine_mode    = var.rds_engine_mode
+  db_engine_version = var.rds_engine_version_worker
   db_port           = var.rds_db_port
 
   apg_db_pgroup      = module.idp_rds_usw2.aurora_db_pgroup
@@ -52,8 +52,8 @@ module "worker_aurora_uw2" {
   # max_cluster_instances    = 5     # ignored until enable_autoscaling = true
 
   #### if using/moving to Aurora Serverless v2, this must be fully defined,
-  #### var.rds_instance_class_aurora must be 'db.serverless',
-  #### and var.rds_engine_mode_aurora must be 'provisioned'
+  #### var.rds_instance_class must be 'db.serverless',
+  #### and var.rds_engine_mode must be 'provisioned'
 
   serverlessv2_config = var.worker_jobs_aurora_serverlessv2_config
 }
@@ -66,8 +66,8 @@ module "idp_worker_jobs_rds_usw2" {
   env_name          = var.env_name
   name              = var.name
   db_identifier     = "idp-worker-jobs"
-  db_engine         = var.rds_engine_aurora
-  db_engine_version = var.rds_engine_version_worker_jobs_aurora
+  db_engine         = var.rds_engine
+  db_engine_version = var.rds_engine_version_worker
 }
 
 module "idp_worker_jobs_rds_use1" {
@@ -79,8 +79,8 @@ module "idp_worker_jobs_rds_use1" {
   env_name          = var.env_name
   name              = var.name
   db_identifier     = "idp-worker-jobs"
-  db_engine         = var.rds_engine_aurora
-  db_engine_version = var.rds_engine_version_worker_jobs_aurora
+  db_engine         = var.rds_engine
+  db_engine_version = var.rds_engine_version_worker
 }
 
 module "worker_aurora_uw2_cloudwatch" {
@@ -91,5 +91,5 @@ module "worker_aurora_uw2_cloudwatch" {
   rds_db                        = module.worker_aurora_uw2.writer_instance
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
-  db_instance_class             = var.rds_instance_class_worker_jobs_aurora
+  db_instance_class             = var.rds_instance_class_worker
 }

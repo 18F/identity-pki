@@ -8,12 +8,12 @@ locals {
   # This logic should help to ensure that the instance class used by the idp Aurora
   # cluster is valid for any configuration, e.g.:
   # 1. use db.t3.medium if no custom value is specified
-  # 2. use var.rds_instance_class_aurora_global if var.idp_global_enabled is true
-  # 3. use var.rds_instance_class_aurora if it is customized (and assume said
+  # 2. use var.rds_instance_class_global if var.idp_global_enabled is true
+  # 3. use var.rds_instance_class if it is customized (and assume said
   #    custom version is valid for use with a global cluster)
-  rds_instance_class_aurora_idp = var.rds_instance_class_aurora != "db.t3.medium" ? (
-    var.rds_instance_class_aurora) : var.idp_global_enabled ? (
-  var.rds_instance_class_aurora_global) : var.rds_instance_class_aurora
+  rds_instance_class_idp = var.rds_instance_class != "db.t3.medium" ? (
+    var.rds_instance_class) : var.idp_global_enabled ? (
+  var.rds_instance_class_global) : var.rds_instance_class
 }
 
 # primary cluster (us-west-2)
@@ -31,10 +31,10 @@ module "idp_aurora_uw2" {
   rds_password = var.rds_password
   rds_username = var.rds_username
 
-  db_instance_class  = local.rds_instance_class_aurora_idp
-  db_engine          = var.rds_engine_aurora
-  db_engine_mode     = var.rds_engine_mode_aurora
-  db_engine_version  = var.rds_engine_version_aurora
+  db_instance_class  = local.rds_instance_class_idp
+  db_engine          = var.rds_engine
+  db_engine_mode     = var.rds_engine_mode
+  db_engine_version  = var.rds_engine_version_uw2
   db_port            = var.rds_db_port
   apg_db_pgroup      = module.idp_rds_usw2.aurora_db_pgroup
   apg_cluster_pgroup = module.idp_rds_usw2.aurora_cluster_pgroup
@@ -74,8 +74,8 @@ module "idp_aurora_uw2" {
   # max_cluster_instances    = 5     # ignored until enable_autoscaling = true
 
   #### if using/moving to Aurora Serverless v2, this must be fully defined,
-  #### local.rds_instance_class_aurora_idp must be 'db.serverless',
-  #### and var.rds_engine_mode_aurora must be 'provisioned'
+  #### local.rds_instance_class_idp must be 'db.serverless',
+  #### and var.rds_engine_mode must be 'provisioned'
 
   serverlessv2_config = var.idp_aurora_serverlessv2_config
 }
@@ -89,8 +89,8 @@ module "idp_rds_usw2" {
   }
   env_name              = var.env_name
   db_name_override      = local.idp_aurora_name
-  db_engine             = var.rds_engine_aurora
-  db_engine_version     = var.rds_engine_version_aurora
+  db_engine             = var.rds_engine
+  db_engine_version     = var.rds_engine_version_uw2
   cluster_pgroup_params = local.apg_cluster_pgroup_params
   db_pgroup_params      = local.apg_db_pgroup_params
 }
@@ -103,7 +103,7 @@ module "idp_aurora_cloudwatch" {
   rds_db                        = module.idp_aurora_uw2.writer_instance
   alarm_actions                 = local.low_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
-  db_instance_class             = local.rds_instance_class_aurora_idp
+  db_instance_class             = local.rds_instance_class_idp
 }
 
 # secondary cluster (us-east-1)
@@ -125,10 +125,10 @@ module "idp_aurora_ue1" {
   rds_password = "" # do not set in replica cluster
   rds_username = "" # do not set in replica cluster
 
-  db_instance_class  = local.rds_instance_class_aurora_idp
-  db_engine          = var.rds_engine_aurora
-  db_engine_mode     = var.rds_engine_mode_aurora
-  db_engine_version  = var.rds_engine_version_aurora
+  db_instance_class  = local.rds_instance_class_idp
+  db_engine          = var.rds_engine
+  db_engine_mode     = var.rds_engine_mode
+  db_engine_version  = var.rds_engine_version_ue1
   db_port            = var.rds_db_port
   apg_db_pgroup      = module.idp_rds_use1[0].aurora_db_pgroup
   apg_cluster_pgroup = module.idp_rds_use1[0].aurora_cluster_pgroup
@@ -167,8 +167,8 @@ module "idp_aurora_ue1" {
   # max_cluster_instances    = 5     # ignored until enable_autoscaling = true
 
   #### if using/moving to Aurora Serverless v2, this must be fully defined,
-  #### local.rds_instance_class_aurora_idp must be 'db.serverless',
-  #### and var.rds_engine_mode_aurora must be 'provisioned'
+  #### local.rds_instance_class_idp must be 'db.serverless',
+  #### and var.rds_engine_mode must be 'provisioned'
 
   serverlessv2_config = var.idp_aurora_serverlessv2_config
 
@@ -183,8 +183,8 @@ module "idp_rds_use1" {
   }
   env_name              = var.env_name
   db_identifier         = "idp-ue1"
-  db_engine             = var.rds_engine_aurora
-  db_engine_version     = var.rds_engine_version_aurora
+  db_engine             = var.rds_engine
+  db_engine_version     = var.rds_engine_version_uw2
   cluster_pgroup_params = local.apg_cluster_pgroup_params
   db_pgroup_params      = local.apg_db_pgroup_params
 }
@@ -210,10 +210,10 @@ module "dr_restore_idp_aurora" {
   rds_password = var.rds_password
   rds_username = var.rds_username
 
-  db_instance_class  = local.rds_instance_class_aurora_idp
-  db_engine          = var.rds_engine_aurora
-  db_engine_mode     = var.rds_engine_mode_aurora
-  db_engine_version  = var.rds_engine_version_aurora
+  db_instance_class  = local.rds_instance_class_idp
+  db_engine          = var.rds_engine
+  db_engine_mode     = var.rds_engine_mode
+  db_engine_version  = var.rds_engine_version_uw2
   db_port            = var.rds_db_port
   apg_db_pgroup      = module.idp_rds_usw2.aurora_db_pgroup
   apg_cluster_pgroup = module.idp_rds_usw2.aurora_cluster_pgroup

@@ -73,35 +73,41 @@ variable "rds_db_port" {
   default     = 5432
 }
 
-variable "rds_engine_aurora" {
+variable "rds_engine" {
   type        = string
   description = "AuroraDB engine name (aurora / aurora-mysql / aurora-postgresql)"
   default     = "aurora-postgresql"
 }
 
-variable "rds_engine_version_aurora" {
+variable "rds_engine_version_uw2" {
   type        = string
-  description = "Version number (e.g. ##.#) of db_engine to use"
-  default     = "13.9"
+  description = "Version number (e.g. ##.#) of rds_engine to use in us-west-2"
+  default     = "13.12"
 }
 
-variable "rds_instance_class_aurora" {
+variable "rds_engine_version_ue1" {
+  type        = string
+  description = "Version number (e.g. ##.#) of rds_engine to use in us-east-1"
+  default     = "13.12"
+}
+
+variable "rds_instance_class" {
   type        = string
   description = <<EOM
 Instance class to use for the idp AuroraDB cluster(s). Will be ignored
-in favor of rds_instance_class_aurora_global if idp_global_enabled is 'true',
+in favor of rds_instance_class_global if idp_global_enabled is 'true',
 as Aurora clusters MUST have an instance class of db.r5.large (the default
 value) or larger in order to support a Global cluster.
 EOM
   default     = "db.t3.medium"
 }
 
-variable "rds_instance_class_aurora_global" {
+variable "rds_instance_class_global" {
   type        = string
   description = <<EOM
 Instance class to use for the idp AuroraDB cluster(s) when creating/supporting
 a Global Aurora cluster. MUST be an instance class of db.r5.large or larger.
-Will override rds_instance_class_aurora if if idp_global_enabled is 'true'.
+Will override rds_instance_class if if idp_global_enabled is 'true'.
 EOM
   default     = "db.r5.large"
 }
@@ -149,7 +155,7 @@ EOM
   default     = false
 }
 
-variable "rds_engine_mode_aurora" {
+variable "rds_engine_mode" {
   type        = string
   description = "DB engine mode to use with Aurora DB cluster(s)"
   default     = "provisioned"
@@ -248,7 +254,7 @@ EOM
 
 # dashboard (app)
 
-variable "rds_instance_class_dashboard_aurora" {
+variable "rds_instance_class_dashboard" {
   type        = string
   description = "Instance class for dashboard Aurora DB cluster"
   default     = "db.t3.medium"
@@ -296,13 +302,13 @@ EOM
 
 # worker
 
-variable "rds_engine_version_worker_jobs_aurora" {
+variable "rds_engine_version_worker" {
   type        = string
   description = "db_engine to use for worker Aurora DB cluster"
-  default     = "13.9"
+  default     = "13.12"
 }
 
-variable "rds_instance_class_worker_jobs_aurora" {
+variable "rds_instance_class_worker" {
   type        = string
   description = "Instance class for worker Aurora DB cluster"
   default     = "db.t3.medium"
