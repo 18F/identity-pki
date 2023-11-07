@@ -127,9 +127,9 @@ locals {
   }
 
   idp_events_ialx_filters = {
-    idv_review_complete_success = {
-      name         = "idv-review-complete-success"
-      pattern      = "{ ($.name = \"IdV: review complete\") }"
+    idv_enter_password_submitted = {
+      name         = "idv-enter-password-submitted"
+      pattern      = "{ $.name = \"IdV: review complete\" || $.name = \"idv_enter_password_submitted\" }"
       metric_value = 1
       dimensions   = {}
     },

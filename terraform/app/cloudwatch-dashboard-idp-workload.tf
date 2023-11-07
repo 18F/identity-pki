@@ -282,7 +282,7 @@ resource "aws_cloudwatch_dashboard" "idp_workload" {
                     [ ".", "user-registration-complete", { "label": "registration-complete [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "rate-limit-triggered", { "label": "rate-limited [sum:$${SUM}, max:$${MAX}]" } ],
                     [ ".", "login-failure-email-or-password", { "label": "fail-email-pass [sum:$${SUM}, max:$${MAX}]" } ],
-                    [ "${var.env_name}/idp-ialx", "idv-review-complete-success", { "label": "idv-review-complete-success [sum:$${SUM}, max:$${MAX}]" } ]
+                    [ "${var.env_name}/idp-ialx", "idv-enter-password-submitted", { "label": "idv-enter-password-submitted [sum:$${SUM}, max:$${MAX}]" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,

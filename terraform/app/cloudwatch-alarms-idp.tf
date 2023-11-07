@@ -70,7 +70,7 @@ EOM
 
   namespace = "${var.env_name}/idp-ialx"
 
-  metric_name = "idv-review-complete-success"
+  metric_name = "idv-enter-password-submitted"
 
   statistic           = "Sum"
   comparison_operator = "LessThanThreshold"
