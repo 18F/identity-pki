@@ -19,7 +19,7 @@ module "main" {
   region                          = "us-west-2"
   slack_events_sns_hook_arn       = "arn:aws:sns:us-west-2:217680906704:slack-events"
   root_domain                     = "gitlab.login.gov"
-  default_ami_id                  = "ami-067d5edeae77256ae" # 2023-11-01 Ubuntu 20.04
+  default_ami_id                  = "ami-087a6061f9a2e15bc" # 2023-11-07 Ubuntu 20.04
   route53_id                      = "Z07730471OKZ5T4V8NB2M"
   asg_gitlab_test_runner_desired  = 38
   asg_gitlab_build_runner_desired = 4
