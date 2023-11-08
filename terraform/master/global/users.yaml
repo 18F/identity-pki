@@ -6,7 +6,7 @@ users:
     ec2_username:
     - amorales
     gitlab_groups:
-    - lg-people
+    - lg-public
   akhlaq.khan:
     aws_groups:
     - analytics
@@ -470,7 +470,7 @@ users:
     ec2_username:
     - kmyers
     gitlab_groups:
-    - lg-people
+    - lg-public
   kevin.masters:
     aws_groups:
     - apponcall
