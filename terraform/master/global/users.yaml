@@ -6,7 +6,7 @@ users:
     ec2_username:
     - amorales
     gitlab_groups:
-    - lg-people
+    - lg-public
   akhlaq.khan:
     aws_groups:
     - analytics
@@ -464,6 +464,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  ken.myers:
+    aws_groups:
+    - analytics
+    ec2_username:
+    - kmyers
+    gitlab_groups:
+    - lg-public
   kevin.masters:
     aws_groups:
     - apponcall
@@ -480,13 +487,6 @@ users:
     - antifraud
     - lg-all
     - lg-public
-  ken.myers:
-    aws_groups:
-    - analytics
-    ec2_username:
-    - kmyers
-    gitlab_groups:
-    - lg-people
   kimball.bighorse:
     aws_groups:
     - apponcall
@@ -831,6 +831,15 @@ users:
     - secops
     ec2_username:
     - tspencer
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-public
+  trevor.cornpropst:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - tcornpropst
     gitlab_groups:
     - devops
     - lg-all
