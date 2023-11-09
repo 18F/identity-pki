@@ -122,3 +122,20 @@ resource "aws_ses_receipt_rule" "bounce-unknown" {
     status_code     = "5.1.1"
   }
 }
+
+resource "aws_ses_receipt_filter" "filter-allow-usps" {
+  for_each = toset(var.usps_ip_addresses)
+  name     = "allow_usps_${split(".", each.key)[2]}"
+  cidr     = each.key
+  policy   = "Allow"
+}
+
+# these rules are applied in the order they appear, so
+# the full block list is last - anything not in the 
+# above allow lists will be blocked. Uncertain if order
+# is preserved
+resource "aws_ses_receipt_filter" "filter-block" {
+  name   = "block_ips"
+  cidr   = "0.0.0.0/0"
+  policy = "Block"
+}
