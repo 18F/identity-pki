@@ -31,6 +31,7 @@ users:
     - devops
     - appdev
     - lg-all
+    - lg-people
     - lg-public
   alex.rowley:
     aws_groups:
@@ -118,6 +119,7 @@ users:
     gitlab_groups:
     - pm
     - lg-all
+    - lg-people
     - lg-public
     git_username:
     - benjaminchait
@@ -175,6 +177,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
     git_username:
     - ConnorPMcCarthy
@@ -313,6 +316,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   ifeoma.elekwachi:
     gitlab_groups:
@@ -434,6 +438,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
     git_username:
     - bleachbyte
@@ -456,6 +461,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   kelli.ho:
     aws_groups:
@@ -601,6 +607,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
     git_username:
     - mww59
@@ -616,6 +623,7 @@ users:
     - appdev
     - devops
     - lg-all
+    - lg-people
     - lg-public
   nadya.primak:
     aws_groups:
@@ -634,6 +642,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
     - login-security
   nick.soutouras:
@@ -642,6 +651,7 @@ users:
     gitlab_groups:
     - pm
     - lg-all
+    - lg-people
     - lg-public
   olayemisi.ogunshina:
     gitlab_groups:
@@ -709,6 +719,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   ryan.orear:
     aws_groups:
@@ -723,6 +734,7 @@ users:
     gitlab_groups:
     - pm
     - lg-all
+    - lg-people
     - lg-public
     can_create_group:
     - true
@@ -791,6 +803,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   sudheer.dandamudi:
     aws_groups:
@@ -800,6 +813,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   sujana.gurung:
     aws_groups:
@@ -834,6 +848,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   trevor.cornpropst:
     aws_groups:
@@ -852,6 +867,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   zach.margolis:
     ec2_username:
@@ -872,6 +888,7 @@ users:
     - bots
     - lg
     - lg-all
+    - lg-people
     - lg-public
     - devops
     - appdev
@@ -894,6 +911,8 @@ groups:
   lg-all:
     description: Place where anybody can create projects, and they are visible to
       everybody with an account.
+  lg-people:
+    description: Gitlab group for product focused people
   lg-public:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
