@@ -178,6 +178,12 @@ EOM
   default     = "LOGGER_SEVERITY_INFO"
 }
 
+variable "dms_engine_version" {
+  description = "Engine version of the DMS replication instance."
+  type        = string
+  default     = "3.4.7"
+}
+
 variable "enable_dms_analytics" {
   description = <<EOM
 Enables creation of resources necessary for loading idp data

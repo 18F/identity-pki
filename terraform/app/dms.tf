@@ -18,6 +18,7 @@ module "dms" {
   source_db_availability_zone = module.idp_aurora_uw2.writer_instance_az
   source_db_instance_class    = var.rds_instance_class
   rds_kms_key_arn             = data.aws_kms_key.dms_alias.arn
+  dms_engine_version          = var.dms_engine_version
 
   subnet_ids = module.network_uw2.db_subnet_ids
 

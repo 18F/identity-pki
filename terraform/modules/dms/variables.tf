@@ -43,6 +43,12 @@ variable "source_db_instance_class" {
   type        = string
 }
 
+variable "dms_engine_version" {
+  description = "Engine version of the DMS replication instance."
+  type        = string
+  default     = "3.4.7"
+}
+
 variable "rds_kms_key_arn" {
   description = "KMS key used to encrypt rds"
   type        = string

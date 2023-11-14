@@ -114,7 +114,7 @@ resource "aws_dms_replication_instance" "dms" {
   apply_immediately            = true
   auto_minor_version_upgrade   = true
   availability_zone            = var.source_db_availability_zone
-  engine_version               = "3.4.7"
+  engine_version               = var.dms_engine_version
   kms_key_arn                  = var.rds_kms_key_arn
   multi_az                     = false
   preferred_maintenance_window = "sun:10:30-sun:14:30"
