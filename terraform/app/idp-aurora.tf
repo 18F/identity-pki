@@ -1,10 +1,4 @@
 locals {
-  # This pattern is in place for current primary idp Aurora clusters in us-west-2.
-  # The new default (to be used with the final DMS-migrated idp Aurora cluster)
-  # should be env_name-db_identifier-region_shorthand, e.g. prod-idp-uw2,
-  # which can be achieved by switching db_identifier and db_name_override below.
-  idp_aurora_name = "${var.name}-${var.env_name}-idp-aurora-${var.region}"
-
   # This logic should help to ensure that the instance class used by the idp Aurora
   # cluster is valid for any configuration, e.g.:
   # 1. use db.t3.medium if no custom value is specified
@@ -21,9 +15,8 @@ locals {
 module "idp_aurora_uw2" {
   source = "../modules/rds_aurora"
 
-  env_name         = var.env_name
-  db_identifier    = "idp-uw2" # use instead once BigInt DMS is in place
-  db_name_override = local.idp_aurora_name
+  env_name      = var.env_name
+  db_identifier = "idp-uw2"
 
   create_global_db = var.idp_global_enabled
   global_db_id     = var.idp_global_enabled ? "idp" : ""
@@ -88,7 +81,6 @@ module "idp_rds_usw2" {
     aws = aws.usw2
   }
   env_name              = var.env_name
-  db_name_override      = local.idp_aurora_name
   db_engine             = var.rds_engine
   db_engine_version     = var.rds_engine_version_uw2
   cluster_pgroup_params = local.apg_cluster_pgroup_params
