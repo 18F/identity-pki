@@ -113,7 +113,7 @@ variable "relaxed_uri_paths" {
   default = {
     "docauth_image_upload"    = "^/api/verify/images"                              # https://github.com/18F/identity-devops/issues/4092
     "login_form"              = "^/([a-z]{2}/)?$"                                  # https://github.com/18F/identity-devops/issues/4563
-    "password_screening_flow" = "^/([a-z]{2}/)?verify/review"                      # https://github.com/18F/identity-devops/issues/4563
+    "password_screening_flow" = "^/([a-z]{2}/)?verify/enter_password"              # https://github.com/18F/identity-devops/issues/4563
     "OIDC_authorization"      = "^/openid_connect/authorize"                       # https://github.com/18F/identity-devops/issues/4563
     "account_deletion"        = "^/([a-z]{2}/)?account/delete"                     # https://github.com/18F/identity-devops/issues/6127
     "reauthn"                 = "^/([a-z]{2}/)?reauthn"                            # https://github.com/18F/identity-devops/issues/6221
