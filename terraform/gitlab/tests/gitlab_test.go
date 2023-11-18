@@ -27,6 +27,7 @@ var domain = os.Getenv("DOMAIN")
 var accountid = os.Getenv("ACCOUNTID")
 var timeout = 5
 var runner_asg = env_name + "-gitlab-env-runner"
+var is_root_user_blocked_by_default bool = true
 
 func randSeq(n int) string {
 	b := make([]rune, n)
@@ -57,7 +58,7 @@ func gitlabToken(t *testing.T) string {
 		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 		require.NotEmpty(t, instances)
 		firstinstance := instances[0]
-		cmd := fmt.Sprintf("gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); token.set_token('%s'); token.save!\"", newtoken)
+		cmd := fmt.Sprintf("gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token', expires_at: 1.days.from_now)); token.set_token('%s'); token.save!\"", newtoken)
 		result := RunCommandOnInstance(t, firstinstance, cmd)
 		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed to create API token: "+*result.StandardOutputContent)
 		gitlabtoken.token = newtoken
@@ -78,7 +79,34 @@ func deleteGitlabToken(t *testing.T) {
 		result := RunCommandOnInstance(t, firstinstance, cmd)
 		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed to revoke API token: "+*result.StandardOutputContent)
 		gitlabtoken.token = ""
+		if (is_root_user_blocked_by_default == true) {
+			state_cmd := fmt.Sprintf("gitlab-rails runner \"user = User.find_by_username('root');user.state='blocked'; user.save!\"")
+			state_cmd_result := RunCommandOnInstance(t, firstinstance, state_cmd)  
+			require.Equal(t, int64(0), *state_cmd_result.ResponseCode, state_cmd+" failed to set the  root user state to default state: "+*result.StandardOutputContent)
+		}
 	}
+
+}
+
+
+func activateGitlabRootUser(t *testing.T) {
+	// do command on host to create it
+	
+	asgName := env_name + "-gitlab"
+	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
+	require.NotEmpty(t, instances)
+	firstinstance := instances[0]
+	cmd := fmt.Sprintf("gitlab-rails runner \"user = User.find_by_username('root'); puts user.state\"")
+	result := RunCommandOnInstance(t, firstinstance, cmd)
+	fmt.Print( "root user state ", *result.StandardOutputContent)
+	if *result.StandardOutputContent == "blocked" {
+		is_root_user_blocked_by_default = true
+	} else {
+		is_root_user_blocked_by_default = false
+	}
+	state_cmd := fmt.Sprintf("gitlab-rails runner \"user = User.find_by_username('root'); if user.state != 'active' then user.state='active' end ; user.save!\"")
+	state_cmd_result := RunCommandOnInstance(t, firstinstance, state_cmd)
+	require.Equal(t, int64(0), *state_cmd_result.ResponseCode, cmd+" failed to set the  root user state to active: "+*state_cmd_result.StandardOutputContent)
 }
 
 func RunCommandOnInstance(t *testing.T, instance_string string, command string) *ssm.GetCommandInvocationOutput {
@@ -218,6 +246,8 @@ func TestGitlabS3buckets(t *testing.T) {
 }
 
 func TestGitlabAPI(t *testing.T) {
+	//Check if root user is active
+	activateGitlabRootUser(t)
 	// Create a gitlab token that we can use for the job
 	token := gitlabToken(t)
 	t.Cleanup(func() {

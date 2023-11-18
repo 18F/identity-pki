@@ -7,16 +7,27 @@ require 'aws-sdk-ec2'
 
 include_recipe 'filesystem'
 
-# On 18.04 the device is nvme1, on 20.04 the device is nvme2
-if node['platform_version'].to_f == 18.04
-  docker_device = '/dev/nvme1n1'
-elsif node['platform_version'].to_f == 20.04
-  docker_device = '/dev/nvme2n1'
+ruby_block 'Get the correct docker device' do
+  block do
+    block_devices = ['/dev/nvme1n1', '/dev/nvme2n1']
+    default_block_device = '/dev/nvme1n1'
+    block_devices.each do |device|
+      cmd = Mixlib::ShellOut.new("file -s #{device} | grep data")
+      cmd.run_command
+      if cmd.exitstatus == 0
+        default_block_device = device
+        break
+      end
+    end
+    node.run_state['identity_gitlab_default_docker_block_device'] = default_block_device
+  end
+  ignore_failure true
+  action :run
 end
 
 filesystem 'docker' do
   fstype 'ext4'
-  device docker_device
+  device lazy { "#{node.run_state['identity_gitlab_default_docker_block_device']}" }
   mount '/var/lib/docker'
   action [:create, :enable, :mount]
 end
