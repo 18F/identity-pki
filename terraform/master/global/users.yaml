@@ -477,6 +477,8 @@ users:
     - kmyers
     gitlab_groups:
     - lg-public
+    email:
+    - kenneth.myers@gsa.gov
   kevin.masters:
     aws_groups:
     - apponcall
