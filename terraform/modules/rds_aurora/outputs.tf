@@ -19,14 +19,18 @@ output "global_cluster_arn" {
 }
 
 output "writer_instance" {
-  value = aws_rds_cluster_instance.aurora[0].id
+  value = one([
+    for num in range(
+      0, var.primary_cluster_instances
+    ) : aws_rds_cluster_instance.aurora[num].id if aws_rds_cluster_instance.aurora[num].writer
+  ])
 }
 
 output "reader_instances" {
-  value = var.primary_cluster_instances == 1 ? [] : [
+  value = [
     for num in range(
-      1, var.primary_cluster_instances
-    ) : aws_rds_cluster_instance.aurora[num].id
+      0, var.primary_cluster_instances
+    ) : aws_rds_cluster_instance.aurora[num].id if !aws_rds_cluster_instance.aurora[num].writer
   ]
 }
 
