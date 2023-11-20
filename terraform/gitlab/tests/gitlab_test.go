@@ -58,7 +58,7 @@ func gitlabToken(t *testing.T) string {
 		instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 		require.NotEmpty(t, instances)
 		firstinstance := instances[0]
-		cmd := fmt.Sprintf("gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token', expires_at: 1.days.from_now)); token.set_token('%s'); token.save!\"", newtoken)
+		cmd := fmt.Sprintf("gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token', expires_at: 1.days.from_now); token.set_token('%s'); token.save!\"", newtoken)
 		result := RunCommandOnInstance(t, firstinstance, cmd)
 		require.Equal(t, int64(0), *result.ResponseCode, cmd+" failed to create API token: "+*result.StandardOutputContent)
 		gitlabtoken.token = newtoken
