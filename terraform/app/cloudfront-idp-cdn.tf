@@ -6,6 +6,10 @@ data "aws_cloudfront_origin_request_policy" "idp_origin" {
   name = "idp-origin-request-policy"
 }
 
+data "aws_cloudfront_response_headers_policy" "maintenance_response_headers_policy" {
+  name = "Maintenance-Response-Headers-Policy"
+}
+
 data "aws_wafv2_web_acl" "cloudfront_web_acl" {
   provider = aws.use1
   count    = var.idp_cloudfront_waf_enabled ? 1 : 0
@@ -104,8 +108,9 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
       cached_methods   = ["HEAD", "GET"]
       target_origin_id = "static-idp-${var.env_name}"
 
-      cache_policy_id          = ordered_cache_behavior.value.caching_enabled ? data.aws_cloudfront_cache_policy.managed_caching_optimized.id : data.aws_cloudfront_cache_policy.managed_caching_disabled.id
-      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
+      cache_policy_id            = ordered_cache_behavior.value.caching_enabled ? data.aws_cloudfront_cache_policy.managed_caching_optimized.id : data.aws_cloudfront_cache_policy.managed_caching_disabled.id
+      origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.managed_cors_s3origin.id
+      response_headers_policy_id = var.enable_cloudfront_maintenance_page ? data.aws_cloudfront_response_headers_policy.maintenance_response_headers_policy.id : ""
 
       min_ttl                = 0
       viewer_protocol_policy = "https-only"
