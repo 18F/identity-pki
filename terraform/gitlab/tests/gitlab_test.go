@@ -383,7 +383,7 @@ func TestSshKey(t *testing.T) {
 	instances := aws.GetInstanceIdsForAsg(t, asgName, region)
 	require.NotEmpty(t, instances)
 	firstinstance := instances[0]
-	cmd := "tar xOzf /etc/gitlab/etc_ssh.tar.gz ssh/ssh_host_ecdsa_key.pub"
+	cmd := "tar xOzf /tmp/etc_ssh.tar.gz ssh/ssh_host_ecdsa_key.pub"
 	tarfileresult := RunCommandOnInstance(t, firstinstance, cmd)
 	require.Equal(t, int64(0), *tarfileresult.ResponseCode, cmd+" failed: "+*tarfileresult.StandardOutputContent)
 	cmd = "cat /etc/ssh/ssh_host_ecdsa_key.pub"
