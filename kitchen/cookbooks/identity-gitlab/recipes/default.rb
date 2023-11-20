@@ -248,12 +248,14 @@ if node['platform_version'].to_f == 20.04
   end
 end
 
-execute 'restore_ssh_keys' do
-  command 'tar zxvf /etc/gitlab/etc_ssh.tar.gz'
-  cwd '/etc'
-  ignore_failure true
+# Restore SSH Keys from S3 Bucket
+execute 'restore_ssh_keys_from_s3' do
+  command <<-EOF
+    aws s3 cp s3://#{backup_s3_bucket}/ssh/etc_ssh.tar.gz /tmp/etc_ssh.tar.gz
+    tar xzf /tmp/etc_ssh.tar.gz -C /etc
+  EOF
   notifies :run, 'execute[restart_sshd]', :delayed
-  sensitive true
+  ignore_failure true
 end
 
 template '/etc/ssh/sshd_config' do
@@ -262,9 +264,14 @@ template '/etc/ssh/sshd_config' do
   notifies :run, 'execute[restart_sshd]', :delayed
 end
 
-execute 'backup_ssh_keys' do
-  command 'tar czf /etc/gitlab/etc_ssh.tar.gz ssh'
+# Backup SSH Keys to S3 Bucket
+execute 'backup_ssh_keys_to_s3' do
+  command <<-EOF
+    tar czf /tmp/etc_ssh.tar.gz -C /etc ssh
+    aws s3 cp /tmp/etc_ssh.tar.gz s3://#{backup_s3_bucket}/ssh/etc_ssh.tar.gz
+  EOF
   cwd '/etc'
+  ignore_failure false
 end
 
 execute 'reconfigure_gitlab' do
