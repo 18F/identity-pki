@@ -31,6 +31,23 @@ else
   AWS_ACCOUNT_NUM="894947205914"
 fi
 
+# Set variables used to configure NGINX, SSL Certs, and Puma configuration
+
+if [[ "${ENV}" = "reviewapp" ]]; then
+  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.identitysandbox.gov"
+  export ENV_CONFIG_NGINX_SERVER_NAME="*.${CERT_ENV}.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+  CERT_DOMAIN="-d *.${CERT_ENV}.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+else
+  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.${CERT_ENV}.identitysandbox.gov"
+  export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+  CERT_DOMAIN="-d ${ENV_CONFIG_PIVCAC_SSL_DOMAIN} -d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+fi 
+
+if [[ -z "${CERT_DOMAIN:-}" ]]; then
+  echo "Certificate Domain did not get set properly. This error should not happen. Troubleshoot script"
+  exit 1
+fi
+
 # Configure nginx
 sudo chmod og+w /opt/nginx/conf/nginx.conf
 sudo chmod og+w /opt/nginx/conf
@@ -70,14 +87,21 @@ sudo -E -u root chown root: /etc/cron.d/update_letsencrypt_certs
 sudo -E -u root chmod 700 /etc/cron.d/update_letsencrypt_certs
 
 # Check if bundle exists/is not null
-sudo -E -u root [ -s /root/letsencrypt.${CERT_ENV}.tar.gz ] && sudo -E -u root tar zxf /root/letsencrypt.${CERT_ENV}.tar.gz -C /etc || sudo -E -u root certbot certonly --agree-tos -n --dns-route53 -d *.${CERT_ENV}.pivcac.identitysandbox.gov --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
+sudo -E -u root [ -s /root/letsencrypt.${CERT_ENV}.tar.gz ] && sudo -E -u root tar zxf /root/letsencrypt.${CERT_ENV}.tar.gz -C /etc || sudo -E -u root certbot certonly --agree-tos -n --dns-route53 ${CERT_DOMAIN} --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
 
 sudo -E -u root certbot renew -n --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1' --key-type rsa --rsa-key-size 2048
 
 # Update Letsencrypt folder permissions
 sudo -E -u root chmod 755 /etc/letsencrypt/live
 sudo -E -u root chmod 755 /etc/letsencrypt/archive
-sudo -E -u root chmod -R 755 /etc/letsencrypt/archive/pivcac.identitysandbox.gov/*
+sudo -E -u root chmod -R 755 /etc/letsencrypt/archive/${ENV_CONFIG_PIVCAC_SSL_DOMAIN}/*
+
+# Set Environment configuration in file
+envsubst < /opt/nginx/conf/sites.d/pivcac.conftemp > /opt/nginx/conf/sites.d/pivcac.conf
+envsubst < /app/config/puma/production.rbtemp > /app/config/puma/production.rb
+rm -f /opt/nginx/conf/sites.d/pivcac.conftemp
+rm -f /app/config/puma/production.rbtempd
+
 
 # Start nginx
 sudo -E -u root nginx

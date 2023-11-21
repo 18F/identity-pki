@@ -95,7 +95,10 @@ RUN ln -s /usr/local/nginx/nginx /usr/local/sbin/nginx; \
 COPY --chmod=644 ./k8files/status-map.conf /opt/nginx/conf/
 COPY --chmod=644 ./k8files/nginx.conf /opt/nginx/conf/
 COPY --chmod=644 ./k8files/status.conf /opt/nginx/conf/sites.d/
-COPY ./k8files/pivcac.conf /opt/nginx/conf/sites.d/
+COPY ./k8files/pivcac.conf /opt/nginx/conf/sites.d/pivcac.conftemp
+
+# Download RDS Combined CA Bundles
+RUN wget -P /usr/local/share/aws/  https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 # Create cron jobs
 RUN echo '* */4 * * * websrv flock -n /tmp/update_cert_revocations.lock -c /usr/local/bin/update_cert_revocations' > /etc/cron.d/update_cert_revocations; \
@@ -142,7 +145,7 @@ RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
     mkdir -p ${RAILS_ROOT}/config/puma; chmod -R 0755 ${RAILS_ROOT}/config/puma; 
 COPY --chown=app --chmod=755 ./k8files/application.yml.default.docker ./config/application.yml
 COPY --chown=app --chmod=755 ./k8files/newrelic.yml ./config/newrelic.yml
-COPY --chown=app --chmod=755 ./k8files/puma_production ./config/puma/production.rb
+COPY --chown=app --chmod=755 ./k8files/puma_production ./config/puma/production.rbtemp
 
 # Expose port the app runs on
 EXPOSE 443
