@@ -286,6 +286,14 @@ locals {
           $.name="IdV: proofing resolution result missing"
         }
       EOT
+    },
+    idv_threatmetrix_result = {
+      name         = "idv-threatmetrix-result"
+      pattern      = "{ $.name = \"IdV: doc auth verify proofing results\" && $.properties.event_properties.proofing_results.context.stages.threatmetrix.review_status = \"*\" }"
+      metric_value = 1
+      dimensions = {
+        status = "$.properties.event_properties.proofing_results.context.stages.threatmetrix.review_status"
+      }
     }
   }
 
