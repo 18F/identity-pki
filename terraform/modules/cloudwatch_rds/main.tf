@@ -25,7 +25,8 @@ EOM
     readIOPStoohigh = {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "ReadIOPS"
-      threshold           = 2500
+      threshold           = var.rds_aurora_alarm_threshold_iops
+      evaluation_periods  = 10
       alarm_description   = <<EOM
 ReadIOPS is too high. Check RDS Instance and consider provisioned IOPS adjustment
 
@@ -35,7 +36,8 @@ EOM
     writeIOPStoohigh = {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "WriteIOPS"
-      threshold           = 2500
+      threshold           = var.rds_aurora_alarm_threshold_iops
+      evaluation_periods  = 10
       alarm_description   = <<EOM
 Write IOPS is too high. Check RDS Instance and consider provisioned IOPS adjustment
 
@@ -157,12 +159,12 @@ resource "aws_cloudwatch_metric_alarm" "rds" {
 
   alarm_name          = "${var.rds_db}-${each.key}"
   comparison_operator = each.value["comparison_operator"]
-  evaluation_periods  = 5
+  evaluation_periods  = lookup(each.value, "evaluation_periods", 5)
   metric_name         = each.value["metric_name"]
   threshold           = each.value["threshold"]
   alarm_description   = each.value["alarm_description"]
   namespace           = "AWS/RDS"
-  period              = 60
+  period              = lookup(each.value, "period", 60)
   statistic           = "Average"
   alarm_actions       = var.alarm_actions
   ok_actions          = var.alarm_actions

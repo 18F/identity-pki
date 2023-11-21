@@ -14,6 +14,12 @@ variable "db_instance_class" {
   default     = "db.r5.large"
 }
 
+variable "rds_aurora_alarm_threshold_iops" {
+  type        = number
+  description = "Alert Threshhold for Aurora iops"
+  default     = 2500
+}
+
 variable "rds_aurora_alarm_threshold_cpu" {
   type        = number
   description = "Alert Threshhold for Aurora cpu utilization"
