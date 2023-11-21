@@ -21,3 +21,6 @@ default['identity_gitlab']['image_signing_pubkey_common'] = true
 
 # set the production account for non-production accounts to be able to find the ECR registry
 default['identity_gitlab']['production_aws_account_id'] = '217680906704'
+
+# turn on user sync cron if this is true
+default['identity_gitlab']['user_sync_cron_enable'] = true

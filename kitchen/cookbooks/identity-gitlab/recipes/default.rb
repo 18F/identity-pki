@@ -743,6 +743,7 @@ cron_d 'run_usersync' do
   action :create
   predefined_value '@hourly'
   command "/etc/login.gov/repos/identity-devops/bin/users/sync.sh #{external_fqdn} #{metric_namespace} #{user_sync_metric_name} 2>&1 | logger --id=$$ -t users/sync.sh"
+  only_if { node['identity_gitlab']['user_sync_cron_enable'] }
 end
 
 # set up logs for gitlab
