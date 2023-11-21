@@ -64,6 +64,7 @@ resource "aws_ses_receipt_rule" "usps_per_env" {
   recipients    = ["registration@usps.${var.usps_envs[count.index]}.${var.domain}"]
   enabled       = true
   scan_enabled  = true
+  tls_policy    = "Require"
   # after = count.index == 0 ? "drop-no-reply" : aws_ses_receipt_rule.usps_per_env[count.index - 1].name
 
   sns_action {
