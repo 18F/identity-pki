@@ -75,9 +75,3 @@ variable "ignored_countries" {
   description = "Countries (in ISO format) that should be excluded from the query for high usage"
   default     = "US,PR,MX,CA,GU"
 }
-
-
-variable "sms_runbook_url" {
-  type    = string
-  default = "https://github.com/18F/identity-devops/wiki/On-Call-Guide-Quick-Reference"
-}
