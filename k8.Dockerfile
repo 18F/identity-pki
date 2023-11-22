@@ -21,15 +21,16 @@ ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \    
+    apt-transport-https \
     build-essential \
+    ca-certificates \
     cron \
     curl \    
     git-core \
     tar \ 
     unzip \
     jq \
-    kubectl \
     libcurl4-openssl-dev \
     libjemalloc-dev \
     libpcre3 \
@@ -53,6 +54,12 @@ RUN apt update; apt upgrade; \
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle.zip"; \
     unzip /awscli-bundle.zip -d/; \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+RUN echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+RUN apt-get update && apt-get install -y kubectl
 
 # Create user and setup working directory
 RUN addgroup --gid 1000 app && \
