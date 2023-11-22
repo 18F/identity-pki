@@ -22,9 +22,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \    
-    apt-transport-https \
     build-essential \
-    ca-certificates \
     cron \
     curl \    
     git-core \
@@ -55,12 +53,9 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle
     unzip /awscli-bundle.zip -d/; \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
-RUN mkdir -p /etc/apt/keyrings/; \
-    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-
-RUN echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
-
-RUN apt-get update && apt-get install -y kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; \
+    chmod +x ./kubectl; \
+    mv ./kubectl /usr/local/bin
 
 # Create user and setup working directory
 RUN addgroup --gid 1000 app && \
