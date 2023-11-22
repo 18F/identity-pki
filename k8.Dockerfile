@@ -55,7 +55,8 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle
     unzip /awscli-bundle.zip -d/; \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
-RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+RUN mkdir -p /etc/apt/keyrings/; \
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 RUN echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
