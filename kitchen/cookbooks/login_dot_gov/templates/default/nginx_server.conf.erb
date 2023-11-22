@@ -36,6 +36,7 @@ server {
     # You must explicitly set 'passenger_enabled on', otherwise Passenger won't
     # serve this app.
     passenger_enabled on;
+    passenger_preload_bundler on;
     passenger_ruby "<%= @passenger_ruby or raise 'no @passenger_ruby' %>";
 
     <% raise '@saml_env is deprecated' if @saml_env -%>
