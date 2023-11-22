@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     tar \ 
     unzip \
     jq \
+    kubectl \
     libcurl4-openssl-dev \
     libjemalloc-dev \
     libpcre3 \
