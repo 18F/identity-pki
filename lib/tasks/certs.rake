@@ -236,12 +236,12 @@ namespace :certs do
       CertificateStore.instance.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
     )
 
-    ficam_uri = URI('https://raw.githubusercontent.com/GSA/ficam-playbooks/staging/_fpki/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
+    ficam_uri = URI('https://www.idmanagement.gov/implement/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
     federal_brige_ca_g4_key_id = '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F'
 
     response = Net::HTTP.get_response(ficam_uri)
     body = response.body.force_encoding('UTF-8')
-    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'DER', stdin_data: body)
+    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'PEM', stdin_data: body)
     raw_certificates = stdout.strip
 
     certificates = raw_certificates.split(CertificateStore::END_CERTIFICATE).map do |cert|
