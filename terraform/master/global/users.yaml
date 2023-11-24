@@ -412,7 +412,7 @@ users:
     aws_groups:
     - apponcall
     ec2_username:
-    - jmax-gsa
+    - jmax
     gitlab_groups:
     - appdev
     - lg-all
