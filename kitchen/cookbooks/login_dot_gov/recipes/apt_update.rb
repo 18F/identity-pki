@@ -33,4 +33,6 @@ execute 'ubuntu_advantage_esm_apps' do
   action :run
 end
 
-execute 'apt update'
+execute 'apt update' do
+  only_if { node.fetch('login_dot_gov').fetch('run_apt_update') }
+end
