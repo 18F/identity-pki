@@ -53,11 +53,6 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle
     unzip /awscli-bundle.zip -d/; \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; \
-    sudo chown root: ./kubectl; \
-    sudo chmod +x ./kubectl; \
-    sudo mv ./kubectl /usr/local/bin
-
 # Create user and setup working directory
 RUN addgroup --gid 1000 app && \
     adduser --uid 1000 --gid 1000 --disabled-password --gecos "" app && \
