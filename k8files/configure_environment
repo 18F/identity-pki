@@ -97,10 +97,10 @@ sudo -E -u root chmod 755 /etc/letsencrypt/archive
 sudo -E -u root chmod -R 755 /etc/letsencrypt/archive/${ENV_CONFIG_PIVCAC_SSL_DOMAIN}/*
 
 # Set Environment configuration in file
-envsubst < /opt/nginx/conf/sites.d/pivcac.conftemp > /opt/nginx/conf/sites.d/pivcac.conf
-envsubst < /app/config/puma/production.rbtemp > /app/config/puma/production.rb
-rm -f /opt/nginx/conf/sites.d/pivcac.conftemp
-rm -f /app/config/puma/production.rbtempd
+sudo envsubst < /opt/nginx/conf/sites.d/pivcac.conftemp > /opt/nginx/conf/sites.d/pivcac.conf
+sudo envsubst < /app/config/puma/production.rbtemp > /app/config/puma/production.rb
+sudo rm -f /opt/nginx/conf/sites.d/pivcac.conftemp
+sudo rm -f /app/config/puma/production.rbtempd
 
 
 # Start nginx
