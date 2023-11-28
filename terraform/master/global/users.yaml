@@ -756,19 +756,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  sheldon.bachstein:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    git_username:
-    - sheldon-b
-    email:
-    - sheldon.bachstein@gsa.gov
-    ec2_username:
-    - sbachstein
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
