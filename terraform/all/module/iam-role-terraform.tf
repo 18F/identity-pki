@@ -809,6 +809,7 @@ locals {
           "ses:GetIdentityDkimAttributes",
           "ses:GetIdentityVerificationAttributes",
           "ses:GetIdentityNotificationAttributes",
+          "ses:ListReceiptFilters",
           "ses:PutConfigurationSetDeliveryOptions",
           "ses:SetIdentityHeadersInNotificationsEnabled",
           "ses:SetIdentityNotificationTopic",
