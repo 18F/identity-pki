@@ -7,6 +7,15 @@ users:
     - amorales
     gitlab_groups:
     - lg-public
+  ajay.guru:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - aguru
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   akhlaq.khan:
     aws_groups:
     - analytics
