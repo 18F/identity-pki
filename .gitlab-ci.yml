@@ -109,7 +109,15 @@ variables:
     # Validate report schema locally using https://docs.gitlab.com/ee/development/integrations/secure.html#report
     - >
       jq --arg env "$scan_env" -r '
-        if (length > 0 and any(.[]; .Risk and (.Risk != "PASSED" and .Risk != "FAILED" and .Risk != "WARNING"))) then
+        [
+          .[] |
+          select(.Risk and .Risk != "PASSED" and .Risk != "FAILED" and .Risk != "WARNING") |
+          {
+            "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+            "vulnerability": .
+          }
+        ] | group_by(.id) | map(.[0].vulnerability) |
+        if (length > 0) then
         {
           "version": "15.0.4",
           "scan": {
@@ -141,153 +149,40 @@ variables:
             "status": "success",
             "type": "dast"
           },
-          "vulnerabilities": [
-            .[] |
-            select(.Risk and .Risk != "PASSED" and .Risk != "FAILED" and .Risk != "WARNING") |
-            {
-              "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
-              "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
-              "description": .Description,
-              "severity": (
-                  if .Risk == "CRITICAL" or .Risk == "Critical" then "Critical"
-                  elif .Risk == "HIGH" or .Risk == "High" then "High"
-                  elif .Risk == "MEDIUM" or .Risk == "Medium" then "Medium"
-                  elif .Risk == "LOW" or .Risk == "Low" then "Low"
-                  elif .Risk == "INFO" or .Risk == "Info" then "Info"
-                  elif .Risk == "None" or .Risk == "PASSED" then "Info"
-                  elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
-                  else "Unknown"
-                  end
-              ),
-              "solution": .Solution,
-              "identifiers": [
-                {
-                  "type": "cve",
-                  "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
-                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
-                  "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
-                }
-              ],
-              "links": [
-                {
-                  "name": ($env + " - " + .Name),
-                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
-                }
-              ],
-              "location": {
-                "hostname": .Host
-              }
-            }
-          ]
-        }
-      else
-      {
-        "version": "15.0.4",
-        "scan": {
-          "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
-          "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
-          "scanner": {
-            "id": "Nessus",
-            "name": "Nessus Scan",
-            "version": "1.0.0",
-            "vendor": {
-              "name": "Tenable"
-            }
-          },
-          "analyzer": {
-            "id": "Nessus",
-            "name": "Nessus Scan",
-            "version": "1.0.0",
-            "vendor": {
-              "name": "Tenable"
-            }
-          },
-          "scanned_resources": [
-            {
-              "method": "GET",
-              "url": ("https://" + $env + ".identitysandbox.gov"),
-              "type": "url"
-            }
-          ],
-          "status": "success",
-          "type": "dast"
-        },
-        "vulnerabilities": []
-      }
-      end' < scan.json > gl-nessus-scanning-report.json
-    # Grab the results of our Nessus scan CIS Benchmark and put into special format
-    - >
-      jq --arg env "$scan_env" -r '
-        if (length > 0 and any(.[]; .Risk and (.Risk == "FAILED" or .Risk == "WARNING"))) then
-        {
-          "version": "15.0.4",
-          "scan": {
-            "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
-            "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
-            "scanner": {
-              "id": "Nessus",
-              "name": "Nessus Scan",
-              "version": "1.0.0",
-              "vendor": {
-                "name": "Tenable"
-              }
-            },
-            "analyzer": {
-              "id": "Nessus",
-              "name": "Nessus Scan",
-              "version": "1.0.0",
-              "vendor": {
-                "name": "Tenable"
-              }
-            },
-            "scanned_resources": [
+          "vulnerabilities": map({
+            "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+            "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+            "description": .Description,
+            "severity": (
+              if .Risk == "CRITICAL" or .Risk == "Critical" then "Critical"
+              elif .Risk == "HIGH" or .Risk == "High" then "High"
+              elif .Risk == "MEDIUM" or .Risk == "Medium" then "Medium"
+              elif .Risk == "LOW" or .Risk == "Low" then "Low"
+              elif .Risk == "INFO" or .Risk == "Info" then "Info"
+              elif .Risk == "None" or .Risk == "PASSED" then "Info"
+              elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
+              else "Unknown"
+              end
+            ),
+            "solution": .Solution,
+            "identifiers": [
               {
-                "method": "GET",
-                "url": ("https://" + $env + ".identitysandbox.gov"),
-                "type": "url"
+                "type": "cve",
+                "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
+                "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name)
               }
             ],
-            "status": "success",
-            "type": "dast"
-          },
-          "vulnerabilities": [
-            .[] |
-            select(.Risk == "FAILED" or .Risk == "WARNING") |
-            {
-              "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
-              "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
-              "description": .Description,
-              "severity": (
-                  if .Risk == "CRITICAL" or .Risk == "Critical" then "Critical"
-                  elif .Risk == "HIGH" or .Risk == "High" then "High"
-                  elif .Risk == "MEDIUM" or .Risk == "Medium" then "Medium"
-                  elif .Risk == "LOW" or .Risk == "Low" then "Low"
-                  elif .Risk == "INFO" or .Risk == "Info" then "Info"
-                  elif .Risk == "None" or .Risk == "PASSED" then "Info"
-                  elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
-                  else "Unknown"
-                  end
-              ),
-              "solution": .Solution,
-              "identifiers": [
-                {
-                  "type": "cve",
-                  "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
-                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
-                  "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0]))
-                }
-              ],
-              "links": [
-                {
-                  "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
-                  "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
-                }
-              ],
-              "location": {
-                "hostname": .Host
+            "links": [
+              {
+                "name": ($env + " - " + .Name),
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
               }
+            ],
+            "location": {
+              "hostname": .Host
             }
-          ]
+          })
         }
         else
         {
@@ -323,7 +218,120 @@ variables:
           },
           "vulnerabilities": []
         }
-      end' < scan.json > gl-cis-benchmark-scanning-report.json
+        end' < scan.json > gl-nessus-scanning-report.json
+    # Grab the results of our Nessus scan CIS Benchmark and put into special format
+    - >
+      jq --arg env "$scan_env" -r '
+        [
+          .[] |
+          select(.Risk == "FAILED" or .Risk == "WARNING") |
+          {
+            "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+            "vulnerability": .
+          }
+        ] | group_by(.id) | map(.[0].vulnerability) |
+        if (length > 0) then
+        {
+          "version": "15.0.4",
+          "scan": {
+            "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "scanner": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "analyzer": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "scanned_resources": [
+              {
+                "method": "GET",
+                "url": ("https://" + $env + ".identitysandbox.gov"),
+                "type": "url"
+              }
+            ],
+            "status": "success",
+            "type": "dast"
+          },
+          "vulnerabilities": map({
+            "id": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+            "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+            "description": .Description,
+            "severity": (
+              if .Risk == "CRITICAL" or .Risk == "Critical" then "Critical"
+              elif .Risk == "HIGH" or .Risk == "High" then "High"
+              elif .Risk == "MEDIUM" or .Risk == "Medium" then "Medium"
+              elif .Risk == "LOW" or .Risk == "Low" then "Low"
+              elif .Risk == "INFO" or .Risk == "Info" then "Info"
+              elif .Risk == "None" or .Risk == "PASSED" then "Info"
+              elif .Risk == "WARNING" or .Risk == "FAILED" then "Unknown"
+              else "Unknown"
+              end
+            ),
+            "solution": .Solution,
+            "identifiers": [
+              {
+                "type": "cve",
+                "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
+                "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0]))
+              }
+            ],
+            "links": [
+              {
+                "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
+              }
+            ],
+            "location": {
+              "hostname": .Host
+            }
+          })
+        }
+        else
+        {
+          "version": "15.0.4",
+          "scan": {
+            "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+            "scanner": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "analyzer": {
+              "id": "Nessus",
+              "name": "Nessus Scan",
+              "version": "1.0.0",
+              "vendor": {
+                "name": "Tenable"
+              }
+            },
+            "scanned_resources": [
+              {
+                "method": "GET",
+                "url": ("https://" + $env + ".identitysandbox.gov"),
+                "type": "url"
+              }
+            ],
+            "status": "success",
+            "type": "dast"
+          },
+          "vulnerabilities": []
+        }
+        end' < scan.json > gl-cis-benchmark-scanning-report.json
     # Merge the reports together so there is one dast report
     - >
       jq -s '{
