@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cron \
     curl \    
+    gettext-base \
     git-core \
     tar \ 
     unzip \
