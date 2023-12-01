@@ -136,7 +136,7 @@ users:
     - benjamin.chait@gsa.gov
   brittany.greaner:
     aws_groups:
-    - appdev
+    - apponcall
     gitlab_groups:
     - lg-all
     - lg-public
