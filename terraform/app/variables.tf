@@ -676,6 +676,14 @@ Falls back to slack_events_sns_hook_arn if not set.
 EOM
 }
 
+variable "doc_auth_slack_alarms_sns_hook" {
+  default     = ""
+  description = <<EOM
+ARN of SNS topic for low to medium priority in-person doc auth proofing alarms.
+Falls back to slack_events_sns_hook_arn if not set.
+EOM
+}
+
 locals {
   secrets_bucket = join(".", [
     "login-gov.secrets",
@@ -715,6 +723,7 @@ locals {
   var.rails_ami_prod_ue1) : var.rails_ami_sandbox_ue1
 
   in_person_alarm_actions         = [coalesce(var.in_person_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
+  doc_auth_alarm_actions          = [coalesce(var.doc_auth_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
   low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions_use1 = [var.slack_events_sns_hook_arn_use1]
   high_priority_alarm_actions = var.page_devops == 1 ? [
@@ -873,6 +882,11 @@ variable "new_relic_pager_alerts_enabled" {
 }
 variable "idp_in_person_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert on in-person proofing idp problems"
+  default     = 0
+}
+
+variable "idp_doc_auth_newrelic_alerts_enabled" {
+  description = "set this to 1 if you want to enable in-person proofing doc auth alerting"
   default     = 0
 }
 

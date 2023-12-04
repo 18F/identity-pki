@@ -26,6 +26,7 @@ resource "aws_ssm_parameter" "slack_webhook_east1" {
 
 locals {
   slack_channel_map = {
+    "doc-auth"           = "login-doc-auth-events"
     "events"             = "login-events"
     "otherevents"        = "login-otherevents"
     "events-pt"          = "login-events-pt"

@@ -81,6 +81,16 @@ data "aws_s3_object" "slack_high_webhook_url" {
   key    = "common/slack/events_webhook_url"
 }
 
+data "aws_s3_object" "slack_in_person_webhook_url" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/slack/in_person_webhook_url"
+}
+
+data "aws_s3_object" "slack_doc_auth_webhook_url" {
+  bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
+  key    = "common/slack/doc_auth_webhook_url"
+}
+
 # See ../splunk_oncall_sns/README.md for information on how this is set.
 # The state lives in all/ACCOUNT.
 data "aws_ssm_parameter" "splunk_oncall_newrelic_endpoint" {
@@ -113,6 +123,11 @@ resource "newrelic_alert_policy" "in_person" {
   name  = "alert-in-person-${var.env_name}"
 }
 
+resource "newrelic_alert_policy" "doc_auth" {
+  count = (var.enabled + var.doc_auth_enabled) >= 2 ? 1 : 0
+  name  = "alert-doc-auth-${var.env_name}"
+}
+
 resource "newrelic_alert_policy" "enduser" {
   count = (var.enabled + var.enduser_enabled) >= 2 ? 1 : 0
   name  = "alert-enduser-${var.env_name}"
@@ -138,6 +153,28 @@ resource "newrelic_notification_destination" "slack_high" {
   property {
     key   = "url"
     value = data.aws_s3_object.slack_high_webhook_url.body
+  }
+}
+
+resource "newrelic_notification_destination" "slack_in_person" {
+  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
+  name  = "slack-in-person-${var.env_name}"
+  type  = "WEBHOOK"
+
+  property {
+    key   = "url"
+    value = data.aws_s3_object.slack_in_person_webhook_url.body
+  }
+}
+
+resource "newrelic_notification_destination" "slack_doc_auth" {
+  count = (var.enabled + var.doc_auth_enabled) >= 2 ? 1 : 0
+  name  = "slack-doc-auth-${var.env_name}"
+  type  = "WEBHOOK"
+
+  property {
+    key   = "url"
+    value = data.aws_s3_object.slack_doc_auth_webhook_url.body
   }
 }
 
@@ -183,9 +220,23 @@ resource "newrelic_notification_channel" "slack_high" {
 
 resource "newrelic_notification_channel" "slack_in_person" {
   count          = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
-  name           = "slack-low-${var.env_name}"
+  name           = "slack-in-person-${var.env_name}"
   type           = "WEBHOOK"
-  destination_id = var.pager_alerts_enabled == 1 ? (newrelic_notification_destination.slack_high[0].id) : (newrelic_notification_destination.slack_low[0].id)
+  destination_id = newrelic_notification_destination.slack_in_person[0].id
+  product        = "IINT"
+
+  property {
+    key   = "payload"
+    value = local.slack_payload_template
+    label = "Payload Template"
+  }
+}
+
+resource "newrelic_notification_channel" "slack_doc_auth" {
+  count          = (var.enabled + var.doc_auth_enabled) >= 2 ? 1 : 0
+  name           = "slack-slack-doc-auth-${var.env_name}"
+  type           = "WEBHOOK"
+  destination_id = newrelic_notification_destination.slack_doc_auth[0].id
   product        = "IINT"
 
   property {
@@ -277,7 +328,7 @@ resource "newrelic_workflow" "high" {
 
 resource "newrelic_workflow" "in_person" {
   count                 = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
-  name                  = "in_person-${var.env_name}"
+  name                  = "in-person-${var.env_name}"
   muting_rules_handling = "NOTIFY_ALL_ISSUES"
 
   issues_filter {
@@ -293,6 +344,27 @@ resource "newrelic_workflow" "in_person" {
 
   destination {
     channel_id = newrelic_notification_channel.slack_in_person[count.index].id
+  }
+}
+
+resource "newrelic_workflow" "doc_auth" {
+  count                 = (var.enabled + var.doc_auth_enabled) >= 2 ? 1 : 0
+  name                  = "doc-auth-${var.env_name}"
+  muting_rules_handling = "NOTIFY_ALL_ISSUES"
+
+  issues_filter {
+    name = "Filter-name"
+    type = "FILTER"
+
+    predicate {
+      attribute = "labels.policyIds"
+      operator  = "EXACTLY_MATCHES"
+      values    = [newrelic_alert_policy.doc_auth[count.index].id]
+    }
+  }
+
+  destination {
+    channel_id = newrelic_notification_channel.slack_doc_auth[count.index].id
   }
 }
 

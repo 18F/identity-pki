@@ -43,7 +43,7 @@ EOM
     }
   }
 
-  alarm_actions       = local.low_priority_alarm_actions
+  alarm_actions       = local.doc_auth_alarm_actions
   comparison_operator = "GreaterThanThreshold"
   threshold           = 50
   evaluation_periods  = 1

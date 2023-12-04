@@ -26,6 +26,7 @@ module "newrelic" {
   idp_enabled                                = var.idp_newrelic_alerts_enabled
   pager_alerts_enabled                       = var.new_relic_pager_alerts_enabled
   in_person_enabled                          = var.idp_in_person_newrelic_alerts_enabled
+  doc_auth_enabled                           = var.idp_doc_auth_newrelic_alerts_enabled
   proofing_javascript_error_alerts_enabled   = var.idp_proofing_javascript_error_new_relic_alerts_enabled
   enduser_enabled                            = var.idp_enduser_newrelic_alerts_enabled
   dashboard_enabled                          = var.dashboard_newrelic_alerts_enabled

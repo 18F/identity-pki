@@ -23,6 +23,11 @@ variable "in_person_enabled" {
   default     = 0
 }
 
+variable "doc_auth_enabled" {
+  description = "set this to 1 if you want to enable in-person proofing doc auth alerting"
+  default     = 0
+}
+
 variable "proofing_javascript_error_alerts_enabled" {
   description = "set this to 1 if you want to enable proofing javascript error alerting"
   default     = 0
@@ -149,21 +154,6 @@ variable "low_memory_alert_enabled" {
 variable "proofing_pageview_duration_alert_threshold" {
   description = "If pageviews in proofing are too slow, we alert"
   default     = 10
-}
-
-variable "alert_slack_channel_in_person" {
-  description = "the default slack channel for in-person proofing alerts"
-  default     = "#login-in-person-proofing-events"
-}
-
-variable "alert_slack_channel_low" {
-  description = "the default slack channel for low level alerts"
-  default     = "#login-otherevents"
-}
-
-variable "alert_slack_channel_high" {
-  description = "the default slack channel for high level alerts"
-  default     = "#login-events"
 }
 
 variable "splunk_oncall_routing_keys" {
