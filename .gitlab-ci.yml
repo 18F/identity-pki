@@ -15,11 +15,11 @@
 #   Add it to terraform/ecr/tooling-prod/repos.yml and tf apply.
 #   Add the dockerfile to dockerfiles/
 #   Build it by adding a job like so:
-#     build_idp_ci:
+#     build_pivcac_ci:
 #       extends: .build_template
 #       variables:
-#         dockerfile: idp_ci.Dockerfile
-#         ecr_repo: idp/ci
+#         dockerfile: pivcac_ci.Dockerfile
+#         ecr_repo: pivcac/ci
 
 stages:
   - build
@@ -360,13 +360,13 @@ variables:
     # Build when there are changes to the Dockerfile or versions.tf in a PR
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
-      - dockerfiles/*
-      - versions.tf
+        - dockerfiles/*
+        - versions.tf
   tags:
     - build-pool
   image:
     name: $ECR_REGISTRY/ecr-public/aws-cli/aws-cli
-    entrypoint: [""] 
+    entrypoint: [""]
   before_script:
     - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
     - chmod +x jq-linux64
@@ -510,8 +510,8 @@ variables:
     # Build when there are changes to the Dockerfile or versions.tf in a PR
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
-      - dockerfiles/*
-      - versions.tf
+        - dockerfiles/*
+        - versions.tf
   script:
     - mkdir -p /kaniko/.docker
     - |-
@@ -1043,7 +1043,7 @@ test_images_exist:
         - .gitlab-ci.yml
   image:
     name: $ECR_REGISTRY/ecr-public/aws-cli/aws-cli
-    entrypoint: [""] 
+    entrypoint: [""]
   script:
     - aws ecr describe-images --repository-name cd/env_deploy/blessed --image-ids imageDigest=$DEPLOY_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/env_stop/blessed --image-ids imageDigest=$STOP_IMAGE_DIGEST
