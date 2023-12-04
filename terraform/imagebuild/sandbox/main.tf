@@ -15,7 +15,7 @@ module "vpc" {
   source = "../../modules/utility_vpc"
 
   account_name        = "sandbox"
-  image_build_nat_eip = "54.184.227.90"
+  image_build_nat_eip = "34.216.215.191"
 }
 
 module "beta" {
@@ -24,7 +24,7 @@ module "beta" {
   account_name          = "sandbox"
   env_name              = "beta"
   git2s3_bucket_name    = "codesync-identitybaseimage-outputbucket-rlnx3kivn8t8"
-  identity_base_git_ref = "ryandbrown/pipeline_fixes"
+  identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id
   vpc_id                = module.vpc.vpc_id
 }

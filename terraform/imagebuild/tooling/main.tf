@@ -25,7 +25,7 @@ module "beta" {
   account_name          = "tooling-sandbox"
   env_name              = "beta"
   git2s3_bucket_name    = "codesync-identitybaseimage-outputbucket-rlnx3kivn8t8"
-  identity_base_git_ref = "ryandbrown/pipeline_fixes"
+  identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id
   vpc_id                = module.vpc.vpc_id
 }
