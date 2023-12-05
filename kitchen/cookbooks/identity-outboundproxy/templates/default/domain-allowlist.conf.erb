@@ -85,7 +85,6 @@ sns.us-east-2.amazonaws.com
 sns.us-west-2.amazonaws.com
 ssp5.eva.orc.com
 standards.ieee.org
-timsweb.bsee.gov
 truststore.pki.rds.amazonaws.com
 updates.atomicorp.com
 www.atomicorp.com
@@ -218,6 +217,7 @@ ocsp.pki.state.gov
 ocsp.pki.va.gov
 ocsp.treas.gov
 ocsp.uspto.gov
+ocsp.xca.xpki.com
 ocsp1.ssp-strong-id.net
 r3.o.lencr.org
 # https://github.com/18F/identity-devops/issues/1406
@@ -246,21 +246,31 @@ staging-api.va.gov
 #
 # Static - For prod and staging the FQDNs for push notifications must be explicitly
 # defined here.
-commerce.acendrefederal.com
+
+accounts.ahrq.gov
+cdlis.dot.gov
+crh2ooh53b.execute-api.us-east-1.amazonaws.com
+cusoregistry.ncua.gov
+dhsauthportalext.dhs.gov
 ebssreports.doleta.gov
 efoia-pal.sec.gov
+esubmit.rita.dot.gov
+fmitservices-external.gsa.gov
 foia-pal.cfpb.gov
+foia.opm.gov
+gsl.noaa.gov
+gslportalprod.auth.us-east-1.amazoncognito.com
+login.fedres.gov
 nocapi.api.eauth.usda.gov
+pal.foia.state.gov
 rcs-apps-stage.fra.dot.gov
-sam.gov
+strbase-b.nist.gov
+strbase.nist.gov
+timsweb.bsee.gov
 webapps.dol.gov
+wildhorsesonline.blm.gov
 www.efast.dol.gov
 www.servicesonline.opm.gov
-wildhorsesonline.blm.gov
-strbase.nist.gov
-ocsp.xca.xpki.com
-crh2ooh53b.execute-api.us-east-1.amazonaws.com
-esubmit.rita.dot.gov
 
 # Dynamic - Automatically generated in `int` and `dev` by querying the dashboard service providers
 <% @push_notification_domains.each do |domain| -%>
