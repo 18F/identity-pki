@@ -9,29 +9,6 @@ BASEPATH="$(dirname "$0")/.."
 . "${BASEPATH}/lib/common.sh"
 . "${BASEPATH}/lib/sandbox-lib.sh"
 
-wait_for_db() {
-  local DB_TO_WAIT=${1}
-  local WAIT_ACT=${2}
-  local SCOPE=${3:-"cluster"}
-  local DB_READY=0
-
-  echo && echo_green "Waiting for ${DB_TO_WAIT} to be ${WAIT_ACT}..."
-  DB_READY=0
-  while [[ ${DB_READY} == 0 ]] ; do
-    sleep 5
-    ave -r aws rds wait "db-${SCOPE}-${WAIT_ACT}" \
-        --db-${SCOPE}-identifier "${DB_TO_WAIT}"
-    [[ $? == 0 ]] && DB_READY=1
-  done
-}
-
-confirm_or_exit() {
-  if ! prompt_yn "Continue?" ; then
-    echo_yellow "Stopping."
-    echo && exit 0
-  fi
-}
-
 get_iam 'app' 'prod' 'FullAdministrator'
 DEPLOY_WEIRD_BRANCH=1
 

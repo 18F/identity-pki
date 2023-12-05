@@ -31,14 +31,18 @@ verify_sandbox_env() {
 # run verify functions above, confirm correct AV_PROFILE, and verify the
 # APP_DIR, AWS account number, and region, before continuing the main script
 initialize() {
+  local RUN_AS_TERRAFORM=${1}
+  shift 1
   echo
   echo_green "Initializing..."
   verify_root_repo
   verify_private_repo
   verify_sandbox_env ${1:-}
-  get_iam 'app' 'sandbox' 'Terraform'
-  if [[ ! -z ${AWS_VAULT:-} ]] && [[ ${AWS_VAULT} != ${AV_PROFILE} ]] ; then
-    raise "Must use ${AV_PROFILE} profile (detected: ${AWS_VAULT})"
+  if [[ ${RUN_AS_TERRAFORM} == "true" ]] ; then
+    get_iam 'app' 'sandbox' 'Terraform'
+    if [[ ! -z ${AWS_VAULT:-} ]] && [[ ${AWS_VAULT} != ${AV_PROFILE} ]] ; then
+      raise "Must use ${AV_PROFILE} profile (detected: ${AWS_VAULT})"
+    fi
   fi
   
   APP_DIR="${GIT_DIR}/terraform/app"

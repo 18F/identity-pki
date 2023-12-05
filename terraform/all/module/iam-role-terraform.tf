@@ -364,6 +364,8 @@ locals {
           "kms:Decrypt",
           "kms:DeleteAlias",
           "kms:DescribeKey",
+          "kms:DisableKey",
+          "kms:EnableKey",
           "kms:EnableKeyRotation",
           "kms:Encrypt",
           "kms:GenerateDataKey",

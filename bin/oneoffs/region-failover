@@ -1,0 +1,454 @@
+#!/bin/bash
+
+# Fail over a particular region (RDS / KMS) for a particular environment,
+# with option to delete and recreate the source RDS cluster (deleting ASGs as well).
+# Must be run with aws-vault!
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [TF_ENV] (will use \$GSA_USERNAME if not specified)
+
+Performs a set of operations in an application environment, \${TF_ENV},
+to test a failover/outage of the us-west-2 region:
+
+1. Sets all ASGs in us-west-2 to 0 hosts
+2. Runs failover-global-cluster and delete-db-cluster to remove the original
+   IdP Aurora database in us-west-2
+3. Disables the multi-region keymaker key in us-west-2 and promotes the replica
+   in us-east-1 to be the primary key.
+
+If this script is run against an environment that has already been failed over
+via the above operations, it will instead:
+
+1. Recreate the us-west-2 Aurora DB from the us-east-1 cluster
+2. Enable the multi-region keymaker key in us-west-2 and promote it to primary
+3. Run Terraform to bring all DB parameters up to date, and restore ASG numbers
+
+- Designed to be run without arguments.
+- If executed with some of the steps not fully completed, will finish failing over
+  the resources in question, and then must be re-run (as above) to restore us-west-2
+- MUST be run with aws-vault!
+
+EOM
+}
+
+kill_asgs() {
+  echo_green "Zeroing out Auto Scaling Groups for ${TF_ENV} environment..."
+  sleep 1
+  for ASG_NAME in $(aws autoscaling describe-auto-scaling-groups \
+      --query 'AutoScalingGroups[].AutoScalingGroupName' |
+      jq -r .'[]' | grep ${TF_ENV}) ; do
+    run aws autoscaling update-auto-scaling-group \
+      --auto-scaling-group-name "${ASG_NAME}" \
+      --desired-capacity 0 \
+      --min-size 0
+  done
+  echo_cyan "Done! Auto Scaling Groups for ${TF_ENV} environment are zeroed out."
+}
+
+##### RDS #####
+
+wait_for_global_cluster() {
+  while [[ $(aws rds describe-global-clusters \
+      --global-cluster-identifier ${GLOBAL_CLUSTER_ID} \
+      --query "GlobalClusters[].Status" \
+      --output text) == "switching-over" ]] ; do
+    sleep 30
+  done
+}
+
+check_and_start_cluster() {
+  if [[ $(aws rds describe-db-clusters \
+      --db-cluster-identifier ${DB_CLUSTER_B##*:} \
+      --query 'DBClusters[].Status' \
+      --output text) == 'stopped' ]] ; then
+    echo && echo_green "Ready to restart ${DB_CLUSTER_B##*:}."
+    confirm_or_exit
+    run aws rds start-db-cluster --db-cluster-identifier ${DB_CLUSTER_B##*:}
+    wait_for_db "${DB_CLUSTER_B##*:}" 'available' 'cluster'
+    echo_cyan "Cluster '${DB_CLUSTER_A##*:}' is now available."
+  fi
+}
+
+fail_rds() {
+  echo_green "Failing over global cluster from ${AWS_REGION_A} to ${AWS_REGION_B}..."
+  sleep 1
+  run aws rds failover-global-cluster \
+    --global-cluster-identifier ${GLOBAL_CLUSTER_ID} \
+    --target-db-cluster-identifier ${DB_CLUSTER_B} | jq '.GlobalCluster.FailoverState'
+  sleep 5
+  echo && echo_green "Waiting for global cluster failover to complete..."
+  wait_for_global_cluster
+  echo
+  if prompt_yn "Delete original cluster ${DB_CLUSTER_A##*:} ?" ; then
+    echo && echo_green "Removing ${DB_CLUSTER_A##*:} from global cluster ${GLOBAL_CLUSTER_ID}..."
+    run aws rds remove-from-global-cluster \
+      --global-cluster-identifier ${GLOBAL_CLUSTER_ID} \
+      --db-cluster-identifier "${DB_CLUSTER_A}" >/dev/null
+    while [[ $(aws rds describe-global-clusters \
+        --global-cluster-identifier ${GLOBAL_CLUSTER_ID} \
+        --query "length(GlobalClusters[].GlobalClusterMembers[])") -gt 1 ]] ; do
+      sleep 5
+    done
+    kill_rds ${DB_CLUSTER_A##*:}
+  fi
+  echo_cyan "Done! ${DB_CLUSTER_B##*:} is now primary cluster in ${GLOBAL_CLUSTER_ID}".
+}
+
+kill_rds() {
+  local KILL_CLUSTER=${1}
+  run aws rds modify-db-cluster \
+    --db-cluster-identifier ${KILL_CLUSTER} --no-deletion-protection |
+    jq '.DBCluster|{DBClusterIdentifier:.DBClusterIdentifier,Status:.Status}'
+  wait_for_db "${KILL_CLUSTER}" 'available' 'cluster'
+
+  echo_green "Deleting cluster instance(s)..."
+  DB_INSTANCES=($(aws rds describe-db-clusters \
+    --db-cluster-identifier ${KILL_CLUSTER} \
+    --query 'DBClusters[].DBClusterMembers[].DBInstanceIdentifier' |
+    jq -r '.[]' | sort -r))
+  for DB_INSTANCE in "${DB_INSTANCES[@]}" ; do
+    run aws rds delete-db-instance \
+      --db-instance-identifier ${DB_INSTANCE} |
+      jq '.DBInstance|{DBInstanceIdentifier:.DBInstanceIdentifier,
+        DBInstanceStatus:.DBInstanceStatus}'
+  done
+  for DB_INSTANCE in "${DB_INSTANCES[@]}" ; do
+    wait_for_db "${DB_INSTANCE}" 'deleted' 'instance'
+  done
+  
+  echo_green "Deleting cluster '${KILL_CLUSTER}'..."
+  run aws rds delete-db-cluster \
+    --db-cluster-identifier ${KILL_CLUSTER} --skip-final-snapshot >/dev/null
+  wait_for_db "${KILL_CLUSTER}" 'deleted' 'cluster'
+  echo_cyan "Cluster deletion completed."
+}
+
+restore_rds_instance() {
+  echo_green "Creating DB instance in ${DB_CLUSTER_B##*:}..."
+  run aws rds create-db-instance \
+    --db-instance-identifier "${DB_CLUSTER_B##*:}-1" \
+    --db-instance-class $(aws rds describe-db-instances \
+      --db-instance-identifier "${DB_CLUSTER_A##*:}-1" --region ${AWS_REGION_B} \
+      --query 'DBInstances[].DBInstanceClass' --output text) \
+    --engine 'aurora-postgresql' \
+    --db-cluster-identifier ${DB_CLUSTER_B##*:} \
+    --db-parameter-group-name "${GLOBAL_CLUSTER_ID}-aurora-postgresql13-db" |
+    jq '.DBInstance|{DBInstanceIdentifier:.DBInstanceIdentifier,
+      DBClusterIdentifier:.DBClusterIdentifier,
+      DBInstanceStatus:.DBInstanceStatus}'
+  sleep 5
+  wait_for_db "${DB_CLUSTER_B##*:}-1" 'available' 'instance'
+}
+
+restore_rds_cluster() {
+  # Designed to simulate the rebuilding of the original primary DB,
+  # for the purpose of verifying that a restore from region B -> region A works.
+  # Assumes that basic networking and parameter groups already exist in
+  # the original primary region (vs. a complete removal of ALL resources).
+  echo_green "Getting DB config info..."
+  DB_SUBNET=$(aws rds describe-db-subnet-groups --query 'DBSubnetGroups' |
+        jq -r --arg TFE "${TF_ENV}" \
+        '.[]|select(.DBSubnetGroupName|contains($TFE)).DBSubnetGroupName')
+  DB_VPC=$(aws rds describe-db-subnet-groups \
+                --db-subnet-group-name "${DB_SUBNET}" \
+                --query 'DBSubnetGroups[].VpcId' --output text)
+  DB_SG=$(aws ec2 describe-security-groups \
+          --filters "Name=group-name,Values=login-db-${TF_ENV}" \
+                    "Name=vpc-id,Values=${DB_VPC}" \
+          --query 'SecurityGroups[].GroupId' --output text)
+
+  echo_green "Rebuilding ${DB_CLUSTER_B##*:}..."
+  run aws rds create-db-cluster \
+    --db-cluster-identifier ${DB_CLUSTER_B##*:} \
+    --global-cluster-identifier ${GLOBAL_CLUSTER_ID} \
+    --db-cluster-parameter-group-name "${GLOBAL_CLUSTER_ID}-aurora-postgresql13-cluster" \
+    --engine $(echo $GLOBAL_CLUSTER_DATA | jq -r '.GlobalClusters[].Engine') \
+    --engine-version $(echo $GLOBAL_CLUSTER_DATA | jq -r '.GlobalClusters[].EngineVersion') \
+    --db-subnet-group-name ${DB_SUBNET} \
+    --vpc-security-group-ids ${DB_SG} \
+    --enable-cloudwatch-logs-exports '["postgresql"]' \
+    --deletion-protection \
+    --kms-key-id $(aws kms list-aliases \
+      --query "Aliases[?AliasName==\`alias/aws/rds\`].TargetKeyId" \
+      --output text) | jq '.DBCluster|
+    {DBClusterIdentifier:.DBClusterIdentifier,
+      ClusterCreateTime:.ClusterCreateTime,Status:.Status}'
+  sleep 5
+  wait_for_db "${DB_CLUSTER_B##*:}" 'available' 'cluster'
+  restore_rds_instance
+  echo_cyan "Cluster ${DB_CLUSTER_B##*:} rebuilt with 1 DB instance."
+}  
+
+switch_rds() {
+  echo_green "Switching primary RDS region to ${AWS_REGION_A}..."
+  run aws rds switchover-global-cluster \
+    --global-cluster-identifier ${GLOBAL_CLUSTER_ID} \
+    --target-db-cluster-identifier ${DB_CLUSTER_B} |
+    jq '.GlobalCluster|{GlobalClusterIdentifier:.GlobalClusterIdentifier,
+      GlobalClusterMembers:.GlobalClusterMembers,
+      FailoverState:.FailoverState}'
+  echo_green "Waiting for region switchover to complete..."
+  wait_for_global_cluster
+  echo_cyan "Completed! ${DB_CLUSTER_B##*:} is now primary cluster in ${GLOBAL_CLUSTER_ID}".
+}
+
+##### KMS #####
+
+single_and_mr_keys() {
+  local KEY_ACTION=${1}
+  for KMS_KEY in $(aws kms list-aliases --region ${AWS_REGION_A} \
+                  --query 'Aliases[].{Name:AliasName,ID:TargetKeyId}' |
+                  jq -r --arg TFE "${TF_ENV}-login-dot-gov-keymaker" '.[]|
+                  select(.Name|contains($TFE)).ID') ; do
+    run aws kms ${KEY_ACTION}-key --key-id ${KMS_KEY}
+  done
+}
+
+switch_kms() {
+  local OLD_REGION=${1}
+  local NEW_REGION=${2}
+
+  aws kms enable-key --key-id ${KEY_ID} --region ${NEW_REGION}
+
+  run aws kms update-primary-region \
+    --primary-region ${NEW_REGION} \
+    --key-id ${KEY_ID} --region ${OLD_REGION}
+  aws kms update-key-description \
+    --key-id ${KEY_ID} \
+    --description "${TF_ENV} login.gov keymaker multi-region primary" \
+    --region ${NEW_REGION}
+  aws kms update-key-description \
+    --key-id ${KEY_ID} \
+    --description "${TF_ENV} login.gov keymaker multi-region replica" \
+    --region ${OLD_REGION}
+}
+
+fail_kms() {
+  echo_green "Setting KMS region to ${AWS_REGION_B} and disabling ${AWS_REGION_A} key(s)..."
+  sleep 1
+  switch_kms ${AWS_REGION_A} ${AWS_REGION_B}
+  single_and_mr_keys 'disable'
+  echo_cyan "KMS region switchover complete!"
+}
+
+restore_kms() {
+  ##### not usable since replica key remains present:
+  # aws kms replicate-key \
+  #  --key-id ${KEY_ID} \
+  #  --replica-region ${AWS_REGION_A} \
+  #  --region ${AWS_REGION_B}
+  echo_green "Enabling ${AWS_REGION_A} key(s) and reverting primary region..."
+  single_and_mr_keys 'enable'
+  switch_kms ${AWS_REGION_B} ${AWS_REGION_A}
+  echo_cyan "KMS region switchover complete!"
+}
+
+[[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
+declare {TF_ENV,FAILOVER_RDS,FAILOVER_KMS,AWS_REGION_A,AWS_REGION_B,OLD_CLUSTER_STATE}=
+initialize 'false' ${1:-}
+GLOBAL_CLUSTER_ID="${TF_ENV}-idp"
+
+# All checks in the script assume operation in the 'default' region, e.g. us-west-2.
+# If active/primary resources are in 'secondary' region, e.g. us-east-1,
+# assume the failover operation has happened and offer to bring things back.
+# Error out (or prompt to fix, for KMS) if primary resources are disabled
+# and/or if secondary resources do not exist.
+
+AWS_REGION_A=${AWS_REGION}
+AWS_ACCT_NUM=$(aws sts get-caller-identity | jq -r .Account)
+echo_cyan "Operating in account ${AWS_ACCT_NUM}, in region ${AWS_REGION_A}."
+
+### RDS ###
+
+echo
+echo_green "Verifying global cluster..."
+GLOBAL_CLUSTER_DATA=$(run aws rds describe-global-clusters \
+  --global-cluster-identifier ${GLOBAL_CLUSTER_ID}) || true
+if [[ -z ${GLOBAL_CLUSTER_DATA} ]] ; then
+  raise "Global cluster '${GLOBAL_CLUSTER_ID}' not found!"
+elif [[ $(echo ${GLOBAL_CLUSTER_DATA} |
+  jq -r '.GlobalClusters[].Status') == 'switching-over' ]] ; then
+  echo_yellow "Global cluster '${GLOBAL_CLUSTER_ID}' currently in switching-over status;"
+  echo_yellow "will wait for cluster to become available before continuing."
+  wait_for_global_cluster
+  echo_cyan "Global cluster available; continuing."
+fi
+
+echo_green "Getting individual cluster/region data..."
+DB_CLUSTER_A=$(echo ${GLOBAL_CLUSTER_DATA} |
+  jq -r '.GlobalClusters[].GlobalClusterMembers[]|select(.IsWriter == true).DBClusterArn')
+DB_CLUSTER_B=$(echo ${GLOBAL_CLUSTER_DATA} |
+  jq -r '.GlobalClusters[].GlobalClusterMembers[]|select(.IsWriter == false).DBClusterArn') || true
+DB_REGION_A=$(echo ${DB_CLUSTER_A} | awk -F':' '{print $4}')
+DB_REGION_B=$(echo ${DB_CLUSTER_B} | awk -F':' '{print $4}') || true
+
+if [[ ${DB_REGION_A} == ${AWS_REGION_A} ]] ; then
+  if [[ $(echo ${GLOBAL_CLUSTER_DATA} |
+       jq -r '.GlobalClusters[].GlobalClusterMembers | length') -lt 2 ]] ; then
+     echo_red "Only 1 member DB found in global cluster '${GLOBAL_CLUSTER_ID}'."
+     raise "Verify that members exist in additional regions and try again!"
+   fi
+else
+  FAILOVER_RDS=true
+fi
+
+### KMS ###
+
+echo_green "Getting KMS data..."
+KEY_ID=$(aws kms list-aliases \
+    --query "Aliases[?AliasName==\`alias/${TF_ENV}-login-dot-gov-keymaker-multi-region\`].TargetKeyId" \
+    --output text)
+KEY_DATA=$(run aws kms describe-key --key-id ${KEY_ID})
+if [[ $(echo ${KEY_DATA} |
+    jq '.KeyMetadata.MultiRegionConfiguration.ReplicaKeys|length') -lt 1 ]] ; then
+  raise "No replica keys found for KMS key '${KEY_ID}'!"
+fi
+
+KEY_REGION_A=$(echo ${KEY_DATA} |
+    jq -r '.KeyMetadata.MultiRegionConfiguration.PrimaryKey.Region')
+KEY_REGION_B=$(echo ${KEY_DATA} |
+    jq -r '.KeyMetadata.MultiRegionConfiguration.ReplicaKeys[].Region')
+if [[ ${KEY_REGION_A} != ${DB_REGION_A} ]] ; then
+  echo_yellow "Primary KMS key '${KEY_ID}' is in ${KEY_REGION_A};"
+  echo_yellow "but primary/writer cluster is in ${DB_REGION_A}."
+  if prompt_yn "Update primary KMS key region and continue?" ; then
+    switch_kms ${KEY_REGION_A} ${DB_REGION_A}
+    KEY_REGION_B=${KEY_REGION_A}
+    KEY_REGION_A=${DB_REGION_A}
+  else
+    raise "Update the primary region for the KMS key and try again!"
+  fi
+fi
+
+if [[ $(aws kms describe-key --key-id ${KEY_ID} --region ${KEY_REGION_A} |
+  jq -r '.KeyMetadata.Enabled') == 'false' ]] ; then
+  echo_yellow "Primary KMS key '${KEY_ID}' is disabled in ${KEY_REGION_A}."
+  if prompt_yn "Enable and continue?" ; then
+    run aws kms enable-key --key-id ${KEY_ID} --region ${KEY_REGION_A}
+  else
+    raise "Enable the key in ${KEY_REGION_A} and try again!"
+  fi
+fi
+
+# After all checks:
+# 1. primary key should be enabled and primary key region set
+# 2. primary key and writer instance should be in same region
+# 3. both AWS_REGION_* vars should be assigned accordingly
+
+if [[ ${KEY_REGION_A} != ${AWS_REGION_A} ]] ; then
+  AWS_REGION_B=${KEY_REGION_A}
+  aws kms disable-key --key-id ${KEY_ID} --region ${KEY_REGION_B}
+  FAILOVER_KMS=true
+else
+  AWS_REGION_B=${KEY_REGION_B}
+fi
+
+# us-west-2 -> uw2, etc.
+REGION_A_SHORT=$(for x in ${AWS_REGION_A//-/ } ; do echo "${x:0:1}" ; done | tr -d '\n')
+REGION_B_SHORT=$(for x in ${AWS_REGION_B//-/ } ; do echo "${x:0:1}" ; done | tr -d '\n')
+
+# set DB_REGION_B if not set (i.e. post-failover when DB_CLUSTER_B does not exist)
+[[ -z ${DB_REGION_B} ]] && DB_REGION_B=${KEY_REGION_B}
+if [[ -z ${DB_CLUSTER_B} ]] ; then
+  DB_CLUSTER_B="arn:aws:rds:${AWS_REGION_A}:${AWS_ACCT_NUM}:cluster:${GLOBAL_CLUSTER_ID}-${REGION_A_SHORT}"
+  if [[ ! $(aws rds describe-db-clusters \
+    --db-cluster-identifier ${DB_CLUSTER_B##*:}) ]] ; then
+    OLD_CLUSTER_STATE='deleted'
+  else
+    OLD_CLUSTER_STATE='detached'
+  fi
+fi
+
+echo
+echo_green "Data detected:"
+echo -n "KMS primary region: " && echo_cyan "${KEY_REGION_A}"
+echo -n "KMS key ID: " && echo_cyan "${KEY_ID}"
+echo -n "Primary cluster region: " && echo_cyan "${DB_REGION_A}"
+echo -n "Primary cluster ID: " && echo_cyan "${DB_CLUSTER_A##*:}"
+echo -n "Secondary cluster region: " && echo_cyan "${DB_REGION_B}"
+echo -n "Secondary cluster ID: " && echo_cyan "${DB_CLUSTER_B##*:}"
+
+if [[ ${FAILOVER_RDS} ]] ; then
+  echo
+  echo_cyan "Global cluster '${GLOBAL_CLUSTER_ID}' appears to have been failed over."
+  if [[ ${OLD_CLUSTER_STATE} == 'deleted' ]] ; then
+    echo_yellow "Original cluster ${DB_CLUSTER_B##*:} not found."
+    if prompt_yn "Recreate and reattach to ${GLOBAL_CLUSTER_ID} ?" ; then
+      restore_rds_cluster
+    else
+      raise "Secondary cluster must be restored to switch back over!"
+    fi
+  elif [[ ${OLD_CLUSTER_STATE} == 'detached' ]] ; then
+    echo_yellow "Original cluster ${DB_CLUSTER_B##*:} is not attached to a global cluster;"
+    echo_yellow "as a result, it must be deleted, and then recreated with another run of this script."
+    confirm_or_exit
+    check_and_start_cluster
+    kill_rds ${DB_CLUSTER_B##*:}
+    echo "Re-run this script to rebuid cluster ${DB_CLUSTER_B##*:}"
+    exit
+  else
+    if [[ $(aws rds describe-db-clusters \
+    --db-cluster-identifier ${DB_CLUSTER_B##*:} --query 'DBClusters[].Status' \
+    --output text) != 'stopped' ]] ; then
+      wait_for_db "${DB_CLUSTER_B##*:}" 'available' 'cluster'
+      if [[ ! $(aws rds describe-db-instances \
+        --db-instance-identifier "${DB_CLUSTER_B##*:}-1") ]] ; then
+        echo_yellow "No DB instance(s) found in cluster ${DB_CLUSTER_B##*:}."
+        restore_rds_instance
+      fi
+      wait_for_db "${DB_CLUSTER_B##*:}-1" 'available' 'instance'
+    else
+      check_and_start_cluster
+    fi
+  fi
+  echo && echo_green "Ready to switch global cluster ${GLOBAL_CLUSTER_ID} back to ${AWS_REGION_A}."
+  confirm_or_exit
+  switch_rds
+fi
+
+if [[ ${FAILOVER_KMS} ]] ; then
+  echo
+  echo_cyan "KMS key ${KEY_ID} is disabled in ${AWS_REGION_A}."
+  echo && echo_green "Ready to enable key and switch primary region to ${AWS_REGION_A}."
+  confirm_or_exit
+  restore_kms
+fi
+
+# If RDS and/or KMS was restored, do not continue with failover operation
+
+if [[ ${FAILOVER_RDS} ]] || [[ ${FAILOVER_KMS} ]] ; then
+  echo
+  echo_cyan "Manual restoration of RDS/KMS has been completed."
+  if prompt_yn "Run Terraform to complete configuration restoration?" ; then
+    run ${BASEPATH}/tf-deploy ${TF_ENV} app apply
+  fi
+  echo_cyan "Reconfiguration/switchover operations complete!"
+  echo
+  exit
+else
+  echo
+  echo_green "Ready to fail over region '${DB_REGION_A}'."
+  echo "\
+This will:
+- zero out all ASGs for the ${TF_ENV} environment in ${DB_REGION_A}
+- run 'aws rds failover-global-cluster', promoting cluster ${DB_CLUSTER_B##*:} to primary
+- stop (or delete, if desired) previous primary cluster ${DB_CLUSTER_A##*:}
+- run 'aws kms update-primary-region', switching KMS key ${KEY_ID} to ${DB_REGION_B}
+- disable the use of KMS key ${KEY_ID} in ${DB_REGION_A}
+"
+  confirm_or_exit
+  kill_asgs & fail_rds & fail_kms &
+  wait
+  echo_cyan "Failover of RDS/KMS has been completed; active region is ${AWS_REGION_B}."
+  echo "Re-run this script to restore/switch active region back to ${AWS_REGION_A}!"
+  echo
+  exit
+fi

@@ -728,3 +728,28 @@ get_tf_state() {
       else ("\"" + .instances[0].index_key + "\"") end
       ) + "]") else "" end))}'
 }
+
+#### run 'aws rds wait' with a while loop, since 'wait' can get stuck
+wait_for_db() {
+  local DB_TO_WAIT=${1}
+  local WAIT_ACT=${2}
+  local SCOPE=${3:-"cluster"}
+  local DB_READY=0
+
+  echo_yellow "Waiting for ${SCOPE} ${DB_TO_WAIT} to be ${WAIT_ACT}. This may take a few minutes..."
+  DB_READY=0
+  while [[ ${DB_READY} == 0 ]] ; do
+    sleep 5
+    ave -r aws rds wait "db-${SCOPE}-${WAIT_ACT}" \
+        --db-${SCOPE}-identifier "${DB_TO_WAIT}"
+    [[ $? == 0 ]] && DB_READY=1
+  done
+}
+
+#### wrapper for prompt_yn to allow instant exiting
+confirm_or_exit() {
+  if ! prompt_yn "Continue?" ; then
+    echo_yellow "Stopping."
+    echo && exit 0
+  fi
+}

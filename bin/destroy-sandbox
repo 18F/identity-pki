@@ -152,7 +152,7 @@ do
 done
 shift $((OPTIND-1))
 
-initialize ${1:-}
+initialize 'true' ${1:-}
 remove_db_protection_in_state 'ALL'
 
 if [[ ${APPLY_ALL} == true ]] ; then

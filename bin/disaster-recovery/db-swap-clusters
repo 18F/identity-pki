@@ -49,22 +49,6 @@ done
 
 [[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
 
-wait_for_db() {
-  local DB_TO_WAIT=${1}
-  local WAIT_ACT=${2}
-  local SCOPE=${3:-"cluster"}
-  local DB_READY=0
-
-  echo_yellow "Waiting for ${DB_TO_WAIT} to be ${WAIT_ACT}. This may take a few minutes..."
-  DB_READY=0
-  until ave -r aws rds wait "db-${SCOPE}-${WAIT_ACT}" \
-    --filters Name=db-${SCOPE}-id,Values=${DB_TO_WAIT}; do
-    sleep 5
-  done
-
-  echo_green "${DB_TO_WAIT} is ${WAIT_ACT}"
-}
-
 rename_cluster() {
   local DATABASE_FROM=${1}
   local DATABASE_TO=${2}

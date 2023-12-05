@@ -136,7 +136,7 @@ do
   esac
 done
 shift $((OPTIND-1))
-initialize ${1:-}
+initialize 'true' ${1:-}
 
 SOURCE_ENV='dev'
 MIGRATION_HOST_BUILT=
