@@ -1,7 +1,16 @@
+provider "aws" {
+  region              = "us-west-2"
+  allowed_account_ids = ["034795980528"] # require login-tooling-sandbox
+}
+
 # Stub remote config
 terraform {
   backend "s3" {
   }
+}
+
+variable "code_branch" {
+  default = "main"
 }
 
 module "main" {
@@ -28,16 +37,4 @@ module "beta" {
   identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id
   vpc_id                = module.vpc.vpc_id
-}
-
-variable "code_branch" {
-  default = "main"
-}
-
-variable "region" {
-  default = "us-west-2"
-}
-
-variable "fisma_tag" {
-  default = "Q-LG"
 }
