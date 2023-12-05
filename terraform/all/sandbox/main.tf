@@ -24,6 +24,12 @@ module "main" {
   splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
   splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
 
+  account_slack_channels = {
+    "doc-auth"           = "login-doc-auth-events"
+    "events-pt"          = "login-events-pt"
+    "in-person-proofing" = "login-in-person-proofing-events"
+  }
+
   dnssec_zone_exists  = true
   reports_bucket_arn  = "arn:aws:s3:::login-gov.reports.894947205914-us-west-2"
   datapoints_to_alarm = 25

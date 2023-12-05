@@ -194,6 +194,17 @@ variable "slack_events_sns_topic" {
   default     = "slack-otherevents"
 }
 
+variable "account_slack_channels" {
+  type        = map(string)
+  description = <<EOM
+Additional Slack channels (aside from events / otherevents / soc) used by this
+specific account; used by Terraform to create CloudWatch Log groups, SNS topics,
+SSM parameters, and slack_lambda modules for each channel in question.
+Map structure: shortname => slack_channel_name
+EOM
+  default     = {}
+}
+
 variable "phd_alerted_services" {
   description = "List Person Health event service types that should result in a notification"
   type        = list(string)

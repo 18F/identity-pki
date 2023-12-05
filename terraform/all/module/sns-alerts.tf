@@ -25,14 +25,14 @@ resource "aws_ssm_parameter" "slack_webhook_east1" {
 }
 
 locals {
-  slack_channel_map = {
-    "doc-auth"           = "login-doc-auth-events"
-    "events"             = "login-events"
-    "otherevents"        = "login-otherevents"
-    "events-pt"          = "login-events-pt"
-    "soc"                = "login-soc-events"
-    "in-person-proofing" = "login-in-person-proofing-events"
-  }
+  slack_channel_map = merge(
+    {
+      "events"      = "login-events"
+      "otherevents" = "login-otherevents"
+      "soc"         = "login-soc-events"
+    },
+    var.account_slack_channels
+  )
   slack_webhook_ssm_param_name = "/account/slack/webhook/url"
   slack_sns_log_groups_arns = flatten([
     [for group in aws_cloudwatch_log_group.slack_usw2_success_logs_groups : "${group.arn}:*"],
