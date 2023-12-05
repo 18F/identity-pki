@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["429506220995"] # require login-archive-prod
+  allowed_account_ids = ["221972985980"] # require login-logarchive-sandbox
 }
 
 # Stub remote config

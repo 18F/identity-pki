@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["221972985980"] # require login-archive-sandbox
+  allowed_account_ids = ["221972985980"] # require login-logarchive-sandbox
 }
 
 # Stub remote config
@@ -19,7 +19,7 @@ variable "splunk_oncall_newrelic_endpoint" {
 
 module "main" {
   source            = "../module"
-  iam_account_alias = "login-archive-sandbox"
+  iam_account_alias = "login-logarchive-sandbox"
 
   splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
   splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
