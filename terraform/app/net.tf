@@ -83,7 +83,7 @@ resource "aws_security_group" "app" {
   # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
     from_port   = 0
-    to_port     = 65000
+    to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = [module.network_uw2.secondary_cidr]
   }
