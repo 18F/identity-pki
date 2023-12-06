@@ -157,7 +157,7 @@ resource "newrelic_notification_destination" "slack_high" {
 }
 
 resource "newrelic_notification_destination" "slack_in_person" {
-  count = (var.enabled + var.pager_alerts_enabled) >= 2 ? 1 : 0
+  count = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
   name  = "slack-in-person-${var.env_name}"
   type  = "WEBHOOK"
 
@@ -205,11 +205,13 @@ resource "newrelic_notification_channel" "slack_low" {
 }
 
 resource "newrelic_notification_channel" "slack_high" {
-  count          = var.enabled
-  name           = "slack-high-${var.env_name}"
-  type           = "WEBHOOK"
-  destination_id = var.pager_alerts_enabled == 1 ? (newrelic_notification_destination.slack_high[0].id) : (newrelic_notification_destination.slack_low[0].id)
-  product        = "IINT"
+  count = var.enabled
+  name  = "slack-high-${var.env_name}"
+  type  = "WEBHOOK"
+  destination_id = var.pager_alerts_enabled == 1 ? (
+    newrelic_notification_destination.slack_high[count.index].id) : (
+  newrelic_notification_destination.slack_low[count.index].id)
+  product = "IINT"
 
   property {
     key   = "payload"
@@ -222,7 +224,7 @@ resource "newrelic_notification_channel" "slack_in_person" {
   count          = (var.enabled + var.in_person_enabled) >= 2 ? 1 : 0
   name           = "slack-in-person-${var.env_name}"
   type           = "WEBHOOK"
-  destination_id = newrelic_notification_destination.slack_in_person[0].id
+  destination_id = newrelic_notification_destination.slack_in_person[count.index].id
   product        = "IINT"
 
   property {
@@ -236,7 +238,7 @@ resource "newrelic_notification_channel" "slack_doc_auth" {
   count          = (var.enabled + var.doc_auth_enabled) >= 2 ? 1 : 0
   name           = "slack-slack-doc-auth-${var.env_name}"
   type           = "WEBHOOK"
-  destination_id = newrelic_notification_destination.slack_doc_auth[0].id
+  destination_id = newrelic_notification_destination.slack_doc_auth[count.index].id
   product        = "IINT"
 
   property {
@@ -247,11 +249,13 @@ resource "newrelic_notification_channel" "slack_doc_auth" {
 }
 
 resource "newrelic_notification_channel" "slack_enduser" {
-  count          = (var.enabled + var.enduser_enabled) >= 2 ? 1 : 0
-  name           = "slack-high-${var.env_name}"
-  type           = "WEBHOOK"
-  destination_id = var.pager_alerts_enabled == 1 ? (newrelic_notification_destination.slack_high[0].id) : (newrelic_notification_destination.slack_low[0].id)
-  product        = "IINT"
+  count = (var.enabled + var.enduser_enabled) >= 2 ? 1 : 0
+  name  = "slack-high-${var.env_name}"
+  type  = "WEBHOOK"
+  destination_id = var.pager_alerts_enabled == 1 ? (
+    newrelic_notification_destination.slack_high[count.index].id) : (
+  newrelic_notification_destination.slack_low[count.index].id)
+  product = "IINT"
 
   property {
     key   = "payload"
@@ -292,7 +296,7 @@ resource "newrelic_workflow" "low" {
   }
 
   destination {
-    channel_id = newrelic_notification_channel.slack_low[0].id
+    channel_id = newrelic_notification_channel.slack_low[count.index].id
   }
 }
 
