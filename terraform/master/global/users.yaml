@@ -755,6 +755,13 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  samy.orellana:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - sorellana
+    gitlab_groups:
+    - devops
   sean.porter:
     gitlab_groups:
     - pm
