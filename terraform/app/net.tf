@@ -470,7 +470,7 @@ resource "aws_security_group" "pivcac-elb" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] #tfsec:ignore:aws-vpc-no-public-ingress-sg
   }
 
   name = "${var.env_name}-pivcac-elb"
