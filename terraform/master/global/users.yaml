@@ -561,6 +561,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  marc.kananda:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - mkananda
+    gitlab_groups:
+    - devops
   matt.gardner:
     aws_groups:
     - appdev
