@@ -28,14 +28,15 @@ EOM
 
 clone_if_new() {
   local REPO=${1}
-  if [ -d identity-${REPO} ] ; then
-    cd identity-${REPO} >/dev/null
+  REPO_DIR=$(echo $REPO | sed -e 's/.*\/\(identity-[a-z]\)/\1/g')
+  if [ -d $REPO_DIR ] ; then
+    cd $REPO_DIR >/dev/null
     if git rev-parse --is-inside-work-tree >/dev/null ; then
-      echo_yellow "identity-${REPO} exists; skipping git clone."
+      echo_yellow "$REPO_DIR exists; skipping git clone."
     fi
     cd - >/dev/null
   else
-    run git clone git@github.com:18F/identity-${REPO}.git
+    run git clone git@${REPO}.git
   fi
 }
 
@@ -58,30 +59,17 @@ verify_stages_branch() {
 
 [ $# -gt 0 ] && raise 'No arguments needed'
 verify_root_repo
-which ag >/dev/null || raise 'Silver Searcher (ag) not found; install with Homebrew'
+which yq >/dev/null || raise 'yq not found; install with Homebrew'
 verify_stages_branch
 
 GIT_TOPLEVEL=$(echo ${GIT_DIR} | sed -E 's/\/[^/]*$/\//')
-ALL_REPOS=$($(which ag) --ignore '*.md' \
-           --nobreak \
-           --noheading \
-           -ow "github\.com\/18F\/identity\-.*" |
-           sed -E 's/^.+\:[0-9]+\:github\.com\/18F\/identity-([a-z-]+).*$/\1/' |
-           sort -u)
-OPS_REPOS=$(echo "${ALL_REPOS}" | sed -E 's/^devops$//')
-APP_REPOS=($($(which ag) --nobreak --noheading \
-            'app_name = ' kitchen/cookbooks/login_dot_gov/recipes/*.rb |
-            awk -F"'" '{print $2}' | sed 's/sp-//' | sort -u | tr '\n' ' ') 'pki')
-for APP in "${APP_REPOS[@]}" ; do
-  OPS_REPOS=$(echo "${OPS_REPOS}" | grep -v ${APP})
-done
-
+ALL_REPOS=$(yq '[ .[].[] ] | flatten | sort | unique | .[]' < ${GIT_DIR}/.repolist.yml)
 
 run cd ${GIT_TOPLEVEL}
 echo
 
-for OP_REPO in $(echo ${OPS_REPOS} | tr '\n' ' ') ; do
-  clone_if_new ${OP_REPO}
+for REPO in ${ALL_REPOS} ; do
+  clone_if_new ${REPO}
 done
 
 echo
@@ -90,9 +78,10 @@ if ! prompt_yn "Create \`stages/${GSA_USERNAME}\` branches for the identity-APP 
   exit 0
 else
   echo
-  for APP in "${APP_REPOS[@]}" ; do
+  for APP in $(yq '[ .[].app ] | flatten | sort | unique | .[]' < ${GIT_DIR}/.repolist.yml) ; do
+
     clone_if_new ${APP}
-    cd "identity-${APP}" >/dev/null
+    cd $(echo $APP | sed -e 's/.*\/\(identity-[a-z]\)/\1/g') >/dev/null
     verify_stages_branch
     cd - >/dev/null
   done

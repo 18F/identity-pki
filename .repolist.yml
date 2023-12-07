@@ -1,0 +1,31 @@
+repolist:
+  app:
+    - github.com:18F/identity-dashboard
+    - github.com:18F/identity-idp
+    - github.com:18F/identity-pki
+  loadtest:
+    - github.com:18F/identity-loadtest
+    - github.com:18F/identity-oidc-sinatra
+  platform:
+    - gitlab.login.gov:lg/identity-base-image
+    - gitlab.login.gov:lg/identity-cookbooks
+    - github.com:18F/identity-devops
+    - github.com:18F/identity-devops-private
+    - github.com:18F/identity-lambda-functions
+    - gitlab.login.gov:lg/identity-terraform
+  security:
+    - github.com:18F/identity-security-private
+  static:
+    - github.com:18F/identity-site
+
+
+
+
+
+
+
+
+
+
+
+
