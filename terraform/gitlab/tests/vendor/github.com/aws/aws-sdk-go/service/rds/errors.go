@@ -350,6 +350,12 @@ const (
 	// DBSnapshotIdentifier doesn't refer to an existing DB snapshot.
 	ErrCodeDBSnapshotNotFoundFault = "DBSnapshotNotFound"
 
+	// ErrCodeDBSnapshotTenantDatabaseNotFoundFault for service response error code
+	// "DBSnapshotTenantDatabaseNotFoundFault".
+	//
+	// The specified snapshot tenant database wasn't found.
+	ErrCodeDBSnapshotTenantDatabaseNotFoundFault = "DBSnapshotTenantDatabaseNotFoundFault"
+
 	// ErrCodeDBSubnetGroupAlreadyExistsFault for service response error code
 	// "DBSubnetGroupAlreadyExists".
 	//
@@ -494,6 +500,34 @@ const (
 	// Availability Zones that have more storage available.
 	ErrCodeInsufficientStorageClusterCapacityFault = "InsufficientStorageClusterCapacity"
 
+	// ErrCodeIntegrationAlreadyExistsFault for service response error code
+	// "IntegrationAlreadyExistsFault".
+	//
+	// The integration you are trying to create already exists.
+	ErrCodeIntegrationAlreadyExistsFault = "IntegrationAlreadyExistsFault"
+
+	// ErrCodeIntegrationConflictOperationFault for service response error code
+	// "IntegrationConflictOperationFault".
+	//
+	// A conflicting conditional operation is currently in progress against this
+	// resource. Typically occurs when there are multiple requests being made to
+	// the same resource at the same time, and these requests conflict with each
+	// other.
+	ErrCodeIntegrationConflictOperationFault = "IntegrationConflictOperationFault"
+
+	// ErrCodeIntegrationNotFoundFault for service response error code
+	// "IntegrationNotFoundFault".
+	//
+	// The specified integration could not be found.
+	ErrCodeIntegrationNotFoundFault = "IntegrationNotFoundFault"
+
+	// ErrCodeIntegrationQuotaExceededFault for service response error code
+	// "IntegrationQuotaExceededFault".
+	//
+	// You can't crate any more zero-ETL integrations because the quota has been
+	// reached.
+	ErrCodeIntegrationQuotaExceededFault = "IntegrationQuotaExceededFault"
+
 	// ErrCodeInvalidBlueGreenDeploymentStateFault for service response error code
 	// "InvalidBlueGreenDeploymentStateFault".
 	//
@@ -637,6 +671,12 @@ const (
 	// The global cluster is in an invalid state and can't perform the requested
 	// operation.
 	ErrCodeInvalidGlobalClusterStateFault = "InvalidGlobalClusterStateFault"
+
+	// ErrCodeInvalidIntegrationStateFault for service response error code
+	// "InvalidIntegrationStateFault".
+	//
+	// The integration is in an invalid state and can't perform the requested operation.
+	ErrCodeInvalidIntegrationStateFault = "InvalidIntegrationStateFault"
 
 	// ErrCodeInvalidOptionGroupStateFault for service response error code
 	// "InvalidOptionGroupStateFault".
@@ -838,4 +878,24 @@ const (
 	//
 	// The subscription name does not exist.
 	ErrCodeSubscriptionNotFoundFault = "SubscriptionNotFound"
+
+	// ErrCodeTenantDatabaseAlreadyExistsFault for service response error code
+	// "TenantDatabaseAlreadyExists".
+	//
+	// You attempted to either create a tenant database that already exists or modify
+	// a tenant database to use the name of an existing tenant database.
+	ErrCodeTenantDatabaseAlreadyExistsFault = "TenantDatabaseAlreadyExists"
+
+	// ErrCodeTenantDatabaseNotFoundFault for service response error code
+	// "TenantDatabaseNotFound".
+	//
+	// The specified tenant database wasn't found in the DB instance.
+	ErrCodeTenantDatabaseNotFoundFault = "TenantDatabaseNotFound"
+
+	// ErrCodeTenantDatabaseQuotaExceededFault for service response error code
+	// "TenantDatabaseQuotaExceeded".
+	//
+	// You attempted to create more tenant databases than are permitted in your
+	// Amazon Web Services account.
+	ErrCodeTenantDatabaseQuotaExceededFault = "TenantDatabaseQuotaExceeded"
 )

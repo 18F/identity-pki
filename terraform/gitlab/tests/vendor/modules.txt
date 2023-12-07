@@ -1,5 +1,5 @@
-# github.com/aws/aws-sdk-go v1.45.24
-## explicit; go 1.11
+# github.com/aws/aws-sdk-go v1.48.15
+## explicit; go 1.19
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/arn
 github.com/aws/aws-sdk-go/aws/auth/bearer
@@ -87,13 +87,13 @@ github.com/go-errors/errors
 # github.com/go-sql-driver/mysql v1.7.1
 ## explicit; go 1.13
 github.com/go-sql-driver/mysql
-# github.com/google/uuid v1.3.1
+# github.com/google/uuid v1.4.0
 ## explicit
 github.com/google/uuid
 # github.com/gruntwork-io/go-commons v0.17.1
 ## explicit; go 1.18
 github.com/gruntwork-io/go-commons/errors
-# github.com/gruntwork-io/terratest v0.46.0
+# github.com/gruntwork-io/terratest v0.46.8
 ## explicit; go 1.21
 github.com/gruntwork-io/terratest/modules/aws
 github.com/gruntwork-io/terratest/modules/collections
@@ -132,14 +132,14 @@ github.com/russross/blackfriday/v2
 ## explicit; go 1.20
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
-# github.com/urfave/cli/v2 v2.25.7
+# github.com/urfave/cli/v2 v2.26.0
 ## explicit; go 1.18
 github.com/urfave/cli/v2
 # github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673
 ## explicit
 github.com/xrash/smetrics
-# golang.org/x/crypto v0.14.0
-## explicit; go 1.17
+# golang.org/x/crypto v0.16.0
+## explicit; go 1.18
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/chacha20
 golang.org/x/crypto/curve25519
@@ -149,11 +149,11 @@ golang.org/x/crypto/internal/poly1305
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/agent
 golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
-# golang.org/x/net v0.17.0
-## explicit; go 1.17
+# golang.org/x/net v0.19.0
+## explicit; go 1.18
 golang.org/x/net/context
-# golang.org/x/sys v0.13.0
-## explicit; go 1.17
+# golang.org/x/sys v0.15.0
+## explicit; go 1.18
 golang.org/x/sys/cpu
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
