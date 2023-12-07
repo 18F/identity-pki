@@ -24,6 +24,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  alex.herrick:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - aherrick
+    gitlab_groups:
+    - devops
   alex.kritikos:
     ec2_username:
     - akrito
