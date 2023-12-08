@@ -169,14 +169,14 @@ variables:
               {
                 "type": "cve",
                 "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name),
-                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then (.["See Also"] | split("\n")[0]) else "https://placeholder.text" end),
                 "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + .Name)
               }
             ],
             "links": [
               {
                 "name": ($env + " - " + .Name),
-                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then (.["See Also"] | split("\n")[0]) else "https://placeholder.text" end),
               }
             ],
             "location": {
@@ -282,14 +282,14 @@ variables:
               {
                 "type": "cve",
                 "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
-                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end),
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then (.["See Also"] | split("\n")[0]) else "https://placeholder.text" end),
                 "value": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0]))
               }
             ],
             "links": [
               {
                 "name": ($env + " | " + (.Host | match("^[^-]+"; "g").string) + " | " + (.Description | split("\"")[1] | split(" - ")[0])),
-                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then .["See Also"] else "https://placeholder.text" end)
+                "url": (if .["See Also"] | test("^(https?|ftp)://.+") then (.["See Also"] | split("\n")[0]) else "https://placeholder.text" end),
               }
             ],
             "location": {
