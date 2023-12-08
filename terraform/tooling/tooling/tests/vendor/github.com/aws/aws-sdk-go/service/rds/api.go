@@ -362,6 +362,15 @@ func (c *RDS) AddTagsToResourceRequest(input *AddTagsToResourceInput) (req *requ
 //   - ErrCodeBlueGreenDeploymentNotFoundFault "BlueGreenDeploymentNotFoundFault"
 //     BlueGreenDeploymentIdentifier doesn't refer to an existing blue/green deployment.
 //
+//   - ErrCodeIntegrationNotFoundFault "IntegrationNotFoundFault"
+//     The specified integration could not be found.
+//
+//   - ErrCodeTenantDatabaseNotFoundFault "TenantDatabaseNotFound"
+//     The specified tenant database wasn't found in the DB instance.
+//
+//   - ErrCodeDBSnapshotTenantDatabaseNotFoundFault "DBSnapshotTenantDatabaseNotFoundFault"
+//     The specified snapshot tenant database wasn't found.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/AddTagsToResource
 func (c *RDS) AddTagsToResource(input *AddTagsToResourceInput) (*AddTagsToResourceOutput, error) {
 	req, out := c.AddTagsToResourceRequest(input)
@@ -797,6 +806,10 @@ func (c *RDS) CopyDBClusterParameterGroupRequest(input *CopyDBClusterParameterGr
 //
 // Copies the specified DB cluster parameter group.
 //
+// You can't copy a default DB cluster parameter group. Instead, create a new
+// custom DB cluster parameter group, which copies the default parameters and
+// values for the specified DB cluster parameter group family.
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -1014,6 +1027,10 @@ func (c *RDS) CopyDBParameterGroupRequest(input *CopyDBParameterGroupInput) (req
 // CopyDBParameterGroup API operation for Amazon Relational Database Service.
 //
 // Copies the specified DB parameter group.
+//
+// You can't copy a default DB parameter group. Instead, create a new custom
+// DB parameter group, which copies the default parameters and values for the
+// specified DB parameter group family.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -1567,6 +1584,10 @@ func (c *RDS) CreateDBClusterRequest(input *CreateDBClusterInput) (req *request.
 //   - ErrCodeInvalidDBClusterStateFault "InvalidDBClusterStateFault"
 //     The requested operation can't be performed while the cluster is in this state.
 //
+//   - ErrCodeInvalidDBSubnetGroupFault "InvalidDBSubnetGroupFault"
+//     The DBSubnetGroup doesn't belong to the same VPC as that of an existing cross-region
+//     read replica of the same source instance.
+//
 //   - ErrCodeInvalidDBSubnetGroupStateFault "InvalidDBSubnetGroupStateFault"
 //     The DB subnet group cannot be deleted because it's in use.
 //
@@ -1604,6 +1625,9 @@ func (c *RDS) CreateDBClusterRequest(input *CreateDBClusterInput) (req *request.
 //
 //   - ErrCodeDomainNotFoundFault "DomainNotFoundFault"
 //     Domain doesn't refer to an existing Active Directory domain.
+//
+//   - ErrCodeOptionGroupNotFoundFault "OptionGroupNotFoundFault"
+//     The specified option group could not be found.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateDBCluster
 func (c *RDS) CreateDBCluster(input *CreateDBClusterInput) (*CreateDBClusterOutput, error) {
@@ -2079,6 +2103,10 @@ func (c *RDS) CreateDBInstanceRequest(input *CreateDBInstanceInput) (req *reques
 //   - ErrCodeCertificateNotFoundFault "CertificateNotFound"
 //     CertificateIdentifier doesn't refer to an existing certificate.
 //
+//   - ErrCodeTenantDatabaseQuotaExceededFault "TenantDatabaseQuotaExceeded"
+//     You attempted to create more tenant databases than are permitted in your
+//     Amazon Web Services account.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateDBInstance
 func (c *RDS) CreateDBInstance(input *CreateDBInstanceInput) (*CreateDBInstanceOutput, error) {
 	req, out := c.CreateDBInstanceRequest(input)
@@ -2146,9 +2174,9 @@ func (c *RDS) CreateDBInstanceReadReplicaRequest(input *CreateDBInstanceReadRepl
 //
 // Creates a new DB instance that acts as a read replica for an existing source
 // DB instance or Multi-AZ DB cluster. You can create a read replica for a DB
-// instance running MySQL, MariaDB, Oracle, PostgreSQL, or SQL Server. You can
-// create a read replica for a Multi-AZ DB cluster running MySQL or PostgreSQL.
-// For more information, see Working with read replicas (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html)
+// instance running Db2, MariaDB, MySQL, Oracle, PostgreSQL, or SQL Server.
+// You can create a read replica for a Multi-AZ DB cluster running MySQL or
+// PostgreSQL. For more information, see Working with read replicas (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html)
 // and Migrating from a Multi-AZ DB cluster to a DB instance using a read replica
 // (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/multi-az-db-clusters-concepts.html#multi-az-db-clusters-migrating-to-instance-with-read-replica)
 // in the Amazon RDS User Guide.
@@ -2244,6 +2272,10 @@ func (c *RDS) CreateDBInstanceReadReplicaRequest(input *CreateDBInstanceReadRepl
 //   - ErrCodeNetworkTypeNotSupported "NetworkTypeNotSupported"
 //     The network type is invalid for the DB instance. Valid nework type values
 //     are IPV4 and DUAL.
+//
+//   - ErrCodeTenantDatabaseQuotaExceededFault "TenantDatabaseQuotaExceeded"
+//     You attempted to create more tenant databases than are permitted in your
+//     Amazon Web Services account.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateDBInstanceReadReplica
 func (c *RDS) CreateDBInstanceReadReplica(input *CreateDBInstanceReadReplicaInput) (*CreateDBInstanceReadReplicaOutput, error) {
@@ -3067,6 +3099,104 @@ func (c *RDS) CreateGlobalClusterWithContext(ctx aws.Context, input *CreateGloba
 	return out, req.Send()
 }
 
+const opCreateIntegration = "CreateIntegration"
+
+// CreateIntegrationRequest generates a "aws/request.Request" representing the
+// client's request for the CreateIntegration operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateIntegration for more information on using the CreateIntegration
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the CreateIntegrationRequest method.
+//	req, resp := client.CreateIntegrationRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateIntegration
+func (c *RDS) CreateIntegrationRequest(input *CreateIntegrationInput) (req *request.Request, output *CreateIntegrationOutput) {
+	op := &request.Operation{
+		Name:       opCreateIntegration,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateIntegrationInput{}
+	}
+
+	output = &CreateIntegrationOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateIntegration API operation for Amazon Relational Database Service.
+//
+// Creates a zero-ETL integration with Amazon Redshift.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation CreateIntegration for usage and error information.
+//
+// Returned Error Codes:
+//
+//   - ErrCodeDBClusterNotFoundFault "DBClusterNotFoundFault"
+//     DBClusterIdentifier doesn't refer to an existing DB cluster.
+//
+//   - ErrCodeDBInstanceNotFoundFault "DBInstanceNotFound"
+//     DBInstanceIdentifier doesn't refer to an existing DB instance.
+//
+//   - ErrCodeIntegrationAlreadyExistsFault "IntegrationAlreadyExistsFault"
+//     The integration you are trying to create already exists.
+//
+//   - ErrCodeIntegrationQuotaExceededFault "IntegrationQuotaExceededFault"
+//     You can't crate any more zero-ETL integrations because the quota has been
+//     reached.
+//
+//   - ErrCodeKMSKeyNotAccessibleFault "KMSKeyNotAccessibleFault"
+//     An error occurred accessing an Amazon Web Services KMS key.
+//
+//   - ErrCodeIntegrationConflictOperationFault "IntegrationConflictOperationFault"
+//     A conflicting conditional operation is currently in progress against this
+//     resource. Typically occurs when there are multiple requests being made to
+//     the same resource at the same time, and these requests conflict with each
+//     other.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateIntegration
+func (c *RDS) CreateIntegration(input *CreateIntegrationInput) (*CreateIntegrationOutput, error) {
+	req, out := c.CreateIntegrationRequest(input)
+	return out, req.Send()
+}
+
+// CreateIntegrationWithContext is the same as CreateIntegration with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateIntegration for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) CreateIntegrationWithContext(ctx aws.Context, input *CreateIntegrationInput, opts ...request.Option) (*CreateIntegrationOutput, error) {
+	req, out := c.CreateIntegrationRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opCreateOptionGroup = "CreateOptionGroup"
 
 // CreateOptionGroupRequest generates a "aws/request.Request" representing the
@@ -3146,6 +3276,97 @@ func (c *RDS) CreateOptionGroup(input *CreateOptionGroupInput) (*CreateOptionGro
 // for more information on using Contexts.
 func (c *RDS) CreateOptionGroupWithContext(ctx aws.Context, input *CreateOptionGroupInput, opts ...request.Option) (*CreateOptionGroupOutput, error) {
 	req, out := c.CreateOptionGroupRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCreateTenantDatabase = "CreateTenantDatabase"
+
+// CreateTenantDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the CreateTenantDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateTenantDatabase for more information on using the CreateTenantDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the CreateTenantDatabaseRequest method.
+//	req, resp := client.CreateTenantDatabaseRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateTenantDatabase
+func (c *RDS) CreateTenantDatabaseRequest(input *CreateTenantDatabaseInput) (req *request.Request, output *CreateTenantDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opCreateTenantDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateTenantDatabaseInput{}
+	}
+
+	output = &CreateTenantDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateTenantDatabase API operation for Amazon Relational Database Service.
+//
+// Creates a tenant database in a DB instance that uses the multi-tenant configuration.
+// Only RDS for Oracle container database (CDB) instances are supported.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation CreateTenantDatabase for usage and error information.
+//
+// Returned Error Codes:
+//
+//   - ErrCodeDBInstanceNotFoundFault "DBInstanceNotFound"
+//     DBInstanceIdentifier doesn't refer to an existing DB instance.
+//
+//   - ErrCodeInvalidDBInstanceStateFault "InvalidDBInstanceState"
+//     The DB instance isn't in a valid state.
+//
+//   - ErrCodeTenantDatabaseAlreadyExistsFault "TenantDatabaseAlreadyExists"
+//     You attempted to either create a tenant database that already exists or modify
+//     a tenant database to use the name of an existing tenant database.
+//
+//   - ErrCodeTenantDatabaseQuotaExceededFault "TenantDatabaseQuotaExceeded"
+//     You attempted to create more tenant databases than are permitted in your
+//     Amazon Web Services account.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/CreateTenantDatabase
+func (c *RDS) CreateTenantDatabase(input *CreateTenantDatabaseInput) (*CreateTenantDatabaseOutput, error) {
+	req, out := c.CreateTenantDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// CreateTenantDatabaseWithContext is the same as CreateTenantDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateTenantDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) CreateTenantDatabaseWithContext(ctx aws.Context, input *CreateTenantDatabaseInput, opts ...request.Option) (*CreateTenantDatabaseOutput, error) {
+	req, out := c.CreateTenantDatabaseRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -4706,6 +4927,94 @@ func (c *RDS) DeleteGlobalClusterWithContext(ctx aws.Context, input *DeleteGloba
 	return out, req.Send()
 }
 
+const opDeleteIntegration = "DeleteIntegration"
+
+// DeleteIntegrationRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteIntegration operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteIntegration for more information on using the DeleteIntegration
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DeleteIntegrationRequest method.
+//	req, resp := client.DeleteIntegrationRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteIntegration
+func (c *RDS) DeleteIntegrationRequest(input *DeleteIntegrationInput) (req *request.Request, output *DeleteIntegrationOutput) {
+	op := &request.Operation{
+		Name:       opDeleteIntegration,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteIntegrationInput{}
+	}
+
+	output = &DeleteIntegrationOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteIntegration API operation for Amazon Relational Database Service.
+//
+// Deletes a zero-ETL integration with Amazon Redshift.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DeleteIntegration for usage and error information.
+//
+// Returned Error Codes:
+//
+//   - ErrCodeIntegrationNotFoundFault "IntegrationNotFoundFault"
+//     The specified integration could not be found.
+//
+//   - ErrCodeIntegrationConflictOperationFault "IntegrationConflictOperationFault"
+//     A conflicting conditional operation is currently in progress against this
+//     resource. Typically occurs when there are multiple requests being made to
+//     the same resource at the same time, and these requests conflict with each
+//     other.
+//
+//   - ErrCodeInvalidIntegrationStateFault "InvalidIntegrationStateFault"
+//     The integration is in an invalid state and can't perform the requested operation.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteIntegration
+func (c *RDS) DeleteIntegration(input *DeleteIntegrationInput) (*DeleteIntegrationOutput, error) {
+	req, out := c.DeleteIntegrationRequest(input)
+	return out, req.Send()
+}
+
+// DeleteIntegrationWithContext is the same as DeleteIntegration with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteIntegration for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DeleteIntegrationWithContext(ctx aws.Context, input *DeleteIntegrationInput, opts ...request.Option) (*DeleteIntegrationOutput, error) {
+	req, out := c.DeleteIntegrationRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDeleteOptionGroup = "DeleteOptionGroup"
 
 // DeleteOptionGroupRequest generates a "aws/request.Request" representing the
@@ -4784,6 +5093,94 @@ func (c *RDS) DeleteOptionGroup(input *DeleteOptionGroupInput) (*DeleteOptionGro
 // for more information on using Contexts.
 func (c *RDS) DeleteOptionGroupWithContext(ctx aws.Context, input *DeleteOptionGroupInput, opts ...request.Option) (*DeleteOptionGroupOutput, error) {
 	req, out := c.DeleteOptionGroupRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteTenantDatabase = "DeleteTenantDatabase"
+
+// DeleteTenantDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteTenantDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteTenantDatabase for more information on using the DeleteTenantDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DeleteTenantDatabaseRequest method.
+//	req, resp := client.DeleteTenantDatabaseRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteTenantDatabase
+func (c *RDS) DeleteTenantDatabaseRequest(input *DeleteTenantDatabaseInput) (req *request.Request, output *DeleteTenantDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opDeleteTenantDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteTenantDatabaseInput{}
+	}
+
+	output = &DeleteTenantDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DeleteTenantDatabase API operation for Amazon Relational Database Service.
+//
+// Deletes a tenant database from your DB instance. This command only applies
+// to RDS for Oracle container database (CDB) instances.
+//
+// You can't delete a tenant database when it is the only tenant in the DB instance.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DeleteTenantDatabase for usage and error information.
+//
+// Returned Error Codes:
+//
+//   - ErrCodeDBInstanceNotFoundFault "DBInstanceNotFound"
+//     DBInstanceIdentifier doesn't refer to an existing DB instance.
+//
+//   - ErrCodeTenantDatabaseNotFoundFault "TenantDatabaseNotFound"
+//     The specified tenant database wasn't found in the DB instance.
+//
+//   - ErrCodeInvalidDBInstanceStateFault "InvalidDBInstanceState"
+//     The DB instance isn't in a valid state.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DeleteTenantDatabase
+func (c *RDS) DeleteTenantDatabase(input *DeleteTenantDatabaseInput) (*DeleteTenantDatabaseOutput, error) {
+	req, out := c.DeleteTenantDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// DeleteTenantDatabaseWithContext is the same as DeleteTenantDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteTenantDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DeleteTenantDatabaseWithContext(ctx aws.Context, input *DeleteTenantDatabaseInput, opts ...request.Option) (*DeleteTenantDatabaseOutput, error) {
+	req, out := c.DeleteTenantDatabaseRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -7956,6 +8353,147 @@ func (c *RDS) DescribeDBSnapshotAttributesWithContext(ctx aws.Context, input *De
 	return out, req.Send()
 }
 
+const opDescribeDBSnapshotTenantDatabases = "DescribeDBSnapshotTenantDatabases"
+
+// DescribeDBSnapshotTenantDatabasesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeDBSnapshotTenantDatabases operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeDBSnapshotTenantDatabases for more information on using the DescribeDBSnapshotTenantDatabases
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DescribeDBSnapshotTenantDatabasesRequest method.
+//	req, resp := client.DescribeDBSnapshotTenantDatabasesRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeDBSnapshotTenantDatabases
+func (c *RDS) DescribeDBSnapshotTenantDatabasesRequest(input *DescribeDBSnapshotTenantDatabasesInput) (req *request.Request, output *DescribeDBSnapshotTenantDatabasesOutput) {
+	op := &request.Operation{
+		Name:       opDescribeDBSnapshotTenantDatabases,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"Marker"},
+			OutputTokens:    []string{"Marker"},
+			LimitToken:      "MaxRecords",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &DescribeDBSnapshotTenantDatabasesInput{}
+	}
+
+	output = &DescribeDBSnapshotTenantDatabasesOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeDBSnapshotTenantDatabases API operation for Amazon Relational Database Service.
+//
+// Describes the tenant databases that exist in a DB snapshot. This command
+// only applies to RDS for Oracle DB instances in the multi-tenant configuration.
+//
+// You can use this command to inspect the tenant databases within a snapshot
+// before restoring it. You can't directly interact with the tenant databases
+// in a DB snapshot. If you restore a snapshot that was taken from DB instance
+// using the multi-tenant configuration, you restore all its tenant databases.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DescribeDBSnapshotTenantDatabases for usage and error information.
+//
+// Returned Error Codes:
+//   - ErrCodeDBSnapshotNotFoundFault "DBSnapshotNotFound"
+//     DBSnapshotIdentifier doesn't refer to an existing DB snapshot.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeDBSnapshotTenantDatabases
+func (c *RDS) DescribeDBSnapshotTenantDatabases(input *DescribeDBSnapshotTenantDatabasesInput) (*DescribeDBSnapshotTenantDatabasesOutput, error) {
+	req, out := c.DescribeDBSnapshotTenantDatabasesRequest(input)
+	return out, req.Send()
+}
+
+// DescribeDBSnapshotTenantDatabasesWithContext is the same as DescribeDBSnapshotTenantDatabases with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeDBSnapshotTenantDatabases for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeDBSnapshotTenantDatabasesWithContext(ctx aws.Context, input *DescribeDBSnapshotTenantDatabasesInput, opts ...request.Option) (*DescribeDBSnapshotTenantDatabasesOutput, error) {
+	req, out := c.DescribeDBSnapshotTenantDatabasesRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// DescribeDBSnapshotTenantDatabasesPages iterates over the pages of a DescribeDBSnapshotTenantDatabases operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeDBSnapshotTenantDatabases method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//	// Example iterating over at most 3 pages of a DescribeDBSnapshotTenantDatabases operation.
+//	pageNum := 0
+//	err := client.DescribeDBSnapshotTenantDatabasesPages(params,
+//	    func(page *rds.DescribeDBSnapshotTenantDatabasesOutput, lastPage bool) bool {
+//	        pageNum++
+//	        fmt.Println(page)
+//	        return pageNum <= 3
+//	    })
+func (c *RDS) DescribeDBSnapshotTenantDatabasesPages(input *DescribeDBSnapshotTenantDatabasesInput, fn func(*DescribeDBSnapshotTenantDatabasesOutput, bool) bool) error {
+	return c.DescribeDBSnapshotTenantDatabasesPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeDBSnapshotTenantDatabasesPagesWithContext same as DescribeDBSnapshotTenantDatabasesPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeDBSnapshotTenantDatabasesPagesWithContext(ctx aws.Context, input *DescribeDBSnapshotTenantDatabasesInput, fn func(*DescribeDBSnapshotTenantDatabasesOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeDBSnapshotTenantDatabasesInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeDBSnapshotTenantDatabasesRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*DescribeDBSnapshotTenantDatabasesOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
+}
+
 const opDescribeDBSnapshots = "DescribeDBSnapshots"
 
 // DescribeDBSnapshotsRequest generates a "aws/request.Request" representing the
@@ -9072,6 +9610,141 @@ func (c *RDS) DescribeGlobalClustersPagesWithContext(ctx aws.Context, input *Des
 	return p.Err()
 }
 
+const opDescribeIntegrations = "DescribeIntegrations"
+
+// DescribeIntegrationsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeIntegrations operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeIntegrations for more information on using the DescribeIntegrations
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DescribeIntegrationsRequest method.
+//	req, resp := client.DescribeIntegrationsRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeIntegrations
+func (c *RDS) DescribeIntegrationsRequest(input *DescribeIntegrationsInput) (req *request.Request, output *DescribeIntegrationsOutput) {
+	op := &request.Operation{
+		Name:       opDescribeIntegrations,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"Marker"},
+			OutputTokens:    []string{"Marker"},
+			LimitToken:      "MaxRecords",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &DescribeIntegrationsInput{}
+	}
+
+	output = &DescribeIntegrationsOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeIntegrations API operation for Amazon Relational Database Service.
+//
+// Describe one or more zero-ETL integrations with Amazon Redshift.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DescribeIntegrations for usage and error information.
+//
+// Returned Error Codes:
+//   - ErrCodeIntegrationNotFoundFault "IntegrationNotFoundFault"
+//     The specified integration could not be found.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeIntegrations
+func (c *RDS) DescribeIntegrations(input *DescribeIntegrationsInput) (*DescribeIntegrationsOutput, error) {
+	req, out := c.DescribeIntegrationsRequest(input)
+	return out, req.Send()
+}
+
+// DescribeIntegrationsWithContext is the same as DescribeIntegrations with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeIntegrations for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeIntegrationsWithContext(ctx aws.Context, input *DescribeIntegrationsInput, opts ...request.Option) (*DescribeIntegrationsOutput, error) {
+	req, out := c.DescribeIntegrationsRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// DescribeIntegrationsPages iterates over the pages of a DescribeIntegrations operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeIntegrations method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//	// Example iterating over at most 3 pages of a DescribeIntegrations operation.
+//	pageNum := 0
+//	err := client.DescribeIntegrationsPages(params,
+//	    func(page *rds.DescribeIntegrationsOutput, lastPage bool) bool {
+//	        pageNum++
+//	        fmt.Println(page)
+//	        return pageNum <= 3
+//	    })
+func (c *RDS) DescribeIntegrationsPages(input *DescribeIntegrationsInput, fn func(*DescribeIntegrationsOutput, bool) bool) error {
+	return c.DescribeIntegrationsPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeIntegrationsPagesWithContext same as DescribeIntegrationsPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeIntegrationsPagesWithContext(ctx aws.Context, input *DescribeIntegrationsInput, fn func(*DescribeIntegrationsOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeIntegrationsInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeIntegrationsRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*DescribeIntegrationsOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
+}
+
 const opDescribeOptionGroupOptions = "DescribeOptionGroupOptions"
 
 // DescribeOptionGroupOptionsRequest generates a "aws/request.Request" representing the
@@ -9121,7 +9794,7 @@ func (c *RDS) DescribeOptionGroupOptionsRequest(input *DescribeOptionGroupOption
 
 // DescribeOptionGroupOptions API operation for Amazon Relational Database Service.
 //
-// Describes all available options.
+// Describes all available options for the specified engine.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -9386,8 +10059,7 @@ func (c *RDS) DescribeOrderableDBInstanceOptionsRequest(input *DescribeOrderable
 
 // DescribeOrderableDBInstanceOptions API operation for Amazon Relational Database Service.
 //
-// Returns a list of orderable DB instance options for the specified DB engine,
-// DB engine version, and DB instance class.
+// Describes the orderable DB instance options for a specified DB engine.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -10015,6 +10687,142 @@ func (c *RDS) DescribeSourceRegionsPagesWithContext(ctx aws.Context, input *Desc
 	return p.Err()
 }
 
+const opDescribeTenantDatabases = "DescribeTenantDatabases"
+
+// DescribeTenantDatabasesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeTenantDatabases operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeTenantDatabases for more information on using the DescribeTenantDatabases
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the DescribeTenantDatabasesRequest method.
+//	req, resp := client.DescribeTenantDatabasesRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeTenantDatabases
+func (c *RDS) DescribeTenantDatabasesRequest(input *DescribeTenantDatabasesInput) (req *request.Request, output *DescribeTenantDatabasesOutput) {
+	op := &request.Operation{
+		Name:       opDescribeTenantDatabases,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"Marker"},
+			OutputTokens:    []string{"Marker"},
+			LimitToken:      "MaxRecords",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &DescribeTenantDatabasesInput{}
+	}
+
+	output = &DescribeTenantDatabasesOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeTenantDatabases API operation for Amazon Relational Database Service.
+//
+// Describes the tenant databases in a DB instance that uses the multi-tenant
+// configuration. Only RDS for Oracle CDB instances are supported.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation DescribeTenantDatabases for usage and error information.
+//
+// Returned Error Codes:
+//   - ErrCodeDBInstanceNotFoundFault "DBInstanceNotFound"
+//     DBInstanceIdentifier doesn't refer to an existing DB instance.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/DescribeTenantDatabases
+func (c *RDS) DescribeTenantDatabases(input *DescribeTenantDatabasesInput) (*DescribeTenantDatabasesOutput, error) {
+	req, out := c.DescribeTenantDatabasesRequest(input)
+	return out, req.Send()
+}
+
+// DescribeTenantDatabasesWithContext is the same as DescribeTenantDatabases with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeTenantDatabases for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeTenantDatabasesWithContext(ctx aws.Context, input *DescribeTenantDatabasesInput, opts ...request.Option) (*DescribeTenantDatabasesOutput, error) {
+	req, out := c.DescribeTenantDatabasesRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// DescribeTenantDatabasesPages iterates over the pages of a DescribeTenantDatabases operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeTenantDatabases method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//	// Example iterating over at most 3 pages of a DescribeTenantDatabases operation.
+//	pageNum := 0
+//	err := client.DescribeTenantDatabasesPages(params,
+//	    func(page *rds.DescribeTenantDatabasesOutput, lastPage bool) bool {
+//	        pageNum++
+//	        fmt.Println(page)
+//	        return pageNum <= 3
+//	    })
+func (c *RDS) DescribeTenantDatabasesPages(input *DescribeTenantDatabasesInput, fn func(*DescribeTenantDatabasesOutput, bool) bool) error {
+	return c.DescribeTenantDatabasesPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeTenantDatabasesPagesWithContext same as DescribeTenantDatabasesPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) DescribeTenantDatabasesPagesWithContext(ctx aws.Context, input *DescribeTenantDatabasesInput, fn func(*DescribeTenantDatabasesOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeTenantDatabasesInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeTenantDatabasesRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*DescribeTenantDatabasesOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
+}
+
 const opDescribeValidDBInstanceModifications = "DescribeValidDBInstanceModifications"
 
 // DescribeValidDBInstanceModificationsRequest generates a "aws/request.Request" representing the
@@ -10561,6 +11369,15 @@ func (c *RDS) ListTagsForResourceRequest(input *ListTagsForResourceInput) (req *
 //   - ErrCodeBlueGreenDeploymentNotFoundFault "BlueGreenDeploymentNotFoundFault"
 //     BlueGreenDeploymentIdentifier doesn't refer to an existing blue/green deployment.
 //
+//   - ErrCodeIntegrationNotFoundFault "IntegrationNotFoundFault"
+//     The specified integration could not be found.
+//
+//   - ErrCodeTenantDatabaseNotFoundFault "TenantDatabaseNotFound"
+//     The specified tenant database wasn't found in the DB instance.
+//
+//   - ErrCodeDBSnapshotTenantDatabaseNotFoundFault "DBSnapshotTenantDatabaseNotFoundFault"
+//     The specified snapshot tenant database wasn't found.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/ListTagsForResource
 func (c *RDS) ListTagsForResource(input *ListTagsForResourceInput) (*ListTagsForResourceOutput, error) {
 	req, out := c.ListTagsForResourceRequest(input)
@@ -10844,7 +11661,7 @@ func (c *RDS) ModifyCurrentDBClusterCapacityRequest(input *ModifyCurrentDBCluste
 // for Aurora Serverless v1 (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.how-it-works.html#aurora-serverless.how-it-works.auto-scaling)
 // in the Amazon Aurora User Guide.
 //
-// This action only applies to Aurora Serverless v1 DB clusters.
+// This operation only applies to Aurora Serverless v1 DB clusters.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -11091,6 +11908,9 @@ func (c *RDS) ModifyDBClusterRequest(input *ModifyDBClusterInput) (req *request.
 //     The aurora-iopt1 storage type isn't available, because you modified the DB
 //     cluster to use this storage type less than one month ago.
 //
+//   - ErrCodeOptionGroupNotFoundFault "OptionGroupNotFoundFault"
+//     The specified option group could not be found.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/ModifyDBCluster
 func (c *RDS) ModifyDBCluster(input *ModifyDBClusterInput) (*ModifyDBClusterOutput, error) {
 	req, out := c.ModifyDBClusterRequest(input)
@@ -11158,7 +11978,7 @@ func (c *RDS) ModifyDBClusterEndpointRequest(input *ModifyDBClusterEndpointInput
 //
 // Modifies the properties of an endpoint in an Amazon Aurora DB cluster.
 //
-// This action only applies to Aurora DB clusters.
+// This operation only applies to Aurora DB clusters.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -11257,8 +12077,8 @@ func (c *RDS) ModifyDBClusterParameterGroupRequest(input *ModifyDBClusterParamet
 // After you create a DB cluster parameter group, you should wait at least 5
 // minutes before creating your first DB cluster that uses that DB cluster parameter
 // group as the default parameter group. This allows Amazon RDS to fully complete
-// the create action before the parameter group is used as the default for a
-// new DB cluster. This is especially important for parameters that are critical
+// the create operation before the parameter group is used as the default for
+// a new DB cluster. This is especially important for parameters that are critical
 // when creating the default database for a DB cluster, such as the character
 // set for the default database defined by the character_set_database parameter.
 // You can use the Parameter Groups option of the Amazon RDS console (https://console.aws.amazon.com/rds/)
@@ -11550,6 +12370,10 @@ func (c *RDS) ModifyDBInstanceRequest(input *ModifyDBInstanceInput) (req *reques
 //     The network type is invalid for the DB instance. Valid nework type values
 //     are IPV4 and DUAL.
 //
+//   - ErrCodeTenantDatabaseQuotaExceededFault "TenantDatabaseQuotaExceeded"
+//     You attempted to create more tenant databases than are permitted in your
+//     Amazon Web Services account.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/ModifyDBInstance
 func (c *RDS) ModifyDBInstance(input *ModifyDBInstanceInput) (*ModifyDBInstanceOutput, error) {
 	req, out := c.ModifyDBInstanceRequest(input)
@@ -11622,8 +12446,8 @@ func (c *RDS) ModifyDBParameterGroupRequest(input *ModifyDBParameterGroupInput) 
 // After you modify a DB parameter group, you should wait at least 5 minutes
 // before creating your first DB instance that uses that DB parameter group
 // as the default parameter group. This allows Amazon RDS to fully complete
-// the modify action before the parameter group is used as the default for a
-// new DB instance. This is especially important for parameters that are critical
+// the modify operation before the parameter group is used as the default for
+// a new DB instance. This is especially important for parameters that are critical
 // when creating the default database for a DB instance, such as the character
 // set for the default database defined by the character_set_database parameter.
 // You can use the Parameter Groups option of the Amazon RDS console (https://console.aws.amazon.com/rds/)
@@ -11981,7 +12805,7 @@ func (c *RDS) ModifyDBSnapshotRequest(input *ModifyDBSnapshotInput) (req *reques
 // be encrypted or unencrypted, but not shared or public.
 //
 // Amazon RDS supports upgrading DB snapshots for MySQL, PostgreSQL, and Oracle.
-// This command doesn't apply to RDS Custom.
+// This operation doesn't apply to RDS Custom or RDS for Db2.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -12491,6 +13315,97 @@ func (c *RDS) ModifyOptionGroup(input *ModifyOptionGroupInput) (*ModifyOptionGro
 // for more information on using Contexts.
 func (c *RDS) ModifyOptionGroupWithContext(ctx aws.Context, input *ModifyOptionGroupInput, opts ...request.Option) (*ModifyOptionGroupOutput, error) {
 	req, out := c.ModifyOptionGroupRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opModifyTenantDatabase = "ModifyTenantDatabase"
+
+// ModifyTenantDatabaseRequest generates a "aws/request.Request" representing the
+// client's request for the ModifyTenantDatabase operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ModifyTenantDatabase for more information on using the ModifyTenantDatabase
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the ModifyTenantDatabaseRequest method.
+//	req, resp := client.ModifyTenantDatabaseRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/ModifyTenantDatabase
+func (c *RDS) ModifyTenantDatabaseRequest(input *ModifyTenantDatabaseInput) (req *request.Request, output *ModifyTenantDatabaseOutput) {
+	op := &request.Operation{
+		Name:       opModifyTenantDatabase,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ModifyTenantDatabaseInput{}
+	}
+
+	output = &ModifyTenantDatabaseOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ModifyTenantDatabase API operation for Amazon Relational Database Service.
+//
+// Modifies an existing tenant database in a DB instance. You can change the
+// tenant database name or the master user password. This operation is supported
+// only for RDS for Oracle CDB instances using the multi-tenant configuration.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Relational Database Service's
+// API operation ModifyTenantDatabase for usage and error information.
+//
+// Returned Error Codes:
+//
+//   - ErrCodeDBInstanceNotFoundFault "DBInstanceNotFound"
+//     DBInstanceIdentifier doesn't refer to an existing DB instance.
+//
+//   - ErrCodeTenantDatabaseNotFoundFault "TenantDatabaseNotFound"
+//     The specified tenant database wasn't found in the DB instance.
+//
+//   - ErrCodeTenantDatabaseAlreadyExistsFault "TenantDatabaseAlreadyExists"
+//     You attempted to either create a tenant database that already exists or modify
+//     a tenant database to use the name of an existing tenant database.
+//
+//   - ErrCodeInvalidDBInstanceStateFault "InvalidDBInstanceState"
+//     The DB instance isn't in a valid state.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/ModifyTenantDatabase
+func (c *RDS) ModifyTenantDatabase(input *ModifyTenantDatabaseInput) (*ModifyTenantDatabaseOutput, error) {
+	req, out := c.ModifyTenantDatabaseRequest(input)
+	return out, req.Send()
+}
+
+// ModifyTenantDatabaseWithContext is the same as ModifyTenantDatabase with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ModifyTenantDatabase for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *RDS) ModifyTenantDatabaseWithContext(ctx aws.Context, input *ModifyTenantDatabaseInput, opts ...request.Option) (*ModifyTenantDatabaseOutput, error) {
+	req, out := c.ModifyTenantDatabaseRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -13108,7 +14023,7 @@ func (c *RDS) RemoveFromGlobalClusterRequest(input *RemoveFromGlobalClusterInput
 // of being read-only and receiving data from a primary cluster in a different
 // Region.
 //
-// This action only applies to Aurora DB clusters.
+// This operation only applies to Aurora DB clusters.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -13497,6 +14412,15 @@ func (c *RDS) RemoveTagsFromResourceRequest(input *RemoveTagsFromResourceInput) 
 //   - ErrCodeBlueGreenDeploymentNotFoundFault "BlueGreenDeploymentNotFoundFault"
 //     BlueGreenDeploymentIdentifier doesn't refer to an existing blue/green deployment.
 //
+//   - ErrCodeIntegrationNotFoundFault "IntegrationNotFoundFault"
+//     The specified integration could not be found.
+//
+//   - ErrCodeTenantDatabaseNotFoundFault "TenantDatabaseNotFound"
+//     The specified tenant database wasn't found in the DB instance.
+//
+//   - ErrCodeDBSnapshotTenantDatabaseNotFoundFault "DBSnapshotTenantDatabaseNotFoundFault"
+//     The specified snapshot tenant database wasn't found.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/RemoveTagsFromResource
 func (c *RDS) RemoveTagsFromResource(input *RemoveTagsFromResourceInput) (*RemoveTagsFromResourceOutput, error) {
 	req, out := c.RemoveTagsFromResourceRequest(input)
@@ -13759,16 +14683,16 @@ func (c *RDS) RestoreDBClusterFromS3Request(input *RestoreDBClusterFromS3Input) 
 // in Migrating Data from MySQL by Using an Amazon S3 Bucket (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraMySQL.Migrating.ExtMySQL.html#AuroraMySQL.Migrating.ExtMySQL.S3)
 // in the Amazon Aurora User Guide.
 //
-// This action only restores the DB cluster, not the DB instances for that DB
-// cluster. You must invoke the CreateDBInstance action to create DB instances
+// This operation only restores the DB cluster, not the DB instances for that
+// DB cluster. You must invoke the CreateDBInstance operation to create DB instances
 // for the restored DB cluster, specifying the identifier of the restored DB
 // cluster in DBClusterIdentifier. You can create DB instances only after the
-// RestoreDBClusterFromS3 action has completed and the DB cluster is available.
+// RestoreDBClusterFromS3 operation has completed and the DB cluster is available.
 //
 // For more information on Amazon Aurora, see What is Amazon Aurora? (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html)
 // in the Amazon Aurora User Guide.
 //
-// This action only applies to Aurora DB clusters. The source DB engine must
+// This operation only applies to Aurora DB clusters. The source DB engine must
 // be MySQL.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -13905,11 +14829,12 @@ func (c *RDS) RestoreDBClusterFromSnapshotRequest(input *RestoreDBClusterFromSna
 // configuration. If you don't specify a security group, the new DB cluster
 // is associated with the default security group.
 //
-// This action only restores the DB cluster, not the DB instances for that DB
-// cluster. You must invoke the CreateDBInstance action to create DB instances
+// This operation only restores the DB cluster, not the DB instances for that
+// DB cluster. You must invoke the CreateDBInstance operation to create DB instances
 // for the restored DB cluster, specifying the identifier of the restored DB
 // cluster in DBClusterIdentifier. You can create DB instances only after the
-// RestoreDBClusterFromSnapshot action has completed and the DB cluster is available.
+// RestoreDBClusterFromSnapshot operation has completed and the DB cluster is
+// available.
 //
 // For more information on Amazon Aurora DB clusters, see What is Amazon Aurora?
 // (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html)
@@ -14071,12 +14996,12 @@ func (c *RDS) RestoreDBClusterToPointInTimeRequest(input *RestoreDBClusterToPoin
 // same configuration as the original DB cluster, except that the new DB cluster
 // is created with the default DB security group.
 //
-// For Aurora, this action only restores the DB cluster, not the DB instances
-// for that DB cluster. You must invoke the CreateDBInstance action to create
+// For Aurora, this operation only restores the DB cluster, not the DB instances
+// for that DB cluster. You must invoke the CreateDBInstance operation to create
 // DB instances for the restored DB cluster, specifying the identifier of the
 // restored DB cluster in DBClusterIdentifier. You can create DB instances only
-// after the RestoreDBClusterToPointInTime action has completed and the DB cluster
-// is available.
+// after the RestoreDBClusterToPointInTime operation has completed and the DB
+// cluster is available.
 //
 // For more information on Amazon Aurora DB clusters, see What is Amazon Aurora?
 // (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html)
@@ -14234,12 +15159,12 @@ func (c *RDS) RestoreDBInstanceFromDBSnapshotRequest(input *RestoreDBInstanceFro
 //
 // If you want to replace your original DB instance with the new, restored DB
 // instance, then rename your original DB instance before you call the RestoreDBInstanceFromDBSnapshot
-// action. RDS doesn't allow two DB instances with the same name. After you
+// operation. RDS doesn't allow two DB instances with the same name. After you
 // have renamed your original DB instance with a different identifier, then
 // you can pass the original name of the DB instance as the DBInstanceIdentifier
-// in the call to the RestoreDBInstanceFromDBSnapshot action. The result is
-// that you replace the original DB instance with the DB instance created from
-// the snapshot.
+// in the call to the RestoreDBInstanceFromDBSnapshot operation. The result
+// is that you replace the original DB instance with the DB instance created
+// from the snapshot.
 //
 // If you are restoring from a shared manual DB snapshot, the DBSnapshotIdentifier
 // must be the ARN of the shared DB snapshot.
@@ -14331,6 +15256,10 @@ func (c *RDS) RestoreDBInstanceFromDBSnapshotRequest(input *RestoreDBInstanceFro
 //   - ErrCodeDBClusterSnapshotNotFoundFault "DBClusterSnapshotNotFoundFault"
 //     DBClusterSnapshotIdentifier doesn't refer to an existing DB cluster snapshot.
 //
+//   - ErrCodeTenantDatabaseQuotaExceededFault "TenantDatabaseQuotaExceeded"
+//     You attempted to create more tenant databases than are permitted in your
+//     Amazon Web Services account.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/RestoreDBInstanceFromDBSnapshot
 func (c *RDS) RestoreDBInstanceFromDBSnapshot(input *RestoreDBInstanceFromDBSnapshotInput) (*RestoreDBInstanceFromDBSnapshotOutput, error) {
 	req, out := c.RestoreDBInstanceFromDBSnapshotRequest(input)
@@ -14404,7 +15333,7 @@ func (c *RDS) RestoreDBInstanceFromS3Request(input *RestoreDBInstanceFromS3Input
 // (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Procedural.Importing.html)
 // in the Amazon RDS User Guide.
 //
-// This command doesn't apply to RDS Custom.
+// This operation doesn't apply to RDS Custom.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -14558,7 +15487,7 @@ func (c *RDS) RestoreDBInstanceToPointInTimeRequest(input *RestoreDBInstanceToPo
 // with mirroring; in this case, the instance becomes a mirrored deployment
 // and not a single-AZ deployment.
 //
-// This command doesn't apply to Aurora MySQL and Aurora PostgreSQL. For Aurora,
+// This operation doesn't apply to Aurora MySQL and Aurora PostgreSQL. For Aurora,
 // use RestoreDBClusterToPointInTime.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -14648,6 +15577,10 @@ func (c *RDS) RestoreDBInstanceToPointInTimeRequest(input *RestoreDBInstanceToPo
 //   - ErrCodeNetworkTypeNotSupported "NetworkTypeNotSupported"
 //     The network type is invalid for the DB instance. Valid nework type values
 //     are IPV4 and DUAL.
+//
+//   - ErrCodeTenantDatabaseQuotaExceededFault "TenantDatabaseQuotaExceeded"
+//     You attempted to create more tenant databases than are permitted in your
+//     Amazon Web Services account.
 //
 // See also, https://docs.aws.amazon.com/goto/WebAPI/rds-2014-10-31/RestoreDBInstanceToPointInTime
 func (c *RDS) RestoreDBInstanceToPointInTime(input *RestoreDBInstanceToPointInTimeInput) (*RestoreDBInstanceToPointInTimeOutput, error) {
@@ -14914,12 +15847,12 @@ func (c *RDS) StartDBClusterRequest(input *StartDBClusterInput) (req *request.Re
 // StartDBCluster API operation for Amazon Relational Database Service.
 //
 // Starts an Amazon Aurora DB cluster that was stopped using the Amazon Web
-// Services console, the stop-db-cluster CLI command, or the StopDBCluster action.
+// Services console, the stop-db-cluster CLI command, or the StopDBCluster operation.
 //
 // For more information, see Stopping and Starting an Aurora Cluster (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-cluster-stop-start.html)
 // in the Amazon Aurora User Guide.
 //
-// This action only applies to Aurora DB clusters.
+// This operation only applies to Aurora DB clusters.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -15005,7 +15938,7 @@ func (c *RDS) StartDBInstanceRequest(input *StartDBInstanceInput) (req *request.
 // StartDBInstance API operation for Amazon Relational Database Service.
 //
 // Starts an Amazon RDS DB instance that was stopped using the Amazon Web Services
-// console, the stop-db-instance CLI command, or the StopDBInstance action.
+// console, the stop-db-instance CLI command, or the StopDBInstance operation.
 //
 // For more information, see Starting an Amazon RDS DB instance That Was Previously
 // Stopped (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_StartInstance.html)
@@ -15232,7 +16165,7 @@ func (c *RDS) StartExportTaskRequest(input *StartExportTaskInput) (req *request.
 // Starts an export of DB snapshot or DB cluster data to Amazon S3. The provided
 // IAM role must have access to the S3 bucket.
 //
-// You can't export snapshot data from RDS Custom DB instances.
+// You can't export snapshot data from Db2 or RDS Custom DB instances.
 //
 // You can't export cluster data from Multi-AZ DB clusters.
 //
@@ -15355,7 +16288,7 @@ func (c *RDS) StopActivityStreamRequest(input *StopActivityStreamInput) (req *re
 //
 // Stops a database activity stream that was started using the Amazon Web Services
 // console, the start-activity-stream CLI command, or the StartActivityStream
-// action.
+// operation.
 //
 // For more information, see Monitoring Amazon Aurora with Database Activity
 // Streams (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/DBActivityStreams.html)
@@ -15460,7 +16393,7 @@ func (c *RDS) StopDBClusterRequest(input *StopDBClusterInput) (req *request.Requ
 // For more information, see Stopping and Starting an Aurora Cluster (https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-cluster-stop-start.html)
 // in the Amazon Aurora User Guide.
 //
-// This action only applies to Aurora DB clusters.
+// This operation only applies to Aurora DB clusters.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -17770,6 +18703,9 @@ type ClusterPendingModifiedValues struct {
 	// these log types are in the process of being activated or deactivated.
 	PendingCloudwatchLogsExports *PendingCloudwatchLogsExports `type:"structure"`
 
+	// Reserved for future use.
+	RdsCustomClusterConfiguration *RdsCustomClusterConfiguration `type:"structure"`
+
 	// The storage type for the DB cluster.
 	StorageType *string `type:"string"`
 }
@@ -17837,6 +18773,12 @@ func (s *ClusterPendingModifiedValues) SetMasterUserPassword(v string) *ClusterP
 // SetPendingCloudwatchLogsExports sets the PendingCloudwatchLogsExports field's value.
 func (s *ClusterPendingModifiedValues) SetPendingCloudwatchLogsExports(v *PendingCloudwatchLogsExports) *ClusterPendingModifiedValues {
 	s.PendingCloudwatchLogsExports = v
+	return s
+}
+
+// SetRdsCustomClusterConfiguration sets the RdsCustomClusterConfiguration field's value.
+func (s *ClusterPendingModifiedValues) SetRdsCustomClusterConfiguration(v *RdsCustomClusterConfiguration) *ClusterPendingModifiedValues {
+	s.RdsCustomClusterConfiguration = v
 	return s
 }
 
@@ -19024,6 +19966,9 @@ type CreateBlueGreenDeploymentInput struct {
 	// from the one associated with the source DB cluster.
 	TargetDBClusterParameterGroupName *string `min:"1" type:"string"`
 
+	// Specify the DB instance class for the databases in the green environment.
+	TargetDBInstanceClass *string `min:"5" type:"string"`
+
 	// The DB parameter group associated with the DB instance in the green environment.
 	//
 	// To test parameter changes, specify a DB parameter group that is different
@@ -19034,6 +19979,12 @@ type CreateBlueGreenDeploymentInput struct {
 	//
 	// Specify the engine version to upgrade to in the green environment.
 	TargetEngineVersion *string `min:"1" type:"string"`
+
+	// Whether to upgrade the storage file system configuration on the green database.
+	// This option migrates the green DB instance from the older 32-bit file system
+	// to the preferred configuration. For more information, see Upgrading the storage
+	// file system for a DB instance (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.UpgradeFileSystem).
+	UpgradeTargetStorageConfig *bool `type:"boolean"`
 }
 
 // String returns the string representation.
@@ -19072,6 +20023,9 @@ func (s *CreateBlueGreenDeploymentInput) Validate() error {
 	if s.TargetDBClusterParameterGroupName != nil && len(*s.TargetDBClusterParameterGroupName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetDBClusterParameterGroupName", 1))
 	}
+	if s.TargetDBInstanceClass != nil && len(*s.TargetDBInstanceClass) < 5 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetDBInstanceClass", 5))
+	}
 	if s.TargetDBParameterGroupName != nil && len(*s.TargetDBParameterGroupName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("TargetDBParameterGroupName", 1))
 	}
@@ -19109,6 +20063,12 @@ func (s *CreateBlueGreenDeploymentInput) SetTargetDBClusterParameterGroupName(v 
 	return s
 }
 
+// SetTargetDBInstanceClass sets the TargetDBInstanceClass field's value.
+func (s *CreateBlueGreenDeploymentInput) SetTargetDBInstanceClass(v string) *CreateBlueGreenDeploymentInput {
+	s.TargetDBInstanceClass = &v
+	return s
+}
+
 // SetTargetDBParameterGroupName sets the TargetDBParameterGroupName field's value.
 func (s *CreateBlueGreenDeploymentInput) SetTargetDBParameterGroupName(v string) *CreateBlueGreenDeploymentInput {
 	s.TargetDBParameterGroupName = &v
@@ -19118,6 +20078,12 @@ func (s *CreateBlueGreenDeploymentInput) SetTargetDBParameterGroupName(v string)
 // SetTargetEngineVersion sets the TargetEngineVersion field's value.
 func (s *CreateBlueGreenDeploymentInput) SetTargetEngineVersion(v string) *CreateBlueGreenDeploymentInput {
 	s.TargetEngineVersion = &v
+	return s
+}
+
+// SetUpgradeTargetStorageConfig sets the UpgradeTargetStorageConfig field's value.
+func (s *CreateBlueGreenDeploymentInput) SetUpgradeTargetStorageConfig(v bool) *CreateBlueGreenDeploymentInput {
+	s.UpgradeTargetStorageConfig = &v
 	return s
 }
 
@@ -19240,14 +20206,18 @@ type CreateCustomDBEngineVersionInput struct {
 	// in the Amazon RDS User Guide.
 	Manifest *string `min:"1" type:"string"`
 
-	// Reserved for future use.
+	// The ARN of a CEV to use as a source for creating a new CEV. You can specify
+	// a different Amazon Machine Imagine (AMI) by using either Source or UseAwsProvidedLatestImage.
+	// You can't specify a different JSON manifest when you specify SourceCustomDbEngineVersionIdentifier.
 	SourceCustomDbEngineVersionIdentifier *string `min:"1" type:"string"`
 
 	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
 	// in the Amazon RDS User Guide.
 	Tags []*Tag `locationNameList:"Tag" type:"list"`
 
-	// Reserved for future use.
+	// Specifies whether to use the latest service-provided Amazon Machine Image
+	// (AMI) for the CEV. If you specify UseAwsProvidedLatestImage, you can't also
+	// specify ImageId.
 	UseAwsProvidedLatestImage *bool `type:"boolean"`
 }
 
@@ -19497,6 +20467,10 @@ type CreateCustomDBEngineVersionOutput struct {
 	// engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// Indicates whether the DB engine version supports zero-ETL integrations with
+	// Amazon Redshift.
+	SupportsIntegrations *bool `type:"boolean"`
+
 	// Indicates whether the DB engine version supports forwarding write operations
 	// from reader DB instances to the writer DB instance in the DB cluster. By
 	// default, write operations aren't allowed on reader DB instances.
@@ -19695,6 +20669,12 @@ func (s *CreateCustomDBEngineVersionOutput) SetSupportsCertificateRotationWithou
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *CreateCustomDBEngineVersionOutput) SetSupportsGlobalDatabases(v bool) *CreateCustomDBEngineVersionOutput {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsIntegrations sets the SupportsIntegrations field's value.
+func (s *CreateCustomDBEngineVersionOutput) SetSupportsIntegrations(v bool) *CreateCustomDBEngineVersionOutput {
+	s.SupportsIntegrations = &v
 	return s
 }
 
@@ -20600,6 +21580,9 @@ type CreateDBClusterInput struct {
 	//    to it, the DB cluster is public.
 	PubliclyAccessible *bool `type:"boolean"`
 
+	// Reserved for future use.
+	RdsCustomClusterConfiguration *RdsCustomClusterConfiguration `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the source DB instance or DB cluster if
 	// this DB cluster is created as a read replica.
 	//
@@ -20965,6 +21948,12 @@ func (s *CreateDBClusterInput) SetPreferredMaintenanceWindow(v string) *CreateDB
 // SetPubliclyAccessible sets the PubliclyAccessible field's value.
 func (s *CreateDBClusterInput) SetPubliclyAccessible(v bool) *CreateDBClusterInput {
 	s.PubliclyAccessible = &v
+	return s
+}
+
+// SetRdsCustomClusterConfiguration sets the RdsCustomClusterConfiguration field's value.
+func (s *CreateDBClusterInput) SetRdsCustomClusterConfiguration(v *RdsCustomClusterConfiguration) *CreateDBClusterInput {
+	s.RdsCustomClusterConfiguration = v
 	return s
 }
 
@@ -21371,6 +22360,15 @@ type CreateDBInstanceInput struct {
 	//    * Provisioned IOPS storage (io1): Must be an integer from 40 to 65536
 	//    for RDS Custom for Oracle, 16384 for RDS Custom for SQL Server.
 	//
+	// RDS for Db2
+	//
+	// Constraints to the amount of storage for each storage type are the following:
+	//
+	//    * General Purpose (SSD) storage (gp2, gp3): Must be an integer from 20
+	//    to 64000.
+	//
+	//    * Provisioned IOPS storage (io1): Must be an integer from 100 to 64000.
+	//
 	// RDS for MariaDB
 	//
 	// Constraints to the amount of storage for each storage type are the following:
@@ -21483,7 +22481,7 @@ type CreateDBInstanceInput struct {
 
 	// The location for storing automated backups and manual snapshots.
 	//
-	// Valie Values:
+	// Valid Values:
 	//
 	//    * outposts (Amazon Web Services Outposts)
 	//
@@ -21581,85 +22579,6 @@ type CreateDBInstanceInput struct {
 	// The meaning of this parameter differs according to the database engine you
 	// use.
 	//
-	// MySQL
-	//
-	// The name of the database to create when the DB instance is created. If this
-	// parameter isn't specified, no database is created in the DB instance.
-	//
-	// Constraints:
-	//
-	//    * Must contain 1 to 64 letters or numbers.
-	//
-	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
-	//    or digits (0-9).
-	//
-	//    * Can't be a word reserved by the specified database engine
-	//
-	// MariaDB
-	//
-	// The name of the database to create when the DB instance is created. If this
-	// parameter isn't specified, no database is created in the DB instance.
-	//
-	// Constraints:
-	//
-	//    * Must contain 1 to 64 letters or numbers.
-	//
-	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
-	//    or digits (0-9).
-	//
-	//    * Can't be a word reserved by the specified database engine
-	//
-	// PostgreSQL
-	//
-	// The name of the database to create when the DB instance is created. If this
-	// parameter isn't specified, a database named postgres is created in the DB
-	// instance.
-	//
-	// Constraints:
-	//
-	//    * Must contain 1 to 63 letters, numbers, or underscores.
-	//
-	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
-	//    or digits (0-9).
-	//
-	//    * Can't be a word reserved by the specified database engine
-	//
-	// Oracle
-	//
-	// The Oracle System ID (SID) of the created DB instance. If you don't specify
-	// a value, the default value is ORCL. You can't specify the string null, or
-	// any other reserved word, for DBName.
-	//
-	// Default: ORCL
-	//
-	// Constraints:
-	//
-	//    * Can't be longer than 8 characters
-	//
-	// Amazon RDS Custom for Oracle
-	//
-	// The Oracle System ID (SID) of the created RDS Custom DB instance. If you
-	// don't specify a value, the default value is ORCL for non-CDBs and RDSCDB
-	// for CDBs.
-	//
-	// Default: ORCL
-	//
-	// Constraints:
-	//
-	//    * It must contain 1 to 8 alphanumeric characters.
-	//
-	//    * It must contain a letter.
-	//
-	//    * It can't be a word reserved by the database engine.
-	//
-	// Amazon RDS Custom for SQL Server
-	//
-	// Not applicable. Must be null.
-	//
-	// SQL Server
-	//
-	// Not applicable. Must be null.
-	//
 	// Amazon Aurora MySQL
 	//
 	// The name of the database to create when the primary DB instance of the Aurora
@@ -21668,9 +22587,9 @@ type CreateDBInstanceInput struct {
 	//
 	// Constraints:
 	//
-	//    * It must contain 1 to 64 alphanumeric characters.
+	//    * Must contain 1 to 64 alphanumeric characters.
 	//
-	//    * It can't be a word reserved by the database engine.
+	//    * Can't be a word reserved by the database engine.
 	//
 	// Amazon Aurora PostgreSQL
 	//
@@ -21683,10 +22602,103 @@ type CreateDBInstanceInput struct {
 	//
 	//    * It must contain 1 to 63 alphanumeric characters.
 	//
-	//    * It must begin with a letter. Subsequent characters can be letters, underscores,
+	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
 	//    or digits (0 to 9).
 	//
-	//    * It can't be a word reserved by the database engine.
+	//    * Can't be a word reserved by the database engine.
+	//
+	// Amazon RDS Custom for Oracle
+	//
+	// The Oracle System ID (SID) of the created RDS Custom DB instance. If you
+	// don't specify a value, the default value is ORCL for non-CDBs and RDSCDB
+	// for CDBs.
+	//
+	// Default: ORCL
+	//
+	// Constraints:
+	//
+	//    * Must contain 1 to 8 alphanumeric characters.
+	//
+	//    * Must contain a letter.
+	//
+	//    * Can't be a word reserved by the database engine.
+	//
+	// Amazon RDS Custom for SQL Server
+	//
+	// Not applicable. Must be null.
+	//
+	// RDS for Db2
+	//
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, no database is created in the DB instance.
+	//
+	// Constraints:
+	//
+	//    * Must contain 1 to 64 letters or numbers.
+	//
+	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
+	//    or digits (0-9).
+	//
+	//    * Can't be a word reserved by the specified database engine.
+	//
+	// RDS for MariaDB
+	//
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, no database is created in the DB instance.
+	//
+	// Constraints:
+	//
+	//    * Must contain 1 to 64 letters or numbers.
+	//
+	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
+	//    or digits (0-9).
+	//
+	//    * Can't be a word reserved by the specified database engine.
+	//
+	// RDS for MySQL
+	//
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, no database is created in the DB instance.
+	//
+	// Constraints:
+	//
+	//    * Must contain 1 to 64 letters or numbers.
+	//
+	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
+	//    or digits (0-9).
+	//
+	//    * Can't be a word reserved by the specified database engine.
+	//
+	// RDS for Oracle
+	//
+	// The Oracle System ID (SID) of the created DB instance. If you don't specify
+	// a value, the default value is ORCL. You can't specify the string null, or
+	// any other reserved word, for DBName.
+	//
+	// Default: ORCL
+	//
+	// Constraints:
+	//
+	//    * Can't be longer than 8 characters.
+	//
+	// RDS for PostgreSQL
+	//
+	// The name of the database to create when the DB instance is created. If this
+	// parameter isn't specified, a database named postgres is created in the DB
+	// instance.
+	//
+	// Constraints:
+	//
+	//    * Must contain 1 to 63 letters, numbers, or underscores.
+	//
+	//    * Must begin with a letter. Subsequent characters can be letters, underscores,
+	//    or digits (0-9).
+	//
+	//    * Can't be a word reserved by the specified database engine.
+	//
+	// RDS for SQL Server
+	//
+	// Not applicable. Must be null.
 	DBName *string `type:"string"`
 
 	// The name of the DB parameter group to associate with this DB instance. If
@@ -21728,6 +22740,9 @@ type CreateDBInstanceInput struct {
 	// to RDSCDB. The Oracle SID is also the name of your CDB.
 	DBSystemId *string `type:"string"`
 
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+	DedicatedLogVolume *bool `type:"boolean"`
+
 	// Specifies whether the DB instance has deletion protection enabled. The database
 	// can't be deleted when deletion protection is enabled. By default, deletion
 	// protection isn't enabled. For more information, see Deleting a DB Instance
@@ -21740,8 +22755,8 @@ type CreateDBInstanceInput struct {
 	DeletionProtection *bool `type:"boolean"`
 
 	// The Active Directory directory ID to create the DB instance in. Currently,
-	// only Microsoft SQL Server, MySQL, Oracle, and PostgreSQL DB instances can
-	// be created in an Active Directory Domain.
+	// you can create only Db2, MySQL, Microsoft SQL Server, Oracle, and PostgreSQL
+	// DB instances in an Active Directory Domain.
 	//
 	// For more information, see Kerberos Authentication (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/kerberos-authentication.html)
 	// in the Amazon RDS User Guide.
@@ -21800,9 +22815,8 @@ type CreateDBInstanceInput struct {
 	// Example: OU=mymanagedADtestOU,DC=mymanagedADtest,DC=mymanagedAD,DC=mydomain
 	DomainOu *string `type:"string"`
 
-	// The list of log types that need to be enabled for exporting to CloudWatch
-	// Logs. For more information, see Publishing Database Logs to Amazon CloudWatch
-	// Logs (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch)
+	// The list of log types to enable for exporting to CloudWatch Logs. For more
+	// information, see Publishing Database Logs to Amazon CloudWatch Logs (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch)
 	// in the Amazon RDS User Guide.
 	//
 	// This setting doesn't apply to the following DB instances:
@@ -21812,6 +22826,8 @@ type CreateDBInstanceInput struct {
 	//    * RDS Custom
 	//
 	// The following values are valid for each DB engine:
+	//
+	//    * RDS for Db2 - diag.log | notify.log
 	//
 	//    * RDS for MariaDB - audit | error | general | slowquery
 	//
@@ -21883,6 +22899,10 @@ type CreateDBInstanceInput struct {
 	//
 	//    * custom-sqlserver-web (for RDS Custom for SQL Server DB instances)
 	//
+	//    * db2-ae
+	//
+	//    * db2-se
+	//
 	//    * mariadb
 	//
 	//    * mysql
@@ -21932,6 +22952,11 @@ type CreateDBInstanceInput struct {
 	// See RDS Custom for SQL Server general requirements (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/custom-reqs-limits-MS.html)
 	// in the Amazon RDS User Guide.
 	//
+	// RDS for Db2
+	//
+	// For information, see Db2 on Amazon RDS versions (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Db2.html#Db2.Concepts.VersionMgmt)
+	// in the Amazon RDS User Guide.
+	//
 	// RDS for MariaDB
 	//
 	// For information, see MariaDB on Amazon RDS versions (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MariaDB.html#MariaDB.Concepts.VersionMgmt)
@@ -21968,8 +22993,8 @@ type CreateDBInstanceInput struct {
 	//
 	// Constraints:
 	//
-	//    * For RDS for MariaDB, MySQL, Oracle, and PostgreSQL - Must be a multiple
-	//    between .5 and 50 of the storage amount for the DB instance.
+	//    * For RDS for Db2, MariaDB, MySQL, Oracle, and PostgreSQL - Must be a
+	//    multiple between .5 and 50 of the storage amount for the DB instance.
 	//
 	//    * For RDS for SQL Server - Must be a multiple between 1 and 50 of the
 	//    storage amount for the DB instance.
@@ -22001,6 +23026,8 @@ type CreateDBInstanceInput struct {
 	// This setting doesn't apply to Amazon Aurora or RDS Custom DB instances.
 	//
 	// Valid Values:
+	//
+	//    * RDS for Db2 - bring-your-own-license
 	//
 	//    * RDS for MariaDB - general-public-license
 	//
@@ -22040,6 +23067,8 @@ type CreateDBInstanceInput struct {
 	//    character.
 	//
 	// Length Constraints:
+	//
+	//    * RDS for Db2 - Must contain from 8 to 255 characters.
 	//
 	//    * RDS for MariaDB - Must contain from 8 to 41 characters.
 	//
@@ -22140,6 +23169,21 @@ type CreateDBInstanceInput struct {
 	//    * RDS Custom
 	MultiAZ *bool `type:"boolean"`
 
+	// Specifies whether to use the multi-tenant configuration or the single-tenant
+	// configuration (default). This parameter only applies to RDS for Oracle container
+	// database (CDB) engines.
+	//
+	// Note the following restrictions:
+	//
+	//    * The DB engine that you specify in the request must support the multi-tenant
+	//    configuration. If you attempt to enable the multi-tenant configuration
+	//    on a DB engine that doesn't support it, the request fails.
+	//
+	//    * If you specify the multi-tenant configuration when you create your DB
+	//    instance, you can't later modify this DB instance to use the single-tenant
+	//    configuration.
+	MultiTenant *bool `type:"boolean"`
+
 	// The name of the NCHAR character set for the Oracle DB instance.
 	//
 	// This setting doesn't apply to RDS Custom DB instances.
@@ -22207,6 +23251,8 @@ type CreateDBInstanceInput struct {
 	// Valid Values: 1150-65535
 	//
 	// Default:
+	//
+	//    * RDS for Db2 - 50000
 	//
 	//    * RDS for MariaDB - 3306
 	//
@@ -22512,6 +23558,12 @@ func (s *CreateDBInstanceInput) SetDBSystemId(v string) *CreateDBInstanceInput {
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *CreateDBInstanceInput) SetDedicatedLogVolume(v bool) *CreateDBInstanceInput {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetDeletionProtection sets the DeletionProtection field's value.
 func (s *CreateDBInstanceInput) SetDeletionProtection(v bool) *CreateDBInstanceInput {
 	s.DeletionProtection = &v
@@ -22653,6 +23705,12 @@ func (s *CreateDBInstanceInput) SetMonitoringRoleArn(v string) *CreateDBInstance
 // SetMultiAZ sets the MultiAZ field's value.
 func (s *CreateDBInstanceInput) SetMultiAZ(v bool) *CreateDBInstanceInput {
 	s.MultiAZ = &v
+	return s
+}
+
+// SetMultiTenant sets the MultiTenant field's value.
+func (s *CreateDBInstanceInput) SetMultiTenant(v bool) *CreateDBInstanceInput {
+	s.MultiTenant = &v
 	return s
 }
 
@@ -22911,6 +23969,9 @@ type CreateDBInstanceReadReplicaInput struct {
 	//
 	// Example: mydbsubnetgroup
 	DBSubnetGroupName *string `type:"string"`
+
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+	DedicatedLogVolume *bool `type:"boolean"`
 
 	// Specifies whether to enable deletion protection for the DB instance. The
 	// database can't be deleted when deletion protection is enabled. By default,
@@ -23283,7 +24344,7 @@ type CreateDBInstanceReadReplicaInput struct {
 	//
 	// Constraints:
 	//
-	//    * Must be the identifier of an existing MySQL, MariaDB, Oracle, PostgreSQL,
+	//    * Must be the identifier of an existing Db2, MariaDB, MySQL, Oracle, PostgreSQL,
 	//    or SQL Server DB instance.
 	//
 	//    * Can't be specified if the SourceDBClusterIdentifier parameter is also
@@ -23332,6 +24393,11 @@ type CreateDBInstanceReadReplicaInput struct {
 	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
 	// in the Amazon RDS User Guide.
 	Tags []*Tag `locationNameList:"Tag" type:"list"`
+
+	// Whether to upgrade the storage file system configuration on the read replica.
+	// This option migrates the read replica from the old storage file system layout
+	// to the preferred layout.
+	UpgradeStorageConfig *bool `type:"boolean"`
 
 	// Specifies whether the DB instance class of the DB instance uses its default
 	// processor features.
@@ -23429,6 +24495,12 @@ func (s *CreateDBInstanceReadReplicaInput) SetDBParameterGroupName(v string) *Cr
 // SetDBSubnetGroupName sets the DBSubnetGroupName field's value.
 func (s *CreateDBInstanceReadReplicaInput) SetDBSubnetGroupName(v string) *CreateDBInstanceReadReplicaInput {
 	s.DBSubnetGroupName = &v
+	return s
+}
+
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *CreateDBInstanceReadReplicaInput) SetDedicatedLogVolume(v bool) *CreateDBInstanceReadReplicaInput {
+	s.DedicatedLogVolume = &v
 	return s
 }
 
@@ -23630,6 +24702,12 @@ func (s *CreateDBInstanceReadReplicaInput) SetTags(v []*Tag) *CreateDBInstanceRe
 	return s
 }
 
+// SetUpgradeStorageConfig sets the UpgradeStorageConfig field's value.
+func (s *CreateDBInstanceReadReplicaInput) SetUpgradeStorageConfig(v bool) *CreateDBInstanceReadReplicaInput {
+	s.UpgradeStorageConfig = &v
+	return s
+}
+
 // SetUseDefaultProcessorFeatures sets the UseDefaultProcessorFeatures field's value.
 func (s *CreateDBInstanceReadReplicaInput) SetUseDefaultProcessorFeatures(v bool) *CreateDBInstanceReadReplicaInput {
 	s.UseDefaultProcessorFeatures = &v
@@ -23706,7 +24784,9 @@ type CreateDBParameterGroupInput struct {
 	//
 	//    * aurora-postgresql
 	//
-	//    * mariadb
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mysql
 	//
@@ -24895,13 +25975,252 @@ func (s *CreateGlobalClusterOutput) SetGlobalCluster(v *GlobalCluster) *CreateGl
 	return s
 }
 
+type CreateIntegrationInput struct {
+	_ struct{} `type:"structure"`
+
+	// An optional set of non-secret key–value pairs that contains additional
+	// contextual information about the data. For more information, see Encryption
+	// context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+	// in the Amazon Web Services Key Management Service Developer Guide.
+	//
+	// You can only include this parameter if you specify the KMSKeyId parameter.
+	AdditionalEncryptionContext map[string]*string `type:"map"`
+
+	// The name of the integration.
+	//
+	// IntegrationName is a required field
+	IntegrationName *string `min:"1" type:"string" required:"true"`
+
+	// The Amazon Web Services Key Management System (Amazon Web Services KMS) key
+	// identifier for the key to use to encrypt the integration. If you don't specify
+	// an encryption key, RDS uses a default Amazon Web Services owned key.
+	KMSKeyId *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) of the database to use as the source for replication.
+	//
+	// SourceArn is a required field
+	SourceArn *string `min:"1" type:"string" required:"true"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	Tags []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The ARN of the Redshift data warehouse to use as the target for replication.
+	//
+	// TargetArn is a required field
+	TargetArn *string `min:"20" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateIntegrationInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateIntegrationInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateIntegrationInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateIntegrationInput"}
+	if s.IntegrationName == nil {
+		invalidParams.Add(request.NewErrParamRequired("IntegrationName"))
+	}
+	if s.IntegrationName != nil && len(*s.IntegrationName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("IntegrationName", 1))
+	}
+	if s.SourceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("SourceArn"))
+	}
+	if s.SourceArn != nil && len(*s.SourceArn) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceArn", 1))
+	}
+	if s.TargetArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetArn"))
+	}
+	if s.TargetArn != nil && len(*s.TargetArn) < 20 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetArn", 20))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAdditionalEncryptionContext sets the AdditionalEncryptionContext field's value.
+func (s *CreateIntegrationInput) SetAdditionalEncryptionContext(v map[string]*string) *CreateIntegrationInput {
+	s.AdditionalEncryptionContext = v
+	return s
+}
+
+// SetIntegrationName sets the IntegrationName field's value.
+func (s *CreateIntegrationInput) SetIntegrationName(v string) *CreateIntegrationInput {
+	s.IntegrationName = &v
+	return s
+}
+
+// SetKMSKeyId sets the KMSKeyId field's value.
+func (s *CreateIntegrationInput) SetKMSKeyId(v string) *CreateIntegrationInput {
+	s.KMSKeyId = &v
+	return s
+}
+
+// SetSourceArn sets the SourceArn field's value.
+func (s *CreateIntegrationInput) SetSourceArn(v string) *CreateIntegrationInput {
+	s.SourceArn = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *CreateIntegrationInput) SetTags(v []*Tag) *CreateIntegrationInput {
+	s.Tags = v
+	return s
+}
+
+// SetTargetArn sets the TargetArn field's value.
+func (s *CreateIntegrationInput) SetTargetArn(v string) *CreateIntegrationInput {
+	s.TargetArn = &v
+	return s
+}
+
+// A zero-ETL integration with Amazon Redshift.
+type CreateIntegrationOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The encryption context for the integration. For more information, see Encryption
+	// context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+	// in the Amazon Web Services Key Management Service Developer Guide.
+	AdditionalEncryptionContext map[string]*string `type:"map"`
+
+	// The time when the integration was created, in Universal Coordinated Time
+	// (UTC).
+	CreateTime *time.Time `type:"timestamp"`
+
+	// Any errors associated with the integration.
+	Errors []*IntegrationError `locationNameList:"IntegrationError" type:"list"`
+
+	// The ARN of the integration.
+	IntegrationArn *string `min:"1" type:"string"`
+
+	// The name of the integration.
+	IntegrationName *string `min:"1" type:"string"`
+
+	// The Amazon Web Services Key Management System (Amazon Web Services KMS) key
+	// identifier for the key used to to encrypt the integration.
+	KMSKeyId *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) of the database used as the source for replication.
+	SourceArn *string `min:"1" type:"string"`
+
+	// The current status of the integration.
+	Status *string `type:"string" enum:"IntegrationStatus"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	Tags []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The ARN of the Redshift data warehouse used as the target for replication.
+	TargetArn *string `min:"20" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateIntegrationOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateIntegrationOutput) GoString() string {
+	return s.String()
+}
+
+// SetAdditionalEncryptionContext sets the AdditionalEncryptionContext field's value.
+func (s *CreateIntegrationOutput) SetAdditionalEncryptionContext(v map[string]*string) *CreateIntegrationOutput {
+	s.AdditionalEncryptionContext = v
+	return s
+}
+
+// SetCreateTime sets the CreateTime field's value.
+func (s *CreateIntegrationOutput) SetCreateTime(v time.Time) *CreateIntegrationOutput {
+	s.CreateTime = &v
+	return s
+}
+
+// SetErrors sets the Errors field's value.
+func (s *CreateIntegrationOutput) SetErrors(v []*IntegrationError) *CreateIntegrationOutput {
+	s.Errors = v
+	return s
+}
+
+// SetIntegrationArn sets the IntegrationArn field's value.
+func (s *CreateIntegrationOutput) SetIntegrationArn(v string) *CreateIntegrationOutput {
+	s.IntegrationArn = &v
+	return s
+}
+
+// SetIntegrationName sets the IntegrationName field's value.
+func (s *CreateIntegrationOutput) SetIntegrationName(v string) *CreateIntegrationOutput {
+	s.IntegrationName = &v
+	return s
+}
+
+// SetKMSKeyId sets the KMSKeyId field's value.
+func (s *CreateIntegrationOutput) SetKMSKeyId(v string) *CreateIntegrationOutput {
+	s.KMSKeyId = &v
+	return s
+}
+
+// SetSourceArn sets the SourceArn field's value.
+func (s *CreateIntegrationOutput) SetSourceArn(v string) *CreateIntegrationOutput {
+	s.SourceArn = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *CreateIntegrationOutput) SetStatus(v string) *CreateIntegrationOutput {
+	s.Status = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *CreateIntegrationOutput) SetTags(v []*Tag) *CreateIntegrationOutput {
+	s.Tags = v
+	return s
+}
+
+// SetTargetArn sets the TargetArn field's value.
+func (s *CreateIntegrationOutput) SetTargetArn(v string) *CreateIntegrationOutput {
+	s.TargetArn = &v
+	return s
+}
+
 type CreateOptionGroupInput struct {
 	_ struct{} `type:"structure"`
 
-	// Specifies the name of the engine that this option group should be associated
-	// with.
+	// The name of the engine to associate this option group with.
 	//
 	// Valid Values:
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -25055,6 +26374,178 @@ func (s CreateOptionGroupOutput) GoString() string {
 // SetOptionGroup sets the OptionGroup field's value.
 func (s *CreateOptionGroupOutput) SetOptionGroup(v *OptionGroup) *CreateOptionGroupOutput {
 	s.OptionGroup = v
+	return s
+}
+
+type CreateTenantDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The character set for your tenant database. If you don't specify a value,
+	// the character set name defaults to AL32UTF8.
+	CharacterSetName *string `type:"string"`
+
+	// The user-supplied DB instance identifier. RDS creates your tenant database
+	// in this DB instance. This parameter isn't case-sensitive.
+	//
+	// DBInstanceIdentifier is a required field
+	DBInstanceIdentifier *string `type:"string" required:"true"`
+
+	// The password for the master user in your tenant database.
+	//
+	// Constraints:
+	//
+	//    * Must be 8 to 30 characters.
+	//
+	//    * Can include any printable ASCII character except forward slash (/),
+	//    double quote ("), at symbol (@), ampersand (&), or single quote (').
+	//
+	// MasterUserPassword is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by CreateTenantDatabaseInput's
+	// String and GoString methods.
+	//
+	// MasterUserPassword is a required field
+	MasterUserPassword *string `type:"string" required:"true" sensitive:"true"`
+
+	// The name for the master user account in your tenant database. RDS creates
+	// this user account in the tenant database and grants privileges to the master
+	// user. This parameter is case-sensitive.
+	//
+	// Constraints:
+	//
+	//    * Must be 1 to 16 letters, numbers, or underscores.
+	//
+	//    * First character must be a letter.
+	//
+	//    * Can't be a reserved word for the chosen database engine.
+	//
+	// MasterUsername is a required field
+	MasterUsername *string `type:"string" required:"true"`
+
+	// The NCHAR value for the tenant database.
+	NcharCharacterSetName *string `type:"string"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	Tags []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The user-supplied name of the tenant database that you want to create in
+	// your DB instance. This parameter has the same constraints as DBName in CreateDBInstance.
+	//
+	// TenantDBName is a required field
+	TenantDBName *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateTenantDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateTenantDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateTenantDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateTenantDatabaseInput"}
+	if s.DBInstanceIdentifier == nil {
+		invalidParams.Add(request.NewErrParamRequired("DBInstanceIdentifier"))
+	}
+	if s.MasterUserPassword == nil {
+		invalidParams.Add(request.NewErrParamRequired("MasterUserPassword"))
+	}
+	if s.MasterUsername == nil {
+		invalidParams.Add(request.NewErrParamRequired("MasterUsername"))
+	}
+	if s.TenantDBName == nil {
+		invalidParams.Add(request.NewErrParamRequired("TenantDBName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetCharacterSetName sets the CharacterSetName field's value.
+func (s *CreateTenantDatabaseInput) SetCharacterSetName(v string) *CreateTenantDatabaseInput {
+	s.CharacterSetName = &v
+	return s
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *CreateTenantDatabaseInput) SetDBInstanceIdentifier(v string) *CreateTenantDatabaseInput {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *CreateTenantDatabaseInput) SetMasterUserPassword(v string) *CreateTenantDatabaseInput {
+	s.MasterUserPassword = &v
+	return s
+}
+
+// SetMasterUsername sets the MasterUsername field's value.
+func (s *CreateTenantDatabaseInput) SetMasterUsername(v string) *CreateTenantDatabaseInput {
+	s.MasterUsername = &v
+	return s
+}
+
+// SetNcharCharacterSetName sets the NcharCharacterSetName field's value.
+func (s *CreateTenantDatabaseInput) SetNcharCharacterSetName(v string) *CreateTenantDatabaseInput {
+	s.NcharCharacterSetName = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *CreateTenantDatabaseInput) SetTags(v []*Tag) *CreateTenantDatabaseInput {
+	s.Tags = v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *CreateTenantDatabaseInput) SetTenantDBName(v string) *CreateTenantDatabaseInput {
+	s.TenantDBName = &v
+	return s
+}
+
+type CreateTenantDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A tenant database in the DB instance. This data type is an element in the
+	// response to the DescribeTenantDatabases action.
+	TenantDatabase *TenantDatabase `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateTenantDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s CreateTenantDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetTenantDatabase sets the TenantDatabase field's value.
+func (s *CreateTenantDatabaseOutput) SetTenantDatabase(v *TenantDatabase) *CreateTenantDatabaseOutput {
+	s.TenantDatabase = v
 	return s
 }
 
@@ -25441,6 +26932,9 @@ type DBCluster struct {
 	// This setting is only for non-Aurora Multi-AZ DB clusters.
 	PubliclyAccessible *bool `type:"boolean"`
 
+	// Reserved for future use.
+	RdsCustomClusterConfiguration *RdsCustomClusterConfiguration `type:"structure"`
+
 	// Contains one or more identifiers of the read replicas associated with this
 	// DB cluster.
 	ReadReplicaIdentifiers []*string `locationNameList:"ReadReplicaIdentifier" type:"list"`
@@ -25476,6 +26970,9 @@ type DBCluster struct {
 
 	// The current state of this DB cluster.
 	Status *string `type:"string"`
+
+	// Reserved for future use.
+	StatusInfos []*DBClusterStatusInfo `locationNameList:"DBClusterStatusInfo" type:"list"`
 
 	// Indicates whether the DB cluster is encrypted.
 	StorageEncrypted *bool `type:"boolean"`
@@ -25893,6 +27390,12 @@ func (s *DBCluster) SetPubliclyAccessible(v bool) *DBCluster {
 	return s
 }
 
+// SetRdsCustomClusterConfiguration sets the RdsCustomClusterConfiguration field's value.
+func (s *DBCluster) SetRdsCustomClusterConfiguration(v *RdsCustomClusterConfiguration) *DBCluster {
+	s.RdsCustomClusterConfiguration = v
+	return s
+}
+
 // SetReadReplicaIdentifiers sets the ReadReplicaIdentifiers field's value.
 func (s *DBCluster) SetReadReplicaIdentifiers(v []*string) *DBCluster {
 	s.ReadReplicaIdentifiers = v
@@ -25926,6 +27429,12 @@ func (s *DBCluster) SetServerlessV2ScalingConfiguration(v *ServerlessV2ScalingCo
 // SetStatus sets the Status field's value.
 func (s *DBCluster) SetStatus(v string) *DBCluster {
 	s.Status = &v
+	return s
+}
+
+// SetStatusInfos sets the StatusInfos field's value.
+func (s *DBCluster) SetStatusInfos(v []*DBClusterStatusInfo) *DBCluster {
+	s.StatusInfos = v
 	return s
 }
 
@@ -26996,6 +28505,65 @@ func (s *DBClusterSnapshotAttributesResult) SetDBClusterSnapshotIdentifier(v str
 	return s
 }
 
+// Reserved for future use.
+type DBClusterStatusInfo struct {
+	_ struct{} `type:"structure"`
+
+	// Reserved for future use.
+	Message *string `type:"string"`
+
+	// Reserved for future use.
+	Normal *bool `type:"boolean"`
+
+	// Reserved for future use.
+	Status *string `type:"string"`
+
+	// Reserved for future use.
+	StatusType *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DBClusterStatusInfo) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DBClusterStatusInfo) GoString() string {
+	return s.String()
+}
+
+// SetMessage sets the Message field's value.
+func (s *DBClusterStatusInfo) SetMessage(v string) *DBClusterStatusInfo {
+	s.Message = &v
+	return s
+}
+
+// SetNormal sets the Normal field's value.
+func (s *DBClusterStatusInfo) SetNormal(v bool) *DBClusterStatusInfo {
+	s.Normal = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *DBClusterStatusInfo) SetStatus(v string) *DBClusterStatusInfo {
+	s.Status = &v
+	return s
+}
+
+// SetStatusType sets the StatusType field's value.
+func (s *DBClusterStatusInfo) SetStatusType(v string) *DBClusterStatusInfo {
+	s.StatusType = &v
+	return s
+}
+
 // This data type is used as a response element in the action DescribeDBEngineVersions.
 type DBEngineVersion struct {
 	_ struct{} `type:"structure"`
@@ -27114,6 +28682,10 @@ type DBEngineVersion struct {
 	// Indicates whether you can use Aurora global databases with a specific DB
 	// engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
+
+	// Indicates whether the DB engine version supports zero-ETL integrations with
+	// Amazon Redshift.
+	SupportsIntegrations *bool `type:"boolean"`
 
 	// Indicates whether the DB engine version supports forwarding write operations
 	// from reader DB instances to the writer DB instance in the DB cluster. By
@@ -27316,6 +28888,12 @@ func (s *DBEngineVersion) SetSupportsGlobalDatabases(v bool) *DBEngineVersion {
 	return s
 }
 
+// SetSupportsIntegrations sets the SupportsIntegrations field's value.
+func (s *DBEngineVersion) SetSupportsIntegrations(v bool) *DBEngineVersion {
+	s.SupportsIntegrations = &v
+	return s
+}
+
 // SetSupportsLocalWriteForwarding sets the SupportsLocalWriteForwarding field's value.
 func (s *DBEngineVersion) SetSupportsLocalWriteForwarding(v bool) *DBEngineVersion {
 	s.SupportsLocalWriteForwarding = &v
@@ -27498,8 +29076,8 @@ type DBInstance struct {
 	// in the Amazon RDS User Guide.
 	DBInstanceStatus *string `type:"string"`
 
-	// Contains the initial database name that you provided (if required) when you
-	// created the DB instance. This name is returned for the life of your DB instance.
+	// The initial database name that you provided (if required) when you created
+	// the DB instance. This name is returned for the life of your DB instance.
 	// For an RDS for Oracle CDB instance, the name identifies the PDB rather than
 	// the CDB.
 	DBName *string `type:"string"`
@@ -27528,6 +29106,9 @@ type DBInstance struct {
 	// This identifier is found in Amazon Web Services CloudTrail log entries whenever
 	// the Amazon Web Services KMS key for the DB instance is accessed.
 	DbiResourceId *string `type:"string"`
+
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+	DedicatedLogVolume *bool `type:"boolean"`
 
 	// Indicates whether the DB instance has deletion protection enabled. The database
 	// can't be deleted when deletion protection is enabled. For more information,
@@ -27575,6 +29156,13 @@ type DBInstance struct {
 	// The Provisioned IOPS (I/O operations per second) value for the DB instance.
 	Iops *int64 `type:"integer"`
 
+	// Indicates whether an upgrade is recommended for the storage file system configuration
+	// on the DB instance. To migrate to the preferred configuration, you can either
+	// create a blue/green deployment, or create a read replica from the DB instance.
+	// For more information, see Upgrading the storage file system for a DB instance
+	// (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PIOPS.StorageTypes.html#USER_PIOPS.UpgradeFileSystem).
+	IsStorageConfigUpgradeAvailable *bool `type:"boolean"`
+
 	// If StorageEncrypted is enabled, the Amazon Web Services KMS key identifier
 	// for the encrypted DB instance.
 	//
@@ -27619,6 +29207,10 @@ type DBInstance struct {
 	// Indicates whether the DB instance is a Multi-AZ deployment. This setting
 	// doesn't apply to RDS Custom DB instances.
 	MultiAZ *bool `type:"boolean"`
+
+	// Specifies whether the DB instance is in the multi-tenant configuration (TRUE)
+	// or the single-tenant configuration (FALSE).
+	MultiTenant *bool `type:"boolean"`
 
 	// The name of the NCHAR character set for the Oracle DB instance. This character
 	// set specifies the Unicode encoding for data stored in table columns of type
@@ -27994,6 +29586,12 @@ func (s *DBInstance) SetDbiResourceId(v string) *DBInstance {
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *DBInstance) SetDedicatedLogVolume(v bool) *DBInstance {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetDeletionProtection sets the DeletionProtection field's value.
 func (s *DBInstance) SetDeletionProtection(v bool) *DBInstance {
 	s.DeletionProtection = &v
@@ -28054,6 +29652,12 @@ func (s *DBInstance) SetIops(v int64) *DBInstance {
 	return s
 }
 
+// SetIsStorageConfigUpgradeAvailable sets the IsStorageConfigUpgradeAvailable field's value.
+func (s *DBInstance) SetIsStorageConfigUpgradeAvailable(v bool) *DBInstance {
+	s.IsStorageConfigUpgradeAvailable = &v
+	return s
+}
+
 // SetKmsKeyId sets the KmsKeyId field's value.
 func (s *DBInstance) SetKmsKeyId(v string) *DBInstance {
 	s.KmsKeyId = &v
@@ -28111,6 +29715,12 @@ func (s *DBInstance) SetMonitoringRoleArn(v string) *DBInstance {
 // SetMultiAZ sets the MultiAZ field's value.
 func (s *DBInstance) SetMultiAZ(v bool) *DBInstance {
 	s.MultiAZ = &v
+	return s
+}
+
+// SetMultiTenant sets the MultiTenant field's value.
+func (s *DBInstance) SetMultiTenant(v bool) *DBInstance {
+	s.MultiTenant = &v
 	return s
 }
 
@@ -28325,6 +29935,9 @@ type DBInstanceAutomatedBackup struct {
 	// is unique to an Amazon Web Services Region.
 	DbiResourceId *string `type:"string"`
 
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+	DedicatedLogVolume *bool `type:"boolean"`
+
 	// Indicates whether the automated backup is encrypted.
 	Encrypted *bool `type:"boolean"`
 
@@ -28355,6 +29968,10 @@ type DBInstanceAutomatedBackup struct {
 
 	// The master user name of an automated backup.
 	MasterUsername *string `type:"string"`
+
+	// Specifies whether the automatic backup is for a DB instance in the multi-tenant
+	// configuration (TRUE) or the single-tenant configuration (FALSE).
+	MultiTenant *bool `type:"boolean"`
 
 	// The option group the automated backup is associated with. If omitted, the
 	// default option group for the engine specified is used.
@@ -28480,6 +30097,12 @@ func (s *DBInstanceAutomatedBackup) SetDbiResourceId(v string) *DBInstanceAutoma
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *DBInstanceAutomatedBackup) SetDedicatedLogVolume(v bool) *DBInstanceAutomatedBackup {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetEncrypted sets the Encrypted field's value.
 func (s *DBInstanceAutomatedBackup) SetEncrypted(v bool) *DBInstanceAutomatedBackup {
 	s.Encrypted = &v
@@ -28531,6 +30154,12 @@ func (s *DBInstanceAutomatedBackup) SetLicenseModel(v string) *DBInstanceAutomat
 // SetMasterUsername sets the MasterUsername field's value.
 func (s *DBInstanceAutomatedBackup) SetMasterUsername(v string) *DBInstanceAutomatedBackup {
 	s.MasterUsername = &v
+	return s
+}
+
+// SetMultiTenant sets the MultiTenant field's value.
+func (s *DBInstanceAutomatedBackup) SetMultiTenant(v bool) *DBInstanceAutomatedBackup {
+	s.MultiTenant = &v
 	return s
 }
 
@@ -28700,8 +30329,8 @@ type DBInstanceStatusInfo struct {
 	// isn't in an error state, this value is blank.
 	Message *string `type:"string"`
 
-	// A Boolean value that is true if the instance is operating normally, or false
-	// if the instance is in an error state.
+	// Indicates whether the instance is operating normally (TRUE) or is in an error
+	// state (FALSE).
 	Normal *bool `type:"boolean"`
 
 	// The status of the DB instance. For a StatusType of read replica, the values
@@ -28819,7 +30448,7 @@ func (s *DBParameterGroup) SetDescription(v string) *DBParameterGroup {
 }
 
 // Contains the result of a successful invocation of the ModifyDBParameterGroup
-// or ResetDBParameterGroup action.
+// or ResetDBParameterGroup operation.
 type DBParameterGroupNameMessage struct {
 	_ struct{} `type:"structure"`
 
@@ -29616,6 +31245,9 @@ type DBSnapshot struct {
 	// is unique to an Amazon Web Services Region.
 	DbiResourceId *string `type:"string"`
 
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+	DedicatedLogVolume *bool `type:"boolean"`
+
 	// Indicates whether the DB snapshot is encrypted.
 	Encrypted *bool `type:"boolean"`
 
@@ -29649,6 +31281,10 @@ type DBSnapshot struct {
 
 	// Provides the master username for the DB snapshot.
 	MasterUsername *string `type:"string"`
+
+	// Indicates whether the snapshot is of a DB instance using the multi-tenant
+	// configuration (TRUE) or the single-tenant configuration (FALSE).
+	MultiTenant *bool `type:"boolean"`
 
 	// Provides the option group name for the DB snapshot.
 	OptionGroupName *string `type:"string"`
@@ -29784,6 +31420,12 @@ func (s *DBSnapshot) SetDbiResourceId(v string) *DBSnapshot {
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *DBSnapshot) SetDedicatedLogVolume(v bool) *DBSnapshot {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetEncrypted sets the Encrypted field's value.
 func (s *DBSnapshot) SetEncrypted(v bool) *DBSnapshot {
 	s.Encrypted = &v
@@ -29835,6 +31477,12 @@ func (s *DBSnapshot) SetLicenseModel(v string) *DBSnapshot {
 // SetMasterUsername sets the MasterUsername field's value.
 func (s *DBSnapshot) SetMasterUsername(v string) *DBSnapshot {
 	s.MasterUsername = &v
+	return s
+}
+
+// SetMultiTenant sets the MultiTenant field's value.
+func (s *DBSnapshot) SetMultiTenant(v bool) *DBSnapshot {
+	s.MultiTenant = &v
 	return s
 }
 
@@ -30044,6 +31692,149 @@ func (s *DBSnapshotAttributesResult) SetDBSnapshotAttributes(v []*DBSnapshotAttr
 // SetDBSnapshotIdentifier sets the DBSnapshotIdentifier field's value.
 func (s *DBSnapshotAttributesResult) SetDBSnapshotIdentifier(v string) *DBSnapshotAttributesResult {
 	s.DBSnapshotIdentifier = &v
+	return s
+}
+
+// Contains the details of a tenant database in a snapshot of a DB instance.
+type DBSnapshotTenantDatabase struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the character set of a tenant database.
+	CharacterSetName *string `type:"string"`
+
+	// The ID for the DB instance that contains the tenant databases.
+	DBInstanceIdentifier *string `type:"string"`
+
+	// The identifier for the snapshot of the DB instance.
+	DBSnapshotIdentifier *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) for the snapshot tenant database.
+	DBSnapshotTenantDatabaseARN *string `type:"string"`
+
+	// The resource identifier of the source CDB instance. This identifier can't
+	// be changed and is unique to an Amazon Web Services Region.
+	DbiResourceId *string `type:"string"`
+
+	// The name of the database engine.
+	EngineName *string `type:"string"`
+
+	// The master username of the tenant database.
+	MasterUsername *string `type:"string"`
+
+	// The NCHAR character set name of the tenant database.
+	NcharCharacterSetName *string `type:"string"`
+
+	// The type of DB snapshot.
+	SnapshotType *string `type:"string"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	TagList []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The name of the tenant database.
+	TenantDBName *string `type:"string"`
+
+	// The time the DB snapshot was taken, specified in Coordinated Universal Time
+	// (UTC). If you copy the snapshot, the creation time changes.
+	TenantDatabaseCreateTime *time.Time `type:"timestamp"`
+
+	// The resource ID of the tenant database.
+	TenantDatabaseResourceId *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DBSnapshotTenantDatabase) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DBSnapshotTenantDatabase) GoString() string {
+	return s.String()
+}
+
+// SetCharacterSetName sets the CharacterSetName field's value.
+func (s *DBSnapshotTenantDatabase) SetCharacterSetName(v string) *DBSnapshotTenantDatabase {
+	s.CharacterSetName = &v
+	return s
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *DBSnapshotTenantDatabase) SetDBInstanceIdentifier(v string) *DBSnapshotTenantDatabase {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetDBSnapshotIdentifier sets the DBSnapshotIdentifier field's value.
+func (s *DBSnapshotTenantDatabase) SetDBSnapshotIdentifier(v string) *DBSnapshotTenantDatabase {
+	s.DBSnapshotIdentifier = &v
+	return s
+}
+
+// SetDBSnapshotTenantDatabaseARN sets the DBSnapshotTenantDatabaseARN field's value.
+func (s *DBSnapshotTenantDatabase) SetDBSnapshotTenantDatabaseARN(v string) *DBSnapshotTenantDatabase {
+	s.DBSnapshotTenantDatabaseARN = &v
+	return s
+}
+
+// SetDbiResourceId sets the DbiResourceId field's value.
+func (s *DBSnapshotTenantDatabase) SetDbiResourceId(v string) *DBSnapshotTenantDatabase {
+	s.DbiResourceId = &v
+	return s
+}
+
+// SetEngineName sets the EngineName field's value.
+func (s *DBSnapshotTenantDatabase) SetEngineName(v string) *DBSnapshotTenantDatabase {
+	s.EngineName = &v
+	return s
+}
+
+// SetMasterUsername sets the MasterUsername field's value.
+func (s *DBSnapshotTenantDatabase) SetMasterUsername(v string) *DBSnapshotTenantDatabase {
+	s.MasterUsername = &v
+	return s
+}
+
+// SetNcharCharacterSetName sets the NcharCharacterSetName field's value.
+func (s *DBSnapshotTenantDatabase) SetNcharCharacterSetName(v string) *DBSnapshotTenantDatabase {
+	s.NcharCharacterSetName = &v
+	return s
+}
+
+// SetSnapshotType sets the SnapshotType field's value.
+func (s *DBSnapshotTenantDatabase) SetSnapshotType(v string) *DBSnapshotTenantDatabase {
+	s.SnapshotType = &v
+	return s
+}
+
+// SetTagList sets the TagList field's value.
+func (s *DBSnapshotTenantDatabase) SetTagList(v []*Tag) *DBSnapshotTenantDatabase {
+	s.TagList = v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *DBSnapshotTenantDatabase) SetTenantDBName(v string) *DBSnapshotTenantDatabase {
+	s.TenantDBName = &v
+	return s
+}
+
+// SetTenantDatabaseCreateTime sets the TenantDatabaseCreateTime field's value.
+func (s *DBSnapshotTenantDatabase) SetTenantDatabaseCreateTime(v time.Time) *DBSnapshotTenantDatabase {
+	s.TenantDatabaseCreateTime = &v
+	return s
+}
+
+// SetTenantDatabaseResourceId sets the TenantDatabaseResourceId field's value.
+func (s *DBSnapshotTenantDatabase) SetTenantDatabaseResourceId(v string) *DBSnapshotTenantDatabase {
+	s.TenantDatabaseResourceId = &v
 	return s
 }
 
@@ -30438,6 +32229,10 @@ type DeleteCustomDBEngineVersionOutput struct {
 	// engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// Indicates whether the DB engine version supports zero-ETL integrations with
+	// Amazon Redshift.
+	SupportsIntegrations *bool `type:"boolean"`
+
 	// Indicates whether the DB engine version supports forwarding write operations
 	// from reader DB instances to the writer DB instance in the DB cluster. By
 	// default, write operations aren't allowed on reader DB instances.
@@ -30636,6 +32431,12 @@ func (s *DeleteCustomDBEngineVersionOutput) SetSupportsCertificateRotationWithou
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *DeleteCustomDBEngineVersionOutput) SetSupportsGlobalDatabases(v bool) *DeleteCustomDBEngineVersionOutput {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsIntegrations sets the SupportsIntegrations field's value.
+func (s *DeleteCustomDBEngineVersionOutput) SetSupportsIntegrations(v bool) *DeleteCustomDBEngineVersionOutput {
+	s.SupportsIntegrations = &v
 	return s
 }
 
@@ -32094,6 +33895,173 @@ func (s *DeleteGlobalClusterOutput) SetGlobalCluster(v *GlobalCluster) *DeleteGl
 	return s
 }
 
+type DeleteIntegrationInput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique identifier of the integration.
+	//
+	// IntegrationIdentifier is a required field
+	IntegrationIdentifier *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteIntegrationInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteIntegrationInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteIntegrationInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteIntegrationInput"}
+	if s.IntegrationIdentifier == nil {
+		invalidParams.Add(request.NewErrParamRequired("IntegrationIdentifier"))
+	}
+	if s.IntegrationIdentifier != nil && len(*s.IntegrationIdentifier) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("IntegrationIdentifier", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetIntegrationIdentifier sets the IntegrationIdentifier field's value.
+func (s *DeleteIntegrationInput) SetIntegrationIdentifier(v string) *DeleteIntegrationInput {
+	s.IntegrationIdentifier = &v
+	return s
+}
+
+// A zero-ETL integration with Amazon Redshift.
+type DeleteIntegrationOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The encryption context for the integration. For more information, see Encryption
+	// context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+	// in the Amazon Web Services Key Management Service Developer Guide.
+	AdditionalEncryptionContext map[string]*string `type:"map"`
+
+	// The time when the integration was created, in Universal Coordinated Time
+	// (UTC).
+	CreateTime *time.Time `type:"timestamp"`
+
+	// Any errors associated with the integration.
+	Errors []*IntegrationError `locationNameList:"IntegrationError" type:"list"`
+
+	// The ARN of the integration.
+	IntegrationArn *string `min:"1" type:"string"`
+
+	// The name of the integration.
+	IntegrationName *string `min:"1" type:"string"`
+
+	// The Amazon Web Services Key Management System (Amazon Web Services KMS) key
+	// identifier for the key used to to encrypt the integration.
+	KMSKeyId *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) of the database used as the source for replication.
+	SourceArn *string `min:"1" type:"string"`
+
+	// The current status of the integration.
+	Status *string `type:"string" enum:"IntegrationStatus"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	Tags []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The ARN of the Redshift data warehouse used as the target for replication.
+	TargetArn *string `min:"20" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteIntegrationOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteIntegrationOutput) GoString() string {
+	return s.String()
+}
+
+// SetAdditionalEncryptionContext sets the AdditionalEncryptionContext field's value.
+func (s *DeleteIntegrationOutput) SetAdditionalEncryptionContext(v map[string]*string) *DeleteIntegrationOutput {
+	s.AdditionalEncryptionContext = v
+	return s
+}
+
+// SetCreateTime sets the CreateTime field's value.
+func (s *DeleteIntegrationOutput) SetCreateTime(v time.Time) *DeleteIntegrationOutput {
+	s.CreateTime = &v
+	return s
+}
+
+// SetErrors sets the Errors field's value.
+func (s *DeleteIntegrationOutput) SetErrors(v []*IntegrationError) *DeleteIntegrationOutput {
+	s.Errors = v
+	return s
+}
+
+// SetIntegrationArn sets the IntegrationArn field's value.
+func (s *DeleteIntegrationOutput) SetIntegrationArn(v string) *DeleteIntegrationOutput {
+	s.IntegrationArn = &v
+	return s
+}
+
+// SetIntegrationName sets the IntegrationName field's value.
+func (s *DeleteIntegrationOutput) SetIntegrationName(v string) *DeleteIntegrationOutput {
+	s.IntegrationName = &v
+	return s
+}
+
+// SetKMSKeyId sets the KMSKeyId field's value.
+func (s *DeleteIntegrationOutput) SetKMSKeyId(v string) *DeleteIntegrationOutput {
+	s.KMSKeyId = &v
+	return s
+}
+
+// SetSourceArn sets the SourceArn field's value.
+func (s *DeleteIntegrationOutput) SetSourceArn(v string) *DeleteIntegrationOutput {
+	s.SourceArn = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *DeleteIntegrationOutput) SetStatus(v string) *DeleteIntegrationOutput {
+	s.Status = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *DeleteIntegrationOutput) SetTags(v []*Tag) *DeleteIntegrationOutput {
+	s.Tags = v
+	return s
+}
+
+// SetTargetArn sets the TargetArn field's value.
+func (s *DeleteIntegrationOutput) SetTargetArn(v string) *DeleteIntegrationOutput {
+	s.TargetArn = &v
+	return s
+}
+
 type DeleteOptionGroupInput struct {
 	_ struct{} `type:"structure"`
 
@@ -32162,6 +34130,128 @@ func (s DeleteOptionGroupOutput) String() string {
 // value will be replaced with "sensitive".
 func (s DeleteOptionGroupOutput) GoString() string {
 	return s.String()
+}
+
+type DeleteTenantDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The user-supplied identifier for the DB instance that contains the tenant
+	// database that you want to delete.
+	//
+	// DBInstanceIdentifier is a required field
+	DBInstanceIdentifier *string `type:"string" required:"true"`
+
+	// The DBSnapshotIdentifier of the new DBSnapshot created when the SkipFinalSnapshot
+	// parameter is disabled.
+	//
+	// If you enable this parameter and also enable SkipFinalShapshot, the command
+	// results in an error.
+	FinalDBSnapshotIdentifier *string `type:"string"`
+
+	// Specifies whether to skip the creation of a final DB snapshot before removing
+	// the tenant database from your DB instance. If you enable this parameter,
+	// RDS doesn't create a DB snapshot. If you don't enable this parameter, RDS
+	// creates a DB snapshot before it deletes the tenant database. By default,
+	// RDS doesn't skip the final snapshot. If you don't enable this parameter,
+	// you must specify the FinalDBSnapshotIdentifier parameter.
+	SkipFinalSnapshot *bool `type:"boolean"`
+
+	// The user-supplied name of the tenant database that you want to remove from
+	// your DB instance. Amazon RDS deletes the tenant database with this name.
+	// This parameter isn’t case-sensitive.
+	//
+	// TenantDBName is a required field
+	TenantDBName *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteTenantDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteTenantDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteTenantDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteTenantDatabaseInput"}
+	if s.DBInstanceIdentifier == nil {
+		invalidParams.Add(request.NewErrParamRequired("DBInstanceIdentifier"))
+	}
+	if s.TenantDBName == nil {
+		invalidParams.Add(request.NewErrParamRequired("TenantDBName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *DeleteTenantDatabaseInput) SetDBInstanceIdentifier(v string) *DeleteTenantDatabaseInput {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetFinalDBSnapshotIdentifier sets the FinalDBSnapshotIdentifier field's value.
+func (s *DeleteTenantDatabaseInput) SetFinalDBSnapshotIdentifier(v string) *DeleteTenantDatabaseInput {
+	s.FinalDBSnapshotIdentifier = &v
+	return s
+}
+
+// SetSkipFinalSnapshot sets the SkipFinalSnapshot field's value.
+func (s *DeleteTenantDatabaseInput) SetSkipFinalSnapshot(v bool) *DeleteTenantDatabaseInput {
+	s.SkipFinalSnapshot = &v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *DeleteTenantDatabaseInput) SetTenantDBName(v string) *DeleteTenantDatabaseInput {
+	s.TenantDBName = &v
+	return s
+}
+
+type DeleteTenantDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A tenant database in the DB instance. This data type is an element in the
+	// response to the DescribeTenantDatabases action.
+	TenantDatabase *TenantDatabase `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteTenantDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DeleteTenantDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetTenantDatabase sets the TenantDatabase field's value.
+func (s *DeleteTenantDatabaseOutput) SetTenantDatabase(v *TenantDatabase) *DeleteTenantDatabaseOutput {
+	s.TenantDatabase = v
+	return s
 }
 
 type DeregisterDBProxyTargetsInput struct {
@@ -33887,6 +35977,10 @@ type DescribeDBEngineVersionsInput struct {
 	//    * aurora-postgresql
 	//
 	//    * custom-oracle-ee
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -35731,6 +37825,205 @@ func (s *DescribeDBSnapshotAttributesOutput) SetDBSnapshotAttributesResult(v *DB
 	return s
 }
 
+type DescribeDBSnapshotTenantDatabasesInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ID of the DB instance used to create the DB snapshots. This parameter
+	// isn't case-sensitive.
+	//
+	// Constraints:
+	//
+	//    * If supplied, must match the identifier of an existing DBInstance.
+	DBInstanceIdentifier *string `type:"string"`
+
+	// The ID of a DB snapshot that contains the tenant databases to describe. This
+	// value is stored as a lowercase string.
+	//
+	// Constraints:
+	//
+	//    * If you specify this parameter, the value must match the ID of an existing
+	//    DB snapshot.
+	//
+	//    * If you specify an automatic snapshot, you must also specify SnapshotType.
+	DBSnapshotIdentifier *string `type:"string"`
+
+	// A specific DB resource identifier to describe.
+	DbiResourceId *string `type:"string"`
+
+	// A filter that specifies one or more tenant databases to describe.
+	//
+	// Supported filters:
+	//
+	//    * tenant-db-name - Tenant database names. The results list only includes
+	//    information about the tenant databases that match these tenant DB names.
+	//
+	//    * tenant-database-resource-id - Tenant database resource identifiers.
+	//    The results list only includes information about the tenant databases
+	//    contained within the DB snapshots.
+	//
+	//    * dbi-resource-id - DB instance resource identifiers. The results list
+	//    only includes information about snapshots containing tenant databases
+	//    contained within the DB instances identified by these resource identifiers.
+	//
+	//    * db-instance-id - Accepts DB instance identifiers and DB instance Amazon
+	//    Resource Names (ARNs).
+	//
+	//    * db-snapshot-id - Accepts DB snapshot identifiers.
+	//
+	//    * snapshot-type - Accepts types of DB snapshots.
+	Filters []*Filter `locationNameList:"Filter" type:"list"`
+
+	// An optional pagination token provided by a previous DescribeDBSnapshotTenantDatabases
+	// request. If this parameter is specified, the response includes only records
+	// beyond the marker, up to the value specified by MaxRecords.
+	Marker *string `type:"string"`
+
+	// The maximum number of records to include in the response. If more records
+	// exist than the specified MaxRecords value, a pagination token called a marker
+	// is included in the response so that you can retrieve the remaining results.
+	MaxRecords *int64 `type:"integer"`
+
+	// The type of DB snapshots to be returned. You can specify one of the following
+	// values:
+	//
+	//    * automated – All DB snapshots that have been automatically taken by
+	//    Amazon RDS for my Amazon Web Services account.
+	//
+	//    * manual – All DB snapshots that have been taken by my Amazon Web Services
+	//    account.
+	//
+	//    * shared – All manual DB snapshots that have been shared to my Amazon
+	//    Web Services account.
+	//
+	//    * public – All DB snapshots that have been marked as public.
+	//
+	//    * awsbackup – All DB snapshots managed by the Amazon Web Services Backup
+	//    service.
+	SnapshotType *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBSnapshotTenantDatabasesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBSnapshotTenantDatabasesInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeDBSnapshotTenantDatabasesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeDBSnapshotTenantDatabasesInput"}
+	if s.Filters != nil {
+		for i, v := range s.Filters {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Filters", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetDBInstanceIdentifier(v string) *DescribeDBSnapshotTenantDatabasesInput {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetDBSnapshotIdentifier sets the DBSnapshotIdentifier field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetDBSnapshotIdentifier(v string) *DescribeDBSnapshotTenantDatabasesInput {
+	s.DBSnapshotIdentifier = &v
+	return s
+}
+
+// SetDbiResourceId sets the DbiResourceId field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetDbiResourceId(v string) *DescribeDBSnapshotTenantDatabasesInput {
+	s.DbiResourceId = &v
+	return s
+}
+
+// SetFilters sets the Filters field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetFilters(v []*Filter) *DescribeDBSnapshotTenantDatabasesInput {
+	s.Filters = v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetMarker(v string) *DescribeDBSnapshotTenantDatabasesInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxRecords sets the MaxRecords field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetMaxRecords(v int64) *DescribeDBSnapshotTenantDatabasesInput {
+	s.MaxRecords = &v
+	return s
+}
+
+// SetSnapshotType sets the SnapshotType field's value.
+func (s *DescribeDBSnapshotTenantDatabasesInput) SetSnapshotType(v string) *DescribeDBSnapshotTenantDatabasesInput {
+	s.SnapshotType = &v
+	return s
+}
+
+type DescribeDBSnapshotTenantDatabasesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A list of DB snapshot tenant databases.
+	DBSnapshotTenantDatabases []*DBSnapshotTenantDatabase `locationNameList:"DBSnapshotTenantDatabase" type:"list"`
+
+	// An optional pagination token provided by a previous request. If this parameter
+	// is specified, the response includes only records beyond the marker, up to
+	// the value specified by MaxRecords.
+	Marker *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBSnapshotTenantDatabasesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeDBSnapshotTenantDatabasesOutput) GoString() string {
+	return s.String()
+}
+
+// SetDBSnapshotTenantDatabases sets the DBSnapshotTenantDatabases field's value.
+func (s *DescribeDBSnapshotTenantDatabasesOutput) SetDBSnapshotTenantDatabases(v []*DBSnapshotTenantDatabase) *DescribeDBSnapshotTenantDatabasesOutput {
+	s.DBSnapshotTenantDatabases = v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeDBSnapshotTenantDatabasesOutput) SetMarker(v string) *DescribeDBSnapshotTenantDatabasesOutput {
+	s.Marker = &v
+	return s
+}
+
 type DescribeDBSnapshotsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -36252,6 +38545,10 @@ type DescribeEngineDefaultParametersInput struct {
 	//    * aurora-postgresql14
 	//
 	//    * custom-oracle-ee-19
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb10.2
 	//
@@ -37185,12 +39482,148 @@ func (s *DescribeGlobalClustersOutput) SetMarker(v string) *DescribeGlobalCluste
 	return s
 }
 
+type DescribeIntegrationsInput struct {
+	_ struct{} `type:"structure"`
+
+	// A filter that specifies one or more resources to return.
+	Filters []*Filter `locationNameList:"Filter" type:"list"`
+
+	// The unique identifier of the integration.
+	IntegrationIdentifier *string `min:"1" type:"string"`
+
+	// An optional pagination token provided by a previous DescribeIntegrations
+	// request. If this parameter is specified, the response includes only records
+	// beyond the marker, up to the value specified by MaxRecords.
+	Marker *string `min:"1" type:"string"`
+
+	// The maximum number of records to include in the response. If more records
+	// exist than the specified MaxRecords value, a pagination token called a marker
+	// is included in the response so that you can retrieve the remaining results.
+	//
+	// Default: 100
+	//
+	// Constraints: Minimum 20, maximum 100.
+	MaxRecords *int64 `type:"integer"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeIntegrationsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeIntegrationsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeIntegrationsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeIntegrationsInput"}
+	if s.IntegrationIdentifier != nil && len(*s.IntegrationIdentifier) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("IntegrationIdentifier", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+	if s.Filters != nil {
+		for i, v := range s.Filters {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Filters", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFilters sets the Filters field's value.
+func (s *DescribeIntegrationsInput) SetFilters(v []*Filter) *DescribeIntegrationsInput {
+	s.Filters = v
+	return s
+}
+
+// SetIntegrationIdentifier sets the IntegrationIdentifier field's value.
+func (s *DescribeIntegrationsInput) SetIntegrationIdentifier(v string) *DescribeIntegrationsInput {
+	s.IntegrationIdentifier = &v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeIntegrationsInput) SetMarker(v string) *DescribeIntegrationsInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxRecords sets the MaxRecords field's value.
+func (s *DescribeIntegrationsInput) SetMaxRecords(v int64) *DescribeIntegrationsInput {
+	s.MaxRecords = &v
+	return s
+}
+
+type DescribeIntegrationsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A list of integrations.
+	Integrations []*Integration `locationNameList:"Integration" type:"list"`
+
+	// A pagination token that can be used in a later DescribeIntegrations request.
+	Marker *string `min:"1" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeIntegrationsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeIntegrationsOutput) GoString() string {
+	return s.String()
+}
+
+// SetIntegrations sets the Integrations field's value.
+func (s *DescribeIntegrationsOutput) SetIntegrations(v []*Integration) *DescribeIntegrationsOutput {
+	s.Integrations = v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeIntegrationsOutput) SetMarker(v string) *DescribeIntegrationsOutput {
+	s.Marker = &v
+	return s
+}
+
 type DescribeOptionGroupOptionsInput struct {
 	_ struct{} `type:"structure"`
 
-	// A required parameter. Options available for the given engine name are described.
+	// The name of the engine to describe options for.
 	//
 	// Valid Values:
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -37355,10 +39788,13 @@ func (s *DescribeOptionGroupOptionsOutput) SetOptionGroupOptions(v []*OptionGrou
 type DescribeOptionGroupsInput struct {
 	_ struct{} `type:"structure"`
 
-	// Filters the list of option groups to only include groups associated with
-	// a specific database engine.
+	// A filter to only include option groups associated with this database engine.
 	//
 	// Valid Values:
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -37531,19 +39967,19 @@ type DescribeOrderableDBInstanceOptionsInput struct {
 	_ struct{} `type:"structure"`
 
 	// The Availability Zone group associated with a Local Zone. Specify this parameter
-	// to retrieve available offerings for the Local Zones in the group.
+	// to retrieve available options for the Local Zones in the group.
 	//
-	// Omit this parameter to show the available offerings in the specified Amazon
+	// Omit this parameter to show the available options in the specified Amazon
 	// Web Services Region.
 	//
-	// This setting doesn't apply to RDS Custom.
+	// This setting doesn't apply to RDS Custom DB instances.
 	AvailabilityZoneGroup *string `type:"string"`
 
-	// The DB instance class filter value. Specify this parameter to show only the
-	// available offerings matching the specified DB instance class.
+	// A filter to include only the available options for the specified DB instance
+	// class.
 	DBInstanceClass *string `type:"string"`
 
-	// The name of the engine to retrieve DB instance options for.
+	// The name of the engine to describe DB instance options for.
 	//
 	// Valid Values:
 	//
@@ -37552,6 +39988,10 @@ type DescribeOrderableDBInstanceOptionsInput struct {
 	//    * aurora-postgresql
 	//
 	//    * custom-oracle-ee
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -37578,15 +40018,14 @@ type DescribeOrderableDBInstanceOptionsInput struct {
 	// Engine is a required field
 	Engine *string `type:"string" required:"true"`
 
-	// The engine version filter value. Specify this parameter to show only the
-	// available offerings matching the specified engine version.
+	// A filter to include only the available options for the specified engine version.
 	EngineVersion *string `type:"string"`
 
 	// This parameter isn't currently supported.
 	Filters []*Filter `locationNameList:"Filter" type:"list"`
 
-	// The license model filter value. Specify this parameter to show only the available
-	// offerings matching the specified license model.
+	// A filter to include only the available options for the specified license
+	// model.
 	//
 	// RDS Custom supports only the BYOL licensing model.
 	LicenseModel *string `type:"string"`
@@ -38424,6 +40863,155 @@ func (s *DescribeSourceRegionsOutput) SetSourceRegions(v []*SourceRegion) *Descr
 	return s
 }
 
+type DescribeTenantDatabasesInput struct {
+	_ struct{} `type:"structure"`
+
+	// The user-supplied DB instance identifier, which must match the identifier
+	// of an existing instance owned by the Amazon Web Services account. This parameter
+	// isn't case-sensitive.
+	DBInstanceIdentifier *string `type:"string"`
+
+	// A filter that specifies one or more database tenants to describe.
+	//
+	// Supported filters:
+	//
+	//    * tenant-db-name - Tenant database names. The results list only includes
+	//    information about the tenant databases that match these tenant DB names.
+	//
+	//    * tenant-database-resource-id - Tenant database resource identifiers.
+	//
+	//    * dbi-resource-id - DB instance resource identifiers. The results list
+	//    only includes information about the tenants contained within the DB instances
+	//    identified by these resource identifiers.
+	Filters []*Filter `locationNameList:"Filter" type:"list"`
+
+	// An optional pagination token provided by a previous DescribeTenantDatabases
+	// request. If this parameter is specified, the response includes only records
+	// beyond the marker, up to the value specified by MaxRecords.
+	Marker *string `type:"string"`
+
+	// The maximum number of records to include in the response. If more records
+	// exist than the specified MaxRecords value, a pagination token called a marker
+	// is included in the response so that you can retrieve the remaining results.
+	MaxRecords *int64 `type:"integer"`
+
+	// The user-supplied tenant database name, which must match the name of an existing
+	// tenant database on the specified DB instance owned by your Amazon Web Services
+	// account. This parameter isn’t case-sensitive.
+	TenantDBName *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeTenantDatabasesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeTenantDatabasesInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeTenantDatabasesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeTenantDatabasesInput"}
+	if s.Filters != nil {
+		for i, v := range s.Filters {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Filters", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *DescribeTenantDatabasesInput) SetDBInstanceIdentifier(v string) *DescribeTenantDatabasesInput {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetFilters sets the Filters field's value.
+func (s *DescribeTenantDatabasesInput) SetFilters(v []*Filter) *DescribeTenantDatabasesInput {
+	s.Filters = v
+	return s
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeTenantDatabasesInput) SetMarker(v string) *DescribeTenantDatabasesInput {
+	s.Marker = &v
+	return s
+}
+
+// SetMaxRecords sets the MaxRecords field's value.
+func (s *DescribeTenantDatabasesInput) SetMaxRecords(v int64) *DescribeTenantDatabasesInput {
+	s.MaxRecords = &v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *DescribeTenantDatabasesInput) SetTenantDBName(v string) *DescribeTenantDatabasesInput {
+	s.TenantDBName = &v
+	return s
+}
+
+type DescribeTenantDatabasesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An optional pagination token provided by a previous DescribeTenantDatabases
+	// request. If this parameter is specified, the response includes only records
+	// beyond the marker, up to the value specified by MaxRecords.
+	Marker *string `type:"string"`
+
+	// An array of the tenant databases requested by the DescribeTenantDatabases
+	// operation.
+	TenantDatabases []*TenantDatabase `locationNameList:"TenantDatabase" type:"list"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeTenantDatabasesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s DescribeTenantDatabasesOutput) GoString() string {
+	return s.String()
+}
+
+// SetMarker sets the Marker field's value.
+func (s *DescribeTenantDatabasesOutput) SetMarker(v string) *DescribeTenantDatabasesOutput {
+	s.Marker = &v
+	return s
+}
+
+// SetTenantDatabases sets the TenantDatabases field's value.
+func (s *DescribeTenantDatabasesOutput) SetTenantDatabases(v []*TenantDatabase) *DescribeTenantDatabasesOutput {
+	s.TenantDatabases = v
+	return s
+}
+
 type DescribeValidDBInstanceModificationsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -39105,8 +41693,8 @@ type EventSubscription struct {
 	// subscription.
 	CustomerAwsId *string `type:"string"`
 
-	// A Boolean value indicating if the subscription is enabled. True indicates
-	// the subscription is enabled.
+	// Specifies whether the subscription is enabled. True indicates the subscription
+	// is enabled.
 	Enabled *bool `type:"boolean"`
 
 	// A list of event categories for the RDS event notification subscription.
@@ -39692,14 +42280,17 @@ type FailoverState struct {
 	//    the global cluster. The global cluster's primary DB cluster and the specified
 	//    secondary DB cluster are being verified before the operation starts.
 	//
-	//    * failing-over – This status covers the range of Aurora internal operations
-	//    that take place during the switchover or failover process, such as demoting
-	//    the primary Aurora DB cluster, promoting the secondary Aurora DB cluster,
-	//    and synchronizing replicas.
+	//    * failing-over – Aurora is promoting the chosen secondary Aurora DB
+	//    cluster to become the new primary DB cluster to fail over the global cluster.
 	//
 	//    * cancelling – The request to switch over or fail over the global cluster
 	//    was cancelled and the primary Aurora DB cluster and the selected secondary
 	//    Aurora DB cluster are returning to their previous states.
+	//
+	//    * switching-over – This status covers the range of Aurora internal operations
+	//    that take place during the switchover process, such as demoting the primary
+	//    Aurora DB cluster, promoting the secondary Aurora DB cluster, and synchronizing
+	//    replicas.
 	Status *string `type:"string" enum:"FailoverStatus"`
 
 	// The Amazon Resource Name (ARN) of the Aurora DB cluster that is currently
@@ -40067,6 +42658,167 @@ func (s *IPRange) SetCIDRIP(v string) *IPRange {
 // SetStatus sets the Status field's value.
 func (s *IPRange) SetStatus(v string) *IPRange {
 	s.Status = &v
+	return s
+}
+
+// A zero-ETL integration with Amazon Redshift.
+type Integration struct {
+	_ struct{} `type:"structure"`
+
+	// The encryption context for the integration. For more information, see Encryption
+	// context (https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
+	// in the Amazon Web Services Key Management Service Developer Guide.
+	AdditionalEncryptionContext map[string]*string `type:"map"`
+
+	// The time when the integration was created, in Universal Coordinated Time
+	// (UTC).
+	CreateTime *time.Time `type:"timestamp"`
+
+	// Any errors associated with the integration.
+	Errors []*IntegrationError `locationNameList:"IntegrationError" type:"list"`
+
+	// The ARN of the integration.
+	IntegrationArn *string `min:"1" type:"string"`
+
+	// The name of the integration.
+	IntegrationName *string `min:"1" type:"string"`
+
+	// The Amazon Web Services Key Management System (Amazon Web Services KMS) key
+	// identifier for the key used to to encrypt the integration.
+	KMSKeyId *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) of the database used as the source for replication.
+	SourceArn *string `min:"1" type:"string"`
+
+	// The current status of the integration.
+	Status *string `type:"string" enum:"IntegrationStatus"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	Tags []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The ARN of the Redshift data warehouse used as the target for replication.
+	TargetArn *string `min:"20" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Integration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s Integration) GoString() string {
+	return s.String()
+}
+
+// SetAdditionalEncryptionContext sets the AdditionalEncryptionContext field's value.
+func (s *Integration) SetAdditionalEncryptionContext(v map[string]*string) *Integration {
+	s.AdditionalEncryptionContext = v
+	return s
+}
+
+// SetCreateTime sets the CreateTime field's value.
+func (s *Integration) SetCreateTime(v time.Time) *Integration {
+	s.CreateTime = &v
+	return s
+}
+
+// SetErrors sets the Errors field's value.
+func (s *Integration) SetErrors(v []*IntegrationError) *Integration {
+	s.Errors = v
+	return s
+}
+
+// SetIntegrationArn sets the IntegrationArn field's value.
+func (s *Integration) SetIntegrationArn(v string) *Integration {
+	s.IntegrationArn = &v
+	return s
+}
+
+// SetIntegrationName sets the IntegrationName field's value.
+func (s *Integration) SetIntegrationName(v string) *Integration {
+	s.IntegrationName = &v
+	return s
+}
+
+// SetKMSKeyId sets the KMSKeyId field's value.
+func (s *Integration) SetKMSKeyId(v string) *Integration {
+	s.KMSKeyId = &v
+	return s
+}
+
+// SetSourceArn sets the SourceArn field's value.
+func (s *Integration) SetSourceArn(v string) *Integration {
+	s.SourceArn = &v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *Integration) SetStatus(v string) *Integration {
+	s.Status = &v
+	return s
+}
+
+// SetTags sets the Tags field's value.
+func (s *Integration) SetTags(v []*Tag) *Integration {
+	s.Tags = v
+	return s
+}
+
+// SetTargetArn sets the TargetArn field's value.
+func (s *Integration) SetTargetArn(v string) *Integration {
+	s.TargetArn = &v
+	return s
+}
+
+// An error associated with a zero-ETL integration with Amazon Redshift.
+type IntegrationError struct {
+	_ struct{} `type:"structure"`
+
+	// The error code associated with the integration.
+	//
+	// ErrorCode is a required field
+	ErrorCode *string `type:"string" required:"true"`
+
+	// A message explaining the error.
+	ErrorMessage *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s IntegrationError) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s IntegrationError) GoString() string {
+	return s.String()
+}
+
+// SetErrorCode sets the ErrorCode field's value.
+func (s *IntegrationError) SetErrorCode(v string) *IntegrationError {
+	s.ErrorCode = &v
+	return s
+}
+
+// SetErrorMessage sets the ErrorMessage field's value.
+func (s *IntegrationError) SetErrorMessage(v string) *IntegrationError {
+	s.ErrorMessage = &v
 	return s
 }
 
@@ -40883,6 +43635,10 @@ type ModifyCustomDBEngineVersionOutput struct {
 	// engine version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
 
+	// Indicates whether the DB engine version supports zero-ETL integrations with
+	// Amazon Redshift.
+	SupportsIntegrations *bool `type:"boolean"`
+
 	// Indicates whether the DB engine version supports forwarding write operations
 	// from reader DB instances to the writer DB instance in the DB cluster. By
 	// default, write operations aren't allowed on reader DB instances.
@@ -41081,6 +43837,12 @@ func (s *ModifyCustomDBEngineVersionOutput) SetSupportsCertificateRotationWithou
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *ModifyCustomDBEngineVersionOutput) SetSupportsGlobalDatabases(v bool) *ModifyCustomDBEngineVersionOutput {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsIntegrations sets the SupportsIntegrations field's value.
+func (s *ModifyCustomDBEngineVersionOutput) SetSupportsIntegrations(v bool) *ModifyCustomDBEngineVersionOutput {
+	s.SupportsIntegrations = &v
 	return s
 }
 
@@ -42446,7 +45208,7 @@ type ModifyDBInstanceInput struct {
 
 	// The new amount of storage in gibibytes (GiB) to allocate for the DB instance.
 	//
-	// For RDS for MariaDB, RDS for MySQL, RDS for Oracle, and RDS for PostgreSQL,
+	// For RDS for Db2, MariaDB, RDS for MySQL, RDS for Oracle, and RDS for PostgreSQL,
 	// the value supplied must be at least 10% greater than the current value. Values
 	// that are not at least 10% greater than the existing value are rounded up
 	// so that they are 10% greater than the current value.
@@ -42608,8 +45370,8 @@ type ModifyDBInstanceInput struct {
 	//    * If you are modifying the DB instance class and upgrading the engine
 	//    version at the same time, the currently running engine version must be
 	//    supported on the specified DB instance class. Otherwise, the operation
-	//    returns an error. In this case, first run the operation to modify the
-	//    DB instance class, and then run it again to upgrade the engine version.
+	//    returns an error. In this case, first run the operation to upgrade the
+	//    engine version, and then run it again to modify the DB instance class.
 	DBInstanceClass *string `type:"string"`
 
 	// The identifier of DB instance to modify. This value is stored as a lowercase
@@ -42657,6 +45419,8 @@ type ModifyDBInstanceInput struct {
 	//
 	//    * Amazon Aurora - 3306
 	//
+	//    * RDS for Db2 - 50000
+	//
 	//    * RDS for MariaDB - 3306
 	//
 	//    * RDS for Microsoft SQL Server - 1433
@@ -42702,6 +45466,9 @@ type ModifyDBInstanceInput struct {
 	// Example: mydbsubnetgroup
 	DBSubnetGroupName *string `type:"string"`
 
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.
+	DedicatedLogVolume *bool `type:"boolean"`
+
 	// Specifies whether the DB instance has deletion protection enabled. The database
 	// can't be deleted when deletion protection is enabled. By default, deletion
 	// protection isn't enabled. For more information, see Deleting a DB Instance
@@ -42713,8 +45480,8 @@ type ModifyDBInstanceInput struct {
 
 	// The Active Directory directory ID to move the DB instance to. Specify none
 	// to remove the instance from its current domain. You must create the domain
-	// before this operation. Currently, you can create only MySQL, Microsoft SQL
-	// Server, Oracle, and PostgreSQL DB instances in an Active Directory Domain.
+	// before this operation. Currently, you can create only Db2, MySQL, Microsoft
+	// SQL Server, Oracle, and PostgreSQL DB instances in an Active Directory Domain.
 	//
 	// For more information, see Kerberos Authentication (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/kerberos-authentication.html)
 	// in the Amazon RDS User Guide.
@@ -42855,8 +45622,8 @@ type ModifyDBInstanceInput struct {
 	//    * If you are upgrading the engine version and modifying the DB instance
 	//    class at the same time, the currently running engine version must be supported
 	//    on the specified DB instance class. Otherwise, the operation returns an
-	//    error. In this case, first run the operation to modify the DB instance
-	//    class, and then run it again to upgrade the engine version.
+	//    error. In this case, first run the operation to upgrade the engine version,
+	//    and then run it again to modify the DB instance class.
 	EngineVersion *string `type:"string"`
 
 	// The new Provisioned IOPS (I/O operations per second) value for the RDS instance.
@@ -42895,6 +45662,8 @@ type ModifyDBInstanceInput struct {
 	// This setting doesn't apply to Amazon Aurora or RDS Custom DB instances.
 	//
 	// Valid Values:
+	//
+	//    * RDS for Db2 - bring-your-own-license
 	//
 	//    * RDS for MariaDB - general-public-license
 	//
@@ -42937,7 +45706,7 @@ type ModifyDBInstanceInput struct {
 	// of the request, the MasterUserPassword element exists in the PendingModifiedValues
 	// element of the operation response.
 	//
-	// Amazon RDS API operations never return the password, so this action provides
+	// Amazon RDS API operations never return the password, so this operation provides
 	// a way to regain access to a primary instance user if the password is lost.
 	// This includes restoring privileges that might have been accidentally revoked.
 	//
@@ -42954,9 +45723,13 @@ type ModifyDBInstanceInput struct {
 	//
 	//    * Can't be specified if ManageMasterUserPassword is turned on.
 	//
-	//    * Can include any printable ASCII character except "/", """, or "@".
+	//    * Can include any printable ASCII character except "/", """, or "@". For
+	//    RDS for Oracle, can't include the "&" (ampersand) or the "'" (single quotes)
+	//    character.
 	//
 	// Length Constraints:
+	//
+	//    * RDS for Db2 - Must contain from 8 to 255 characters.
 	//
 	//    * RDS for MariaDB - Must contain from 8 to 41 characters.
 	//
@@ -43040,6 +45813,21 @@ type ModifyDBInstanceInput struct {
 	//
 	// This setting doesn't apply to RDS Custom DB instances.
 	MultiAZ *bool `type:"boolean"`
+
+	// Specifies whether the to convert your DB instance from the single-tenant
+	// conﬁguration to the multi-tenant conﬁguration. This parameter is supported
+	// only for RDS for Oracle CDB instances.
+	//
+	// During the conversion, RDS creates an initial tenant database and associates
+	// the DB name, master user name, character set, and national character set
+	// metadata with this database. The tags associated with the instance also propagate
+	// to the initial tenant database. You can add more tenant databases to your
+	// DB instance by using the CreateTenantDatabase operation.
+	//
+	// The conversion to the multi-tenant configuration is permanent and irreversible,
+	// so you can't later convert back to the single-tenant configuration. When
+	// you specify this parameter, you must also specify ApplyImmediately.
+	MultiTenant *bool `type:"boolean"`
 
 	// The network type of the DB instance.
 	//
@@ -43454,6 +46242,12 @@ func (s *ModifyDBInstanceInput) SetDBSubnetGroupName(v string) *ModifyDBInstance
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *ModifyDBInstanceInput) SetDedicatedLogVolume(v bool) *ModifyDBInstanceInput {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetDeletionProtection sets the DeletionProtection field's value.
 func (s *ModifyDBInstanceInput) SetDeletionProtection(v bool) *ModifyDBInstanceInput {
 	s.DeletionProtection = &v
@@ -43583,6 +46377,12 @@ func (s *ModifyDBInstanceInput) SetMonitoringRoleArn(v string) *ModifyDBInstance
 // SetMultiAZ sets the MultiAZ field's value.
 func (s *ModifyDBInstanceInput) SetMultiAZ(v bool) *ModifyDBInstanceInput {
 	s.MultiAZ = &v
+	return s
+}
+
+// SetMultiTenant sets the MultiTenant field's value.
+func (s *ModifyDBInstanceInput) SetMultiTenant(v bool) *ModifyDBInstanceInput {
+	s.MultiTenant = &v
 	return s
 }
 
@@ -44344,7 +47144,9 @@ type ModifyDBSnapshotInput struct {
 	//
 	// MySQL
 	//
-	//    * 5.5.46 (supported for 5.1 DB snapshots)
+	// For the list of engine versions that are available for upgrading a DB snapshot,
+	// see Upgrading a MySQL DB snapshot engine version (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/mysql-upgrade-snapshot.html)
+	// in the Amazon RDS User Guide.
 	//
 	// Oracle
 	//
@@ -44361,7 +47163,8 @@ type ModifyDBSnapshotInput struct {
 	// PostgreSQL
 	//
 	// For the list of engine versions that are available for upgrading a DB snapshot,
-	// see Upgrading the PostgreSQL DB Engine for Amazon RDS (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBInstance.PostgreSQL.html#USER_UpgradeDBInstance.PostgreSQL.MajorVersion).
+	// see Upgrading a PostgreSQL DB snapshot engine version (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_UpgradeDBSnapshot.PostgreSQL.html)
+	// in the Amazon RDS User Guide.
 	EngineVersion *string `type:"string"`
 
 	// The option group to identify with the upgraded DB snapshot.
@@ -44942,6 +47745,151 @@ func (s ModifyOptionGroupOutput) GoString() string {
 // SetOptionGroup sets the OptionGroup field's value.
 func (s *ModifyOptionGroupOutput) SetOptionGroup(v *OptionGroup) *ModifyOptionGroupOutput {
 	s.OptionGroup = v
+	return s
+}
+
+type ModifyTenantDatabaseInput struct {
+	_ struct{} `type:"structure"`
+
+	// The identifier of the DB instance that contains the tenant database that
+	// you are modifying. This parameter isn't case-sensitive.
+	//
+	// Constraints:
+	//
+	//    * Must match the identifier of an existing DB instance.
+	//
+	// DBInstanceIdentifier is a required field
+	DBInstanceIdentifier *string `type:"string" required:"true"`
+
+	// The new password for the master user of the specified tenant database in
+	// your DB instance.
+	//
+	// Amazon RDS operations never return the password, so this action provides
+	// a way to regain access to a tenant database user if the password is lost.
+	// This includes restoring privileges that might have been accidentally revoked.
+	//
+	// Constraints:
+	//
+	//    * Can include any printable ASCII character except /, " (double quote),
+	//    @, & (ampersand), and ' (single quote).
+	//
+	// Length constraints:
+	//
+	//    * Must contain between 8 and 30 characters.
+	//
+	// MasterUserPassword is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by ModifyTenantDatabaseInput's
+	// String and GoString methods.
+	MasterUserPassword *string `type:"string" sensitive:"true"`
+
+	// The new name of the tenant database when renaming a tenant database. This
+	// parameter isn’t case-sensitive.
+	//
+	// Constraints:
+	//
+	//    * Can't be the string null or any other reserved word.
+	//
+	//    * Can't be longer than 8 characters.
+	NewTenantDBName *string `type:"string"`
+
+	// The user-supplied name of the tenant database that you want to modify. This
+	// parameter isn’t case-sensitive.
+	//
+	// Constraints:
+	//
+	//    * Must match the identifier of an existing tenant database.
+	//
+	// TenantDBName is a required field
+	TenantDBName *string `type:"string" required:"true"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ModifyTenantDatabaseInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ModifyTenantDatabaseInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ModifyTenantDatabaseInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ModifyTenantDatabaseInput"}
+	if s.DBInstanceIdentifier == nil {
+		invalidParams.Add(request.NewErrParamRequired("DBInstanceIdentifier"))
+	}
+	if s.TenantDBName == nil {
+		invalidParams.Add(request.NewErrParamRequired("TenantDBName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *ModifyTenantDatabaseInput) SetDBInstanceIdentifier(v string) *ModifyTenantDatabaseInput {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *ModifyTenantDatabaseInput) SetMasterUserPassword(v string) *ModifyTenantDatabaseInput {
+	s.MasterUserPassword = &v
+	return s
+}
+
+// SetNewTenantDBName sets the NewTenantDBName field's value.
+func (s *ModifyTenantDatabaseInput) SetNewTenantDBName(v string) *ModifyTenantDatabaseInput {
+	s.NewTenantDBName = &v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *ModifyTenantDatabaseInput) SetTenantDBName(v string) *ModifyTenantDatabaseInput {
+	s.TenantDBName = &v
+	return s
+}
+
+type ModifyTenantDatabaseOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A tenant database in the DB instance. This data type is an element in the
+	// response to the DescribeTenantDatabases action.
+	TenantDatabase *TenantDatabase `type:"structure"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ModifyTenantDatabaseOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s ModifyTenantDatabaseOutput) GoString() string {
+	return s.String()
+}
+
+// SetTenantDatabase sets the TenantDatabase field's value.
+func (s *ModifyTenantDatabaseOutput) SetTenantDatabase(v *TenantDatabase) *ModifyTenantDatabaseOutput {
+	s.TenantDatabase = v
 	return s
 }
 
@@ -45848,6 +48796,9 @@ type OrderableDBInstanceOption struct {
 	// in the Amazon RDS User Guide.
 	SupportsClusters *bool `type:"boolean"`
 
+	// Indicates whether a DB instance supports using a dedicated log volume (DLV).
+	SupportsDedicatedLogVolume *bool `type:"boolean"`
+
 	// Indicates whether a DB instance supports Enhanced Monitoring at intervals
 	// from 1 to 60 seconds.
 	SupportsEnhancedMonitoring *bool `type:"boolean"`
@@ -46047,6 +48998,12 @@ func (s *OrderableDBInstanceOption) SetSupportedNetworkTypes(v []*string) *Order
 // SetSupportsClusters sets the SupportsClusters field's value.
 func (s *OrderableDBInstanceOption) SetSupportsClusters(v bool) *OrderableDBInstanceOption {
 	s.SupportsClusters = &v
+	return s
+}
+
+// SetSupportsDedicatedLogVolume sets the SupportsDedicatedLogVolume field's value.
+func (s *OrderableDBInstanceOption) SetSupportsDedicatedLogVolume(v bool) *OrderableDBInstanceOption {
+	s.SupportsDedicatedLogVolume = &v
 	return s
 }
 
@@ -46441,6 +49398,9 @@ type PendingModifiedValues struct {
 	// The DB subnet group for the DB instance.
 	DBSubnetGroupName *string `type:"string"`
 
+	// Indicates whether the DB instance has a dedicated log volume (DLV) enabled.>
+	DedicatedLogVolume *bool `type:"boolean"`
+
 	// The database engine of the DB instance.
 	Engine *string `type:"string"`
 
@@ -46464,6 +49424,10 @@ type PendingModifiedValues struct {
 
 	// Indicates whether the Single-AZ DB instance will change to a Multi-AZ deployment.
 	MultiAZ *bool `type:"boolean"`
+
+	// Indicates whether the DB instance will change to the multi-tenant configuration
+	// (TRUE) or the single-tenant configuration (FALSE).
+	MultiTenant *bool `type:"boolean"`
 
 	// A list of the log types whose configuration is still pending. In other words,
 	// these log types are in the process of being activated or deactivated.
@@ -46548,6 +49512,12 @@ func (s *PendingModifiedValues) SetDBSubnetGroupName(v string) *PendingModifiedV
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *PendingModifiedValues) SetDedicatedLogVolume(v bool) *PendingModifiedValues {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetEngine sets the Engine field's value.
 func (s *PendingModifiedValues) SetEngine(v string) *PendingModifiedValues {
 	s.Engine = &v
@@ -46587,6 +49557,12 @@ func (s *PendingModifiedValues) SetMasterUserPassword(v string) *PendingModified
 // SetMultiAZ sets the MultiAZ field's value.
 func (s *PendingModifiedValues) SetMultiAZ(v bool) *PendingModifiedValues {
 	s.MultiAZ = &v
+	return s
+}
+
+// SetMultiTenant sets the MultiTenant field's value.
+func (s *PendingModifiedValues) SetMultiTenant(v bool) *PendingModifiedValues {
+	s.MultiTenant = &v
 	return s
 }
 
@@ -47106,6 +50082,56 @@ func (s *Range) SetStep(v int64) *Range {
 // SetTo sets the To field's value.
 func (s *Range) SetTo(v int64) *Range {
 	s.To = &v
+	return s
+}
+
+// Reserved for future use.
+type RdsCustomClusterConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// Reserved for future use.
+	InterconnectSubnetId *string `type:"string"`
+
+	// Reserved for future use.
+	ReplicaMode *string `type:"string" enum:"ReplicaMode"`
+
+	// Reserved for future use.
+	TransitGatewayMulticastDomainId *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s RdsCustomClusterConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s RdsCustomClusterConfiguration) GoString() string {
+	return s.String()
+}
+
+// SetInterconnectSubnetId sets the InterconnectSubnetId field's value.
+func (s *RdsCustomClusterConfiguration) SetInterconnectSubnetId(v string) *RdsCustomClusterConfiguration {
+	s.InterconnectSubnetId = &v
+	return s
+}
+
+// SetReplicaMode sets the ReplicaMode field's value.
+func (s *RdsCustomClusterConfiguration) SetReplicaMode(v string) *RdsCustomClusterConfiguration {
+	s.ReplicaMode = &v
+	return s
+}
+
+// SetTransitGatewayMulticastDomainId sets the TransitGatewayMulticastDomainId field's value.
+func (s *RdsCustomClusterConfiguration) SetTransitGatewayMulticastDomainId(v string) *RdsCustomClusterConfiguration {
+	s.TransitGatewayMulticastDomainId = &v
 	return s
 }
 
@@ -49343,6 +52369,9 @@ type RestoreDBClusterFromSnapshotInput struct {
 	// Valid for: Aurora DB clusters and Multi-AZ DB clusters
 	PubliclyAccessible *bool `type:"boolean"`
 
+	// Reserved for future use.
+	RdsCustomClusterConfiguration *RdsCustomClusterConfiguration `type:"structure"`
+
 	// For DB clusters in serverless DB engine mode, the scaling properties of the
 	// DB cluster.
 	//
@@ -49560,6 +52589,12 @@ func (s *RestoreDBClusterFromSnapshotInput) SetPort(v int64) *RestoreDBClusterFr
 // SetPubliclyAccessible sets the PubliclyAccessible field's value.
 func (s *RestoreDBClusterFromSnapshotInput) SetPubliclyAccessible(v bool) *RestoreDBClusterFromSnapshotInput {
 	s.PubliclyAccessible = &v
+	return s
+}
+
+// SetRdsCustomClusterConfiguration sets the RdsCustomClusterConfiguration field's value.
+func (s *RestoreDBClusterFromSnapshotInput) SetRdsCustomClusterConfiguration(v *RdsCustomClusterConfiguration) *RestoreDBClusterFromSnapshotInput {
+	s.RdsCustomClusterConfiguration = v
 	return s
 }
 
@@ -49906,6 +52941,9 @@ type RestoreDBClusterToPointInTimeInput struct {
 	// Valid for: Multi-AZ DB clusters only
 	PubliclyAccessible *bool `type:"boolean"`
 
+	// Reserved for future use.
+	RdsCustomClusterConfiguration *RdsCustomClusterConfiguration `type:"structure"`
+
 	// The date and time to restore the DB cluster to.
 	//
 	// Valid Values: Value must be a time in Universal Coordinated Time (UTC) format
@@ -50135,6 +53173,12 @@ func (s *RestoreDBClusterToPointInTimeInput) SetPubliclyAccessible(v bool) *Rest
 	return s
 }
 
+// SetRdsCustomClusterConfiguration sets the RdsCustomClusterConfiguration field's value.
+func (s *RestoreDBClusterToPointInTimeInput) SetRdsCustomClusterConfiguration(v *RdsCustomClusterConfiguration) *RestoreDBClusterToPointInTimeInput {
+	s.RdsCustomClusterConfiguration = v
+	return s
+}
+
 // SetRestoreToTime sets the RestoreToTime field's value.
 func (s *RestoreDBClusterToPointInTimeInput) SetRestoreToTime(v time.Time) *RestoreDBClusterToPointInTimeInput {
 	s.RestoreToTime = &v
@@ -50345,26 +53389,26 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	// Default: The same DBInstanceClass as the original DB instance.
 	DBInstanceClass *string `type:"string"`
 
-	// Name of the DB instance to create from the DB snapshot. This parameter isn't
-	// case-sensitive.
+	// The name of the DB instance to create from the DB snapshot. This parameter
+	// isn't case-sensitive.
 	//
 	// Constraints:
 	//
-	//    * Must contain from 1 to 63 numbers, letters, or hyphens
+	//    * Must contain from 1 to 63 numbers, letters, or hyphens.
 	//
-	//    * First character must be a letter
+	//    * First character must be a letter.
 	//
-	//    * Can't end with a hyphen or contain two consecutive hyphens
+	//    * Can't end with a hyphen or contain two consecutive hyphens.
 	//
 	// Example: my-snapshot-id
 	//
 	// DBInstanceIdentifier is a required field
 	DBInstanceIdentifier *string `type:"string" required:"true"`
 
-	// The database name for the restored DB instance.
+	// The name of the database for the restored DB instance.
 	//
-	// This parameter doesn't apply to the MySQL, PostgreSQL, or MariaDB engines.
-	// It also doesn't apply to RDS Custom DB instances.
+	// This parameter only applies to RDS for Oracle and RDS for SQL Server DB instances.
+	// It doesn't apply to the other engines or to RDS Custom DB instances.
 	DBName *string `type:"string"`
 
 	// The name of the DB parameter group to associate with this DB instance.
@@ -50376,7 +53420,7 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	//
 	// Constraints:
 	//
-	//    * If supplied, must match the name of an existing DBParameterGroup.
+	//    * If supplied, must match the name of an existing DB parameter group.
 	//
 	//    * Must be 1 to 255 letters, numbers, or hyphens.
 	//
@@ -50389,7 +53433,7 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	//
 	// Constraints:
 	//
-	//    * Must match the identifier of an existing DBSnapshot.
+	//    * Must match the identifier of an existing DB snapshot.
 	//
 	//    * Can't be specified when DBClusterSnapshotIdentifier is specified.
 	//
@@ -50399,12 +53443,17 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	//    must be the ARN of the shared DB snapshot.
 	DBSnapshotIdentifier *string `type:"string"`
 
-	// The DB subnet group name to use for the new instance.
+	// The name of the DB subnet group to use for the new instance.
 	//
-	// Constraints: If supplied, must match the name of an existing DBSubnetGroup.
+	// Constraints:
+	//
+	//    * If supplied, must match the name of an existing DB subnet group.
 	//
 	// Example: mydbsubnetgroup
 	DBSubnetGroupName *string `type:"string"`
+
+	// Specifies whether to enable a dedicated log volume (DLV) for the DB instance.
+	DedicatedLogVolume *bool `type:"boolean"`
 
 	// Specifies whether to enable deletion protection for the DB instance. The
 	// database can't be deleted when deletion protection is enabled. By default,
@@ -50412,10 +53461,10 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	// Instance (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_DeleteInstance.html).
 	DeletionProtection *bool `type:"boolean"`
 
-	// Specify the Active Directory directory ID to restore the DB instance in.
-	// The domain/ must be created prior to this operation. Currently, you can create
-	// only MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in
-	// an Active Directory Domain.
+	// The Active Directory directory ID to restore the DB instance in. The domain/
+	// must be created prior to this operation. Currently, you can create only Db2,
+	// MySQL, Microsoft SQL Server, Oracle, and PostgreSQL DB instances in an Active
+	// Directory Domain.
 	//
 	// For more information, see Kerberos Authentication (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/kerberos-authentication.html)
 	// in the Amazon RDS User Guide.
@@ -50470,9 +53519,9 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	// Example: OU=mymanagedADtestOU,DC=mymanagedADtest,DC=mymanagedAD,DC=mydomain
 	DomainOu *string `type:"string"`
 
-	// The list of logs that the restored DB instance is to export to CloudWatch
-	// Logs. The values in the list depend on the DB engine being used. For more
-	// information, see Publishing Database Logs to Amazon CloudWatch Logs (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch)
+	// The list of logs for the restored DB instance to export to CloudWatch Logs.
+	// The values in the list depend on the DB engine. For more information, see
+	// Publishing Database Logs to Amazon CloudWatch Logs (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_LogAccess.html#USER_LogAccess.Procedural.UploadtoCloudWatch)
 	// in the Amazon RDS User Guide.
 	//
 	// This setting doesn't apply to RDS Custom.
@@ -50516,6 +53565,10 @@ type RestoreDBInstanceFromDBSnapshotInput struct {
 	// you can restore a MariaDB 10.1 DB instance from a MySQL 5.6 snapshot.
 	//
 	// Valid Values:
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -50771,6 +53824,12 @@ func (s *RestoreDBInstanceFromDBSnapshotInput) SetDBSnapshotIdentifier(v string)
 // SetDBSubnetGroupName sets the DBSubnetGroupName field's value.
 func (s *RestoreDBInstanceFromDBSnapshotInput) SetDBSubnetGroupName(v string) *RestoreDBInstanceFromDBSnapshotInput {
 	s.DBSubnetGroupName = &v
+	return s
+}
+
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *RestoreDBInstanceFromDBSnapshotInput) SetDedicatedLogVolume(v bool) *RestoreDBInstanceFromDBSnapshotInput {
+	s.DedicatedLogVolume = &v
 	return s
 }
 
@@ -51054,6 +54113,9 @@ type RestoreDBInstanceFromS3Input struct {
 	// Example: mydbsubnetgroup
 	DBSubnetGroupName *string `type:"string"`
 
+	// Specifies whether to enable a dedicated log volume (DLV) for the DB instance.
+	DedicatedLogVolume *bool `type:"boolean"`
+
 	// Specifies whether to enable deletion protection for the DB instance. The
 	// database can't be deleted when deletion protection is enabled. By default,
 	// deletion protection isn't enabled. For more information, see Deleting a DB
@@ -51128,30 +54190,29 @@ type RestoreDBInstanceFromS3Input struct {
 	//    Manager if MasterUserPassword is specified.
 	ManageMasterUserPassword *bool `type:"boolean"`
 
-	// The password for the master user. The password can include any printable
-	// ASCII character except "/", """, or "@".
+	// The password for the master user.
 	//
-	// Constraints: Can't be specified if ManageMasterUserPassword is turned on.
+	// Constraints:
 	//
-	// MariaDB
+	//    * Can't be specified if ManageMasterUserPassword is turned on.
 	//
-	// Constraints: Must contain from 8 to 41 characters.
+	//    * Can include any printable ASCII character except "/", """, or "@". For
+	//    RDS for Oracle, can't include the "&" (ampersand) or the "'" (single quotes)
+	//    character.
 	//
-	// Microsoft SQL Server
+	// Length Constraints:
 	//
-	// Constraints: Must contain from 8 to 128 characters.
+	//    * RDS for Db2 - Must contain from 8 to 128 characters.
 	//
-	// MySQL
+	//    * RDS for MariaDB - Must contain from 8 to 41 characters.
 	//
-	// Constraints: Must contain from 8 to 41 characters.
+	//    * RDS for Microsoft SQL Server - Must contain from 8 to 128 characters.
 	//
-	// Oracle
+	//    * RDS for MySQL - Must contain from 8 to 41 characters.
 	//
-	// Constraints: Must contain from 8 to 30 characters.
+	//    * RDS for Oracle - Must contain from 8 to 30 characters.
 	//
-	// PostgreSQL
-	//
-	// Constraints: Must contain from 8 to 128 characters.
+	//    * RDS for PostgreSQL - Must contain from 8 to 128 characters.
 	MasterUserPassword *string `type:"string"`
 
 	// The Amazon Web Services KMS key identifier to encrypt a secret that is automatically
@@ -51512,6 +54573,12 @@ func (s *RestoreDBInstanceFromS3Input) SetDBSubnetGroupName(v string) *RestoreDB
 	return s
 }
 
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *RestoreDBInstanceFromS3Input) SetDedicatedLogVolume(v bool) *RestoreDBInstanceFromS3Input {
+	s.DedicatedLogVolume = &v
+	return s
+}
+
 // SetDeletionProtection sets the DeletionProtection field's value.
 func (s *RestoreDBInstanceFromS3Input) SetDeletionProtection(v bool) *RestoreDBInstanceFromS3Input {
 	s.DeletionProtection = &v
@@ -51799,11 +54866,16 @@ type RestoreDBInstanceToPointInTimeInput struct {
 	// Example: us-east-1a
 	AvailabilityZone *string `type:"string"`
 
-	// Specifies where automated backups and manual snapshots are stored for the
-	// restored DB instance.
+	// The location for storing automated backups and manual snapshots for the restored
+	// DB instance.
 	//
-	// Possible values are outposts (Amazon Web Services Outposts) and region (Amazon
-	// Web Services Region). The default is region.
+	// Valid Values:
+	//
+	//    * outposts (Amazon Web Services Outposts)
+	//
+	//    * region (Amazon Web Services Region)
+	//
+	// Default: region
 	//
 	// For more information, see Working with Amazon RDS on Amazon Web Services
 	// Outposts (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html)
@@ -51843,8 +54915,15 @@ type RestoreDBInstanceToPointInTimeInput struct {
 
 	// The database name for the restored DB instance.
 	//
-	// This parameter isn't supported for the MySQL or MariaDB engines. It also
-	// doesn't apply to RDS Custom.
+	// This parameter doesn't apply to the following DB instances:
+	//
+	//    * RDS Custom
+	//
+	//    * RDS for Db2
+	//
+	//    * RDS for MariaDB
+	//
+	//    * RDS for MySQL
 	DBName *string `type:"string"`
 
 	// The name of the DB parameter group to associate with this DB instance.
@@ -51873,6 +54952,9 @@ type RestoreDBInstanceToPointInTimeInput struct {
 	//
 	// Example: mydbsubnetgroup
 	DBSubnetGroupName *string `type:"string"`
+
+	// Specifies whether to enable a dedicated log volume (DLV) for the DB instance.
+	DedicatedLogVolume *bool `type:"boolean"`
 
 	// Specifies whether the DB instance has deletion protection enabled. The database
 	// can't be deleted when deletion protection is enabled. By default, deletion
@@ -51980,6 +55062,10 @@ type RestoreDBInstanceToPointInTimeInput struct {
 	// This setting doesn't apply to RDS Custom.
 	//
 	// Valid Values:
+	//
+	//    * db2-ae
+	//
+	//    * db2-se
 	//
 	//    * mariadb
 	//
@@ -52287,6 +55373,12 @@ func (s *RestoreDBInstanceToPointInTimeInput) SetDBParameterGroupName(v string) 
 // SetDBSubnetGroupName sets the DBSubnetGroupName field's value.
 func (s *RestoreDBInstanceToPointInTimeInput) SetDBSubnetGroupName(v string) *RestoreDBInstanceToPointInTimeInput {
 	s.DBSubnetGroupName = &v
+	return s
+}
+
+// SetDedicatedLogVolume sets the DedicatedLogVolume field's value.
+func (s *RestoreDBInstanceToPointInTimeInput) SetDedicatedLogVolume(v bool) *RestoreDBInstanceToPointInTimeInput {
+	s.DedicatedLogVolume = &v
 	return s
 }
 
@@ -54879,6 +57971,195 @@ func (s *TargetHealth) SetState(v string) *TargetHealth {
 	return s
 }
 
+// A tenant database in the DB instance. This data type is an element in the
+// response to the DescribeTenantDatabases action.
+type TenantDatabase struct {
+	_ struct{} `type:"structure"`
+
+	// The character set of the tenant database.
+	CharacterSetName *string `type:"string"`
+
+	// The ID of the DB instance that contains the tenant database.
+	DBInstanceIdentifier *string `type:"string"`
+
+	// The Amazon Web Services Region-unique, immutable identifier for the DB instance.
+	DbiResourceId *string `type:"string"`
+
+	// Specifies whether deletion protection is enabled for the DB instance.
+	DeletionProtection *bool `type:"boolean"`
+
+	// The master username of the tenant database.
+	MasterUsername *string `type:"string"`
+
+	// The NCHAR character set name of the tenant database.
+	NcharCharacterSetName *string `type:"string"`
+
+	// Information about pending changes for a tenant database.
+	PendingModifiedValues *TenantDatabasePendingModifiedValues `type:"structure"`
+
+	// The status of the tenant database.
+	Status *string `type:"string"`
+
+	// A list of tags. For more information, see Tagging Amazon RDS Resources (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
+	// in the Amazon RDS User Guide.
+	TagList []*Tag `locationNameList:"Tag" type:"list"`
+
+	// The database name of the tenant database.
+	TenantDBName *string `type:"string"`
+
+	// The Amazon Resource Name (ARN) for the tenant database.
+	TenantDatabaseARN *string `type:"string"`
+
+	// The creation time of the tenant database.
+	TenantDatabaseCreateTime *time.Time `type:"timestamp"`
+
+	// The Amazon Web Services Region-unique, immutable identifier for the tenant
+	// database.
+	TenantDatabaseResourceId *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s TenantDatabase) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s TenantDatabase) GoString() string {
+	return s.String()
+}
+
+// SetCharacterSetName sets the CharacterSetName field's value.
+func (s *TenantDatabase) SetCharacterSetName(v string) *TenantDatabase {
+	s.CharacterSetName = &v
+	return s
+}
+
+// SetDBInstanceIdentifier sets the DBInstanceIdentifier field's value.
+func (s *TenantDatabase) SetDBInstanceIdentifier(v string) *TenantDatabase {
+	s.DBInstanceIdentifier = &v
+	return s
+}
+
+// SetDbiResourceId sets the DbiResourceId field's value.
+func (s *TenantDatabase) SetDbiResourceId(v string) *TenantDatabase {
+	s.DbiResourceId = &v
+	return s
+}
+
+// SetDeletionProtection sets the DeletionProtection field's value.
+func (s *TenantDatabase) SetDeletionProtection(v bool) *TenantDatabase {
+	s.DeletionProtection = &v
+	return s
+}
+
+// SetMasterUsername sets the MasterUsername field's value.
+func (s *TenantDatabase) SetMasterUsername(v string) *TenantDatabase {
+	s.MasterUsername = &v
+	return s
+}
+
+// SetNcharCharacterSetName sets the NcharCharacterSetName field's value.
+func (s *TenantDatabase) SetNcharCharacterSetName(v string) *TenantDatabase {
+	s.NcharCharacterSetName = &v
+	return s
+}
+
+// SetPendingModifiedValues sets the PendingModifiedValues field's value.
+func (s *TenantDatabase) SetPendingModifiedValues(v *TenantDatabasePendingModifiedValues) *TenantDatabase {
+	s.PendingModifiedValues = v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *TenantDatabase) SetStatus(v string) *TenantDatabase {
+	s.Status = &v
+	return s
+}
+
+// SetTagList sets the TagList field's value.
+func (s *TenantDatabase) SetTagList(v []*Tag) *TenantDatabase {
+	s.TagList = v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *TenantDatabase) SetTenantDBName(v string) *TenantDatabase {
+	s.TenantDBName = &v
+	return s
+}
+
+// SetTenantDatabaseARN sets the TenantDatabaseARN field's value.
+func (s *TenantDatabase) SetTenantDatabaseARN(v string) *TenantDatabase {
+	s.TenantDatabaseARN = &v
+	return s
+}
+
+// SetTenantDatabaseCreateTime sets the TenantDatabaseCreateTime field's value.
+func (s *TenantDatabase) SetTenantDatabaseCreateTime(v time.Time) *TenantDatabase {
+	s.TenantDatabaseCreateTime = &v
+	return s
+}
+
+// SetTenantDatabaseResourceId sets the TenantDatabaseResourceId field's value.
+func (s *TenantDatabase) SetTenantDatabaseResourceId(v string) *TenantDatabase {
+	s.TenantDatabaseResourceId = &v
+	return s
+}
+
+// A response element in the ModifyTenantDatabase operation that describes changes
+// that will be applied. Specific changes are identified by subelements.
+type TenantDatabasePendingModifiedValues struct {
+	_ struct{} `type:"structure"`
+
+	// The master password for the tenant database.
+	//
+	// MasterUserPassword is a sensitive parameter and its value will be
+	// replaced with "sensitive" in string returned by TenantDatabasePendingModifiedValues's
+	// String and GoString methods.
+	MasterUserPassword *string `type:"string" sensitive:"true"`
+
+	// The name of the tenant database.
+	TenantDBName *string `type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s TenantDatabasePendingModifiedValues) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s TenantDatabasePendingModifiedValues) GoString() string {
+	return s.String()
+}
+
+// SetMasterUserPassword sets the MasterUserPassword field's value.
+func (s *TenantDatabasePendingModifiedValues) SetMasterUserPassword(v string) *TenantDatabasePendingModifiedValues {
+	s.MasterUserPassword = &v
+	return s
+}
+
+// SetTenantDBName sets the TenantDBName field's value.
+func (s *TenantDatabasePendingModifiedValues) SetTenantDBName(v string) *TenantDatabasePendingModifiedValues {
+	s.TenantDBName = &v
+	return s
+}
+
 // A time zone associated with a DBInstance or a DBSnapshot. This data type
 // is an element in the response to the DescribeDBInstances, the DescribeDBSnapshots,
 // and the DescribeDBEngineVersions actions.
@@ -54944,6 +58225,10 @@ type UpgradeTarget struct {
 	// Indicates whether you can use Aurora global databases with the target engine
 	// version.
 	SupportsGlobalDatabases *bool `type:"boolean"`
+
+	// Indicates whether the DB engine version supports zero-ETL integrations with
+	// Amazon Redshift.
+	SupportsIntegrations *bool `type:"boolean"`
 
 	// Indicates whether the target engine version supports forwarding write operations
 	// from reader DB instances to the writer DB instance in the DB cluster. By
@@ -55020,6 +58305,12 @@ func (s *UpgradeTarget) SetSupportsBabelfish(v bool) *UpgradeTarget {
 // SetSupportsGlobalDatabases sets the SupportsGlobalDatabases field's value.
 func (s *UpgradeTarget) SetSupportsGlobalDatabases(v bool) *UpgradeTarget {
 	s.SupportsGlobalDatabases = &v
+	return s
+}
+
+// SetSupportsIntegrations sets the SupportsIntegrations field's value.
+func (s *UpgradeTarget) SetSupportsIntegrations(v bool) *UpgradeTarget {
+	s.SupportsIntegrations = &v
 	return s
 }
 
@@ -55213,6 +58504,9 @@ type ValidDBInstanceModificationsMessage struct {
 	// Valid storage options for your DB instance.
 	Storage []*ValidStorageOptions `locationNameList:"ValidStorageOptions" type:"list"`
 
+	// Indicates whether a DB instance supports using a dedicated log volume (DLV).
+	SupportsDedicatedLogVolume *bool `type:"boolean"`
+
 	// Valid processor features for your DB instance.
 	ValidProcessorFeatures []*AvailableProcessorFeature `locationNameList:"AvailableProcessorFeature" type:"list"`
 }
@@ -55238,6 +58532,12 @@ func (s ValidDBInstanceModificationsMessage) GoString() string {
 // SetStorage sets the Storage field's value.
 func (s *ValidDBInstanceModificationsMessage) SetStorage(v []*ValidStorageOptions) *ValidDBInstanceModificationsMessage {
 	s.Storage = v
+	return s
+}
+
+// SetSupportsDedicatedLogVolume sets the SupportsDedicatedLogVolume field's value.
+func (s *ValidDBInstanceModificationsMessage) SetSupportsDedicatedLogVolume(v bool) *ValidDBInstanceModificationsMessage {
+	s.SupportsDedicatedLogVolume = &v
 	return s
 }
 
@@ -55733,6 +59033,42 @@ func IAMAuthMode_Values() []string {
 		IAMAuthModeDisabled,
 		IAMAuthModeRequired,
 		IAMAuthModeEnabled,
+	}
+}
+
+const (
+	// IntegrationStatusCreating is a IntegrationStatus enum value
+	IntegrationStatusCreating = "creating"
+
+	// IntegrationStatusActive is a IntegrationStatus enum value
+	IntegrationStatusActive = "active"
+
+	// IntegrationStatusModifying is a IntegrationStatus enum value
+	IntegrationStatusModifying = "modifying"
+
+	// IntegrationStatusFailed is a IntegrationStatus enum value
+	IntegrationStatusFailed = "failed"
+
+	// IntegrationStatusDeleting is a IntegrationStatus enum value
+	IntegrationStatusDeleting = "deleting"
+
+	// IntegrationStatusSyncing is a IntegrationStatus enum value
+	IntegrationStatusSyncing = "syncing"
+
+	// IntegrationStatusNeedsAttention is a IntegrationStatus enum value
+	IntegrationStatusNeedsAttention = "needs_attention"
+)
+
+// IntegrationStatus_Values returns all elements of the IntegrationStatus enum
+func IntegrationStatus_Values() []string {
+	return []string{
+		IntegrationStatusCreating,
+		IntegrationStatusActive,
+		IntegrationStatusModifying,
+		IntegrationStatusFailed,
+		IntegrationStatusDeleting,
+		IntegrationStatusSyncing,
+		IntegrationStatusNeedsAttention,
 	}
 }
 

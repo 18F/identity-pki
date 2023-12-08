@@ -346,11 +346,15 @@ func HTTPDoWithRetryWithOptionsE(
 	t testing.TestingT, options HttpDoOptions, expectedStatus int,
 	retries int, sleepBetweenRetries time.Duration,
 ) (string, error) {
-	// The request body is closed after a request is complete.
-	// Extract the underlying data and cache it so we can reuse for retried requests
-	data, err := io.ReadAll(options.Body)
-	if err != nil {
-		return "", err
+	var data []byte
+	if options.Body != nil {
+		// The request body is closed after a request is complete.
+		// Read the underlying data and cache it, so we can reuse for retried requests.
+		b, err := io.ReadAll(options.Body)
+		if err != nil {
+			return "", err
+		}
+		data = b
 	}
 
 	options.Body = nil
