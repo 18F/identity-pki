@@ -543,6 +543,17 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  lucas.dze:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - lkouongadze
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-public
+    email:
+    - lucas.kouongadze@gsa.gov
   luis.matos:
     aws_groups:
     - apponcall
