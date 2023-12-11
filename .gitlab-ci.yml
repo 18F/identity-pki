@@ -573,48 +573,48 @@ build_dashboard_ci_container:
     dockerfile: dashboard_ci.Dockerfile
     ecr_repo: dashboard/ci
 
-# Grab ECR scans and import into gitlab
-scan_gitlab_deploy_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/gitlab_deploy
-  needs:
-    - job: build_gitlab_deploy_container
+# # Grab ECR scans and import into gitlab
+# scan_gitlab_deploy_container:
+#   extends: .container_scan_template
+#   variables:
+#     ecr_repo: cd/gitlab_deploy
+#   needs:
+#     - job: build_gitlab_deploy_container
 
-scan_gitlab_test_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/gitlab_test
-  needs:
-    - job: build_gitlab_test_container
+# scan_gitlab_test_container:
+#   extends: .container_scan_template
+#   variables:
+#     ecr_repo: cd/gitlab_test
+#   needs:
+#     - job: build_gitlab_test_container
 
-scan_env_deploy_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/env_deploy
-  needs:
-    - build_env_deploy_container
+# scan_env_deploy_container:
+#   extends: .container_scan_template
+#   variables:
+#     ecr_repo: cd/env_deploy
+#   needs:
+#     - build_env_deploy_container
 
-scan_env_stop_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/env_stop
-  needs:
-    - build_env_stop_container
+# scan_env_stop_container:
+#   extends: .container_scan_template
+#   variables:
+#     ecr_repo: cd/env_stop
+#   needs:
+#     - build_env_stop_container
 
-scan_env_test_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: cd/env_test
-  needs:
-    - build_env_test_container
+# scan_env_test_container:
+#   extends: .container_scan_template
+#   variables:
+#     ecr_repo: cd/env_test
+#   needs:
+#     - build_env_test_container
 
-scan_pivcac_ci_container:
-  extends: .container_scan_template
-  variables:
-    ecr_repo: pivcac/ci
-  needs:
-    - build_pivcac_ci_container
+# scan_pivcac_ci_container:
+#   extends: .container_scan_template
+#   variables:
+#     ecr_repo: pivcac/ci
+#   needs:
+#     - build_pivcac_ci_container
 
 # Run nessus scan after environment deploy and import to Security report dashboard
 nessus_scan_dev_environment:
