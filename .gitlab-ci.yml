@@ -376,13 +376,13 @@ variables:
       while true; do
         SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name ${ecr_repo} --image-id imageTag=$CI_COMMIT_TAG --query 'imageScanStatus.status' --output text || true)
         if echo "$SCAN_STATUS" | grep -q "ACTIVE"; then
-          echo "Scan Complete"
+          echo "Scan Complete: ${ecr_repo}:$CI_COMMIT_TAG"
           break
         elif echo "$SCAN_STATUS" | grep -q "FAILED"; then
-          echo "ECR scan failed"
+          echo "ECR scan failed for ${ecr_repo}:$CI_COMMIT_TAG"
           exit 1
         else
-          echo "Waiting for ECR scan to complete"
+          echo "Waiting for ECR scan to complete: ${ecr_repo}:$CI_COMMIT_TAG"
           sleep 15
         fi
       done
