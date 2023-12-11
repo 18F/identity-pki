@@ -19,6 +19,30 @@ locals {
   }))
 }
 
+module "aws_secrets_to_kubernetes" {
+  source = "../modules/aws_secrets_to_kubernetes"
+  key_list = {
+    "identity-eks-charts-s3" = {
+      source = "s3"
+      metadata = {
+        name      = "identity-eks-charts-s3"
+        s3_bucket = "login-gov.secrets.894947205914-us-west-2"
+        s3_key    = "reviewapp/infra-charts-key"
+        namespace = "argocd"
+        labels = {
+          "argocd.argoproj.io/secret-type" = "repository"
+        }
+      }
+      data = {
+        "type" = "git"
+        "name" = "infra-charts"
+        "url"  = "git@gitlab.login.gov:lg-public/identity-eks-charts.git"
+      }
+      secretKeyName = "sshPrivateKey"
+    }
+  }
+}
+
 module "review_app" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.32.1"
 
@@ -64,6 +88,17 @@ module "kubernetes_addons" {
 
   eks_cluster_id = module.review_app.eks_cluster_id
 
+  argocd_helm_config = {
+    name             = "argo-cd"
+    chart            = "argo-cd"
+    repository       = "https://argoproj.github.io/argo-helm"
+    version          = "5.51.6"
+    namespace        = "argocd"
+    create_namespace = true
+    values           = [templatefile("${path.module}/helm-values/argocd.yaml.tpl", {})]
+  }
+
+
   # EKS Add-ons
   enable_amazon_eks_vpc_cni                      = true
   enable_amazon_eks_coredns                      = true
@@ -88,7 +123,7 @@ module "kubernetes_addons" {
     # Helm based app of apps for easier value passing from terraform
     infra-charts = {
       path            = "applications"
-      repo_url        = "https://gitlab.login.gov/lg-public/identity-eks-charts.git"
+      repo_url        = "git@gitlab.login.gov:lg-public/identity-eks-charts.git"
       type            = "helm"
       target_revision = "main"
       values = {
