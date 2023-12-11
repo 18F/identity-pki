@@ -540,7 +540,7 @@ execute 'gitlab_rails_commands' do
     \
     begin; \
       puts 'save gitlab root token'; \
-      token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'Automation Token'); \
+      token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api, :admin_mode], name: 'Automation Token'); \
       token.set_token('#{gitlab_root_api_token}'); \
       token.expires_at = 90.days.from_now; \
       token.save!; \
