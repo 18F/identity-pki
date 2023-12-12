@@ -300,3 +300,18 @@ Valid options are 'Disable', 'Block', or 'Count'.
 EOM
   }
 }
+
+# versions can be retrieved with commands in this form:
+# aws wafv2 list-available-managed-rule-group-versions --scope=REGIONAL --region=us-west-2 --vendor-name=AWS  --name AWSManagedRulesSQLiRuleSet
+variable "aws_managed_rule_group_versions" {
+  description = <<EOM
+Map that describes the versions of WAF managed group rules
+EOM
+  type        = map(string)
+  default = {
+    AWSManagedRulesCommonRuleSet         = null,
+    AWSManagedRulesKnownBadInputsRuleSet = null,
+    AWSManagedRulesLinuxRuleSet          = null,
+    AWSManagedRulesSQLiRuleSet           = null
+  }
+}

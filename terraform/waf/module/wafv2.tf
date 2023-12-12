@@ -17,6 +17,7 @@ resource "aws_wafv2_web_acl" "alb" {
 
   # This rule is temporarily placed before the others to COUNT traffic from bots.
   # Its priority may be changed later.
+  # Please see https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-changelog.html for version updates
   dynamic "rule" {
     for_each = var.wafv2_web_acl_scope == "CLOUDFRONT" && length(var.bot_control_exclusions) > 1 ? [1] : []
     content {
@@ -408,6 +409,7 @@ resource "aws_wafv2_web_acl" "alb" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
+        version     = var.aws_managed_rule_group_versions["AWSManagedRulesCommonRuleSet"]
 
         dynamic "rule_action_override" {
           for_each = var.common_ruleset_exclusions
@@ -449,6 +451,7 @@ resource "aws_wafv2_web_acl" "alb" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesKnownBadInputsRuleSet"
         vendor_name = "AWS"
+        version     = var.aws_managed_rule_group_versions["AWSManagedRulesKnownBadInputsRuleSet"]
 
         dynamic "rule_action_override" {
           for_each = var.known_bad_input_ruleset_exclusions
@@ -490,6 +493,7 @@ resource "aws_wafv2_web_acl" "alb" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesLinuxRuleSet"
         vendor_name = "AWS"
+        version     = var.aws_managed_rule_group_versions["AWSManagedRulesLinuxRuleSet"]
 
         dynamic "rule_action_override" {
           for_each = var.linux_ruleset_exclusions
@@ -531,6 +535,7 @@ resource "aws_wafv2_web_acl" "alb" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesSQLiRuleSet"
         vendor_name = "AWS"
+        version     = var.aws_managed_rule_group_versions["AWSManagedRulesSQLiRuleSet"]
 
         # Exclude relaxed_uri_paths
         scope_down_statement {
