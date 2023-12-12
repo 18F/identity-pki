@@ -108,7 +108,7 @@ users:
     - lg-public
   andrew.mcdaniel:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     ec2_username:
     - amcdaniel
     gitlab_groups:
