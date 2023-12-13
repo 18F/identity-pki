@@ -479,6 +479,15 @@ users:
     - lg-all
     - lg-people
     - lg-public
+  keith.e.williams:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - kwilliams
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   kelli.ho:
     aws_groups:
     - analytics
