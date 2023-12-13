@@ -145,7 +145,7 @@ Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
 EOM
   treat_missing_data        = "ignore"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.doc_auth_alarm_actions
 
   lifecycle {
     create_before_destroy = true
