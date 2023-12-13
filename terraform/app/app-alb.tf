@@ -4,6 +4,8 @@ resource "aws_alb" "app" {
   security_groups = [aws_security_group.app-alb[count.index].id]
   subnets         = [for subnet in aws_subnet.public-ingress : subnet.id]
 
+  enable_tls_version_and_cipher_suite_headers = var.enable_tls_and_cipher_headers
+
   access_logs {
     bucket  = "login-gov.elb-logs.${data.aws_caller_identity.current.account_id}-${var.region}"
     prefix  = "${var.env_name}/app"
