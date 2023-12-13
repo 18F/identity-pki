@@ -70,4 +70,3 @@ runcmd:
 - touch "/run/private-provisioning"
 - /var/lib/cloud/instance/scripts/provision.sh --kitchen-subdir kitchen --berksfile-toplevel --asg-name "${asg_name}" --lifecycle-hook-name "${main_lifecycle_hook_name}" --git-ref "${main_git_ref}" "${main_s3_ssh_key_url}" "${main_git_clone_url}"
 - touch "/run/main-provisioning"
-- "apt remove -y ubuntu-advantage-pro ubuntu-advantage-tools"
