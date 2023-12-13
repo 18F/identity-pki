@@ -719,6 +719,12 @@ env-aduth:
     ENV_NAME: aduth
     branch: "stages/stable"
 
+env-timnit:
+  extends: .include_idp_jobs_template
+  variables:
+    ENV_NAME: timnit
+    branch: "stages/timnit"
+
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
   environment:
