@@ -898,16 +898,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  vivek.chugh:
-    aws_groups:
-    - devops
-    ec2_username:
-    - vivek
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-people
-    - lg-public
   zach.margolis:
     ec2_username:
     - zmargolis
