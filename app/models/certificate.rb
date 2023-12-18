@@ -14,7 +14,7 @@ class Certificate
   def_delegators :x509_cert, :not_before, :not_after, :subject, :issuer, :verify,
                  :public_key, :serial, :to_text
 
-  def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?
+  def_delegators :@cert_policies, :allowed_by_policy?, :critical_policies_recognized?, :matched_expected_policies
 
   def trusted_root?
     CertificateStore.trusted_ca_root_identifiers.include?(key_id)

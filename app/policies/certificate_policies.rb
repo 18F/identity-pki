@@ -23,6 +23,11 @@ class CertificatePolicies
   end
 
   def allowed_by_policy?
+    @matched_expected_policies&.any?
+  end
+
+  def matched_expected_policies
+    return @matched_expected_policies if defined?(matched_expected_policies)
     # if at least one policy in the cert matches one of the "required policies", then we're good
     # otherwise, we want to allow it for now, but log the cert so we can see what policies are
     # coming up
@@ -30,7 +35,8 @@ class CertificatePolicies
     mapping = PolicyMappingService.new(@certificate).call
     expected_policies = required_policies
     cert_policies = policies.map { |policy| mapping[policy] }
-    (cert_policies & expected_policies).any?
+    @matched_expected_policies = (cert_policies & expected_policies)
+    @matched_expected_policies
   end
 
   def policies
