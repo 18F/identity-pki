@@ -33,8 +33,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/go-querystring/query"
 	"github.com/hashicorp/go-cleanhttp"
+
+	"github.com/google/go-querystring/query"
 	retryablehttp "github.com/hashicorp/go-retryablehttp"
 	"golang.org/x/oauth2"
 	"golang.org/x/time/rate"
@@ -51,12 +52,12 @@ const (
 
 // AuthType represents an authentication type within GitLab.
 //
-// GitLab API docs: https://docs.gitlab.com/ce/api/
+// GitLab API docs: https://docs.gitlab.com/ee/api/
 type AuthType int
 
 // List of available authentication types.
 //
-// GitLab API docs: https://docs.gitlab.com/ce/api/
+// GitLab API docs: https://docs.gitlab.com/ee/api/
 const (
 	BasicAuth AuthType = iota
 	JobToken
@@ -96,124 +97,149 @@ type Client struct {
 	// Protects the token field from concurrent read/write accesses.
 	tokenLock sync.RWMutex
 
+	// Default request options applied to every request.
+	defaultRequestOptions []RequestOptionFunc
+
 	// User agent used when communicating with the GitLab API.
 	UserAgent string
 
 	// Services used for talking to different parts of the GitLab API.
-	AccessRequests          *AccessRequestsService
-	Applications            *ApplicationsService
-	AuditEvents             *AuditEventsService
-	Avatar                  *AvatarRequestsService
-	AwardEmoji              *AwardEmojiService
-	Boards                  *IssueBoardsService
-	Branches                *BranchesService
-	BroadcastMessage        *BroadcastMessagesService
-	CIYMLTemplate           *CIYMLTemplatesService
-	ClusterAgents           *ClusterAgentsService
-	Commits                 *CommitsService
-	ContainerRegistry       *ContainerRegistryService
-	CustomAttribute         *CustomAttributesService
-	DeployKeys              *DeployKeysService
-	DeployTokens            *DeployTokensService
-	DeploymentMergeRequests *DeploymentMergeRequestsService
-	Deployments             *DeploymentsService
-	Discussions             *DiscussionsService
-	Environments            *EnvironmentsService
-	EpicIssues              *EpicIssuesService
-	Epics                   *EpicsService
-	ErrorTracking           *ErrorTrackingService
-	Events                  *EventsService
-	ExternalStatusChecks    *ExternalStatusChecksService
-	Features                *FeaturesService
-	FreezePeriods           *FreezePeriodsService
-	GenericPackages         *GenericPackagesService
-	GeoNodes                *GeoNodesService
-	GitIgnoreTemplates      *GitIgnoreTemplatesService
-	GroupAccessTokens       *GroupAccessTokensService
-	GroupBadges             *GroupBadgesService
-	GroupCluster            *GroupClustersService
-	GroupImportExport       *GroupImportExportService
-	GroupIssueBoards        *GroupIssueBoardsService
-	GroupIterations         *GroupIterationsService
-	GroupLabels             *GroupLabelsService
-	GroupMembers            *GroupMembersService
-	GroupMilestones         *GroupMilestonesService
-	GroupVariables          *GroupVariablesService
-	GroupWikis              *GroupWikisService
-	Groups                  *GroupsService
-	InstanceCluster         *InstanceClustersService
-	InstanceVariables       *InstanceVariablesService
-	Invites                 *InvitesService
-	IssueLinks              *IssueLinksService
-	Issues                  *IssuesService
-	IssuesStatistics        *IssuesStatisticsService
-	Jobs                    *JobsService
-	Keys                    *KeysService
-	Labels                  *LabelsService
-	License                 *LicenseService
-	LicenseTemplates        *LicenseTemplatesService
-	ManagedLicenses         *ManagedLicensesService
-	Markdown                *MarkdownService
-	MergeRequestApprovals   *MergeRequestApprovalsService
-	MergeRequests           *MergeRequestsService
-	Milestones              *MilestonesService
-	Namespaces              *NamespacesService
-	Notes                   *NotesService
-	NotificationSettings    *NotificationSettingsService
-	Packages                *PackagesService
-	Pages                   *PagesService
-	PagesDomains            *PagesDomainsService
-	PersonalAccessTokens    *PersonalAccessTokensService
-	PipelineSchedules       *PipelineSchedulesService
-	PipelineTriggers        *PipelineTriggersService
-	Pipelines               *PipelinesService
-	PlanLimits              *PlanLimitsService
-	ProjectAccessTokens     *ProjectAccessTokensService
-	ProjectBadges           *ProjectBadgesService
-	ProjectCluster          *ProjectClustersService
-	ProjectImportExport     *ProjectImportExportService
-	ProjectIterations       *ProjectIterationsService
-	ProjectMembers          *ProjectMembersService
-	ProjectMirrors          *ProjectMirrorService
-	ProjectSnippets         *ProjectSnippetsService
-	ProjectVariables        *ProjectVariablesService
-	ProjectVulnerabilities  *ProjectVulnerabilitiesService
-	Projects                *ProjectsService
-	ProtectedBranches       *ProtectedBranchesService
-	ProtectedEnvironments   *ProtectedEnvironmentsService
-	ProtectedTags           *ProtectedTagsService
-	ReleaseLinks            *ReleaseLinksService
-	Releases                *ReleasesService
-	Repositories            *RepositoriesService
-	RepositoryFiles         *RepositoryFilesService
-	RepositorySubmodules    *RepositorySubmodulesService
-	ResourceLabelEvents     *ResourceLabelEventsService
-	ResourceMilestoneEvents *ResourceMilestoneEventsService
-	ResourceStateEvents     *ResourceStateEventsService
-	Runners                 *RunnersService
-	Search                  *SearchService
-	Services                *ServicesService
-	Settings                *SettingsService
-	Sidekiq                 *SidekiqService
-	Snippets                *SnippetsService
-	SystemHooks             *SystemHooksService
-	Tags                    *TagsService
-	Todos                   *TodosService
-	Topics                  *TopicsService
-	Users                   *UsersService
-	Validate                *ValidateService
-	Version                 *VersionService
-	Wikis                   *WikisService
+	AccessRequests               *AccessRequestsService
+	Appearance                   *AppearanceService
+	Applications                 *ApplicationsService
+	AuditEvents                  *AuditEventsService
+	Avatar                       *AvatarRequestsService
+	AwardEmoji                   *AwardEmojiService
+	Boards                       *IssueBoardsService
+	Branches                     *BranchesService
+	BroadcastMessage             *BroadcastMessagesService
+	CIYMLTemplate                *CIYMLTemplatesService
+	ClusterAgents                *ClusterAgentsService
+	Commits                      *CommitsService
+	ContainerRegistry            *ContainerRegistryService
+	CustomAttribute              *CustomAttributesService
+	DeployKeys                   *DeployKeysService
+	DeployTokens                 *DeployTokensService
+	DeploymentMergeRequests      *DeploymentMergeRequestsService
+	Deployments                  *DeploymentsService
+	Discussions                  *DiscussionsService
+	DockerfileTemplate           *DockerfileTemplatesService
+	Environments                 *EnvironmentsService
+	EpicIssues                   *EpicIssuesService
+	Epics                        *EpicsService
+	ErrorTracking                *ErrorTrackingService
+	Events                       *EventsService
+	ExternalStatusChecks         *ExternalStatusChecksService
+	Features                     *FeaturesService
+	FreezePeriods                *FreezePeriodsService
+	GenericPackages              *GenericPackagesService
+	GeoNodes                     *GeoNodesService
+	GitIgnoreTemplates           *GitIgnoreTemplatesService
+	GroupAccessTokens            *GroupAccessTokensService
+	GroupBadges                  *GroupBadgesService
+	GroupCluster                 *GroupClustersService
+	GroupEpicBoards              *GroupEpicBoardsService
+	GroupImportExport            *GroupImportExportService
+	GroupIssueBoards             *GroupIssueBoardsService
+	GroupIterations              *GroupIterationsService
+	GroupLabels                  *GroupLabelsService
+	GroupMembers                 *GroupMembersService
+	GroupMilestones              *GroupMilestonesService
+	GroupProtectedEnvironments   *GroupProtectedEnvironmentsService
+	GroupRepositoryStorageMove   *GroupRepositoryStorageMoveService
+	GroupSSHCertificates         *GroupSSHCertificatesService
+	GroupVariables               *GroupVariablesService
+	GroupWikis                   *GroupWikisService
+	Groups                       *GroupsService
+	InstanceCluster              *InstanceClustersService
+	InstanceVariables            *InstanceVariablesService
+	Invites                      *InvitesService
+	IssueLinks                   *IssueLinksService
+	Issues                       *IssuesService
+	IssuesStatistics             *IssuesStatisticsService
+	Jobs                         *JobsService
+	JobTokenScope                *JobTokenScopeService
+	Keys                         *KeysService
+	Labels                       *LabelsService
+	License                      *LicenseService
+	LicenseTemplates             *LicenseTemplatesService
+	ManagedLicenses              *ManagedLicensesService
+	Markdown                     *MarkdownService
+	MemberRolesService           *MemberRolesService
+	MergeRequestApprovals        *MergeRequestApprovalsService
+	MergeRequests                *MergeRequestsService
+	MergeTrains                  *MergeTrainsService
+	Metadata                     *MetadataService
+	Milestones                   *MilestonesService
+	Namespaces                   *NamespacesService
+	Notes                        *NotesService
+	NotificationSettings         *NotificationSettingsService
+	Packages                     *PackagesService
+	Pages                        *PagesService
+	PagesDomains                 *PagesDomainsService
+	PersonalAccessTokens         *PersonalAccessTokensService
+	PipelineSchedules            *PipelineSchedulesService
+	PipelineTriggers             *PipelineTriggersService
+	Pipelines                    *PipelinesService
+	PlanLimits                   *PlanLimitsService
+	ProjectAccessTokens          *ProjectAccessTokensService
+	ProjectBadges                *ProjectBadgesService
+	ProjectCluster               *ProjectClustersService
+	ProjectFeatureFlags          *ProjectFeatureFlagService
+	ProjectImportExport          *ProjectImportExportService
+	ProjectIterations            *ProjectIterationsService
+	ProjectMembers               *ProjectMembersService
+	ProjectMirrors               *ProjectMirrorService
+	ProjectRepositoryStorageMove *ProjectRepositoryStorageMoveService
+	ProjectSnippets              *ProjectSnippetsService
+	ProjectTemplates             *ProjectTemplatesService
+	ProjectVariables             *ProjectVariablesService
+	ProjectVulnerabilities       *ProjectVulnerabilitiesService
+	Projects                     *ProjectsService
+	ProtectedBranches            *ProtectedBranchesService
+	ProtectedEnvironments        *ProtectedEnvironmentsService
+	ProtectedTags                *ProtectedTagsService
+	ReleaseLinks                 *ReleaseLinksService
+	Releases                     *ReleasesService
+	Repositories                 *RepositoriesService
+	RepositoryFiles              *RepositoryFilesService
+	RepositorySubmodules         *RepositorySubmodulesService
+	ResourceIterationEvents      *ResourceIterationEventsService
+	ResourceLabelEvents          *ResourceLabelEventsService
+	ResourceMilestoneEvents      *ResourceMilestoneEventsService
+	ResourceStateEvents          *ResourceStateEventsService
+	ResourceWeightEvents         *ResourceWeightEventsService
+	Runners                      *RunnersService
+	Search                       *SearchService
+	Services                     *ServicesService
+	Settings                     *SettingsService
+	Sidekiq                      *SidekiqService
+	SnippetRepositoryStorageMove *SnippetRepositoryStorageMoveService
+	Snippets                     *SnippetsService
+	SystemHooks                  *SystemHooksService
+	Tags                         *TagsService
+	Todos                        *TodosService
+	Topics                       *TopicsService
+	Users                        *UsersService
+	Validate                     *ValidateService
+	Version                      *VersionService
+	Wikis                        *WikisService
 }
 
 // ListOptions specifies the optional parameters to various List methods that
 // support pagination.
 type ListOptions struct {
-	// For paginated result sets, page of results to retrieve.
+	// For offset-based paginated result sets, page of results to retrieve.
 	Page int `url:"page,omitempty" json:"page,omitempty"`
-
-	// For paginated result sets, the number of results to include per page.
+	// For offset-based and keyset-based paginated result sets, the number of results to include per page.
 	PerPage int `url:"per_page,omitempty" json:"per_page,omitempty"`
+
+	// For keyset-based paginated result sets, name of the column by which to order
+	OrderBy string `url:"order_by,omitempty" json:"order_by,omitempty"`
+	// For keyset-based paginated result sets, the value must be `"keyset"`
+	Pagination string `url:"pagination,omitempty" json:"pagination,omitempty"`
+	// For keyset-based paginated result sets, sort order (`"asc"`` or `"desc"`)
+	Sort string `url:"sort,omitempty" json:"sort,omitempty"`
 }
 
 // RateLimiter describes the interface that all (custom) rate limiters must implement.
@@ -299,11 +325,20 @@ func newClient(options ...ClientOptionFunc) (*Client, error) {
 		}
 	}
 
+	// If no custom limiter was set using a client option, configure
+	// the default rate limiter with values that implicitly disable
+	// rate limiting until an initial HTTP call is done and we can
+	// use the headers to try and properly configure the limiter.
+	if c.limiter == nil {
+		c.limiter = rate.NewLimiter(rate.Inf, 0)
+	}
+
 	// Create the internal timeStats service.
 	timeStats := &timeStatsService{client: c}
 
 	// Create all the public services.
 	c.AccessRequests = &AccessRequestsService{client: c}
+	c.Appearance = &AppearanceService{client: c}
 	c.Applications = &ApplicationsService{client: c}
 	c.AuditEvents = &AuditEventsService{client: c}
 	c.Avatar = &AvatarRequestsService{client: c}
@@ -321,6 +356,7 @@ func newClient(options ...ClientOptionFunc) (*Client, error) {
 	c.DeploymentMergeRequests = &DeploymentMergeRequestsService{client: c}
 	c.Deployments = &DeploymentsService{client: c}
 	c.Discussions = &DiscussionsService{client: c}
+	c.DockerfileTemplate = &DockerfileTemplatesService{client: c}
 	c.Environments = &EnvironmentsService{client: c}
 	c.EpicIssues = &EpicIssuesService{client: c}
 	c.Epics = &EpicsService{client: c}
@@ -335,12 +371,16 @@ func newClient(options ...ClientOptionFunc) (*Client, error) {
 	c.GroupAccessTokens = &GroupAccessTokensService{client: c}
 	c.GroupBadges = &GroupBadgesService{client: c}
 	c.GroupCluster = &GroupClustersService{client: c}
+	c.GroupEpicBoards = &GroupEpicBoardsService{client: c}
 	c.GroupImportExport = &GroupImportExportService{client: c}
 	c.GroupIssueBoards = &GroupIssueBoardsService{client: c}
 	c.GroupIterations = &GroupIterationsService{client: c}
 	c.GroupLabels = &GroupLabelsService{client: c}
 	c.GroupMembers = &GroupMembersService{client: c}
 	c.GroupMilestones = &GroupMilestonesService{client: c}
+	c.GroupProtectedEnvironments = &GroupProtectedEnvironmentsService{client: c}
+	c.GroupRepositoryStorageMove = &GroupRepositoryStorageMoveService{client: c}
+	c.GroupSSHCertificates = &GroupSSHCertificatesService{client: c}
 	c.GroupVariables = &GroupVariablesService{client: c}
 	c.GroupWikis = &GroupWikisService{client: c}
 	c.Groups = &GroupsService{client: c}
@@ -351,14 +391,18 @@ func newClient(options ...ClientOptionFunc) (*Client, error) {
 	c.Issues = &IssuesService{client: c, timeStats: timeStats}
 	c.IssuesStatistics = &IssuesStatisticsService{client: c}
 	c.Jobs = &JobsService{client: c}
+	c.JobTokenScope = &JobTokenScopeService{client: c}
 	c.Keys = &KeysService{client: c}
 	c.Labels = &LabelsService{client: c}
 	c.License = &LicenseService{client: c}
 	c.LicenseTemplates = &LicenseTemplatesService{client: c}
 	c.ManagedLicenses = &ManagedLicensesService{client: c}
 	c.Markdown = &MarkdownService{client: c}
+	c.MemberRolesService = &MemberRolesService{client: c}
 	c.MergeRequestApprovals = &MergeRequestApprovalsService{client: c}
 	c.MergeRequests = &MergeRequestsService{client: c, timeStats: timeStats}
+	c.MergeTrains = &MergeTrainsService{client: c}
+	c.Metadata = &MetadataService{client: c}
 	c.Milestones = &MilestonesService{client: c}
 	c.Namespaces = &NamespacesService{client: c}
 	c.Notes = &NotesService{client: c}
@@ -374,11 +418,14 @@ func newClient(options ...ClientOptionFunc) (*Client, error) {
 	c.ProjectAccessTokens = &ProjectAccessTokensService{client: c}
 	c.ProjectBadges = &ProjectBadgesService{client: c}
 	c.ProjectCluster = &ProjectClustersService{client: c}
+	c.ProjectFeatureFlags = &ProjectFeatureFlagService{client: c}
 	c.ProjectImportExport = &ProjectImportExportService{client: c}
 	c.ProjectIterations = &ProjectIterationsService{client: c}
 	c.ProjectMembers = &ProjectMembersService{client: c}
 	c.ProjectMirrors = &ProjectMirrorService{client: c}
+	c.ProjectRepositoryStorageMove = &ProjectRepositoryStorageMoveService{client: c}
 	c.ProjectSnippets = &ProjectSnippetsService{client: c}
+	c.ProjectTemplates = &ProjectTemplatesService{client: c}
 	c.ProjectVariables = &ProjectVariablesService{client: c}
 	c.ProjectVulnerabilities = &ProjectVulnerabilitiesService{client: c}
 	c.Projects = &ProjectsService{client: c}
@@ -390,15 +437,18 @@ func newClient(options ...ClientOptionFunc) (*Client, error) {
 	c.Repositories = &RepositoriesService{client: c}
 	c.RepositoryFiles = &RepositoryFilesService{client: c}
 	c.RepositorySubmodules = &RepositorySubmodulesService{client: c}
+	c.ResourceIterationEvents = &ResourceIterationEventsService{client: c}
 	c.ResourceLabelEvents = &ResourceLabelEventsService{client: c}
 	c.ResourceMilestoneEvents = &ResourceMilestoneEventsService{client: c}
 	c.ResourceStateEvents = &ResourceStateEventsService{client: c}
+	c.ResourceWeightEvents = &ResourceWeightEventsService{client: c}
 	c.Runners = &RunnersService{client: c}
 	c.Search = &SearchService{client: c}
 	c.Services = &ServicesService{client: c}
 	c.Settings = &SettingsService{client: c}
 	c.Sidekiq = &SidekiqService{client: c}
 	c.Snippets = &SnippetsService{client: c}
+	c.SnippetRepositoryStorageMove = &SnippetRepositoryStorageMoveService{client: c}
 	c.SystemHooks = &SystemHooksService{client: c}
 	c.Tags = &TagsService{client: c}
 	c.Todos = &TodosService{client: c}
@@ -470,45 +520,34 @@ func rateLimitBackoff(min, max time.Duration, attemptNum int, resp *http.Respons
 }
 
 // configureLimiter configures the rate limiter.
-func (c *Client) configureLimiter(ctx context.Context) error {
-	// Set default values for when rate limiting is disabled.
-	limit := rate.Inf
-	burst := 0
-
-	defer func() {
-		// Create a new limiter using the calculated values.
-		c.limiter = rate.NewLimiter(limit, burst)
-	}()
-
-	// Create a new request.
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL.String(), nil)
-	if err != nil {
-		return err
-	}
-
-	// Make a single request to retrieve the rate limit headers.
-	resp, err := c.client.HTTPClient.Do(req)
-	if err != nil {
-		return err
-	}
-	resp.Body.Close()
-
-	if v := resp.Header.Get(headerRateLimit); v != "" {
+func (c *Client) configureLimiter(ctx context.Context, headers http.Header) {
+	if v := headers.Get(headerRateLimit); v != "" {
 		if rateLimit, _ := strconv.ParseFloat(v, 64); rateLimit > 0 {
 			// The rate limit is based on requests per minute, so for our limiter to
 			// work correctly we divide the limit by 60 to get the limit per second.
 			rateLimit /= 60
+
 			// Configure the limit and burst using a split of 2/3 for the limit and
 			// 1/3 for the burst. This enables clients to burst 1/3 of the allowed
 			// calls before the limiter kicks in. The remaining calls will then be
 			// spread out evenly using intervals of time.Second / limit which should
 			// prevent hitting the rate limit.
-			limit = rate.Limit(rateLimit * 0.66)
-			burst = int(rateLimit * 0.33)
+			limit := rate.Limit(rateLimit * 0.66)
+			burst := int(rateLimit * 0.33)
+
+			// Need at least one allowed to burst or x/time will throw an error
+			if burst == 0 {
+				burst = 1
+			}
+
+			// Create a new limiter using the calculated values.
+			c.limiter = rate.NewLimiter(limit, burst)
+
+			// Call the limiter once as we have already made a request
+			// to get the headers and the limiter is not aware of this.
+			c.limiter.Wait(ctx)
 		}
 	}
-
-	return nil
 }
 
 // BaseURL return a copy of the baseURL.
@@ -565,7 +604,7 @@ func (c *Client) NewRequest(method, path string, opt interface{}, options []Requ
 
 	var body interface{}
 	switch {
-	case method == http.MethodPost || method == http.MethodPut:
+	case method == http.MethodPatch || method == http.MethodPost || method == http.MethodPut:
 		reqHeaders.Set("Content-Type", "application/json")
 
 		if opt != nil {
@@ -587,7 +626,7 @@ func (c *Client) NewRequest(method, path string, opt interface{}, options []Requ
 		return nil, err
 	}
 
-	for _, fn := range options {
+	for _, fn := range append(c.defaultRequestOptions, options...) {
 		if fn == nil {
 			continue
 		}
@@ -663,7 +702,7 @@ func (c *Client) UploadRequest(method, path string, content io.Reader, filename 
 		return nil, err
 	}
 
-	for _, fn := range options {
+	for _, fn := range append(c.defaultRequestOptions, options...) {
 		if fn == nil {
 			continue
 		}
@@ -686,32 +725,43 @@ func (c *Client) UploadRequest(method, path string, content io.Reader, filename 
 type Response struct {
 	*http.Response
 
-	// These fields provide the page values for paginating through a set of
-	// results. Any or all of these may be set to the zero value for
-	// responses that are not part of a paginated set, or for which there
-	// are no additional pages.
+	// Fields used for offset-based pagination.
 	TotalItems   int
 	TotalPages   int
 	ItemsPerPage int
 	CurrentPage  int
 	NextPage     int
 	PreviousPage int
+
+	// Fields used for keyset-based pagination.
+	PreviousLink string
+	NextLink     string
+	FirstLink    string
+	LastLink     string
 }
 
 // newResponse creates a new Response for the provided http.Response.
 func newResponse(r *http.Response) *Response {
 	response := &Response{Response: r}
 	response.populatePageValues()
+	response.populateLinkValues()
 	return response
 }
 
 const (
+	// Headers used for offset-based pagination.
 	xTotal      = "X-Total"
 	xTotalPages = "X-Total-Pages"
 	xPerPage    = "X-Per-Page"
 	xPage       = "X-Page"
 	xNextPage   = "X-Next-Page"
 	xPrevPage   = "X-Prev-Page"
+
+	// Headers used for keyset-based pagination.
+	linkPrev  = "prev"
+	linkNext  = "next"
+	linkFirst = "first"
+	linkLast  = "last"
 )
 
 // populatePageValues parses the HTTP Link response headers and populates the
@@ -737,16 +787,37 @@ func (r *Response) populatePageValues() {
 	}
 }
 
+func (r *Response) populateLinkValues() {
+	if link := r.Header.Get("Link"); link != "" {
+		for _, link := range strings.Split(link, ",") {
+			parts := strings.Split(link, ";")
+			if len(parts) < 2 {
+				continue
+			}
+
+			linkType := strings.Trim(strings.Split(parts[1], "=")[1], "\"")
+			linkValue := strings.Trim(parts[0], "< >")
+
+			switch linkType {
+			case linkPrev:
+				r.PreviousLink = linkValue
+			case linkNext:
+				r.NextLink = linkValue
+			case linkFirst:
+				r.FirstLink = linkValue
+			case linkLast:
+				r.LastLink = linkValue
+			}
+		}
+	}
+}
+
 // Do sends an API request and returns the API response. The API response is
 // JSON decoded and stored in the value pointed to by v, or returned as an
 // error if an API error has occurred. If v implements the io.Writer
 // interface, the raw response body will be written to v, without attempting to
 // first decode it.
 func (c *Client) Do(req *retryablehttp.Request, v interface{}) (*Response, error) {
-	// If not yet configured, try to configure the rate limiter. Fail
-	// silently as the limiter will be disabled in case of an error.
-	c.configureLimiterOnce.Do(func() { c.configureLimiter(req.Context()) })
-
 	// Wait will block until the limiter can obtain a new token.
 	err := c.limiter.Wait(req.Context())
 	if err != nil {
@@ -797,6 +868,12 @@ func (c *Client) Do(req *retryablehttp.Request, v interface{}) (*Response, error
 		return c.Do(req, v)
 	}
 	defer resp.Body.Close()
+	defer io.Copy(io.Discard, resp.Body)
+
+	// If not yet configured, try to configure the rate limiter
+	// using the response headers we just received. Fail silently
+	// so the limiter will remain disabled in case of an error.
+	c.configureLimiterOnce.Do(func() { c.configureLimiter(req.Context(), resp.Header) })
 
 	response := newResponse(resp)
 
@@ -865,7 +942,7 @@ func PathEscape(s string) string {
 // An ErrorResponse reports one or more errors caused by an API request.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/ce/api/README.html#data-validation-and-error-reporting
+// https://docs.gitlab.com/ee/api/index.html#data-validation-and-error-reporting
 type ErrorResponse struct {
 	Body     []byte
 	Response *http.Response
@@ -892,7 +969,7 @@ func CheckResponse(r *http.Response) error {
 
 		var raw interface{}
 		if err := json.Unmarshal(data, &raw); err != nil {
-			errorResponse.Message = "failed to parse unknown error format"
+			errorResponse.Message = fmt.Sprintf("failed to parse unknown error format: %s", data)
 		} else {
 			errorResponse.Message = parseError(raw)
 		}
@@ -902,23 +979,24 @@ func CheckResponse(r *http.Response) error {
 }
 
 // Format:
-// {
-//     "message": {
-//         "<property-name>": [
-//             "<error-message>",
-//             "<error-message>",
-//             ...
-//         ],
-//         "<embed-entity>": {
-//             "<property-name>": [
-//                 "<error-message>",
-//                 "<error-message>",
-//                 ...
-//             ],
-//         }
-//     },
-//     "error": "<error-message>"
-// }
+//
+//	{
+//	    "message": {
+//	        "<property-name>": [
+//	            "<error-message>",
+//	            "<error-message>",
+//	            ...
+//	        ],
+//	        "<embed-entity>": {
+//	            "<property-name>": [
+//	                "<error-message>",
+//	                "<error-message>",
+//	                ...
+//	            ],
+//	        }
+//	    },
+//	    "error": "<error-message>"
+//	}
 func parseError(raw interface{}) string {
 	switch raw := raw.(type) {
 	case string:

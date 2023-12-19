@@ -34,14 +34,15 @@ type PackagesService struct {
 //
 // GitLab API docs: https://docs.gitlab.com/ee/api/packages.html
 type Package struct {
-	ID          int           `json:"id"`
-	Name        string        `json:"name"`
-	Version     string        `json:"version"`
-	PackageType string        `json:"package_type"`
-	Status      string        `json:"status"`
-	Links       *PackageLinks `json:"_links"`
-	CreatedAt   *time.Time    `json:"created_at"`
-	Tags        []string      `json:"tags"`
+	ID               int           `json:"id"`
+	Name             string        `json:"name"`
+	Version          string        `json:"version"`
+	PackageType      string        `json:"package_type"`
+	Status           string        `json:"status"`
+	Links            *PackageLinks `json:"_links"`
+	CreatedAt        *time.Time    `json:"created_at"`
+	LastDownloadedAt *time.Time    `json:"last_downloaded_at"`
+	Tags             []PackageTag  `json:"tags"`
 }
 
 func (s Package) String() string {
@@ -68,6 +69,19 @@ type PackageLinks struct {
 }
 
 func (s PackageLinks) String() string {
+	return Stringify(s)
+}
+
+// PackageTag holds label information about the package
+type PackageTag struct {
+	ID        int        `json:"id"`
+	PackageID int        `json:"package_id"`
+	Name      string     `json:"name"`
+	CreatedAt *time.Time `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
+}
+
+func (s PackageTag) String() string {
 	return Stringify(s)
 }
 
@@ -100,6 +114,7 @@ type ListProjectPackagesOptions struct {
 	Sort               *string `url:"sort,omitempty" json:"sort,omitempty"`
 	PackageType        *string `url:"package_type,omitempty" json:"package_type,omitempty"`
 	PackageName        *string `url:"package_name,omitempty" json:"package_name,omitempty"`
+	PackageVersion     *string `url:"package_version,omitempty" json:"package_version,omitempty"`
 	IncludeVersionless *bool   `url:"include_versionless,omitempty" json:"include_versionless,omitempty"`
 	Status             *string `url:"status,omitempty" json:"status,omitempty"`
 }
@@ -126,7 +141,7 @@ func (s *PackagesService) ListProjectPackages(pid interface{}, opt *ListProjectP
 		return nil, resp, err
 	}
 
-	return ps, resp, err
+	return ps, resp, nil
 }
 
 // ListGroupPackagesOptions represents the available ListGroupPackages()
@@ -167,7 +182,7 @@ func (s *PackagesService) ListGroupPackages(gid interface{}, opt *ListGroupPacka
 		return nil, resp, err
 	}
 
-	return ps, resp, err
+	return ps, resp, nil
 }
 
 // ListPackageFilesOptions represents the available ListPackageFiles()
@@ -203,7 +218,7 @@ func (s *PackagesService) ListPackageFiles(pid interface{}, pkg int, opt *ListPa
 		return nil, resp, err
 	}
 
-	return pfs, resp, err
+	return pfs, resp, nil
 }
 
 // DeleteProjectPackage deletes a package in a project.

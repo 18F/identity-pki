@@ -17,3 +17,13 @@ vendor:
 .PHONY: validate
 validate:
 	go run . --validate --file=../../terraform/master/global/users.yaml
+
+# this updates the vendored code
+.PHONY: update-go-deps
+update-go-deps:
+	go get -t -u ./...
+	go mod tidy
+ifneq (,$(wildcard vendor))
+	go mod vendor
+endif
+
