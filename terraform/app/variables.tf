@@ -1054,6 +1054,11 @@ variable "external_service_alarms" {
   default     = {}
 }
 
+variable "doc_auth_alarm_evaluation_periods" {
+  description = "List of evaluation periods for the doc_auth alarms"
+  default     = {}
+}
+
 variable "tf_slack_channel" {
   description = "Slack channel to send events to."
   default     = "#login-personal-events"

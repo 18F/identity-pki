@@ -46,7 +46,7 @@ EOM
   alarm_actions       = local.doc_auth_alarm_actions
   comparison_operator = "GreaterThanThreshold"
   threshold           = 50
-  evaluation_periods  = 1
+  evaluation_periods  = try(var.doc_auth_alarm_evaluation_periods[each.key], 1)
 }
 
 resource "aws_cloudwatch_metric_alarm" "idv_high_proofing_resolution_result_missing" {
