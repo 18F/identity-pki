@@ -286,7 +286,7 @@ func TestGitlabCache(t *testing.T) {
 		&gitlab.ListUsersOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
-				Page: 2,
+				Page:    2,
 			},
 			ExcludeInternal: gitlab.Bool(true),
 		}).
@@ -320,7 +320,7 @@ func TestGitlabCache(t *testing.T) {
 			},
 		},
 	)
-	// Test pagination. Empty pages are OK. 
+	// Test pagination. Empty pages are OK.
 	mockClient.EXPECT().
 		ListGroupMembers(
 			1,
@@ -353,7 +353,7 @@ func TestGitlabCache(t *testing.T) {
 			},
 			nil,
 		)
-	
+
 	populateGitLabCache(mockClient)
 }
 
