@@ -81,18 +81,33 @@ func TestResolveUsers(t *testing.T) {
 			AuthorizedUsers: &AuthorizedUsers{
 				Users: map[string]*AuthUser{
 					"john.doe": {
-						Gitlab_groups: []string{},
+						Gitlab_groups: []GitlabGroup{},
 					},
 					"alexandra.thegreat": {
-						Gitlab_groups: []string{"devops"},
-						Email:         "alex.dagreat@gsa.gov",
+						Gitlab_groups: []GitlabGroup{
+							{
+								Name: "devops",
+							},
+							{
+								Name: "appdev|owner",
+							},
+						},
+						Email: "alex.dagreat@gsa.gov",
 					},
 					"alexander.theok": {
-						Gitlab_groups: []string{"devops"},
-						Email:         "alexander.theok@gsa.gov",
+						Gitlab_groups: []GitlabGroup{
+							{
+								Name: "devops",
+							},
+						},
+						Email: "alexander.theok@gsa.gov",
 					},
 					"new.engineer": {
-						Gitlab_groups: []string{"appdev"},
+						Gitlab_groups: []GitlabGroup{
+							{
+								Name: "appdev",
+							},
+						},
 					},
 					// Not a member of any groups
 					"robbie.robot": {
@@ -162,10 +177,18 @@ var testResolveGroupsData = []struct {
 		AuthorizedUsers: &AuthorizedUsers{
 			Users: map[string]*AuthUser{
 				"user1": {
-					Gitlab_groups: []string{"lg"},
+					Gitlab_groups: []GitlabGroup{
+						{
+							Name: "lg",
+						},
+					},
 				},
 				"user2": {
-					Gitlab_groups: []string{"new_admin_group"},
+					Gitlab_groups: []GitlabGroup{
+						{
+							Name: "new_admin_group",
+						},
+					},
 				},
 			},
 		},
@@ -366,13 +389,21 @@ func TestResolveProjects(t *testing.T) {
 	authorizedUsers := &AuthorizedUsers{
 		Users: map[string]*AuthUser{
 			"john.doe": {
-				Gitlab_groups: []string{},
+				Gitlab_groups: []GitlabGroup{},
 			},
 			"alexandra.thegreat": {
-				Gitlab_groups: []string{"devops"},
+				Gitlab_groups: []GitlabGroup{
+					{
+						Name: "devops",
+					},
+				},
 			},
 			"new.engineer": {
-				Gitlab_groups: []string{"appdev"},
+				Gitlab_groups: []GitlabGroup{
+					{
+						Name: "appdev",
+					},
+				},
 			},
 		},
 		Groups: map[string]*AuthGroup{},
