@@ -15,6 +15,7 @@ gem 'newrelic_rpm', '~> 8.0'
 gem 'pg'
 gem 'pry-rails'
 gem 'puma'
+gem 'bootsnap', '~> 1.0', require: false
 gem 'redacted_struct', '~> 1.0'
 gem 'rgl'
 
