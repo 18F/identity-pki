@@ -7,12 +7,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/xanzy/go-gitlab"
 	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v2"
 )
+
 const gitlabTokenEnvVar = "GITLAB_API_TOKEN"
 const ghost = "ghost"
 
@@ -46,6 +48,24 @@ type AuthorizedProject struct {
 
 var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
+func CheckAccessLevel(accesslevelstring string) (*gitlab.AccessLevelValue, error) {
+	accessLevelAlias := map[string]gitlab.AccessLevelValue{
+		"none":       gitlab.NoPermissions,
+		"minimal":    gitlab.MinimalAccessPermissions,
+		"guest":      gitlab.GuestPermissions,
+		"reporter":   gitlab.ReporterPermissions,
+		"developer":  gitlab.DeveloperPermissions,
+		"maintainer": gitlab.MaintainerPermissions,
+		"owner":      gitlab.OwnerPermissions,
+	}
+
+	if val, ok := accessLevelAlias[accesslevelstring]; ok {
+		return gitlab.AccessLevel(val), nil
+	} else {
+		return nil, fmt.Errorf("access level %v not defined", accesslevelstring)
+	}
+}
+
 func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
 		Groups map[string]struct {
@@ -61,29 +81,27 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 		Groups: make(map[string]struct{ Access *gitlab.AccessLevelValue }),
 	}
 
-	accessLevelAlias := map[string]gitlab.AccessLevelValue{
-		"none":       gitlab.NoPermissions,
-		"minimal":    gitlab.MinimalAccessPermissions,
-		"guest":      gitlab.GuestPermissions,
-		"reporter":   gitlab.ReporterPermissions,
-		"developer":  gitlab.DeveloperPermissions,
-		"maintainer": gitlab.MaintainerPermissions,
-		"owner":      gitlab.OwnerPermissions,
-	}
-
 	for gName, g := range tmp.Groups {
-		alias := g.Access
-		if val, ok := accessLevelAlias[alias]; ok {
+		val, err := CheckAccessLevel(g.Access)
+		if err != nil {
+			return err
+		} else {
 			p.Groups[gName] = struct {
 				Access *gitlab.AccessLevelValue
 			}{
-				Access: gitlab.AccessLevel(val),
+				Access: val,
 			}
-		} else {
-			return fmt.Errorf("access level %v not defined", alias)
 		}
 	}
 	return nil
+}
+
+// Format of gitlab groups
+// if AccessLevel is -1, then use the default.
+type GitlabGroup struct {
+	Name           string
+	AccessLevel    *gitlab.AccessLevelValue
+	UseAccessLevel bool
 }
 
 // Format of users from parsing YAML. For backwards compatibility, all fields
@@ -91,7 +109,7 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 type AuthUser struct {
 	Aws_groups         []string
 	Ec2_username       []string
-	Gitlab_groups      []string
+	Gitlab_groups      []GitlabGroup
 	Git_username       string
 	Name               string
 	Email              string
@@ -116,8 +134,34 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	*au = AuthUser{
-		Aws_groups:    tmp.Aws_groups,
-		Gitlab_groups: tmp.Gitlab_groups,
+		Aws_groups: tmp.Aws_groups,
+	}
+	// parse gitlab groups specially.  If there is a |,
+	// then it means that the user should be added to the
+	// group with the authlevel specified after the |.
+	// If there are more than one | in the string, it discards everything after the second |.
+	for _, gitlabgroup := range tmp.Gitlab_groups {
+		var a *gitlab.AccessLevelValue
+		var err error
+		useaccesslevel := true
+		if strings.Contains(gitlabgroup, "|") {
+			a, err = CheckAccessLevel(strings.SplitN(gitlabgroup, "|", 2)[1])
+			if err != nil {
+				return err
+			}
+		} else {
+			a, err = CheckAccessLevel("none")
+			if err != nil {
+				return err
+			}
+			useaccesslevel = false
+		}
+		g := GitlabGroup{
+			Name:           gitlabgroup,
+			AccessLevel:    a,
+			UseAccessLevel: useaccesslevel,
+		}
+		au.Gitlab_groups = append(au.Gitlab_groups, g)
 	}
 	if len(tmp.Git_username) > 0 {
 		au.Git_username = tmp.Git_username[0]
@@ -358,10 +402,13 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool 
 		}
 
 		for _, g := range au.Gitlab_groups {
-			if _, ok := groups[g]; !ok {
-				groups[g] = make(map[string]bool)
+			if _, ok := groups[g.Name]; !ok {
+				groups[g.Name] = make(map[string]bool)
 			}
-			groups[g][username] = true
+			groups[g.Name][username] = true
+			if g.UseAccessLevel {
+				// XXX set the accesslevel in the group for the user somehow
+			}
 		}
 	}
 
@@ -454,7 +501,7 @@ func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 
 func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
 	existingUsers := make(map[string]*gitlab.User)
-	opt := 		&gitlab.ListUsersOptions{
+	opt := &gitlab.ListUsersOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 100,
 		},
@@ -587,7 +634,7 @@ func resolveMembers(
 
 	// Go through each live group and members
 	for gname, liveMembers := range liveGroupMemberships {
-		
+
 		// If existing membership is for a group not in config, don't do anything.
 		if _, ok := authorizedGroups[gname]; !ok {
 			continue
@@ -596,7 +643,7 @@ func resolveMembers(
 		// Create the structure where we can store new and invalid memberships
 		membersToCreate[gname] = make(map[string]bool)
 		membersToDelete[gname] = make(map[string]bool)
-		
+
 		for username := range authorizedGroups[gname] {
 			if _, ok := liveMembers[username]; !ok {
 				// Create new memberships if required

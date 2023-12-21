@@ -393,6 +393,7 @@ func TestResolveProjects(t *testing.T) {
 			SharedWithGroups: []struct {
 				GroupID          int    "json:\"group_id\""
 				GroupName        string "json:\"group_name\""
+				GroupFullPath    string "json:\"group_full_path\""
 				GroupAccessLevel int    "json:\"group_access_level\""
 			}{
 				{

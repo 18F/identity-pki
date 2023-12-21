@@ -9,9 +9,9 @@ import (
 func (au *AuthorizedUsers) Validate() error {
 	// Every referenced gitlab group must be defined
 	for userName, user := range au.Users {
-		for _, groupName := range user.Gitlab_groups {
-			if _, ok := au.Groups[groupName]; !ok {
-				return fmt.Errorf("%v is not defined, but %v is a member of it", groupName, userName)
+		for _, group := range user.Gitlab_groups {
+			if _, ok := au.Groups[group.Name]; !ok {
+				return fmt.Errorf("%v is not defined, but %v is a member of it", group.Name, userName)
 			}
 		}
 	}
@@ -31,8 +31,8 @@ func (au *AuthorizedUsers) Validate() error {
 
 	// Root must be a member of every group
 	rootGroups := map[string]bool{}
-	for _, groupName := range rootUser.Gitlab_groups {
-		rootGroups[groupName] = true
+	for _, group := range rootUser.Gitlab_groups {
+		rootGroups[group.Name] = true
 	}
 	for groupName := range au.Groups {
 		if _, ok := rootGroups[groupName]; !ok {
