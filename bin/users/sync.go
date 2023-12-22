@@ -97,7 +97,7 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 }
 
 // Format of gitlab groups
-// if AccessLevel is -1, then use the default.
+// if UseAccessLevel is false, then use the default, which is DeveloperPermissions.
 type GitlabGroup struct {
 	Name           string
 	AccessLevel    *gitlab.AccessLevelValue
