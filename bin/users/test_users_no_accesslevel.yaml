@@ -1,0 +1,81 @@
+---
+users:
+  no.groups.for.me:
+    aws_groups:
+      - devopsnonprod
+  no.gitlab.for.me:
+    aws_groups:
+      - analytics
+      - finops
+      - bizops
+  gitlab.and.group.please:
+    aws_groups:
+      - devops
+      - appdev
+    gitlab_groups:
+      - lg
+  krit.alexikos:
+    new_field:
+      - fun!
+    ec2_username:
+      - spencerino
+    git_username:
+      - kritty
+    name:
+      - Krit Alexikos
+    aws_groups:
+      - devops
+    gitlab_groups:
+      - devops
+      - appdev|
+  mach.zargolis:
+    email:
+      - machary.zargolis@gsa.gov
+    aws_groups:
+      - appdev
+      - apponcall
+    gitlab_groups:
+      - appdev
+  root:
+    gitlab_groups:
+      - appdev
+      - bots
+      - devops
+      - lg
+      - pm
+    can_create_group:
+      - true
+
+groups:
+  appdev:
+    description: "Application Developers"
+  bots:
+    description: "Bots"
+  devops:
+    description: "DevOps and SRE"
+  lg:
+    description: "Namespace for Login.gov projects"
+  pm:
+    description: "PMs are members"
+    
+projects:
+  lg/identity-devops:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+  lg/identity-idp:
+    groups:
+      appdev:
+        access: maintainer
+      devops:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-gitlab:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer

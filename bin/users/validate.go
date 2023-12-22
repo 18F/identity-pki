@@ -7,6 +7,12 @@ import (
 // Ensure users.yaml is internally consistent by ensuring referenced groups are
 // also defined. Ensure root has the necessary properties and permissions.
 func (au *AuthorizedUsers) Validate() error {
+	// ensure we are running on initialized data
+	var nilau *AuthorizedUsers
+	if nilau == au {
+		return fmt.Errorf("cannot validate uninitialized AuthorizedUsers data")
+	}
+
 	// Every referenced gitlab group must be defined
 	for userName, user := range au.Users {
 		for _, group := range user.Gitlab_groups {

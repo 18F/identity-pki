@@ -62,7 +62,7 @@ func CheckAccessLevel(accesslevelstring string) (*gitlab.AccessLevelValue, error
 	if val, ok := accessLevelAlias[accesslevelstring]; ok {
 		return gitlab.AccessLevel(val), nil
 	} else {
-		return nil, fmt.Errorf("access level %v not defined", accesslevelstring)
+		return nil, fmt.Errorf("access level '%v' not defined", accesslevelstring)
 	}
 }
 
@@ -158,6 +158,9 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			}
 			group = gitlabgroup
 			useaccesslevel = false
+		}
+		if group == "" {
+			return fmt.Errorf("group is empty")
 		}
 		g := GitlabGroup{
 			Name:           group,
@@ -304,6 +307,8 @@ func main() {
 		log.Fatalf("Failed to list memberships: %v", err)
 	}
 	authGroups := getAuthorizedGroups(authorizedUsers)
+	// XXX need to detect and change accesslevels too
+	// membersToCreate, membersToDelete, membersToChange := resolveMembers(groupsWithMembers, authGroups)
 	membersToCreate, membersToDelete := resolveMembers(groupsWithMembers, authGroups)
 	// Even if these fail, try to continue. There's still work to do.
 	err = createMemberships(gitc, membersToCreate)

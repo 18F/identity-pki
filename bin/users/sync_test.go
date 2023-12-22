@@ -476,21 +476,24 @@ func TestValidate(t *testing.T) {
 		"missing root membership": {input: "test_users_no_root_membership.yaml", want_err: true},
 		"no root member":          {input: "test_users_no_root.yaml", want_err: true},
 		"bot group member":        {input: "test_users_bot_member.yaml", want_err: true},
+		"bad AccessLevel":         {input: "test_users_bad_accesslevel.yaml", want_err: true},
+		"missing AccessLevel":     {input: "test_users_no_accesslevel.yaml", want_err: true},
 	}
 
 	for name, td := range tests {
 		t.Run(name, func(t *testing.T) {
 			au, err := getAuthorizedUsers(td.input)
-			if err != nil {
+			if err != nil && !td.want_err {
 				t.Errorf("error loading %v: %v", td.input, err)
 			}
-
-			err = au.Validate()
-			if err != nil && !td.want_err {
-				t.Errorf("error validating %s: %s", td.input, err)
-			}
-			if err == nil && td.want_err {
-				t.Errorf("expected an error when validating %s", td.input)
+			if err == nil {
+				err = au.Validate()
+				if err != nil && !td.want_err {
+					t.Errorf("error validating %s: %s", td.input, err)
+				}
+				if err == nil && td.want_err {
+					t.Errorf("expected an error when validating %s", td.input)
+				}
 			}
 		})
 	}
