@@ -395,8 +395,8 @@ func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab
 	return nil
 }
 
-func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool {
-	groups := map[string]map[string]bool{}
+func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]*gitlab.AccessLevelValue {
+	groups := map[string]map[string]*gitlab.AccessLevelValue{}
 	for username, au := range authUsers.Users {
 
 		// Use the overridden git username if available
@@ -406,11 +406,12 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool 
 
 		for _, g := range au.Gitlab_groups {
 			if _, ok := groups[g.Name]; !ok {
-				groups[g.Name] = make(map[string]bool)
+				groups[g.Name] = make(map[string]*gitlab.AccessLevelValue)
 			}
-			groups[g.Name][username] = true
 			if g.UseAccessLevel {
-				// XXX set the accesslevel in the group for the user somehow
+				groups[g.Name][username] = g.AccessLevel
+			} else {
+				groups[g.Name][username] = gitlab.AccessLevel(gitlab.DeveloperPermissions)
 			}
 		}
 	}
@@ -629,10 +630,10 @@ func resolveGroups(
 // TODO: create and delete in-place, test with mocks, and recursively create subgroups.
 func resolveMembers(
 	liveGroupMemberships map[string]map[string]bool,
-	authorizedGroups map[string]map[string]bool,
-) (map[string]map[string]bool, map[string]map[string]bool) {
+	authorizedGroups map[string]map[string]*gitlab.AccessLevelValue,
+) (map[string]map[string]*gitlab.AccessLevelValue, map[string]map[string]bool) {
 
-	membersToCreate := map[string]map[string]bool{}
+	membersToCreate := map[string]map[string]*gitlab.AccessLevelValue{}
 	membersToDelete := map[string]map[string]bool{}
 
 	// Go through each live group and members
@@ -644,13 +645,13 @@ func resolveMembers(
 		}
 
 		// Create the structure where we can store new and invalid memberships
-		membersToCreate[gname] = make(map[string]bool)
+		membersToCreate[gname] = make(map[string]*gitlab.AccessLevelValue)
 		membersToDelete[gname] = make(map[string]bool)
 
 		for username := range authorizedGroups[gname] {
 			if _, ok := liveMembers[username]; !ok {
 				// Create new memberships if required
-				membersToCreate[gname][username] = true
+				membersToCreate[gname][username] = authorizedGroups[gname][username]
 			}
 		}
 
@@ -777,7 +778,7 @@ func deleteGroups(gitc GitlabClientIface, groupsToDelete map[string]*gitlab.Grou
 	return nil
 }
 
-func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[string]bool) error {
+func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[string]*gitlab.AccessLevelValue) error {
 	for groupName, members := range membersToCreate {
 		for memberName := range members {
 			fatalIfDryRun("Member %v should exist in %v, but doesn't.", memberName, groupName)
@@ -791,9 +792,10 @@ func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[st
 				return fmt.Errorf("%v not found in user cache", memberName)
 			}
 			groupID := group.ID
+			accesslevel := membersToCreate[groupName][memberName]
 			memberOpts := &gitlab.AddGroupMemberOptions{
 				UserID:      gitlab.Int(user.ID),
-				AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+				AccessLevel: accesslevel,
 			}
 			_, _, err := gitc.AddGroupMember(groupID, memberOpts)
 			if err != nil {

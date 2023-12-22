@@ -165,7 +165,7 @@ var testResolveGroupsData = []struct {
 	Name            string
 	GitlabGroups    map[string]*gitlab.Group
 	AuthorizedUsers *AuthorizedUsers
-	AuthGroups      map[string]map[string]bool
+	AuthGroups      map[string]map[string]*gitlab.AccessLevelValue
 	WantToCreate    map[string]bool
 }{
 	{
@@ -193,12 +193,12 @@ var testResolveGroupsData = []struct {
 			},
 		},
 
-		AuthGroups: map[string]map[string]bool{
+		AuthGroups: map[string]map[string]*gitlab.AccessLevelValue{
 			"lg": {
-				"user1": true,
+				"user1": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 			},
 			"new_admin_group": {
-				"user2": true,
+				"user2": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 			},
 		},
 		WantToCreate: map[string]bool{
@@ -219,8 +219,8 @@ func TestResolveMembers(t *testing.T) {
 	var testResolveMembersData = []struct {
 		Name         string
 		Memberships  map[string]map[string]bool
-		AuthGroups   map[string]map[string]bool
-		WantToCreate map[string]map[string]bool
+		AuthGroups   map[string]map[string]*gitlab.AccessLevelValue
+		WantToCreate map[string]map[string]*gitlab.AccessLevelValue
 		WantToDelete map[string]map[string]bool
 	}{
 		{
@@ -231,15 +231,15 @@ func TestResolveMembers(t *testing.T) {
 					"ex_dev": true,
 				},
 			},
-			AuthGroups: map[string]map[string]bool{
+			AuthGroups: map[string]map[string]*gitlab.AccessLevelValue{
 				"lg": {
-					"lg_dev":  true,
-					"new_dev": true,
+					"lg_dev":  gitlab.AccessLevel(gitlab.DeveloperPermissions),
+					"new_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 				},
 			},
-			WantToCreate: map[string]map[string]bool{
+			WantToCreate: map[string]map[string]*gitlab.AccessLevelValue{
 				"lg": {
-					"new_dev": true,
+					"new_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 				},
 			},
 			WantToDelete: map[string]map[string]bool{
@@ -259,23 +259,23 @@ func TestResolveMembers(t *testing.T) {
 }
 
 func TestGetAuthorizedGroups(t *testing.T) {
-	want := map[string]map[string]bool{
+	want := map[string]map[string]*gitlab.AccessLevelValue{
 		"appdev": {
-			"mach.zargolis": true,
-			"root":          true,
-			"kritty":        true,
+			"mach.zargolis": gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"root":          gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"kritty":        gitlab.AccessLevel(gitlab.MaintainerPermissions),
 		},
-		"bots": {"root": true},
+		"bots": {"root": gitlab.AccessLevel(gitlab.DeveloperPermissions)},
 		"devops": {
-			"kritty": true,
-			"root":   true,
+			"kritty": gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"root":   gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		},
 		"lg": {
-			"gitlab.and.group.please": true,
-			"root":                    true,
+			"gitlab.and.group.please": gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"root":                    gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		},
 		"pm": {
-			"root": true,
+			"root": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 		},
 	}
 	authUsers, err := getAuthorizedUsers("test_users.yaml")
