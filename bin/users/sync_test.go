@@ -263,6 +263,7 @@ func TestGetAuthorizedGroups(t *testing.T) {
 		"appdev": {
 			"mach.zargolis": true,
 			"root":          true,
+			"kritty":        true,
 		},
 		"bots": {"root": true},
 		"devops": {

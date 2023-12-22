@@ -143,21 +143,24 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	for _, gitlabgroup := range tmp.Gitlab_groups {
 		var a *gitlab.AccessLevelValue
 		var err error
+		var group string
 		useaccesslevel := true
 		if strings.Contains(gitlabgroup, "|") {
 			a, err = CheckAccessLevel(strings.SplitN(gitlabgroup, "|", 2)[1])
 			if err != nil {
 				return err
 			}
+			group = strings.SplitN(gitlabgroup, "|", 2)[0]
 		} else {
 			a, err = CheckAccessLevel("none")
 			if err != nil {
 				return err
 			}
+			group = gitlabgroup
 			useaccesslevel = false
 		}
 		g := GitlabGroup{
-			Name:           gitlabgroup,
+			Name:           group,
 			AccessLevel:    a,
 			UseAccessLevel: useaccesslevel,
 		}
