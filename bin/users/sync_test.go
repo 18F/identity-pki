@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/18F/identity-devops/bin/users/mocks"
-	"github.com/golang/mock/gomock"
 	"github.com/xanzy/go-gitlab"
+	"go.uber.org/mock/gomock"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -222,6 +222,7 @@ func TestResolveMembers(t *testing.T) {
 		AuthGroups   map[string]map[string]*gitlab.AccessLevelValue
 		WantToCreate map[string]map[string]*gitlab.AccessLevelValue
 		WantToDelete map[string]map[string]bool
+		WantToChange map[string]map[string]*gitlab.AccessLevelValue
 	}{
 		{
 			Name: "Create/Delete Members",
@@ -247,14 +248,19 @@ func TestResolveMembers(t *testing.T) {
 					"ex_dev": true,
 				},
 			},
+			WantToChange: map[string]map[string]*gitlab.AccessLevelValue{
+				// XXX should manufacture some stuff that needs changing here
+				"lg": {},
+			},
 		},
 	}
 
 	for _, td := range testResolveMembersData {
-		toCreate, toDelete := resolveMembers(td.Memberships, td.AuthGroups)
+		toCreate, toDelete, toChange := resolveMembers(td.Memberships, td.AuthGroups)
 
 		assertEqual(t, td.Name, toCreate, td.WantToCreate)
 		assertEqual(t, td.Name, toDelete, td.WantToDelete)
+		assertEqual(t, td.Name, toChange, td.WantToChange)
 	}
 }
 
