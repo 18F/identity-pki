@@ -444,7 +444,6 @@ func getExistingGroups(gitc GitlabClientIface) (map[string]*gitlab.Group, error)
 		cache.Groups[g.Name] = g
 	}
 
-	fmt.Printf("groupMap: %v\n", groupMap)
 	return groupMap, nil
 }
 
@@ -856,6 +855,7 @@ func changeMemberships(gitc GitlabClientIface, membersToChange map[string]map[st
 			memberOpts := &gitlab.EditGroupMemberOptions{
 				AccessLevel: membersToChange[groupName][memberName],
 			}
+			// XXX this is untested still
 			_, _, err := gitc.EditGroupMember(groupID, user.ID, memberOpts)
 			if err != nil {
 				return err
