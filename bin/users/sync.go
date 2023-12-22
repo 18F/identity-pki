@@ -792,10 +792,9 @@ func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[st
 				return fmt.Errorf("%v not found in user cache", memberName)
 			}
 			groupID := group.ID
-			accesslevel := membersToCreate[groupName][memberName]
 			memberOpts := &gitlab.AddGroupMemberOptions{
 				UserID:      gitlab.Int(user.ID),
-				AccessLevel: accesslevel,
+				AccessLevel: membersToCreate[groupName][memberName],
 			}
 			_, _, err := gitc.AddGroupMember(groupID, memberOpts)
 			if err != nil {
