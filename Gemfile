@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 3.3'
 
-gem 'rails', '~> 7.0.8.3'
+gem 'rails', '~> 7.1.0'
 
 gem 'activerecord-import', '>= 1.0.2'
 # pod identity requires 3.188.0
@@ -23,11 +23,11 @@ gem 'redacted_struct', '~> 2.0'
 gem 'rgl'
 
 group :development, :test do
-  gem 'bullet', '~> 7.0'
+  gem 'bullet', '~> 7.1.2'
   gem 'brakeman', require: false
   gem 'listen'
   gem 'pry-byebug'
-  gem 'rspec-rails', '>= 3.8.3'
+  gem 'rspec-rails', '~> 6.0'
   gem 'rubocop', require: false
   gem 'rubocop-rails', '>= 2.19.0', require: false
   gem 'rubocop-performance', '~> 1.17', require: false
@@ -40,7 +40,6 @@ end
 group :test do
   gem 'axe-matchers', '~> 1.3.4'
   gem 'bundler-audit', require: false
-  gem 'database_cleaner'
   gem 'factory_bot_rails', '>= 5.2.0'
   gem 'fakefs', require: 'fakefs/safe'
   gem 'rails-controller-testing', '>= 1.0.4'
