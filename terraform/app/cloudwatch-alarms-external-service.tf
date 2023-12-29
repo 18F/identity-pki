@@ -5,10 +5,14 @@ resource "aws_cloudwatch_metric_alarm" "doc_auth_vendor_exception_rate" {
 
   alarm_name        = "${aws_autoscaling_group.idp.name}-doc-auth-vendor-exception-rate-${each.key}"
   alarm_description = <<EOM
-${aws_autoscaling_group.idp.name}: ${each.value} idv vendor
+${aws_autoscaling_group.idp.name}: ${each.value.long_name} idv vendor
 exception rate is above 50% over a period of 15 mins.
 
+%{if each.value.runbook_url != ""~}
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-${each.value.runbook_url}
+%{else~}
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
+%{endif~}
 %{if var.env_name == "prod"}
 Notifying:%{for handle in var.slack_proofing_groups} @${handle}%{endfor}
 %{endif}
@@ -17,7 +21,7 @@ EOM
   metric_query {
     id          = "exception_rate_${each.key}"
     expression  = "(exc${each.key} / all${each.key}) * 100"
-    label       = "Exception rate of ${each.value}"
+    label       = "Exception rate of ${each.value.long_name}"
     return_data = "true"
   }
 
@@ -46,7 +50,7 @@ EOM
   alarm_actions       = local.doc_auth_alarm_actions
   comparison_operator = "GreaterThanThreshold"
   threshold           = 50
-  evaluation_periods  = try(var.doc_auth_alarm_evaluation_periods[each.key], 1)
+  evaluation_periods  = each.value.evaluation_periods
 }
 
 resource "aws_cloudwatch_metric_alarm" "idv_high_proofing_resolution_result_missing" {

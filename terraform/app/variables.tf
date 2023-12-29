@@ -1031,15 +1031,42 @@ variable "doc_capture_secrets" {
   }
 }
 
-variable "doc_auth_vendors" {
-  type        = map(string)
-  description = "Map of DocAuth vendors : metric names (for exception rate alarms)"
-  default     = {}
-}
-
 variable "idv_high_proofing_resolution_result_missing_threshold" {
   description = "Threshold of how many events need to occur within the period to trigger the alert"
   default     = 3
+}
+
+variable "doc_auth_vendors" {
+  type = map(object({
+    long_name          = string
+    evaluation_periods = optional(number, 1)
+    runbook_url        = optional(string, "")
+  }))
+  description = <<EOM
+List of DocAuth vendors mapped to long names, optionally with separately-configured
+values for evaluation_periods and runbook_url, as used in the
+aws_cloudwatch_metric_alarm.doc_auth_vendor_exception_rate resource.
+EOM
+  default = {
+    "aamva" = {
+      long_name          = "AAMVA",
+      evaluation_periods = 2,
+      runbook_url        = "AAMVA-DLDV-outage",
+    }
+    "acuant" = {
+      long_name = "Acuant",
+    }
+    "iv" = {
+      long_name   = "Instant Verify",
+      runbook_url = "LexisNexis-Instant-Verify-outage",
+    }
+    "pinpoint" = {
+      long_name = "Pinpoint",
+    }
+    "trueid" = {
+      long_name = "TrueID",
+    }
+  }
 }
 
 variable "external_service_alarms" {
@@ -1051,12 +1078,27 @@ variable "external_service_alarms" {
     latency_threshold  = optional(number)
   }))
   description = "List/Map of DocAuth vendors + configs for CloudWatch alarms"
-  default     = {}
-}
-
-variable "doc_auth_alarm_evaluation_periods" {
-  description = "List of evaluation periods for the doc_auth alarms"
-  default     = {}
+  default = {
+    "lexis_nexis_instant_verify" = {
+      long_name          = "LN Instant Verify",
+      latency_percentile = 90,
+      latency_threshold  = 10
+    },
+    "lexis_nexis_phone_finder" = {
+      long_name          = "LN Phone Finder",
+      latency_percentile = 90,
+      latency_threshold  = 10
+    },
+    "acuant_doc_auth_create_document" = {
+      long_name          = "Acuant Create Document",
+      latency_percentile = 50,
+      latency_threshold  = 5
+    },
+    "aamva_verification" = {
+      long_name = "AAMVA DLDV",
+      tps_max   = 8
+    }
+  }
 }
 
 variable "tf_slack_channel" {
