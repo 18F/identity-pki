@@ -447,8 +447,8 @@ func getExistingGroups(gitc GitlabClientIface) (map[string]*gitlab.Group, error)
 	return groupMap, nil
 }
 
-func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]bool, error) {
-	memberships := map[string]map[string]bool{}
+func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]*gitlab.AccessLevelValue, error) {
+	memberships := map[string]map[string]*gitlab.AccessLevelValue{}
 
 	gitlabGroups, err := getExistingGroups(gitc)
 	if err != nil {
@@ -460,9 +460,9 @@ func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]bool, err
 		if err != nil {
 			return nil, err
 		}
-		memberships[gname] = make(map[string]bool)
+		memberships[gname] = make(map[string]*gitlab.AccessLevelValue)
 		for _, m := range members {
-			memberships[gname][m.Username] = true
+			memberships[gname][m.Username] = &m.AccessLevel
 		}
 	}
 	return memberships, nil
@@ -636,7 +636,7 @@ func resolveGroups(
 // Returns memberships to create and delete.
 // TODO: create and delete in-place, test with mocks, and recursively create subgroups.
 func resolveMembers(
-	liveGroupMemberships map[string]map[string]bool,
+	liveGroupMemberships map[string]map[string]*gitlab.AccessLevelValue,
 	authorizedGroups map[string]map[string]*gitlab.AccessLevelValue,
 ) (map[string]map[string]*gitlab.AccessLevelValue, map[string]map[string]bool, map[string]map[string]*gitlab.AccessLevelValue) {
 
@@ -664,10 +664,15 @@ func resolveMembers(
 			}
 		}
 
-		for username := range liveMembers {
-			if _, ok := authorizedGroups[gname][username]; !ok {
+		for username, liveAccessLevel := range liveMembers {
+			authorizedAccessLevel, ok := authorizedGroups[gname][username];
+			if !ok {
 				// This user shouldn't be in this group. Delete.
 				membersToDelete[gname][username] = true
+				continue
+			}
+			if *authorizedAccessLevel != *liveAccessLevel {
+				membersToChange[gname][username] = authorizedAccessLevel
 			}
 		}
 
@@ -841,7 +846,7 @@ func deleteMemberships(gitc GitlabClientIface, membersToDelete map[string]map[st
 func changeMemberships(gitc GitlabClientIface, membersToChange map[string]map[string]*gitlab.AccessLevelValue) error {
 	for groupName, members := range membersToChange {
 		for memberName := range members {
-			fatalIfDryRun("Member %v should exist in %v, but doesn't.", memberName, groupName)
+			fatalIfDryRun("Member %v should exist in %v, and needs updating.", memberName, groupName)
 
 			group, ok := cache.Groups[groupName]
 			if !ok {
