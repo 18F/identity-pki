@@ -665,7 +665,7 @@ func resolveMembers(
 		}
 
 		for username, liveAccessLevel := range liveMembers {
-			authorizedAccessLevel, ok := authorizedGroups[gname][username];
+			authorizedAccessLevel, ok := authorizedGroups[gname][username]
 			if !ok {
 				// This user shouldn't be in this group. Delete.
 				membersToDelete[gname][username] = true
@@ -675,14 +675,6 @@ func resolveMembers(
 				membersToChange[gname][username] = authorizedAccessLevel
 			}
 		}
-
-		// find members that need to have their accesslevel changed
-		// for username := range liveMembers {
-		// 	if "XXX" != authorizedGroups[gname][username] {
-		// 		// This user needs their accesslevel updated.
-		// 		membersToChange[gname][username] = authorizedGroups[gname][username]
-		// 	}
-		// }
 	}
 	return membersToCreate, membersToDelete, membersToChange
 }
@@ -860,7 +852,6 @@ func changeMemberships(gitc GitlabClientIface, membersToChange map[string]map[st
 			memberOpts := &gitlab.EditGroupMemberOptions{
 				AccessLevel: membersToChange[groupName][memberName],
 			}
-			// XXX this is untested still
 			_, _, err := gitc.EditGroupMember(groupID, user.ID, memberOpts)
 			if err != nil {
 				return err
