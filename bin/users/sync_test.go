@@ -218,7 +218,7 @@ func TestResolveGroups(t *testing.T) {
 func TestResolveMembers(t *testing.T) {
 	var testResolveMembersData = []struct {
 		Name         string
-		Memberships  map[string]map[string]bool
+		Memberships  map[string]map[string]*gitlab.AccessLevelValue
 		AuthGroups   map[string]map[string]*gitlab.AccessLevelValue
 		WantToCreate map[string]map[string]*gitlab.AccessLevelValue
 		WantToDelete map[string]map[string]bool
@@ -226,10 +226,10 @@ func TestResolveMembers(t *testing.T) {
 	}{
 		{
 			Name: "Create/Delete Members",
-			Memberships: map[string]map[string]bool{
+			Memberships: map[string]map[string]*gitlab.AccessLevelValue{
 				"lg": {
-					"lg_dev": true,
-					"ex_dev": true,
+					"lg_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
+					"ex_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 				},
 			},
 			AuthGroups: map[string]map[string]*gitlab.AccessLevelValue{
