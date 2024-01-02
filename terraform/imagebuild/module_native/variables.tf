@@ -56,7 +56,7 @@ DESC
     ami_owner_id            = "679593333241",
     berkshelf_version       = "7.1.0"
     chef_version            = "17.5.22" # also passed to CFN as ChefVersion parameter
-    data_vol_size           = "100"
+    data_vol_size           = "200"
     delay_seconds           = "60"
     delete_ami_snapshots    = "false"
     deregister_existing_ami = "false"

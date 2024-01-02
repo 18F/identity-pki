@@ -62,7 +62,7 @@ DESC
     aws_max_attempts        = "50"
     encryption              = "true"
     root_vol_size           = "40"
-    data_vol_size           = "100"
+    data_vol_size           = "200"
     deregister_existing_ami = "false"
     delete_ami_snapshots    = "false"
     chef_version            = "17.5.22" # also passed to CFN as ChefVersion parameter
