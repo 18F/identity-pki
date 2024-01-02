@@ -18,7 +18,8 @@ class IdentifyController < ApplicationController
       referrer.query = "token=#{token_for_referrer}"
 
       # redirect to referer OR redirect to a preconfigured URL template
-      redirect_to referrer.to_s
+      # this is safe because we validate that it is an allowed referrer
+      redirect_to referrer.to_s,  allow_other_host: true
     else
       render_bad_request('No referrer')
     end
