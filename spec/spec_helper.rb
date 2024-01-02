@@ -1,5 +1,3 @@
-require 'active_support/deprecator'
-
 if ENV['COVERAGE']
   require 'simplecov'
   SimpleCov.start 'rails' do
@@ -37,5 +35,3 @@ end
 
 require 'webmock/rspec'
 WebMock.disable_net_connect!(allow: [/localhost/, /127\.0\.0\.1/])
-
-# require 'zonebie/rspec'
