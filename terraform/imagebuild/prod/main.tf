@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["555546682965"] # require identity-prod
+  allowed_account_ids = ["555546682965"] # require login-prod
 }
 
 # Stub remote config

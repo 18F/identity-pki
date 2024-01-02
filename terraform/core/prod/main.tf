@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["555546682965"] # require identity-prod
+  allowed_account_ids = ["555546682965"] # require login-prod
 }
 
 # Stub remote config
@@ -18,6 +18,9 @@ module "main" {
 
   sns_topic_alert_critical = "splunk-oncall-login-platform"
   sns_topic_alert_warning  = "slack-events"
+
+  #logarchive_acct_id          = "429506220995" # uncomment once access is approved
+  #logarchive_secondary_region = "us-east-1" # disable for now
 
   root_domain = "login.gov"
 

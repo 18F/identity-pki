@@ -1,4 +1,11 @@
+data "aws_iam_account_alias" "current" {}
+
+data "aws_region" "current" {}
+
 locals {
+  aws_alias = trimprefix(
+    data.aws_iam_account_alias.current.account_alias, "login-"
+  )
   bucket_name_prefix        = "login-gov"
   app_secrets_bucket_type   = "app-secrets"
   cert_secrets_bucket_type  = "internal-certs"

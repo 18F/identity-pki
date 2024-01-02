@@ -199,3 +199,24 @@ variable "enable_waf_mrg_update_notifications" {
   type    = bool
   default = false
 }
+
+variable "logarchive_acct_id" {
+  type        = string
+  description = <<EOM
+ID of the 'logarchive' AWS account containing CloudWatch Log Destinations and
+Kinesis Data Streams/Firehoses, which CloudWatch Subscription Filters will send to.
+Leave BLANK to disable creation of IAM role/policies that will give CloudWatch
+access to create Subscription Filters in this account to send to the destination.
+EOM
+  default     = ""
+}
+
+variable "logarchive_secondary_region" {
+  type        = string
+  description = <<EOM
+Secondary region where 'logarchive' CloudWatch Destinations exist, which will be
+sending to the Kinesis Data Streams/Firehoses in the main region.
+Leave BLANK to disable creation of resources in the secondary region of this account.
+EOM
+  default     = ""
+}

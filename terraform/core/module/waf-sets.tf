@@ -1,7 +1,5 @@
 # get account name and list of VPCs identified with fisma tag
 
-data "aws_iam_account_alias" "current" {}
-
 data "aws_vpcs" "default" {
   tags = {
     "fisma" = "${var.fisma_tag}"

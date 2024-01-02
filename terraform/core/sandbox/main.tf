@@ -1,6 +1,6 @@
 provider "aws" {
   region              = "us-west-2"
-  allowed_account_ids = ["894947205914"] # require identity-sandbox
+  allowed_account_ids = ["894947205914"] # require login-sandbox
 }
 
 # Stub remote config
@@ -16,6 +16,9 @@ module "main" {
 
   sns_topic_alert_critical = "slack-events"
   sns_topic_alert_warning  = "slack-events"
+
+  logarchive_acct_id = "221972985980" # provide access to login-logarchive-sandbox
+  #logarchive_secondary_region = "us-east-1" # disable for now
 
   root_domain = "identitysandbox.gov"
 
