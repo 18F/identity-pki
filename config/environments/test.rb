@@ -40,7 +40,7 @@ Rails.application.configure do
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
 
-  config.time_zone = ActiveSupport::TimeZone.us_zones.sample.name
+  config.time_zone = ActiveSupport::TimeZone::MAPPING.keys.sample
   config.active_record.default_timezone = :local
 
   # Raises error for missing translations
