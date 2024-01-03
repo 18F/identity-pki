@@ -968,22 +968,6 @@ groups:
   login-security:
     description: Security Team Project and Documentation Management
 projects:
-  login-security/login-security-compliance:
-    groups:
-      login-security:
-        access: maintainer
-  login-security/login-security-review:
-    groups:
-      login-security:
-        access: maintainer
-  login-security/login-security-handbook:
-    groups:
-      login-security:
-        access: maintainer
-  login-security/login-security-ops:
-    groups:
-      login-security:
-        access: maintainer
   lg/identity-devops:
     groups:
       devops:
