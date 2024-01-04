@@ -20,6 +20,7 @@ locals {
 
   review_app_cleanup_config = yamldecode(templatefile("${path.module}/helm-values/review-app-cleanup.yaml.tpl", {}))
 
+  rancher_config = yamldecode(templatefile("${path.module}/helm-values/rancher.yaml.tpl", {}))
 }
 
 module "aws_secrets_to_kubernetes" {
@@ -134,6 +135,7 @@ module "kubernetes_addons" {
         fluentd          = local.fluentd_config
         ingressNginx     = local.ingress_nginx_config
         reviewAppCleanUp = local.review_app_cleanup_config
+        rancher          = local.rancher_config
       }
     }
     # Below are all magic add-ons that you can see how to configure here:
