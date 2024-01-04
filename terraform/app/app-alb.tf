@@ -61,7 +61,7 @@ resource "aws_alb_listener" "app-ssl" {
   load_balancer_arn = aws_alb.app[0].id
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-FIPS-2023-04"
 
   default_action {
     type = "redirect"
