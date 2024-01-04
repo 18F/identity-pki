@@ -597,6 +597,8 @@ users:
     - mkananda
     gitlab_groups:
     - devops
+    email:
+    - m.kananda@gsa.gov
   matt.gardner:
     aws_groups:
     - appdev
