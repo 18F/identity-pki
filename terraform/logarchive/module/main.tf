@@ -15,7 +15,7 @@ locals {
 ### DATA STREAM modules
 
 module "logarchive_kinesis_primary" {
-  source = "github.com/18F/identity-terraform//kinesis_stream_destination?ref=f64acd75fc0778cacc51b2006e28c91f07e2851b"
+  source = "github.com/18F/identity-terraform//kinesis_stream_destination?ref=ced89307118740fa3729433f03ed57a5562106a2"
   #source = "../../../../identity-terraform/kinesis_stream_destination"
   providers = {
     aws = aws.usw2
@@ -30,7 +30,7 @@ module "logarchive_kinesis_primary" {
 # create Destination in us-east-1 which points to Kinesis Stream in us-west-2
 module "logarchive_kinesis_secondary" {
   count  = length(var.secondary_region) != 0 ? 1 : 0
-  source = "github.com/18F/identity-terraform//kinesis_stream_destination?ref=f64acd75fc0778cacc51b2006e28c91f07e2851b"
+  source = "github.com/18F/identity-terraform//kinesis_stream_destination?ref=ced89307118740fa3729433f03ed57a5562106a2"
   #source = "../../../../identity-terraform/kinesis_stream_destination"
   providers = {
     aws = aws.use1
@@ -45,7 +45,7 @@ module "logarchive_kinesis_secondary" {
 ### FIREHOSE modules
 
 module "logarchive_firehose_primary" {
-  source = "github.com/18F/identity-terraform//kinesis_firehose_destination?ref=f64acd75fc0778cacc51b2006e28c91f07e2851b"
+  source = "github.com/18F/identity-terraform//kinesis_firehose_destination?ref=ced89307118740fa3729433f03ed57a5562106a2"
   #source = "../../../../identity-terraform/kinesis_firehose_destination"
   providers = {
     aws = aws.usw2
@@ -60,7 +60,7 @@ module "logarchive_firehose_primary" {
 # create Destination in us-east-1 which points to Firehose in us-west-2
 module "logarchive_firehose_secondary" {
   count  = length(var.secondary_region) != 0 ? 1 : 0
-  source = "github.com/18F/identity-terraform//kinesis_firehose_destination?ref=f64acd75fc0778cacc51b2006e28c91f07e2851b"
+  source = "github.com/18F/identity-terraform//kinesis_firehose_destination?ref=ced89307118740fa3729433f03ed57a5562106a2"
   #source = "../../../../identity-terraform/kinesis_firehose_destination"
   providers = {
     aws = aws.use1
