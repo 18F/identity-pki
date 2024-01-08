@@ -813,6 +813,7 @@ users:
   shanice.musiitwa:
     aws_groups:
     - devopsnonprod
+    - finops
     ec2_username:
     - smusiitwa
     gitlab_groups:
