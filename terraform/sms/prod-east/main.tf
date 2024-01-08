@@ -20,6 +20,12 @@ module "main" {
   sns_topic_alert_warning  = "slack-events"
   pinpoint_spend_limit     = 100000 # USD monthly
   sms_support_api_endpoint = "https://secure.login.gov/api/country-support.json"
+
+  sms_unexpected_individual_country_alarm_thresholds = {
+    "DE" = 200,
+    "GB" = 200,
+    "CO" = 300
+  }
 }
 
 output "pinpoint_app_id" {

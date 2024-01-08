@@ -150,7 +150,7 @@ EOM
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
   datapoints_to_alarm = "1"
-  threshold           = var.sms_unexpected_country_alarm_threshold
+  threshold           = lookup(var.sms_unexpected_individual_country_alarm_thresholds, each.key, var.sms_unexpected_country_alarm_default_threshold)
   treat_missing_data  = "notBreaching"
   alarm_actions       = [data.aws_sns_topic.alert_warning.arn]
 
