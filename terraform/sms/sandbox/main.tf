@@ -31,7 +31,7 @@ module "main" {
 
   # Set lower alarm threshold and only exclude US from SMS alarms
   sms_unexpected_country_alarm_default_threshold = 20
-  ignored_countries                              = ["US"]
+  ignored_countries                              = "US"
 }
 
 output "pinpoint_app_id" {
