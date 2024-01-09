@@ -935,16 +935,16 @@ users:
     email:
     - admin@example.com
     gitlab_groups:
-    - bots
-    - lg
-    - lg-all
-    - lg-people
-    - lg-public
-    - devops
-    - appdev
-    - pm
-    - antifraud
-    - login-security
+    - bots|owner
+    - lg|owner
+    - lg-all|owner
+    - lg-people|owner
+    - lg-public|owner
+    - devops|owner
+    - appdev|owner
+    - pm|owner
+    - antifraud|owner
+    - login-security|owner
     can_create_group:
     - true
 groups:
