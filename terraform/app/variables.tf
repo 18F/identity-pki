@@ -569,28 +569,28 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-09679c4d45a2423df" # 2023-12-12 Ubuntu 20.04
+  default     = "ami-040a21d91923ef4d1" # 2024-01-02 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_uw2" {
-  default     = "ami-032e1948a21b9d0e8" # 2023-12-12 Ubuntu 20.04
+  default     = "ami-00b472cdb28fcfeef" # 2024-01-02 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-084710f5818d85151" # 2023-12-12 Ubuntu 20.04
+  default     = "ami-05d64f27eea10678a" # 2024-01-02 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_uw2" {
-  default     = "ami-0b054c444f0d7ba14" # 2023-12-12 Ubuntu 20.04
+  default     = "ami-058eee18377c2dcdd" # 2024-01-02 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -612,7 +612,7 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
-  default     = "ami-0aefdf9f97673473f" # 2023-12-12 Ubuntu 20.04
+  default     = "ami-0958663a928d9f32b" # 2024-01-02 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
@@ -626,7 +626,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
-  default     = "ami-02647ff0437ec5814" # 2023-12-12 Ubuntu 20.04
+  default     = "ami-08e9b79e34e36856e" # 2024-01-02 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
@@ -1031,15 +1031,42 @@ variable "doc_capture_secrets" {
   }
 }
 
-variable "doc_auth_vendors" {
-  type        = map(string)
-  description = "Map of DocAuth vendors : metric names (for exception rate alarms)"
-  default     = {}
-}
-
 variable "idv_high_proofing_resolution_result_missing_threshold" {
   description = "Threshold of how many events need to occur within the period to trigger the alert"
   default     = 3
+}
+
+variable "doc_auth_vendors" {
+  type = map(object({
+    long_name          = string
+    evaluation_periods = optional(number, 1)
+    runbook_url        = optional(string, "")
+  }))
+  description = <<EOM
+List of DocAuth vendors mapped to long names, optionally with separately-configured
+values for evaluation_periods and runbook_url, as used in the
+aws_cloudwatch_metric_alarm.doc_auth_vendor_exception_rate resource.
+EOM
+  default = {
+    "aamva" = {
+      long_name          = "AAMVA",
+      evaluation_periods = 2,
+      runbook_url        = "AAMVA-DLDV-outage",
+    }
+    "acuant" = {
+      long_name = "Acuant",
+    }
+    "iv" = {
+      long_name   = "Instant Verify",
+      runbook_url = "LexisNexis-Instant-Verify-outage",
+    }
+    "pinpoint" = {
+      long_name = "Pinpoint",
+    }
+    "trueid" = {
+      long_name = "TrueID",
+    }
+  }
 }
 
 variable "external_service_alarms" {
@@ -1051,7 +1078,27 @@ variable "external_service_alarms" {
     latency_threshold  = optional(number)
   }))
   description = "List/Map of DocAuth vendors + configs for CloudWatch alarms"
-  default     = {}
+  default = {
+    "lexis_nexis_instant_verify" = {
+      long_name          = "LN Instant Verify",
+      latency_percentile = 90,
+      latency_threshold  = 10
+    },
+    "lexis_nexis_phone_finder" = {
+      long_name          = "LN Phone Finder",
+      latency_percentile = 90,
+      latency_threshold  = 10
+    },
+    "acuant_doc_auth_create_document" = {
+      long_name          = "Acuant Create Document",
+      latency_percentile = 50,
+      latency_threshold  = 5
+    },
+    "aamva_verification" = {
+      long_name = "AAMVA DLDV",
+      tps_max   = 8
+    }
+  }
 }
 
 variable "tf_slack_channel" {

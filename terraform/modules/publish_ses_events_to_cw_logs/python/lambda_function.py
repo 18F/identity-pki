@@ -14,7 +14,6 @@ def lambda_handler(event, context):
 
         #print("Here is the message in json", conv)
         event_type = conv['eventType']
-        print("EventType:", event_type)
 
         mail_destination = conv['mail']['destination']
         headers_destination = conv['mail']['headers']

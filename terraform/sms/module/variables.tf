@@ -60,18 +60,29 @@ variable "sms_support_api_endpoint" {
   EOM
 }
 
-variable "sms_unexpected_country_alarm_threshold" {
+variable "sms_unexpected_country_alarm_default_threshold" {
   type        = number
   default     = 100
   description = <<EOM
-  This is the threshold for number of SMS message sent hourly. 
-  Any country (other than those in the ignored_list) going over the threshold 
+  This is the default threshold for number of SMS message sent hourly.
+  Any country (other than those in the ignored_list or overridden in sms_unexpected_individual_country_alarm_thresholds) going over the threshold
   limit in an hour will trigger an alert to slack"
   EOM
 }
 
+variable "sms_unexpected_individual_country_alarm_thresholds" {
+  type = map(string)
+  default = {
+  }
+
+  description = <<EOM
+  Individual per-country/region (in ISO format) limits for SMS.
+  This allows us to raise or lower the expected threshold.
+  EOM
+}
+
 variable "ignored_countries" {
-  type        = string
+  type        = list(string)
   description = "Countries (in ISO format) that should be excluded from the query for high usage"
-  default     = "US,PR,MX,CA,GU"
+  default     = ["US", "PR", "MX", "CA", "GU"]
 }

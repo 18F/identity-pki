@@ -20,6 +20,10 @@ module "main" {
   sns_topic_alert_warning  = "slack-events"
   pinpoint_spend_limit     = 100000 # USD monthly
   sms_support_api_endpoint = "https://idp.int.identitysandbox.gov/api/country-support.json"
+
+  # Set lower alarm threshold and only exclude US from SMS alarms
+  sms_unexpected_country_alarm_default_threshold = 20
+  ignored_countries                              = ["US"]
 }
 
 output "pinpoint_app_id" {

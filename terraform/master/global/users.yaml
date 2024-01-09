@@ -7,6 +7,15 @@ users:
     - amorales
     gitlab_groups:
     - lg-public
+  aditi.anand:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - aanand
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   ajay.guru:
     aws_groups:
     - fraudopsnonprod
@@ -588,6 +597,8 @@ users:
     - mkananda
     gitlab_groups:
     - devops
+    email:
+    - m.kananda@gsa.gov
   matt.gardner:
     aws_groups:
     - appdev
@@ -775,6 +786,15 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  samatha.dondeti:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - sdondeti
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   samy.orellana:
     aws_groups:
     - secopsnonprod
@@ -793,6 +813,7 @@ users:
   shanice.musiitwa:
     aws_groups:
     - devopsnonprod
+    - finops
     ec2_username:
     - smusiitwa
     gitlab_groups:
@@ -950,22 +971,6 @@ groups:
   login-security:
     description: Security Team Project and Documentation Management
 projects:
-  login-security/login-security-compliance:
-    groups:
-      login-security:
-        access: maintainer
-  login-security/login-security-review:
-    groups:
-      login-security:
-        access: maintainer
-  login-security/login-security-handbook:
-    groups:
-      login-security:
-        access: maintainer
-  login-security/login-security-ops:
-    groups:
-      login-security:
-        access: maintainer
   lg/identity-devops:
     groups:
       devops:

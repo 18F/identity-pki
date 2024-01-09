@@ -135,7 +135,7 @@ data "http" "phone_support" {
 
 locals {
   supported_country_codes      = toset([for key, value in jsondecode(data.http.phone_support.response_body).countries : key if value.supports_sms])
-  ignored_country_codes        = toset(split(",", var.ignored_countries))
+  ignored_country_codes        = toset(var.ignored_countries)
   alarm_volume_alert_countries = setsubtract(local.supported_country_codes, local.ignored_country_codes)
 }
 
@@ -150,7 +150,7 @@ EOM
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "1"
   datapoints_to_alarm = "1"
-  threshold           = var.sms_unexpected_country_alarm_threshold
+  threshold           = lookup(var.sms_unexpected_individual_country_alarm_thresholds, each.key, var.sms_unexpected_country_alarm_default_threshold)
   treat_missing_data  = "notBreaching"
   alarm_actions       = [data.aws_sns_topic.alert_warning.arn]
 

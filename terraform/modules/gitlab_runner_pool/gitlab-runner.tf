@@ -72,7 +72,7 @@ module "gitlab_runner_launch_template" {
       # used for lvm?
       device_name = "/dev/sdf",
       ebs = [{
-        volume_size           = 100,
+        volume_size           = 200,
         delete_on_termination = true,
         encrypted             = true
       }]

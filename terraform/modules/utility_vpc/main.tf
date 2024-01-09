@@ -8,10 +8,6 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_eip" "main" {
-  associate_with_private_ip = var.image_build_nat_eip
-}
-
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -21,7 +17,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.main.id
+  allocation_id = data.aws_eip.main.id
   subnet_id     = aws_subnet.public.id
   tags = {
     Name = "${var.name}-${var.account_name}-imagebuild"

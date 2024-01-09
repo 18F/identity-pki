@@ -63,3 +63,47 @@ output "pinpoint_app_id" {
   value = aws_pinpoint_app.main.application_id
 }
 
+# As described in https://docs.aws.amazon.com/pinpoint/latest/userguide/settings-sms-managing.html#settings-account-sms-number
+data "aws_iam_policy_document" "sns_topic_policy_canadian_two_way_sms" {
+  statement {
+    sid     = "Allow_Publish_Events"
+    effect  = "Allow"
+    actions = ["sns:Publish"]
+
+    principals {
+      type = "Service"
+      identifiers = [
+        "sms-voice.amazonaws.com"
+      ]
+    }
+
+    resources = ["*"]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+
+      values = [
+        data.aws_caller_identity.current.account_id
+      ]
+    }
+
+    condition {
+      test     = "ArnLike"
+      variable = "aws:SourceArn"
+
+      values = [
+        "arn:aws:sms-voice:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"
+      ]
+    }
+  }
+}
+
+resource "aws_sns_topic" "canadian_two_way_sms" {
+  name   = "${var.env}_${data.aws_region.current.name}_pinpoint_canadian_two_way_sms"
+  policy = data.aws_iam_policy_document.sns_topic_policy_canadian_two_way_sms.json
+}
+
+
+output "sns_canadian_two_way_sms" {
+  value = aws_sns_topic.canadian_two_way_sms
+}
