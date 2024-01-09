@@ -835,6 +835,8 @@ func deleteMemberships(gitc GitlabClientIface, membersToDelete map[string]map[st
 	return nil
 }
 
+// Warning:  not sure why, but changing root's group membership does not work.  It gives a 403.
+// You will need to change root's group membership by hand until we figure out why.
 func changeMemberships(gitc GitlabClientIface, membersToChange map[string]map[string]*gitlab.AccessLevelValue) error {
 	for groupName, members := range membersToChange {
 		for memberName := range members {
