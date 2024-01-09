@@ -200,3 +200,17 @@ resource "aws_autoscaling_policy" "idp-cpu" {
     disable_scale_in = var.idp_cpu_autoscaling_disable_scale_in == 1 ? true : false
   }
 }
+
+module "app_low_resource_alerts" {
+  source = "../modules/asg_instance_low_resource_alerts"
+
+  region              = var.region
+  asg_name            = aws_autoscaling_group.idp.name
+  env_name            = var.env_name
+  alert_handle        = ""
+  paths               = ["/", "/var", "/var/log", "/srv"]
+  alarm_actions       = var.env_name == "prod" ? local.high_priority_alarm_actions : local.low_priority_alarm_actions
+  high_disk_threshold = 85
+  high_mem_threshold  = 85
+  treat_missing_data  = "notBreaching"
+}
