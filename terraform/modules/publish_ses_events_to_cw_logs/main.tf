@@ -48,12 +48,23 @@ resource "aws_sqs_queue_policy" "ses_events_queue_policy" {
 
 ###Lambda###
 resource "aws_lambda_function" "SESEventsEvalLambda" {
-  filename      = data.archive_file.ses_events_evaluation_function.output_path
+  filename         = module.ses_feedback_evaluation_function.zip_output_path
+  source_code_hash = module.ses_feedback_evaluation_function.zip_output_base64sha256
+
   function_name = var.ses_events_lambda
   role          = aws_iam_role.ses_events_eval_lambda_role.arn
   handler       = "lambda_function.lambda_handler"
   runtime       = var.lambda_runtime
   description   = "Lambda processing the SES events captured from configuration sets"
+  depends_on    = [module.ses_feedback_evaluation_function.resource_check]
+}
+
+module "ses_feedback_evaluation_function" {
+  source = "github.com/18F/identity-terraform//null_archive?ref=main"
+
+  source_code_filename = "lambda_function.py"
+  source_dir           = "${path.module}/python/"
+  zip_filename         = "lambda_function.py.zip"
 }
 
 data "archive_file" "ses_events_evaluation_function" {
