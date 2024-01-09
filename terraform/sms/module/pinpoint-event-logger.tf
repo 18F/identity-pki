@@ -135,7 +135,7 @@ data "http" "phone_support" {
 
 locals {
   supported_country_codes      = toset([for key, value in jsondecode(data.http.phone_support.response_body).countries : key if value.supports_sms])
-  ignored_country_codes        = toset(split(",", var.ignored_countries))
+  ignored_country_codes        = toset(var.ignored_countries)
   alarm_volume_alert_countries = setsubtract(local.supported_country_codes, local.ignored_country_codes)
 }
 

@@ -82,7 +82,7 @@ variable "sms_unexpected_individual_country_alarm_thresholds" {
 }
 
 variable "ignored_countries" {
-  type        = string
+  type        = list(string)
   description = "Countries (in ISO format) that should be excluded from the query for high usage"
-  default     = "US,PR,MX,CA,GU"
+  default     = ["US", "PR", "MX", "CA", "GU"]
 }
