@@ -19,7 +19,7 @@ class IdentifyController < ApplicationController
 
       # redirect to referer OR redirect to a preconfigured URL template
       # this is safe because we validate that it is an allowed referrer
-      redirect_to referrer.to_s,  allow_other_host: true
+      redirect_to referrer.to_s, allow_other_host: true
     else
       render_bad_request('No referrer')
     end
