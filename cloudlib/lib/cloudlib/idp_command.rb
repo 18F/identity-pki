@@ -170,7 +170,7 @@ class IDPCommand
     if response.status == 'Success'
       output = JSON.parse(Zlib::Inflate.inflate(Base64.decode64(response.standard_output_content)))
 
-      formatted_output = if output.kind_of?(Hash)
+      formatted_output = if output.kind_of?(Hash) || config.subcommand == 'ig-request'
         JSON.pretty_generate(output)
       else
         format_table(output)
