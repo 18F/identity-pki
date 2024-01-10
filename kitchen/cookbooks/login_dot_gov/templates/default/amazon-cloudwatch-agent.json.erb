@@ -7,41 +7,41 @@
                         "files": {
                                 "collect_list": [
                                         {
-                                                "file_path": "/var/log/cloud-init-output.log*",
+                                                "file_path": "/var/log/cloud-init-output.log",
                                                 "log_group_name": "/var/log/cloud-init-output.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%Y-%m-%dT%H:%M%s+00:00"
                                         },
                                         {
-                                                "file_path": "/var/log/cloud-init.log*",
+                                                "file_path": "/var/log/cloud-init.log",
                                                 "log_group_name": "/var/log/cloud-init.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%Y-%m-%dT%H:%M%s+00:00"
                                         },
                                         {
-                                                "file_path": "/var/log/syslog*",
+                                                "file_path": "/var/log/syslog",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/syslog",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%b %-d %H:%M:%S"
                                         },
                                         {
-                                                "file_path": "/var/log/audit/audit.log*",
+                                                "file_path": "/var/log/audit/audit.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/audit/audit.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC"
                                         },
                                         {
-                                                "file_path": "/var/log/auth.log*",
+                                                "file_path": "/var/log/auth.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/auth.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%b %-d %H:%M:%S"
                                         },
                                         {
-                                                "file_path": "/var/log/kern.log*",
+                                                "file_path": "/var/log/kern.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/kern.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -49,14 +49,14 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/mail.log*",
+                                                "file_path": "/var/log/mail.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/mail.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%b %-d %H:%M:%S"
                                         },
                                         {
-                                                "file_path": "/var/log/nginx/access.log*",
+                                                "file_path": "/var/log/nginx/access.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/access.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -64,14 +64,14 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/nginx/nginx_status.log*",
+                                                "file_path": "/var/log/nginx/nginx_status.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/nginx_status.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
 
                                         },                                        {
-                                                "file_path": "/var/log/nginx/passenger.log*",
+                                                "file_path": "/var/log/nginx/passenger.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/passenger.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -79,7 +79,7 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/nginx/passenger_status.log*",
+                                                "file_path": "/var/log/nginx/passenger_status.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/passenger_status.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -87,7 +87,7 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/nginx/error.log*",
+                                                "file_path": "/var/log/nginx/error.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/error.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -95,14 +95,14 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/nginx/machine.access.log*",
+                                                "file_path": "/var/log/nginx/machine.access.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/nginx/machine.access.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
                                                 "timestamp_format": "%d/%b/%Y:%H:%M:%S %z"
                                         },
                                         {
-                                                "file_path": "/var/log/postgresql/pgbouncer.log*",
+                                                "file_path": "/var/log/postgresql/pgbouncer.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/postgresql/pgbouncer.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -110,13 +110,13 @@
 
                                         },
                                         {
-                                                "file_path": "/srv/idp/shared/log/events.log*",
+                                                "file_path": "/srv/idp/shared/log/events.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/events.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/srv/idp/shared/log/newrelic_agent.log*",
+                                                "file_path": "/srv/idp/shared/log/newrelic_agent.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/newrelic_agent.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -124,19 +124,19 @@
 
                                         },
                                         {
-                                                "file_path": "/srv/idp/shared/log/production.log*,
+                                                "file_path": "/srv/idp/shared/log/production.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/production.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                                                                 {
-                                                "file_path": "/srv/idp/shared/log/workers.log*",
+                                                "file_path": "/srv/idp/shared/log/workers.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/workers.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/srv/pki-rails/shared/log/newrelic_agent.log*",
+                                                "file_path": "/srv/pki-rails/shared/log/newrelic_agent.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/pki-rails/shared/log/newrelic_agent.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -144,19 +144,19 @@
 
                                         },
                                         {
-                                                "file_path": "/srv/pki-rails/shared/log/production.log*",
+                                                "file_path": "/srv/pki-rails/shared/log/production.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/pki-rails/shared/log/production.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/srv/dashboard/shared/log/events.log*",
+                                                "file_path": "/srv/dashboard/shared/log/events.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/events.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/srv/dashboard/shared/log/newrelic_agent.log*",
+                                                "file_path": "/srv/dashboard/shared/log/newrelic_agent.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/newrelic_agent.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -164,19 +164,19 @@
 
                                         },
                                         {
-                                                "file_path": "/srv/dashboard/shared/log/production.log*",
+                                                "file_path": "/srv/dashboard/shared/log/production.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/production.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/var/log/squid/access.log*",
+                                                "file_path": "/var/log/squid/access.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/squid/access.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC"
                                         },
                                         {
-                                                "file_path": "/var/log/squid/cache.log*",
+                                                "file_path": "/var/log/squid/cache.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/squid/cache.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -184,21 +184,21 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/aide/aide.log*",
+                                                "file_path": "/var/log/aide/aide.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/aide/aide.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC"
 
                                         },
                                         {
-                                                "file_path": "/var/log/aide/aide.json*",
+                                                "file_path": "/var/log/aide/aide.json",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/aide/aide.json",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC"
 
                                         },
                                         {
-                                                "file_path": "/var/log/amazon/ssm/amazon-ssm-agent.log*",
+                                                "file_path": "/var/log/amazon/ssm/amazon-ssm-agent.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/amazon-ssm-agent.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -206,7 +206,7 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/amazon/ssm/errors.log*",
+                                                "file_path": "/var/log/amazon/ssm/errors.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/errors.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -214,7 +214,7 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/amazon/ssm/hibernate.log*",
+                                                "file_path": "/var/log/amazon/ssm/hibernate.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/amazon/ssm/hibernate.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -222,7 +222,7 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/dpkg.log*",
+                                                "file_path": "/var/log/dpkg.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/dpkg.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -230,7 +230,7 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/messages*",
+                                                "file_path": "/var/log/messages",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/messages",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -238,13 +238,13 @@
 
                                         },
                                         {
-                                                "file_path": "/var/log/apt/history.log*",
+                                                "file_path": "/var/log/apt/history.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/apt/history.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC"
                                         },
                                         {
-                                                "file_path": "/srv/idp/shared/log/kms.log*",
+                                                "file_path": "/srv/idp/shared/log/kms.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/kms.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
@@ -252,24 +252,24 @@
 
                                         },
                                         {
-                                                "file_path": "/srv/idp/shared/log/telephony.log*",
+                                                "file_path": "/srv/idp/shared/log/telephony.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/idp/shared/log/telephony.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/var/log/besclient/202*.log*",
+                                                "file_path": "/var/log/besclient/202*.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/besclient/besclient.log",
                                                 "log_stream_name": "{local_hostname}"
 
                                         },
                                         {
-                                                "file_path": "/var/log/endgame_install.log*",
+                                                "file_path": "/var/log/endgame_install.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/endgame_install.log",
                                                 "log_stream_name": "{local_hostname}"
                                         },
                                         {
-                                                "file_path": "/var/log/ubuntu-advantage.log*",
+                                                "file_path": "/var/log/ubuntu-advantage.log",
                                                 "log_group_name": "<%= @environmentName %>_/var/log/ubuntu-advantage.log",
                                                 "log_stream_name": "{local_hostname}",
                                                 "timezone": "UTC",
