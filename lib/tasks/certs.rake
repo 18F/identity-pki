@@ -29,7 +29,7 @@ namespace :certs do
     end
 
     if expiring_certs.present?
-      puts "Expiring Certs found, deadline: #{deadline}"
+      puts "Found certs expiring between now and #{deadline}"
       expiring_certs.each do |cert|
         puts "- Expiration: #{cert.not_after}"
         puts "  Subject: #{cert.subject}"
