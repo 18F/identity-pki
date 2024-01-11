@@ -1,32 +1,6 @@
----
-name: Onboarding Production
-about: Give the power of production to a team member
-title: "Onboarding to Production for [TEAM_MEMBER]"
-labels: administration
-assignees: ''
+### Stop!
 
----
+Issues for Team Radia and the Platform Interrupts rotation are now being tracked in GitLab.  To submit an onboarding to production request, please go to [https://gitlab.login.gov/lg-people/platform/interrupts/-/issues/new?issuable_template=onboarding-devops-prod&issue[title]=Onboarding%20NAME%20to%20Production](https://gitlab.login.gov/lg-people/platform/interrupts/-/issues/new?issuable_template=onboarding-devops-prod&issue[title]=Onboarding%20NAME%20to%20Production)
 
-### Before granting production access, the team member ***must***:
-
-- [ ] Have a FIPS YubiKey
-- [ ] Be using a GFE laptop
-- [ ] Have completed "YYYY IT Security & Privacy Awareness Training" in OLU (Mandatory GSA Cybersecurity Training)
-
-<!-- Not all items below will be applicable to every team-member. -->
-<!-- Please remove any items that don't apply before submitting this issue. -->
-
-# Tasks (To Be Completed by Platform Team)
-
-- [ ] Use `bin/manage-user` to add the team member to `terraform/master/global/users.yaml`
-    and include them as a member of the appropriate AWS group(s):
-  - [ ] AppDev: `apponcall` group
-  - [ ] DevOps/SRE: `devops` group
-  - [ ] SecOps: `secops` group
-  - [ ] Confirm `ec2_username` if team member needs console/SSM access to EC2 hosts
-  - [ ] Confirm `gitlab_groups` / `git_username` if team member needs GitLab access
-- [ ] Open a PR with the above change(s)
-  - [ ] Upon approval, merge PR and create AWS user account
-        via `tf-deploy master/global apply`
-
-<!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
+### Questions?
+Please contact us in the `#login-platform-support` channel in slack or tag `@login-platform-help` for any questions/concerns.
