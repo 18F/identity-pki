@@ -25,6 +25,8 @@ var userYaml string
 var apiToken string // env var
 var check bool
 var validateOnly bool
+var defaultAccessLevel *gitlab.AccessLevelValue
+var accesslevelstring string
 
 // What we care about w.r.t. GitLab authorization. These objects will be synced.
 type GitlabCache struct {
@@ -97,11 +99,9 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 }
 
 // Format of gitlab groups
-// if UseAccessLevel is false, then use the default, which is DeveloperPermissions.
 type GitlabGroup struct {
-	Name           string
-	AccessLevel    *gitlab.AccessLevelValue
-	UseAccessLevel bool
+	Name        string
+	AccessLevel *gitlab.AccessLevelValue
 }
 
 // Format of users from parsing YAML. For backwards compatibility, all fields
@@ -144,7 +144,6 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		var a *gitlab.AccessLevelValue
 		var err error
 		var group string
-		useaccesslevel := true
 		if strings.Contains(gitlabgroup, "|") {
 			a, err = CheckAccessLevel(strings.SplitN(gitlabgroup, "|", 2)[1])
 			if err != nil {
@@ -152,20 +151,15 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			}
 			group = strings.SplitN(gitlabgroup, "|", 2)[0]
 		} else {
-			a, err = CheckAccessLevel("none")
-			if err != nil {
-				return err
-			}
+			a = defaultAccessLevel
 			group = gitlabgroup
-			useaccesslevel = false
 		}
 		if group == "" {
 			return fmt.Errorf("group is empty")
 		}
 		g := GitlabGroup{
-			Name:           group,
-			AccessLevel:    a,
-			UseAccessLevel: useaccesslevel,
+			Name:        group,
+			AccessLevel: a,
 		}
 		au.Gitlab_groups = append(au.Gitlab_groups, g)
 	}
@@ -215,6 +209,7 @@ func init() {
 		os.Exit(1)
 	}
 	flag.BoolVar(&validateOnly, "validate", false, "Only validate users.yaml - do not call the Gitlab API.")
+	flag.StringVar(&accesslevelstring, "defaultaccesslevel", "developer", "Default AccessLevel for group membership.")
 }
 
 func main() {
@@ -223,6 +218,11 @@ func main() {
 
 	// Check if we have flags and env vars set
 	flag.Parse()
+	var err error
+	defaultAccessLevel, err = CheckAccessLevel(accesslevelstring)
+	if err != nil {
+		log.Fatalf("invalid defaultaccesslevel: %s", err)
+	}
 
 	// Parse YAML
 	authorizedUsers, err := getAuthorizedUsers(userYaml)
@@ -415,11 +415,7 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]*gitl
 			if _, ok := groups[g.Name]; !ok {
 				groups[g.Name] = make(map[string]*gitlab.AccessLevelValue)
 			}
-			if g.UseAccessLevel {
-				groups[g.Name][username] = g.AccessLevel
-			} else {
-				groups[g.Name][username] = gitlab.AccessLevel(gitlab.DeveloperPermissions)
-			}
+			groups[g.Name][username] = g.AccessLevel
 		}
 	}
 

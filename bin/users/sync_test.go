@@ -267,21 +267,21 @@ func TestResolveMembers(t *testing.T) {
 func TestGetAuthorizedGroups(t *testing.T) {
 	want := map[string]map[string]*gitlab.AccessLevelValue{
 		"appdev": {
-			"mach.zargolis": gitlab.AccessLevel(gitlab.DeveloperPermissions),
-			"root":          gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"mach.zargolis": defaultAccessLevel,
+			"root":          defaultAccessLevel,
 			"kritty":        gitlab.AccessLevel(gitlab.MaintainerPermissions),
 		},
-		"bots": {"root": gitlab.AccessLevel(gitlab.DeveloperPermissions)},
+		"bots": {"root": defaultAccessLevel},
 		"devops": {
-			"kritty": gitlab.AccessLevel(gitlab.DeveloperPermissions),
-			"root":   gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"kritty": defaultAccessLevel,
+			"root":   defaultAccessLevel,
 		},
 		"lg": {
-			"gitlab.and.group.please": gitlab.AccessLevel(gitlab.DeveloperPermissions),
-			"root":                    gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"gitlab.and.group.please": defaultAccessLevel,
+			"root":                    defaultAccessLevel,
 		},
 		"pm": {
-			"root": gitlab.AccessLevel(gitlab.DeveloperPermissions),
+			"root": defaultAccessLevel,
 		},
 	}
 	authUsers, err := getAuthorizedUsers("test_users.yaml")
