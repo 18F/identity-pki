@@ -266,6 +266,8 @@ users:
   dustin.spiehler:
     aws_groups:
     - finops
+    gitlab_groups:
+    - lg-people
   eileen.mcfarland:
     aws_groups:
     - apponcall
