@@ -107,7 +107,6 @@ module "main" {
         {
           type = "AWS::S3::Object"
           values = [
-            "arn:aws:s3:::555546682965-awsmacietrail-dataevent/",
             "arn:aws:s3:::aws-athena-query-results-555546682965-us-west-2/",
             "arn:aws:s3:::aws-glue-scripts-555546682965-us-west-2/",
             "arn:aws:s3:::aws-glue-temporary-555546682965-us-west-2/",
