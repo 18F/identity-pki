@@ -22,7 +22,7 @@ Lastly, be sure to follow our [PR Acceptance Criteria](https://handbook.login.go
 
 - [Setting Up aws-vault](https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault)
 - [Personal Sandbox Environment Setup](https://github.com/18F/identity-devops/wiki/Building-a-Personal-Sandbox-Environment)
-- [Deploying DevOps Code](https://github.com/18F/identity-devops/wiki/Deploying-Infrastructure-Code)
+- [Deploying DevOps Code](https://github.com/18F/identity-devops/wiki/Runbook%3A-Weekly-Platform-Deployments)
 - [Making Changes via Terraform](https://github.com/18F/identity-devops/wiki/Making-Changes-via-Terraform)
 - [Runbook: Infrastructure CI/CD](https://github.com/18F/identity-devops/wiki/Runbook:-Infrastructure-CI-CD)
 
