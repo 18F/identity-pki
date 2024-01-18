@@ -832,15 +832,6 @@ users:
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
-  sonia.connolly:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    ec2_username:
-    - sconnolly
   stacey.evans:
     aws_groups:
     - analytics
