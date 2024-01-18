@@ -799,7 +799,7 @@ users:
     - lg-public
   samy.orellana:
     aws_groups:
-    - secopsnonprod
+    - secops
     ec2_username:
     - sorellana
     gitlab_groups:
