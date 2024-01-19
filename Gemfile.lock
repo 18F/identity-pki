@@ -118,6 +118,8 @@ GEM
       rack (>= 0.9.0)
     bloomfilter-rb (2.1.1)
       redis
+    bootsnap (1.17.0)
+      msgpack (~> 1.2)
     brakeman (6.0.1)
     builder (3.2.4)
     bullet (7.0.7)
@@ -203,6 +205,7 @@ GEM
     mini_mime (1.1.5)
     mini_portile2 (2.8.4)
     minitest (5.19.0)
+    msgpack (1.7.2)
     nenv (0.3.0)
     net-imap (0.3.7)
       date
@@ -214,7 +217,7 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     newrelic_rpm (8.16.0)
-    nio4r (2.5.9)
+    nio4r (2.7.0)
     nokogiri (1.15.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
@@ -237,7 +240,7 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     public_suffix (4.0.6)
-    puma (5.6.7)
+    puma (5.6.8)
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.8)
@@ -383,6 +386,7 @@ DEPENDENCIES
   axe-matchers (~> 1.3.4)
   better_errors (>= 2.5.1)
   bloomfilter-rb
+  bootsnap (~> 1.0)
   brakeman
   bullet (~> 7.0)
   bummr
