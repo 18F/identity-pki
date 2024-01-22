@@ -7,15 +7,6 @@ users:
     - amorales
     gitlab_groups:
     - lg-public
-  aditi.anand:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - aanand
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   ajay.guru:
     aws_groups:
     - fraudopsnonprod
@@ -150,15 +141,6 @@ users:
     - benjaminchait
     email:
     - benjamin.chait@gsa.gov
-  birane.seck:
-    aws_groups:
-    - appdev
-    - devopsnonprod
-    ec2_username:
-    - bseck
-    gitlab_groups:
-    - appdev
-    - devops
   brittany.greaner:
     aws_groups:
     - apponcall
@@ -391,13 +373,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  jenna.hansen:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
   jenniffier.bieberbach:
     aws_groups:
     - secopsnonprod
@@ -583,15 +558,6 @@ users:
     - lg-public
     email:
     - lucas.kouongadze@gsa.gov
-  luis.matos:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - lmatos
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   malick.diarra:
     aws_groups:
     - apponcall
@@ -725,15 +691,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  osman.latif:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - olatif
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   philip.burke:
     gitlab_groups:
     - antifraud
@@ -795,15 +752,6 @@ users:
     - rorear
     gitlab_groups:
     - antifraud
-    - lg-all
-    - lg-public
-  samatha.dondeti:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - sdondeti
-    gitlab_groups:
-    - appdev
     - lg-all
     - lg-public
   samy.orellana:
