@@ -167,6 +167,11 @@ resource "aws_codebuild_project" "base_image" {
       name  = "AWS_INSTANCE_TYPE"
       value = var.packer_config["instance_type"]
     }
+
+    environment_variable {
+      name  = "AMI_COPY_REGION"
+      value = var.ami_copy_region
+    }
   }
 
   logs_config {
@@ -179,6 +184,13 @@ resource "aws_codebuild_project" "base_image" {
     type      = "S3"
     location  = "${var.git2s3_bucket_name}/${local.identity_base_image_zip_s3_path}"
     buildspec = "buildspec-terraform.yml"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
   }
 }
 
@@ -346,6 +358,11 @@ resource "aws_codebuild_project" "rails_image" {
       name  = "AWS_INSTANCE_TYPE"
       value = var.packer_config["instance_type"]
     }
+
+    environment_variable {
+      name  = "AMI_COPY_REGION"
+      value = var.ami_copy_region
+    }
   }
 
   logs_config {
@@ -358,5 +375,12 @@ resource "aws_codebuild_project" "rails_image" {
     type      = "S3"
     location  = "${var.git2s3_bucket_name}/${local.identity_base_image_zip_s3_path}"
     buildspec = "buildspec-terraform.yml"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
   }
 }

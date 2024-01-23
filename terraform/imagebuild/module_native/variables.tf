@@ -127,6 +127,7 @@ variable "packer_instance_profile_name" {
 variable "git2s3_bucket_name" {
   description = "name of default git2s3 bucket for non_sandbox envs"
   type        = string
+  default     = "codesync-identitybaseimage-outputbucket-rlnx3kivn8t8"
 }
 
 variable "base_pipeline_name" {
@@ -173,5 +174,11 @@ variable "codepipeline_s3_bucket_name" {
   description = "name of bucket to store codepipeline artifacts"
   type        = string
   default     = ""
+}
+
+variable "ami_copy_region" {
+  description = "The name of a region that Packer copies AMIs to"
+  type        = string
+  default     = "us-east-1"
 }
 
