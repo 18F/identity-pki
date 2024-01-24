@@ -8,6 +8,7 @@ PIV/CAC support for login.gov.
 #### Dependencies
 
 - Ruby 3.0
+- OpenSSL 1.1
 - [Postgresql](http://www.postgresql.org/download/)
 
 #### Setting up and running the app
@@ -94,6 +95,12 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 3. Find the cert named "**identity-pki Development Certificate**" open its settings
 
 4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown
+
+#### Troubleshooting Certificate invalid Error
+If you are attempting to register or sign in with your PIV locally and you get errors saying your Certificate is invalid, Ensure that you have OpenSSl 1.1 installed and running for ruby.
+To check run `ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'`.
+
+If you notice that the version is not valid you will need to install openssl@1.1 and reinstall ruby with the openssl directory pointing to the correct version.
 
 #### Cleaning up the root SSL certificate
 
