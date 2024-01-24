@@ -7,15 +7,6 @@ users:
     - amorales
     gitlab_groups:
     - lg-public
-  aditi.anand:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - aanand
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   ajay.guru:
     aws_groups:
     - fraudopsnonprod
@@ -215,6 +206,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  daphne.gold:
+    aws_groups:
+    - apponcall
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - dgold
   david.dsilva:
     aws_groups:
     - analytics
@@ -266,6 +264,8 @@ users:
   dustin.spiehler:
     aws_groups:
     - finops
+    gitlab_groups:
+    - lg-people
   eileen.mcfarland:
     aws_groups:
     - apponcall
@@ -374,13 +374,6 @@ users:
     - lg-all
     - lg-public
   jeffrey.holden:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
-  jenna.hansen:
     aws_groups:
     - analytics
     gitlab_groups:
@@ -572,15 +565,6 @@ users:
     - lg-public
     email:
     - lucas.kouongadze@gsa.gov
-  luis.matos:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - lmatos
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   malick.diarra:
     aws_groups:
     - apponcall
@@ -714,15 +698,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  osman.latif:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - olatif
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   philip.burke:
     gitlab_groups:
     - antifraud
@@ -786,18 +761,9 @@ users:
     - antifraud
     - lg-all
     - lg-public
-  samatha.dondeti:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - sdondeti
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   samy.orellana:
     aws_groups:
-    - secopsnonprod
+    - secops
     ec2_username:
     - sorellana
     gitlab_groups:
@@ -830,15 +796,6 @@ users:
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
-  sonia.connolly:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    ec2_username:
-    - sconnolly
   stacey.evans:
     aws_groups:
     - analytics

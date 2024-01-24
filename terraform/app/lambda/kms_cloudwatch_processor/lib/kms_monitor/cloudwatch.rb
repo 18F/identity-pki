@@ -176,12 +176,11 @@ module IdentityKMSMonitor
 
       kmsevent = CloudWatchKMSEvent.new
 
-      timestamp = Time.parse(extracted_fields.fetch('datetime'))
+      timestamp = Time.at(0, log_event.fetch('timestamp'), :millisecond).to_datetime
       kmsevent.timestamp = timestamp.strftime('%Y-%m-%dT%H:%M:%SZ')
 
       # cleanup extra character at beginning of Json string
       jsondata = extracted_fields.fetch('json')
-      jsondata = jsondata[1..-1]
 
       jsondata = JSON.parse(jsondata)
 

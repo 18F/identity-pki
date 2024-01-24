@@ -299,6 +299,7 @@
             }
         },
         "CodePipeline": {
+            "DeletionPolicy" : "Retain",
             "DependsOn": [
                 "CodePipelineRolePolicy",
                 "CodePipelineRole",
