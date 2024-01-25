@@ -325,6 +325,28 @@ EOM
   alarm_actions             = local.in_person_alarm_actions
 }
 
+# Send a slack notification if fraud is suspected in the proofing results job
+resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_enrollment_fraud_suspected" {
+  count = var.idp_worker_alarms_enabled
+
+  alarm_name                = "${var.env_name}-IDPUSPSProofing-FraudSuspected"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "usps-proofing-results-fraud-suspected"
+  namespace                 = "${var.env_name}/idp-in-person-proofing"
+  period                    = "1800" # Every 30 minutes
+  statistic                 = "Sum"
+  threshold                 = "1"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.in_person_alarm_actions
+  alarm_description         = <<EOM
+Alarm is executed when fraud is suspected and logged by the GetUspsProofingResultsJob.
+
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+EOM
+}
 
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "idp_worker_failure_alarm" {

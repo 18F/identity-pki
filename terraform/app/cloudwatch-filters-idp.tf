@@ -411,6 +411,12 @@ locals {
       metric_value = "$.properties.event_properties.percent_enrollments_errored"
       dimensions   = {}
     },
+    idp_usps_proofing_enrollment_fraud_suspected = {
+      name         = "usps-proofing-results-fraud-suspected"
+      pattern      = "{ ($.name = \"GetUspsProofingResultsJob: Enrollment status updated\") && ($.properties.event_properties.fraud_suspected IS TRUE) }"
+      metric_value = 1
+      dimensions   = {}
+    },
   }
 
   idp_external_service_filters = {
