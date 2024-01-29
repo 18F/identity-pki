@@ -1,7 +1,7 @@
 resource "aws_codebuild_project" "base_image" {
   name           = local.base_codebuild_name
   description    = "Template to create resources for CodeBuild Project integrated with Git2S3"
-  build_timeout  = "90"
+  build_timeout  = var.codebuild_build_timeout
   queued_timeout = "480"
 
   service_role = aws_iam_role.codebuild.arn
@@ -197,7 +197,7 @@ resource "aws_codebuild_project" "base_image" {
 resource "aws_codebuild_project" "rails_image" {
   name           = local.rails_codebuild_name
   description    = "Template to create resources for CodeBuild Project integrated with Git2S3"
-  build_timeout  = "90"
+  build_timeout  = var.codebuild_build_timeout
   queued_timeout = "480"
 
   service_role = aws_iam_role.codebuild.arn

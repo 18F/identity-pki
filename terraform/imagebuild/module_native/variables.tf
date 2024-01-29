@@ -182,3 +182,8 @@ variable "ami_copy_region" {
   default     = "us-east-1"
 }
 
+variable "codebuild_build_timeout" {
+  description = "the time codebuild allows a build to run before failing the build"
+  type        = string
+  default     = "120"
+}
