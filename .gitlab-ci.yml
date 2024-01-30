@@ -40,11 +40,11 @@ variables:
   # brew install crane
   # crane copy <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:42a373721c2c26[...] \
   #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed
-  DEPLOY_IMAGE_DIGEST: "sha256:53baf2f305085bf99f8f5f2d545f2d2987fbcd4a6cd6ce6691b8715cc6008a5d"
-  STOP_IMAGE_DIGEST: "sha256:8bda7171051efb6b27d6353e994cc8bad406819513567f94c438f0141c3bb4ee"
-  TEST_IMAGE_DIGEST: "sha256:a86d206ad455362f50e7acea857edd43b256e84c1fa7d22131332967f2dd0363"
-  GITDEPLOY_IMAGE_DIGEST: "sha256:8503eb836a4acc54a7dfd6b43cfb1108bbd3148ff8247eb119ca981b190df41f"
-  GITTEST_IMAGE_DIGEST: "sha256:6a2d12cc2d0a45c54746d5ec4531783e63a511983e7a02533774159909fee846"
+  DEPLOY_IMAGE_DIGEST: "sha256:6ddbe2d898f090db8ffbd0c2b5157818fe532814f00241e67cad5d020afa1395"
+  STOP_IMAGE_DIGEST: "sha256:eb477ac58eb9c56b5ebc6bb4dc3c01b5903af72bd91e5cdd52eeafdf3fe2fe0f"
+  TEST_IMAGE_DIGEST: "sha256:15351745a2bfd3b55a6d661d489d8db5cf1a1b4e3cc7d264ea1e56a3b23ca9aa"
+  GITDEPLOY_IMAGE_DIGEST: "sha256:9edb6dc7f1b3fa324f5260056d491d4285143ccf72af87c9fdf50dddcdd1647a"
+  GITTEST_IMAGE_DIGEST: "sha256:18db3f61d0b63a4c5a382bece62f0c23ecdb22eceead379bdfec76be824702ef"
   NESSUS_URL: "https://44.230.151.136:8834"
 
 .nessus_scan:
