@@ -549,13 +549,6 @@ execute 'gitlab_rails_commands' do
     end; \
     \
     begin; \
-      puts 'clean up licenses'; \
-      License.all.each(&:destroy!); license_data = '#{gitlab_license}'; license = License.new(data: license_data); license.save; \
-    rescue; \
-      puts 'XXX could not clean up licenses'; \
-    end; \
-    \
-    begin; \
       puts 'allow root to create groups'; \
       User.find_by_username('root').update!(can_create_group: true); \
     rescue; \
