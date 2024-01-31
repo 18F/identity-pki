@@ -556,6 +556,15 @@ execute 'gitlab_rails_commands' do
     end; \
     \
     begin; \
+      puts 'extract cloud license'; \
+      file = File.open('/var/opt/gitlab/git-data/login.gov.cloud_license','w'); \
+      for license in License.select { |l| l.cloud == true } do file.puts license.data ; file.puts '' end ; \
+      file.close ; \
+    rescue; \
+      puts 'XXX could not clean up licenses'; \
+    end; \
+    \
+    begin; \
       puts 'allow root to create groups'; \
       User.find_by_username('root').update!(can_create_group: true); \
     rescue; \
