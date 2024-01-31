@@ -211,6 +211,17 @@ file 'gitlab_ee_license_file' do
   sensitive true
 end
 
+# overwrite the license file with the cloud license if it exists and has data
+file 'gitlab_ee_cloud_license_file' do
+  path '/etc/gitlab/login-gov.gitlab-license'
+  content 'file:///var/opt/gitlab/git-data/login.gov.cloud_license'
+  owner 'root'
+  group 'root'
+  mode '644'
+  sensitive true
+  only_if File.size?('/var/opt/gitlab/git-data/login.gov.cloud_license')
+end
+
 # make sure that the uid/gid is static, and can access the ssh keys
 group 'git' do
   gid 994
@@ -561,7 +572,7 @@ execute 'gitlab_rails_commands' do
       for license in License.select { |l| l.cloud == true } do file.puts license.data ; file.puts '' end ; \
       file.close ; \
     rescue; \
-      puts 'XXX could not clean up licenses'; \
+      puts 'XXX could not extract the cloud license'; \
     end; \
     \
     begin; \
