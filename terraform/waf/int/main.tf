@@ -16,7 +16,7 @@ module "main" {
   region                = "us-west-2"
   enforce               = true
   enforce_waf_captcha   = false
-  enforce_waf_challenge = true
+  enforce_waf_challenge = false
   enforce_rate_limit    = true
   geo_allow_list        = [] # allow all countries in app WAFv2
 

@@ -851,6 +851,7 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
+  # WIP not ready for prod deployment
   dynamic "rule" {
     for_each = var.enforce_waf_challenge == true ? [1] : []
     content {
@@ -862,7 +863,7 @@ resource "aws_wafv2_web_acl" "alb" {
       }
 
       statement {
-        or_statement {
+        and_statement {
           statement {
             byte_match_statement {
               field_to_match {
@@ -879,46 +880,11 @@ resource "aws_wafv2_web_acl" "alb" {
           }
 
           statement {
-            byte_match_statement {
-              field_to_match {
-                uri_path {}
-              }
-
-              positional_constraint = "EXACTLY"
-              search_string         = "/en"
-              text_transformation {
-                priority = 0
-                type     = "NONE"
-              }
-            }
-          }
-
-          statement {
-            byte_match_statement {
-              field_to_match {
-                uri_path {}
-              }
-
-              positional_constraint = "EXACTLY"
-              search_string         = "/es"
-              text_transformation {
-                priority = 0
-                type     = "NONE"
-              }
-            }
-          }
-
-          statement {
-            byte_match_statement {
-              field_to_match {
-                uri_path {}
-              }
-
-              positional_constraint = "EXACTLY"
-              search_string         = "/fr"
-              text_transformation {
-                priority = 0
-                type     = "NONE"
+            not_statement {
+              statement {
+                geo_match_statement {
+                  country_codes = var.geo_us_regions
+                }
               }
             }
           }
