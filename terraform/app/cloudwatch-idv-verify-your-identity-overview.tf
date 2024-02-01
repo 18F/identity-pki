@@ -11,7 +11,7 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| fields properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv_success,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva_success\n| stats sum(overall_success) + sum(overall_failure) as submitted,\n    sum(overall_success) as success,\n    sum(overall_failure) as failure,\n    sum(overall_success) / submitted * 100 as success_rate,\n    sum(iv_success) / submitted * 100 as iv_success_rate,\n    sum(aamva_success) / submitted * 100 as aamva_success_rate\n",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| fields properties.event_properties.success as overall_success,\n\n    !overall_success as overall_failure,\n\n    properties.event_properties.proofing_results.context.stages.resolution.success\n\n        as iv_success,\n\n    properties.event_properties.proofing_results.context.stages.state_id.success\n\n        as aamva_success\n\n| stats sum(overall_success) + sum(overall_failure) as submitted,\n\n    sum(overall_success) as success,\n\n    sum(overall_failure) as failure,\n\n    sum(overall_success) / submitted * 100 as success_rate,\n\n    sum(iv_success) / submitted * 100 as iv_success_rate,\n\n    sum(aamva_success) / submitted * 100 as aamva_success_rate\n",
             "region" : var.region,
             "stacked" : false,
             "title" : "Overall Success Rate",
@@ -25,10 +25,10 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| fields\n    properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv_success,\n    !iv_success as iv_failure,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva_success,\n    !aamva_success as aamva_failure,\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n    overall_failure and iv_failure and aamva_failure as both_failure,\n    overall_failure and iv_success and aamva_success as other_failure\n| stats sum(iv_only_failure) as iv_only,\n    sum(aamva_only_failure) as aamva_only,\n    sum(both_failure) as both,\n    sum(other_failure) as other,\n    sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only_rate,\n    sum(aamva_only_failure) / sum(overall_failure) * 100 as aamva_only_rate,\n    sum(both_failure) / sum(overall_failure) * 100 as both_rate,\n    sum(other) / sum(overall_failure) * 100 as other_rate",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| fields\n\n    properties.event_properties.success as overall_success,\n\n    !overall_success as overall_failure,\n\n    properties.event_properties.proofing_results.context.stages.resolution.success\n\n        as iv_success,\n\n    !iv_success as iv_failure,\n\n    properties.event_properties.proofing_results.context.stages.state_id.success\n\n        as aamva_success,\n\n    !aamva_success as aamva_failure,\n\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n\n    overall_failure and iv_failure and aamva_failure as both_failure,\n\n    overall_failure and iv_success and aamva_success as other_failure\n\n| stats sum(iv_only_failure) as iv_only,\n\n    sum(aamva_only_failure) as aamva_only,\n\n    sum(both_failure) as both,\n\n    sum(other_failure) as other,\n\n    sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only_rate,\n\n    sum(aamva_only_failure) / sum(overall_failure) * 100 as aamva_only_rate,\n\n    sum(both_failure) / sum(overall_failure) * 100 as both_rate,\n\n    sum(other) / sum(overall_failure) * 100 as other_rate",
             "region" : var.region,
             "stacked" : false,
-            "title" : "Failure Breakdown by Service",
+            "title" : "",
             "view" : "table"
           }
         },
@@ -39,10 +39,10 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 8,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| fields\n    properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n as iv_success,\n    !iv_success as iv_failure,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n as aamva_success,\n    !aamva_success as aamva_failure,\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n    overall_failure and iv_failure and aamva_failure as both_failure,\n    overall_failure and iv_success and aamva_success as other_failure\n| stats sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only,\n    sum(aamva_only_failure) / sum(overall_failure) * 100\n as aamva_only,\n    sum(both_failure) / sum(overall_failure) * 100 as both,\n    sum(other_failure) / sum(overall_failure) * 100 as other\n    by bin(1y)",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| fields\n\n    properties.event_properties.success as overall_success,\n\n    !overall_success as overall_failure,\n\n    properties.event_properties.proofing_results.context.stages.resolution.success\n\n as iv_success,\n\n    !iv_success as iv_failure,\n\n    properties.event_properties.proofing_results.context.stages.state_id.success\n\n as aamva_success,\n\n    !aamva_success as aamva_failure,\n\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n\n    overall_failure and iv_failure and aamva_failure as both_failure,\n\n    overall_failure and iv_success and aamva_success as other_failure\n\n| stats sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only,\n\n    sum(aamva_only_failure) / sum(overall_failure) * 100\n\n as aamva_only,\n\n    sum(both_failure) / sum(overall_failure) * 100 as both,\n\n    sum(other_failure) / sum(overall_failure) * 100 as other\n\n    by bin(1y)",
             "region" : var.region,
             "stacked" : false,
-            "title" : "Failure Breakdown by Service (%)",
+            "title" : "",
             "view" : "bar"
           }
         },
@@ -73,10 +73,10 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 15,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results' and\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n| fields\n    properties.event_properties.proofing_results.context.stages.state_id.state_id_jurisdiction\n        as state\n| stats count() as exceptions by state\n| sort exceptions desc",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results' and\n\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| fields\n\n    properties.event_properties.proofing_results.context.stages.state_id.state_id_jurisdiction\n\n        as state\n\n| stats count() as exceptions by state\n| sort exceptions desc",
             "region" : var.region,
             "stacked" : false,
-            "title" : "MVA Exceptions by State",
+            "title" : "",
             "view" : "table"
           }
         },
@@ -87,11 +87,11 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 7,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results' and\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n| fields\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n        as mva_exception,\n    !mva_exception as dldv_exception\n| stats sum(mva_exception) as mva_exceptions,\n    sum(dldv_exception) as dldv_exceptions\n",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results' and\n\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| fields\n\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n\n        as mva_exception,\n\n    !mva_exception as dldv_exception\n\n| stats sum(mva_exception) as mva_exceptions,\n\n    sum(dldv_exception) as dldv_exceptions\n",
             "region" : var.region,
             "stacked" : false,
-            "view" : "table",
-            "title" : "Exceptions: MVA vs. DLDV"
+            "title" : "",
+            "view" : "table"
           }
         },
         {
@@ -101,10 +101,10 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results' and\n    !properties.event_properties.proofing_results.context.stages.state_id.success\n| parse @message /\"state_id\":.+?\"errors\":\\{(?<parsed_errors>[^\\}]*)\\}/\n| fields\n    !isblank(parsed_errors) as error,\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n        as exception\n| stats sum(error) as errors,\n    sum(exception) as exceptions",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results' and\n    !properties.event_properties.proofing_results.context.stages.state_id.success\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| parse @message /\"state_id\":.+?\"errors\":\\{(?<parsed_errors>[^\\}]*)\\}/\n| fields\n    !isblank(parsed_errors) as error,\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n        as exception\n| stats sum(error) as errors,\n    sum(exception) as exceptions",
             "region" : var.region,
             "stacked" : false,
-            "title" : "AAMVA Errors vs. Exceptions",
+            "title" : "",
             "view" : "table"
           }
         },
@@ -135,10 +135,10 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 8,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| fields properties.event_properties.success as overall,\n    !overall as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva\n| stats sum(overall) / (sum(overall) + sum(overall_failure)) * 100\n        as overall_success,\n    sum(iv) / (sum(overall) + sum(overall_failure)) * 100\n        as iv_success,\n    sum(aamva) / (sum(overall) + sum(overall_failure)) * 100\n        as aamva_success\n    by bin(1hr)",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth verify proofing results'\n| filter ispresent(properties.service_provider) or isblank(properties.service_provider)\n| fields properties.event_properties.success as overall,\n\n    !overall as overall_failure,\n\n    properties.event_properties.proofing_results.context.stages.resolution.success\n\n        as iv,\n\n    properties.event_properties.proofing_results.context.stages.state_id.success\n\n        as aamva\n\n| stats sum(overall) / (sum(overall) + sum(overall_failure)) * 100\n\n        as overall_success,\n\n    sum(iv) / (sum(overall) + sum(overall_failure)) * 100\n\n        as iv_success,\n\n    sum(aamva) / (sum(overall) + sum(overall_failure)) * 100\n\n        as aamva_success\n\n    by bin(1hr)",
             "region" : var.region,
             "stacked" : false,
-            "title" : "Success Rate (Overall and by service) (%)",
+            "title" : "",
             "view" : "timeSeries"
           }
         },
@@ -149,7 +149,7 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
           "x" : 0,
           "type" : "text",
           "properties" : {
-            "markdown" : "### Dig Even Deeper\nFor a more detailed breakdown of which attributes are failing, see the [Identity resolution attribute failures dashboard](#dashboards:name=${var.env_name}-idv-resolution-failed-attributes).\n\n\nFor a more detailed breakdown of the AAMVA failures, see the [mva timeouts dashboard](#dashboards:name=${var.env_name}-idv-mva-timeouts)."
+            "markdown" : "### Dig Even Deeper\nFor a more detailed breakdown of which attributes are failing, see the [Identity resolution attribute failures dashboard](#dashboards:name=prod-idv-resolution-failed-attributes).\n\n\nFor a more detailed breakdown of the AAMVA failures, see the [mva timeouts dashboard](#dashboards:name=prod-idv-mva-timeouts)."
           }
         }
       ]
