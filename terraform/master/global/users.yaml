@@ -555,6 +555,7 @@ users:
     - lkouongadze
     gitlab_groups:
     - devops
+    - Radia
     - lg-all
     - lg-public
     email:
