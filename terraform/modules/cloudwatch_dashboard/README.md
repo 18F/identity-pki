@@ -31,7 +31,7 @@ module "my-dashboard-name" {
 
 ## Using the SP filter
 
-The SP filter is based on Variables, a kind of clunky feature of Cloudwatch dashboards. Basically, it does a find-and-replace on the _JSON representation_ of your dashboard based on the variable(s) you choose.
+The SP filter is based on [Variables][cloudwatch-variables], a kind of clunky feature of Cloudwatch dashboards. Basically, it does a find-and-replace on the _JSON representation_ of your dashboard based on the variable(s) you choose.
 
 To implement an SP filter in your dashboard, first add the following to the queries _all_ of your widgets that should be filtered by SP:
 
@@ -53,3 +53,5 @@ Then, specify the SPs you want to be available to filter by via the `filter_sps`
 ```
 
 (Note that `issuers` is an array--the data model supports a single SP with multiple different issuer values if needed.)
+
+[cloudwatch-variables]: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_dashboard_variables.html
