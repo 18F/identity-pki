@@ -3,6 +3,34 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
 
   dashboard_body = json_encode(
     {
+      "variables" : [
+        {
+          "type" : "pattern",
+          "pattern" : "ispresent\\(properties\\.service_provider\\) or isblank\\(properties\\.service_provider\\)",
+          "inputType" : "select",
+          "id" : "sp",
+          "label" : "Service provider",
+          "defaultValue" : "ispresent(properties.service_provider) or isblank(properties.service_provider)",
+          "visible" : true,
+          "values" : concat(
+            [
+              {
+                "value" : "ispresent(properties.service_provider) or isblank(properties.service_provider)",
+                "label" : "All"
+              }
+            ],
+            [
+              for sp in var.idp_dashboard_filter_sps :
+              join("", [
+                "(",
+                join(" or ", [for issuer in sp.issuer : "properties.service_provider = ${jsonencode(issuer)}"]),
+                "),",
+                sp.name
+              ])
+            ]
+          )
+        }
+      ],
       "widgets" : [
         {
           "height" : 4,
