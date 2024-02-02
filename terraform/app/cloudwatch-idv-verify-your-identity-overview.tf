@@ -23,7 +23,7 @@ resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
               for sp in var.idp_dashboard_filter_sps :
               join("", [
                 "(",
-                join(" or ", [for issuer in sp.issuer : "properties.service_provider = ${jsonencode(issuer)}"]),
+                join(" or ", [for issuer in sp.issuers : "properties.service_provider = ${jsonencode(issuer)}"]),
                 "),",
                 sp.name
               ])

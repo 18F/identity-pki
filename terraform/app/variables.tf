@@ -1187,8 +1187,8 @@ variable "idp_sp_dashboards" {
 
 variable "idp_dashboard_filter_sps" {
   type = list(object({
-    name   = string
-    issuer = list(string)
+    name    = string
+    issuers = list(string)
   }))
   description = "List of SPs that can be added as filters to dashboards"
   default     = []
