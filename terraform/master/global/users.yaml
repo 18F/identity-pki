@@ -556,6 +556,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
     email:
     - lucas.kouongadze@gsa.gov
