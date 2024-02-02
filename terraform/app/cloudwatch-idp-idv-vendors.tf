@@ -1,4 +1,4 @@
-module "dashboard" {
+module "dashboard-idp-idv-vendors" {
   source = "../modules/cloudwatch_dashboard"
 
   dashboard_name = "idp-idv-vendors"

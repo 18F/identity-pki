@@ -63,7 +63,7 @@ sandbox_dashboard = Aws::CloudWatch::Client.new.get_dashboard(dashboard_name: in
 dashboard_source = JSON.parse(sandbox_dashboard.dashboard_body)
 
 terraform_output = <<-TERRAFORM_OUTPUT
-module "dashboard" {
+module #{JSON.generate("dashboard-#{dashboard_name}")} {
   source = "../modules/cloudwatch_dashboard"
 
   dashboard_name = #{JSON.generate(dashboard_name)}
@@ -75,7 +75,7 @@ module "dashboard" {
   # Uncomment this to add an "SP" filter to the dashboard.
   # For this to work, you need to add the following filter to _all_ relevant queries in your dashboard:
   #
-  #   | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)")
+  #   | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)
   #
   # filter_sps = var.idp_dashboard_filter_sps
 

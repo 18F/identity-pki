@@ -1,4 +1,4 @@
-module "dashboard" {
+module "dashboard-idv-verify-your-identity-overview" {
   source = "../modules/cloudwatch_dashboard"
 
   dashboard_name = "idv-verify-your-identity-overview"
