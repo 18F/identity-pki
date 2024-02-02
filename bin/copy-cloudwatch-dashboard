@@ -62,35 +62,26 @@ dashboard_name = options[:dashboard_name] || dashboard_name_from_input(input_das
 sandbox_dashboard = Aws::CloudWatch::Client.new.get_dashboard(dashboard_name: input_dashboard)
 dashboard_source = JSON.parse(sandbox_dashboard.dashboard_body)
 
-def transform_widget(widget)
-  new_widget = widget.dup
-
-  properties = new_widget['properties']
-  return new_widget if properties.nil?
-
-  if properties['region']
-    properties['region'] = '${var.region}'
-  end
-
-  if properties['query']
-    properties['query'].gsub!(/^SOURCE '[a-z]+_/, "SOURCE '${var.env_name}_")
-    properties['query'].gsub!(/\n+/, "\n")
-  end
-
-  new_widget
-end
-
-dashboard_source['widgets'] = dashboard_source['widgets'].map do |widget|
-  transform_widget(widget)
-end
-
 terraform_output = <<-TERRAFORM_OUTPUT
-resource "aws_cloudwatch_dashboard" "#{dashboard_name.gsub('-', '_')}" {
-  dashboard_name = "${var.env_name}-#{dashboard_name}"
+module "dashboard" {
+  source = "../modules/cloudwatch_dashboard"
 
-  dashboard_body = <<EOF
-    #{JSON.pretty_generate(dashboard_source)}
-  EOF
+  dashboard_name = #{JSON.generate(dashboard_name)}
+
+  region = var.region
+
+  env_name = var.env_name
+
+  # Uncomment this to add an "SP" filter to the dashboard.
+  # For this to work, you need to add the following filter to _all_ relevant queries in your dashboard:
+  #
+  #   | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)")
+  #
+  # filter_sps = var.idp_dashboard_filter_sps
+
+  # dashboard_definition contains the _RAW_ JSON exported from the Cloudwatch UI.
+  # The AWS region and environment names will be replaced with the correct values during terraform apply.
+  dashboard_definition = #{JSON.pretty_generate(dashboard_source)}
 }
 TERRAFORM_OUTPUT
 
@@ -98,4 +89,6 @@ output_path = "terraform/app/#{output_file}"
 
 File.write(output_path, terraform_output)
 
-puts "#{output_path} written"
+system("terraform", "fmt", output_path)
+
+puts "#{output_path} written and formatted"
