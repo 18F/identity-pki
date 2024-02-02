@@ -1,7 +1,7 @@
 resource "aws_cloudwatch_dashboard" "idv_verify_your_identity_overview" {
   dashboard_name = "${var.env_name}-idv-verify-your-identity-overview"
 
-  dashboard_body = json_encode(
+  dashboard_body = jsonencode(
     {
       "variables" : [
         {
