@@ -1185,6 +1185,15 @@ variable "idp_sp_dashboards" {
   default     = {}
 }
 
+variable "idp_dashboard_filter_sps" {
+  type = list(object({
+    name   = string
+    issuer = list(string)
+  }))
+  description = "List of SPs that can be added as filters to dashboards"
+  default     = []
+}
+
 variable "soc_destination_arn" {
   type    = string
   default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
