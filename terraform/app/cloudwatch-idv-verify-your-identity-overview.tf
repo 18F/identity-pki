@@ -1,11 +1,7 @@
 module "dashboard-idv-verify-your-identity-overview" {
   source = "../modules/cloudwatch_dashboard"
 
-  dashboard_name = "idv-verify-your-identity-overview"
-
-  region = var.region
-
-  env_name = var.env_name
+  dashboard_name = "${var.env_name}-idv-verify-your-identity-overview"
 
   # Uncomment this to add an "SP" filter to the dashboard.
   # For this to work, you need to add the following filter to _all_ relevant queries in your dashboard:
@@ -25,8 +21,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv_success,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva_success\n| stats sum(overall_success) + sum(overall_failure) as submitted,\n    sum(overall_success) as success,\n    sum(overall_failure) as failure,\n    sum(overall_success) / submitted * 100 as success_rate,\n    sum(iv_success) / submitted * 100 as iv_success_rate,\n    sum(aamva_success) / submitted * 100 as aamva_success_rate\n",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv_success,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva_success\n| stats sum(overall_success) + sum(overall_failure) as submitted,\n    sum(overall_success) as success,\n    sum(overall_failure) as failure,\n    sum(overall_success) / submitted * 100 as success_rate,\n    sum(iv_success) / submitted * 100 as iv_success_rate,\n    sum(aamva_success) / submitted * 100 as aamva_success_rate\n",
+          "region" : var.region,
           "stacked" : false,
           "title" : "Overall Success Rate",
           "view" : "table"
@@ -39,8 +35,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields\n    properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv_success,\n    !iv_success as iv_failure,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva_success,\n    !aamva_success as aamva_failure,\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n    overall_failure and iv_failure and aamva_failure as both_failure,\n    overall_failure and iv_success and aamva_success as other_failure\n| stats sum(iv_only_failure) as iv_only,\n    sum(aamva_only_failure) as aamva_only,\n    sum(both_failure) as both,\n    sum(other_failure) as other,\n    sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only_rate,\n    sum(aamva_only_failure) / sum(overall_failure) * 100 as aamva_only_rate,\n    sum(both_failure) / sum(overall_failure) * 100 as both_rate,\n    sum(other) / sum(overall_failure) * 100 as other_rate",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields\n    properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv_success,\n    !iv_success as iv_failure,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva_success,\n    !aamva_success as aamva_failure,\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n    overall_failure and iv_failure and aamva_failure as both_failure,\n    overall_failure and iv_success and aamva_success as other_failure\n| stats sum(iv_only_failure) as iv_only,\n    sum(aamva_only_failure) as aamva_only,\n    sum(both_failure) as both,\n    sum(other_failure) as other,\n    sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only_rate,\n    sum(aamva_only_failure) / sum(overall_failure) * 100 as aamva_only_rate,\n    sum(both_failure) / sum(overall_failure) * 100 as both_rate,\n    sum(other) / sum(overall_failure) * 100 as other_rate",
+          "region" : var.region,
           "stacked" : false,
           "title" : "Failure Breakdown by Service",
           "view" : "table"
@@ -53,8 +49,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 8,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields\n    properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n as iv_success,\n    !iv_success as iv_failure,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n as aamva_success,\n    !aamva_success as aamva_failure,\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n    overall_failure and iv_failure and aamva_failure as both_failure,\n    overall_failure and iv_success and aamva_success as other_failure\n| stats sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only,\n    sum(aamva_only_failure) / sum(overall_failure) * 100\n as aamva_only,\n    sum(both_failure) / sum(overall_failure) * 100 as both,\n    sum(other_failure) / sum(overall_failure) * 100 as other\n    by bin(1y)",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields\n    properties.event_properties.success as overall_success,\n    !overall_success as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n as iv_success,\n    !iv_success as iv_failure,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n as aamva_success,\n    !aamva_success as aamva_failure,\n    overall_failure and iv_failure and aamva_success as iv_only_failure,\n    overall_failure and iv_success and aamva_failure as aamva_only_failure,\n    overall_failure and iv_failure and aamva_failure as both_failure,\n    overall_failure and iv_success and aamva_success as other_failure\n| stats sum(iv_only_failure) / sum(overall_failure) * 100 as iv_only,\n    sum(aamva_only_failure) / sum(overall_failure) * 100\n as aamva_only,\n    sum(both_failure) / sum(overall_failure) * 100 as both,\n    sum(other_failure) / sum(overall_failure) * 100 as other\n    by bin(1y)",
+          "region" : var.region,
           "stacked" : false,
           "title" : "Failure Breakdown by Service (%)",
           "view" : "bar"
@@ -87,8 +83,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 15,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n| fields\n    properties.event_properties.proofing_results.context.stages.state_id.state_id_jurisdiction\n        as state\n| stats count() as exceptions by state\n| sort exceptions desc",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n| fields\n    properties.event_properties.proofing_results.context.stages.state_id.state_id_jurisdiction\n        as state\n| stats count() as exceptions by state\n| sort exceptions desc",
+          "region" : var.region,
           "stacked" : false,
           "title" : "MVA Exceptions by State",
           "view" : "table"
@@ -101,8 +97,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 7,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n| fields\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n        as mva_exception,\n    !mva_exception as dldv_exception\n| stats sum(mva_exception) as mva_exceptions,\n    sum(dldv_exception) as dldv_exceptions\n",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n| fields\n    properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n        as mva_exception,\n    !mva_exception as dldv_exception\n| stats sum(mva_exception) as mva_exceptions,\n    sum(dldv_exception) as dldv_exceptions\n",
+          "region" : var.region,
           "stacked" : false,
           "view" : "table",
           "title" : "Exceptions: MVA vs. DLDV"
@@ -115,8 +111,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and\n    !properties.event_properties.proofing_results.context.stages.state_id.success\n| parse @message /\"state_id\":.+?\"errors\":\\{(?<parsed_errors>[^\\}]*)\\}/\n| fields\n    !isblank(parsed_errors) as error,\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n        as exception\n| stats sum(error) as errors,\n    sum(exception) as exceptions",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and\n    !properties.event_properties.proofing_results.context.stages.state_id.success\n| parse @message /\"state_id\":.+?\"errors\":\\{(?<parsed_errors>[^\\}]*)\\}/\n| fields\n    !isblank(parsed_errors) as error,\n    !isblank(properties.event_properties.proofing_results.context.stages.state_id.exception)\n        as exception\n| stats sum(error) as errors,\n    sum(exception) as exceptions",
+          "region" : var.region,
           "stacked" : false,
           "title" : "AAMVA Errors vs. Exceptions",
           "view" : "table"
@@ -149,8 +145,8 @@ module "dashboard-idv-verify-your-identity-overview" {
         "x" : 8,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE 'prod_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields properties.event_properties.success as overall,\n    !overall as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva\n| stats sum(overall) / (sum(overall) + sum(overall_failure)) * 100\n        as overall_success,\n    sum(iv) / (sum(overall) + sum(overall_failure)) * 100\n        as iv_success,\n    sum(aamva) / (sum(overall) + sum(overall_failure)) * 100\n        as aamva_success\n    by bin(1hr)",
-          "region" : "us-west-2",
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results'\n| fields properties.event_properties.success as overall,\n    !overall as overall_failure,\n    properties.event_properties.proofing_results.context.stages.resolution.success\n        as iv,\n    properties.event_properties.proofing_results.context.stages.state_id.success\n        as aamva\n| stats sum(overall) / (sum(overall) + sum(overall_failure)) * 100\n        as overall_success,\n    sum(iv) / (sum(overall) + sum(overall_failure)) * 100\n        as iv_success,\n    sum(aamva) / (sum(overall) + sum(overall_failure)) * 100\n        as aamva_success\n    by bin(1hr)",
+          "region" : var.region,
           "stacked" : false,
           "title" : "Success Rate (Overall and by service) (%)",
           "view" : "timeSeries"

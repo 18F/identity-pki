@@ -37,27 +37,6 @@ locals {
         local.sp_filter_variables
       )
     },
-    {
-      widgets : [
-        for w in var.dashboard_definition.widgets :
-        merge(
-          w,
-          {
-            properties : merge(
-              w.properties,
-
-              # Update region referenced in dashboard JSON
-              contains(keys(w.properties), "region") ? { region : var.region } : {},
-
-              # Update environment referenced in query sources
-              contains(keys(w.properties), "query") ? {
-                query : replace(w.properties.query, "/^SOURCE '[a-z0-9]+_/", "SOURCE '${var.env_name}_")
-              } : {}
-            )
-          }
-        )
-      ]
-    }
   )
 }
 
@@ -67,6 +46,6 @@ locals {
 # }
 
 resource "aws_cloudwatch_dashboard" "dashboard" {
-  dashboard_name = "${var.env_name}-${var.dashboard_name}"
+  dashboard_name = var.dashboard_name
   dashboard_body = jsonencode(local.dashboard_body)
 }

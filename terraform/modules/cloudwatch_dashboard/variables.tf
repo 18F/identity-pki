@@ -19,13 +19,3 @@ variable "filter_sps" {
   description = "List of SPs available for filtering."
   default     = []
 }
-
-variable "env_name" {
-  type        = string
-  description = "Environment the dashboard is being created in."
-}
-
-variable "region" {
-  type        = string
-  description = "AWS region"
-}
