@@ -56,6 +56,12 @@ def dashboard_name_from_input(input_dashboard)
   input_dashboard.gsub(/^[A-Za-z]+-/, '')
 end
 
+output_file = options[:output_file] || output_file_from_input(input_dashboard)
+dashboard_name = options[:dashboard_name] || dashboard_name_from_input(input_dashboard)
+
+sandbox_dashboard = Aws::CloudWatch::Client.new.get_dashboard(dashboard_name: input_dashboard)
+dashboard_source = JSON.parse(sandbox_dashboard.dashboard_body)
+
 def transform_widget(widget)
   new_widget = widget.dup
 
@@ -74,11 +80,6 @@ def transform_widget(widget)
   new_widget
 end
 
-output_file = options[:output_file] || output_file_from_input(input_dashboard)
-dashboard_name = options[:dashboard_name] || dashboard_name_from_input(input_dashboard)
-
-sandbox_dashboard = Aws::CloudWatch::Client.new.get_dashboard(dashboard_name: input_dashboard)
-dashboard_source = JSON.parse(sandbox_dashboard.dashboard_body)
 dashboard_source['widgets'] = dashboard_source['widgets'].map do |widget|
   transform_widget(widget)
 end
