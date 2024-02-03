@@ -97,8 +97,13 @@ module #{JSON.generate("dashboard-#{dashboard_name}")} {
   #
   # filter_sps = var.idp_dashboard_filter_sps
 
-  # dashboard_definition contains the _RAW_ JSON exported from the Cloudwatch UI.
-  # The AWS region and environment names will be replaced with the correct values during terraform apply.
+  # dashboard_definition contains the JSON exported from Amazon Cloudwatch via bin/copy-cloudwatch-dashboard.
+  # If you make changes to your dashboard, just re-run this command:
+  #
+  #   aws-vault exec #{ENV['AWS_VAULT']} -- bin/copy-cloudwatch-dashboard --in #{input_dashboard} --out #{output_file}
+  #
+  # Then commit your changes back to this repository.
+  #
   dashboard_definition = #{JSON.pretty_generate(dashboard_source).gsub('"${var.region}"', 'var.region')}
 }
 TERRAFORM_OUTPUT

@@ -10,8 +10,13 @@ module "dashboard-idv-verify-your-identity-overview" {
   #
   filter_sps = var.idp_dashboard_filter_sps
 
-  # dashboard_definition contains the _RAW_ JSON exported from the Cloudwatch UI.
-  # The AWS region and environment names will be replaced with the correct values during terraform apply.
+  # dashboard_definition contains the JSON exported from Amazon Cloudwatch via bin/copy-cloudwatch-dashboard.
+  # If you make changes to your dashboard, just re-run this command:
+  #
+  #   aws-vault exec prod-power -- bin/copy-cloudwatch-dashboard --in prod-idv-verify-your-identity-overview --out cloudwatch-idv-verify-your-identity-overview.tf
+  #
+  # Then commit your changes back to this repository.
+  #
   dashboard_definition = {
     "widgets" : [
       {
