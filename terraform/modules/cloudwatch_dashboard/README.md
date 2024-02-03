@@ -1,9 +1,6 @@
 # cloudwatch_dashboard
 
-This module will create a dashboard in Amazon Cloudwatch, automatically doings like:
-
-- Adjusting environment and region based on where it's being deployed
-- Adding an SP filter
+This module will create a dashboard in Amazon Cloudwatch.
 
 Use this module like this:
 
