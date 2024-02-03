@@ -45,7 +45,7 @@ locals {
           {
             properties : merge(
               w.properties,
-              
+
               # Update region referenced in dashboard JSON
               contains(keys(w.properties), "region") ? { region : var.region } : {},
 
