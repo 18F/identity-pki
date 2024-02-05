@@ -154,6 +154,15 @@ users:
     - appdev
     ec2_username:
     - bgreaner
+  bruce.blackman:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    ec2_username:
+    - bblackman
   cale.rubenstein:
     gitlab_groups:
     - lg-all
