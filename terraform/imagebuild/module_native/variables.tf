@@ -61,7 +61,7 @@ DESC
     delete_ami_snapshots    = "false"
     deregister_existing_ami = "false"
     encryption              = "true"
-    instance_type           = "c5.2xlarge"
+    instance_type           = "c6i.2xlarge"
     max_attempts            = "50"
     os_version              = "Ubuntu 20.04"
     packer_version          = "1.7.2"

@@ -224,7 +224,7 @@ resource "aws_dms_replication_task" "bigint" {
           "object-locator" : {
             "schema-name" : "public",
             "table-name" : "%",
-            "column-name" : "%",
+            "column-name" : "%id",
             "data-type" : "int4"
           }
         },

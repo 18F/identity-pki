@@ -169,6 +169,7 @@
     "Resources": {
         "ArtifactBucket": {
             "Type": "AWS::S3::Bucket",
+            "DeletionPolicy" : "Retain",
             "Properties": {
                 "BucketName": {
                     "Fn::If": [
@@ -299,7 +300,6 @@
             }
         },
         "CodePipeline": {
-            "DeletionPolicy" : "Retain",
             "DependsOn": [
                 "CodePipelineRolePolicy",
                 "CodePipelineRole",

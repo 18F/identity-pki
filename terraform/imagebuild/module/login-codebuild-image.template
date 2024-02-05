@@ -659,7 +659,6 @@
             }
         },
         "BuildProject": {
-            "DeletionPolicy" : "Retain",
             "DependsOn": [
                 "OutputBucket",
                 "CodeBuildRole",

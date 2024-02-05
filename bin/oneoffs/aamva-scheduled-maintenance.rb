@@ -5,7 +5,7 @@ require 'optparse'
 TIME_FORMAT = "%Y-%m-%d %I:%M %p"
 
 def message(date, duration, state)
-  duration = duration.to_i
+  duration = duration.to_f
   # ensure a TZ is set and correctly set other zone offsets
   eastern = ActiveSupport::TimeZone['America/New_York'].parse(date)
   utc = eastern.in_time_zone('UTC')
