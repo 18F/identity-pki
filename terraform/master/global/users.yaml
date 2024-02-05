@@ -156,7 +156,7 @@ users:
     - bgreaner
   bruce.blackman:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     gitlab_groups:
     - antifraud
     - lg-all
