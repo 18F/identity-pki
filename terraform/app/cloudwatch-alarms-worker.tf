@@ -35,7 +35,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_alive_a
   alarm_description         = <<EOM
 This alarm is executed when USPS get proofing results job has not run for 60 minutes
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofingworker-alive
 EOM
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
@@ -57,7 +57,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_low_tra
   alarm_description         = <<EOM
 This alarm is executed when USPS get proofing results job has not run at least 3 times within 3 hours
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofingworker-lowtransactionfrequency
 EOM
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
@@ -106,7 +106,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_high_persistent_networ
   alarm_description = <<EOM
 Calls to the USPS IPPaaS API from the proofing job are getting persistent network errors.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofing-highpersistentnetworkerrors
 EOM
 
   treat_missing_data        = "notBreaching"
@@ -192,7 +192,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_minutes
   alarm_description         = <<EOM
 This alarm is executed when USPS get proofing results job processes an enrollment that exceeds the expected timeframe for enrollment expiration
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofingworker-minutessinceenrollmentestablished
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -241,7 +241,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_minutes
   alarm_description         = <<EOM
 This alarm is executed when USPS get proofing results job has not successfully checked an enrollment's status for too long
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofingworker-minutessinceenrollmentstatuscheckcompleted
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -267,7 +267,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_worker_large_n
   alarm_description = <<EOM
 25% of enrollments processed in a recent USPS get proofing results job are set to expire within about 7 days.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofingworker-largenumberofenrollmentssettoexpire
 EOM
 
   treat_missing_data        = "notBreaching"
@@ -292,7 +292,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_job_completed_
   alarm_description = <<EOM
 USPS Proofing Job took more than 20 minutes to complete.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofingworker-verylongjobcompletiontime
 EOM
 
   treat_missing_data        = "notBreaching"
@@ -317,7 +317,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_results_job_completed_
   alarm_description = <<EOM
 More than 10% of enrollments processed by GetUspsProofingResultsJob encountered errors.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idp-worker-getuspsproofingresultsjob-higherrorrate
 EOM
 
   treat_missing_data        = "notBreaching"
@@ -344,7 +344,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_usps_proofing_enrollment_fraud_suspe
   alarm_description         = <<EOM
 Alarm is executed when fraud is suspected and logged by the GetUspsProofingResultsJob.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms#env-idpuspsproofing-fraudsuspected
 EOM
 }
 
