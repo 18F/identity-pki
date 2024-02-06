@@ -12,7 +12,11 @@ locals {
         {
           "value" : "ispresent(properties.service_provider) or not ispresent(properties.service_provider)",
           "label" : "(All)"
-        }
+        },
+        {
+          "value" : "isblank(properties.service_provider)",
+          "label" : "(None)"
+        },
       ],
       [
         for sp in var.filter_sps :
