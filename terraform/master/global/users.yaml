@@ -221,7 +221,7 @@ users:
     - lg-public
   daphne.gold:
     aws_groups:
-    - apponcall
+    - appdev
     gitlab_groups:
     - appdev
     ec2_username:
