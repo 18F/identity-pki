@@ -158,6 +158,12 @@ variable "otp_send_rate_limit_per_ip" {
   default     = 100
 }
 
+variable "email_password_rate_limit_per_ip" {
+  description = "Email/Password submission rate limit per IP over 5 minutes, minimum value 100"
+  type        = number
+  default     = 0
+}
+
 variable "geo_block_list" {
   description = "Geographic Regions to block"
   type        = list(string)
