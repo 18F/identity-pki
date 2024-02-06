@@ -845,6 +845,9 @@ users:
     - lg-all
     - lg-people
     - lg-public
+  stesha.marcon:
+    aws_groups:
+    - analytics
   sudheer.dandamudi:
     aws_groups:
     - devops
