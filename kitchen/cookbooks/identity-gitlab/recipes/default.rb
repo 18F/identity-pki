@@ -550,9 +550,18 @@ execute 'gitlab_rails_commands' do
     \
     begin; \
       puts 'clean up licenses'; \
-      License.all.each(&:destroy!); license_data = '#{gitlab_license}'; license = License.new(data: license_data); license.save; \
+      License.select { |l| l.cloud == false }.each(&:destroy!); license_data = '#{gitlab_license}'; license = License.new(data: license_data); license.save; \
     rescue; \
       puts 'XXX could not clean up licenses'; \
+    end; \
+    \
+    begin; \
+      puts 'extract cloud license'; \
+      file = File.open('/var/opt/gitlab/git-data/login.gov.cloud_license','w'); \
+      for license in License.select { |l| l.cloud == true } do file.puts license.data ; file.puts '' end ; \
+      file.close ; \
+    rescue; \
+      puts 'XXX could not extract the cloud license'; \
     end; \
     \
     begin; \
