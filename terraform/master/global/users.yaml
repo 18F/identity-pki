@@ -571,7 +571,7 @@ users:
     aws_groups:
     - devopsnonprod
     ec2_username:
-    - lkouongadze
+    - lucasdze
     gitlab_groups:
     - devops
     - lg-all
