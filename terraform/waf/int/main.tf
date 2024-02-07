@@ -49,13 +49,14 @@ module "main" {
 module "cloudfront-waf" {
   source = "../module"
 
-  wafv2_web_acl_scope = "CLOUDFRONT"
-  env                 = "int"
-  region              = "us-east-1"
-  enforce             = true
-  soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
-  enforce_rate_limit  = true
-  geo_allow_list      = [] # allow all countries in app WAFv2
+  wafv2_web_acl_scope              = "CLOUDFRONT"
+  env                              = "int"
+  region                           = "us-east-1"
+  enforce                          = true
+  soc_destination_arn              = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
+  enforce_rate_limit               = true
+  email_password_rate_limit_per_ip = 100
+  geo_allow_list                   = [] # allow all countries in app WAFv2
 
   waf_alert_actions = ["arn:aws:sns:us-east-1:894947205914:slack-otherevents"]
 }

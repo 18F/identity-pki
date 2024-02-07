@@ -221,7 +221,7 @@ users:
     - lg-public
   daphne.gold:
     aws_groups:
-    - apponcall
+    - appdev
     gitlab_groups:
     - appdev
     ec2_username:
@@ -845,6 +845,9 @@ users:
     - lg-all
     - lg-people
     - lg-public
+  stesha.marcon:
+    aws_groups:
+    - analytics
   sudheer.dandamudi:
     aws_groups:
     - devops

@@ -749,6 +749,120 @@ resource "aws_wafv2_web_acl" "alb" {
   }
 
   dynamic "rule" {
+    for_each = var.wafv2_web_acl_scope == "CLOUDFRONT" && (var.enforce_rate_limit && var.email_password_rate_limit_per_ip > 0) ? [1] : []
+    content {
+      name     = "RateLimitRootFromSourceIPs"
+      priority = 1300
+
+      action {
+        dynamic "challenge" {
+          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+          content {}
+        }
+
+        dynamic "count" {
+          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+          content {}
+        }
+      }
+
+      statement {
+        rate_based_statement {
+          limit              = var.email_password_rate_limit_per_ip
+          aggregate_key_type = "IP"
+
+          scope_down_statement {
+            and_statement {
+              statement {
+                byte_match_statement {
+                  field_to_match {
+                    method {}
+                  }
+                  positional_constraint = "EXACTLY"
+                  search_string         = "GET"
+                  text_transformation {
+                    priority = 0
+                    type     = "NONE"
+                  }
+                }
+              }
+              statement {
+                or_statement {
+                  statement {
+                    byte_match_statement {
+                      field_to_match {
+                        uri_path {}
+                      }
+
+                      positional_constraint = "EXACTLY"
+                      search_string         = "/"
+                      text_transformation {
+                        priority = 0
+                        type     = "NONE"
+                      }
+                    }
+                  }
+
+                  statement {
+                    byte_match_statement {
+                      field_to_match {
+                        uri_path {}
+                      }
+
+                      positional_constraint = "EXACTLY"
+                      search_string         = "/en"
+                      text_transformation {
+                        priority = 0
+                        type     = "NONE"
+                      }
+                    }
+                  }
+
+                  statement {
+                    byte_match_statement {
+                      field_to_match {
+                        uri_path {}
+                      }
+
+                      positional_constraint = "EXACTLY"
+                      search_string         = "/es"
+                      text_transformation {
+                        priority = 0
+                        type     = "NONE"
+                      }
+                    }
+                  }
+
+                  statement {
+                    byte_match_statement {
+                      field_to_match {
+                        uri_path {}
+                      }
+
+                      positional_constraint = "EXACTLY"
+                      search_string         = "/fr"
+                      text_transformation {
+                        priority = 0
+                        type     = "NONE"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-RateLimitRootFromSourceIPs-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  dynamic "rule" {
     for_each = var.wafv2_web_acl_scope == "CLOUDFRONT" && var.enforce_rate_limit ? [1] : []
     content {
       name     = "RateLimitBlockRequestFromSourceIPs"

@@ -48,13 +48,14 @@ module "main" {
 module "cloudfront-waf" {
   source = "../module"
 
-  wafv2_web_acl_scope = "CLOUDFRONT"
-  env                 = "prod"
-  region              = "us-east-1"
-  enforce             = true
-  soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
-  enforce_rate_limit  = true
-  geo_allow_list      = [] # allow all countries in app WAFv2
+  wafv2_web_acl_scope              = "CLOUDFRONT"
+  env                              = "prod"
+  region                           = "us-east-1"
+  enforce                          = true
+  soc_destination_arn              = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
+  enforce_rate_limit               = true
+  email_password_rate_limit_per_ip = 300
+  geo_allow_list                   = [] # allow all countries in app WAFv2
 
   # populate to define rules to COUNT (and BLOCK all others),
   # or leave blank to skip applying the bot control ruleset
