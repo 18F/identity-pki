@@ -23,6 +23,7 @@ locals {
     ingress_nginx_irsa_iam_role_arn = module.ingress_nginx_irsa.iam_role_arn
   }))
 
+  rbac_config               = yamldecode(templatefile("${path.module}/helm-values/rbac-chart.yaml.tpl", {}))
   review_app_cleanup_config = yamldecode(templatefile("${path.module}/helm-values/review-app-cleanup.yaml.tpl", {}))
   rancher_config            = yamldecode(templatefile("${path.module}/helm-values/rancher.yaml.tpl", {}))
 }

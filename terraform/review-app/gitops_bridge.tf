@@ -40,6 +40,7 @@ module "gitops_bridge" {
         awsForFluentBit  = local.fluentbit_config
         fluentd          = local.fluentd_config
         ingressNginx     = local.ingress_nginx_config
+        rbacChart        = local.rbac_config
         reviewAppCleanUp = local.review_app_cleanup_config
         rancher          = local.rancher_config
       })

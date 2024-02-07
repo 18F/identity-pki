@@ -92,6 +92,9 @@ module "main" {
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FraudOps" = ["Sandbox", "Prod"] }
     ],
+    "eksadmin" = [
+      { "EKSAdmin" = ["Sandbox", "Prod"] }
+    ],
     "fraudopsnonprod" = [
       { "Analytics" = ["Sandbox"] },
       { "FraudOps" = ["Sandbox"] }
@@ -139,6 +142,7 @@ module "main" {
     "Auditor",
     "BillingReadOnly",
     "EscrowRead",
+    "EKSAdmin",
     "FullAdministrator",
     "PowerUser",
     "ReadOnly",
