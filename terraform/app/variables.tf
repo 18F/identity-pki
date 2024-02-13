@@ -1064,7 +1064,8 @@ EOM
       long_name = "Pinpoint",
     }
     "trueid" = {
-      long_name = "TrueID",
+      long_name   = "TrueID",
+      runbook_url = "LexisNexis-TrueID-outage",
     }
   }
 }
