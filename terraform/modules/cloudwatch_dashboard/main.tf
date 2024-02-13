@@ -44,11 +44,6 @@ locals {
   )
 }
 
-# resource "local_file" "cloudwatch_dashboard" {
-#     filename = "dashboards/${var.env_name}-${var.dashboard_name}.json"
-#     content = jsonencode(local.dashboard_body)
-# }
-
 resource "aws_cloudwatch_dashboard" "dashboard" {
   dashboard_name = var.dashboard_name
   dashboard_body = jsonencode(local.dashboard_body)
