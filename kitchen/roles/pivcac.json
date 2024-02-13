@@ -15,6 +15,7 @@
   "chef_type": "role",
   "run_list": [
     "role[base]",
+    "recipe[login_dot_gov::nginx_base]",
     "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::dhparam]",
     "recipe[identity-pivcac]",

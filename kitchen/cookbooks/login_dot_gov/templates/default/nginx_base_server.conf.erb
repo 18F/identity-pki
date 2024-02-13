@@ -1,0 +1,146 @@
+#user  nobody;
+worker_processes  <%= @worker_processes %>;
+worker_rlimit_nofile <%= @nofile_limit %>;
+pid <%= @pidfile %>;
+
+events {
+  worker_connections  <%= @worker_connections %>;
+}
+
+include conf.d/*.conf;
+
+http {
+<% if @passenger_enabled %>
+  # passenger config
+  passenger_log_file                    <%= "#{@log_path}/passenger.log" %>;
+  passenger_max_instances_per_app       <%= @passenger_max_instances_per_app %>;
+  passenger_max_pool_size               <%= @passenger_pool_size %>;
+  passenger_min_instances               <%= @passenger_pool_size %>;
+  passenger_max_request_queue_size      <%= @passenger_max_request_queue_size %>;
+  passenger_pool_idle_time              <%= @passenger_pool_idle_time %>;
+  passenger_core_file_descriptor_ulimit <%= @nofile_limit %>;
+
+  passenger_root                    <%= @passenger_root %>;
+  passenger_ruby                    <%= @ruby_path %>;
+  passenger_show_version_in_header  off;
+  passenger_user                    <%= @passenger_user %>;
+<% end %>
+
+  include mime.types;
+  default_type application/octet-stream;
+
+  sendfile on;
+  tcp_nopush off;
+
+  # Nginx's default is 0, but we don't want that.
+  keepalive_timeout 60 50;
+
+  # Tune the following configurations for your environment. For more info see:
+  # https://www.phusionpassenger.com/library/config/nginx/optimization
+  gzip on;
+  gzip_types text/plain text/css application/xml application/javascript application/json image/jpg image/jpeg image/png image/gif image/svg+xml font/woff2 woff2;
+
+  # Timeouts definition
+  client_body_timeout   10;
+  client_header_timeout 10;
+  send_timeout          10;
+  # Set buffer size limits
+  client_body_buffer_size  1k;
+  client_header_buffer_size 1k;
+  client_max_body_size 20k;
+  large_client_header_buffers 2 20k;
+<% if @limit_connections %>
+  # Limit connections
+  limit_conn addr       20;
+  limit_conn_status     429;
+  limit_conn_zone       $binary_remote_addr zone=addr:5m;
+<% end -%>
+  # Disable sending server info and versions
+  server_tokens off;
+  more_clear_headers Server;
+  more_clear_headers X-Powered-By;
+  # Prevent clickJacking attack
+  add_header X-Frame-Options SAMEORIGIN;
+  # Disable content-type sniffing
+  add_header X-Content-Type-Options nosniff;
+  # Enable XSS filter
+  add_header X-XSS-Protection "1; mode=block";
+
+  # Enables nginx to check multiple set_real_ip_from lines
+  real_ip_recursive on;
+
+  real_ip_header X-Forwarded-For;
+
+  # Exclude all private IPv4 space from client source calculation when
+  # processing the X-Forewarded-For header
+  set_real_ip_from 10.0.0.0/8;
+  set_real_ip_from 100.64.0.0/10;
+  set_real_ip_from 172.16.0.0/12;
+  set_real_ip_from 192.168.0.0/16;
+  # TODO - IPv6 CIDR for VPCs will require autoconfiguration
+
+  # Add CloudFront source address ranges to trusted CIDR range for real ip computation
+  <% @cloudfront_cidrs_v4.each do |cidr| %>
+  set_real_ip_from <%= cidr %>;
+  <% end %>
+  <% @cloudfront_cidrs_v6.each do |cidr| %>
+  set_real_ip_from <%= cidr %>;
+  <% end %>
+
+  # http_cloudfront_ values are relevant for any NGINX instance behind CloudFront with the related
+  # extended headers enabled in the Origin Request Policy
+  # See: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-cloudfront-headers.html#cloudfront-headers-viewer-location
+  #
+  # Relevant for any NGINX instance behind an ALB:
+  # http_x_forwarded_for, http_x_amzn_trace_id, http_x_amzn_tls_version, http_x_amzn_tls_cipher_suite
+  #
+  # Specify a key=value format useful for machine parsing
+  log_format kv escape=json
+    '{'
+        '"time": "$time_local", '
+        '"hostname": "$host", '
+        '"dest_port": "$server_port", '
+        '"dest_ip": "$server_addr", '
+        '"src": "$remote_addr", '
+        '"src_ip": "$realip_remote_addr", '
+        '"user": "$remote_user", '
+        '"protocol": "$server_protocol", '
+        '"http_method": "$request_method", '
+        '"status": "$status", '
+        '"bytes_out": "$body_bytes_sent", '
+        '"bytes_in": "$request_length", '
+        '"http_referer": "$http_referer", '
+        '"http_user_agent": "$http_user_agent", '
+        '"nginx_version": "$nginx_version", '
+        '"http_cloudfront_viewer_address": "$http_cloudfront_viewer_address", '
+        '"http_cloudfront_viewer_http_version": "$http_cloudfront_viewer_http_version", '
+        '"http_cloudfront_viewer_tls": "$http_cloudfront_viewer_tls", '
+        '"http_cloudfront_viewer_country": "$http_cloudfront_viewer_country", '
+        '"http_cloudfront_viewer_country_region": "$http_cloudfront_viewer_country_region", '
+        '"http_x_forwarded_for": "$http_x_forwarded_for", '
+        '"http_x_amzn_trace_id": "$http_x_amzn_trace_id", '
+        '"response_time": "$upstream_response_time", '
+        '"request_time": "$request_time", '
+        '"request": "$request", '
+<% if @log_client_ssl %>
+        '"ssl_client_fingerprint": "$ssl_client_fingerprint", '
+        '"ssl_client_issuer_dn": "$ssl_client_i_dn", '
+        '"ssl_client_serial": "$ssl_client_serial", '
+        '"ssl_client_expire_days": "$ssl_client_v_remain", '
+<% end %>
+        '"http_x_amzn_tls_version": "$http_x_amzn_tls_version", '
+        '"http_x_amzn_tls_cipher_suite": "$http_x_amzn_tls_cipher_suite", '
+        '"tls_protocol": "$ssl_protocol", '
+        '"tls_cipher": "$ssl_cipher", '
+        '"uri_path": "$uri", '
+        '"uri_query": "$query_string"'
+    '}';
+
+  access_log <%= @log_path or raise "no @log_path" %>/access.log kv;
+  error_log  <%= @log_path or raise "no @log_path" %>/error.log info;
+
+  # Get $status_reason variable, a human readable version of $status
+  include status-map.conf;
+
+  include sites.d/*.conf;
+}
