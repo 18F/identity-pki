@@ -85,12 +85,26 @@ dashboard_source['widgets'] = dashboard_source['widgets'].map do |widget|
 end
 
 terraform_output = <<-TERRAFORM_OUTPUT
-resource "aws_cloudwatch_dashboard" "#{dashboard_name.gsub('-', '_')}" {
-  dashboard_name = "${var.env_name}-#{dashboard_name}"
+module #{JSON.generate("dashboard-#{dashboard_name}")} {
+  source = "../modules/cloudwatch_dashboard"
 
-  dashboard_body = <<EOF
-    #{JSON.pretty_generate(dashboard_source)}
-  EOF
+  dashboard_name = #{JSON.generate("${var.env_name}-#{dashboard_name}")}
+
+  ## Uncomment the filter_sps var below to add an "SP" filter to the dashboard.
+  ## For this to work, you need to add the following filter to _all_ relevant queries in your dashboard:
+  ##
+  ##   | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)
+  ##
+  # filter_sps = var.idp_dashboard_filter_sps
+
+  # dashboard_definition contains the JSON exported from Amazon Cloudwatch via bin/copy-cloudwatch-dashboard.
+  # If you make changes to your dashboard, just re-run this command:
+  #
+  #   aws-vault exec #{ENV['AWS_VAULT']} -- bin/copy-cloudwatch-dashboard --in #{input_dashboard} --out #{output_file}
+  #
+  # Then commit your changes back to this repository.
+  #
+  dashboard_definition = #{JSON.pretty_generate(dashboard_source).gsub('"${var.region}"', 'var.region')}
 }
 TERRAFORM_OUTPUT
 
@@ -98,4 +112,6 @@ output_path = "terraform/app/#{output_file}"
 
 File.write(output_path, terraform_output)
 
-puts "#{output_path} written"
+system("terraform", "fmt", output_path)
+
+puts "#{output_path} written and formatted"
