@@ -721,6 +721,15 @@ users:
     - pm
     - lg-all
     - lg-public
+  osman.latif:
+    aws_groups:
+    - apponcall
+    ec2_username:
+    - olatif
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   philip.burke:
     gitlab_groups:
     - antifraud
