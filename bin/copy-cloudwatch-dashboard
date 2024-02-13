@@ -90,11 +90,11 @@ module #{JSON.generate("dashboard-#{dashboard_name}")} {
 
   dashboard_name = #{JSON.generate("${var.env_name}-#{dashboard_name}")}
 
-  # Uncomment this to add an "SP" filter to the dashboard.
-  # For this to work, you need to add the following filter to _all_ relevant queries in your dashboard:
-  #
-  #   | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)
-  #
+  ## Uncomment the filter_sps var below to add an "SP" filter to the dashboard.
+  ## For this to work, you need to add the following filter to _all_ relevant queries in your dashboard:
+  ##
+  ##   | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)
+  ##
   # filter_sps = var.idp_dashboard_filter_sps
 
   # dashboard_definition contains the JSON exported from Amazon Cloudwatch via bin/copy-cloudwatch-dashboard.
