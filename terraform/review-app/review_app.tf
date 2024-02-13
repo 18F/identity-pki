@@ -10,6 +10,47 @@ module "eks_cluster" {
   cluster_endpoint_private_access = true
   enable_irsa                     = true
 
+
+  manage_aws_auth_configmap = true
+
+  aws_auth_roles = [
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ReadOnly"
+      username = "ReadOnly"
+      groups   = ["read-only"]
+    },
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Analytics"
+      username = "Analytics"
+      groups   = ["read-only"]
+    },
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FraudOps"
+      username = "FraudOps"
+      groups   = ["read-only"]
+    },
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser"
+      username = "PowerUser"
+      groups   = ["review-app"]
+    },
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"
+      username = "FullAdministrator"
+      groups   = ["power-user"]
+    },
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/EKSAdmin"
+      username = "EKSAdmin"
+      groups   = ["eks-admin"]
+    },
+    {
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
+      username = "Terraform"
+      groups   = ["terraform"]
+    },
+  ]
+
   # EKS Addons
   cluster_addons = {
     coredns    = {}

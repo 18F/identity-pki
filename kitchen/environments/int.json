@@ -6,6 +6,7 @@
   "json_class": "Chef::Environment",
   "chef_type": "environment",
   "default_attributes": {
+    "allow_migration_console_access": true,
     "identity-outboundproxy": {
       "use_dashboard_dynamic_updates": true
     },
