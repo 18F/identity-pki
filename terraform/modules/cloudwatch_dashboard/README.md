@@ -14,7 +14,7 @@ module "my-dashboard-name" {
     filter_sps = [
         {
             name = "OIDC Sinatra App"
-            issuers = [ "" ]
+            issuers = [ "urn:gov:gsa:openidconnect:sp:sinatra" ]
         }
     ]
 
