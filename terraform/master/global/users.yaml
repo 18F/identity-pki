@@ -588,6 +588,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg
   malick.diarra:
     aws_groups:
     - apponcall
@@ -730,6 +731,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg
   philip.burke:
     gitlab_groups:
     - antifraud
