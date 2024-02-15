@@ -22,6 +22,6 @@ variable "filter_sps" {
     condition = alltrue([
       for sp in var.filter_sps : length("properties.service_provider in ${jsonencode(sp.issuers)}") <= 255
     ])
-    error_message = "At least one item in filter_sps is invalid. For each entry in filter_sps, the combined length of issuers must be less than 224 characters when JSON encoded due to Cloudwatch limits."
+    error_message = "At least one item in filter_sps is invalid. For each entry in filter_sps, the combined length of issuers must be <= 224 characters when JSON encoded due to Cloudwatch limits."
   }
 }
