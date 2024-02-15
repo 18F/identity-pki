@@ -10,43 +10,42 @@ module "eks_cluster" {
   cluster_endpoint_private_access = true
   enable_irsa                     = true
 
-
   manage_aws_auth_configmap = true
 
   aws_auth_roles = [
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/ReadOnly"
-      username = "ReadOnly"
+      username = "arn:aws:sts::894947205914:assumed-role/ReadOnly/{{SessionName}}"
       groups   = ["read-only"]
     },
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Analytics"
-      username = "Analytics"
+      username = "arn:aws:sts::894947205914:assumed-role/Analytics/{{SessionName}}"
       groups   = ["read-only"]
     },
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FraudOps"
-      username = "FraudOps"
+      username = "arn:aws:sts::894947205914:assumed-role/FraudOps/{{SessionName}}"
       groups   = ["read-only"]
     },
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser"
-      username = "PowerUser"
+      username = "arn:aws:sts::894947205914:assumed-role/PowerUser/{{SessionName}}"
       groups   = ["review-app"]
     },
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/FullAdministrator"
-      username = "FullAdministrator"
+      username = "arn:aws:sts::894947205914:assumed-role/FullAdministrator/{{SessionName}}"
       groups   = ["power-user"]
     },
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/EKSAdmin"
-      username = "EKSAdmin"
+      username = "arn:aws:sts::894947205914:assumed-role/EKSAdmin/{{SessionName}}"
       groups   = ["eks-admin"]
     },
     {
       rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
-      username = "Terraform"
+      username = "arn:aws:sts::894947205914:assumed-role/Terraform/{{SessionName}}"
       groups   = ["terraform"]
     },
   ]

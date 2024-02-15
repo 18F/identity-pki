@@ -20,6 +20,24 @@ module "aws_secrets_to_kubernetes" {
         "url"  = "git@gitlab.login.gov:lg-public/identity-eks-charts.git"
       }
       secretKeyName = "sshPrivateKey"
+    },
+    "identity-idp-helm-chart-s3" = {
+      source = "s3"
+      metadata = {
+        name      = "identity-idp-helm-chart-s3"
+        s3_bucket = data.aws_s3_bucket.secrets.bucket
+        s3_key    = "reviewapp/identity-idp-helm-chart-key"
+        namespace = "argocd"
+        labels = {
+          "argocd.argoproj.io/secret-type" = "repository"
+        }
+      }
+      data = {
+        "type" = "git"
+        "name" = "identity-idp-helm-chart"
+        "url"  = "git@gitlab.login.gov:lg-public/identity-idp-helm-chart.git"
+      }
+      secretKeyName = "sshPrivateKey"
     }
   }
 }
