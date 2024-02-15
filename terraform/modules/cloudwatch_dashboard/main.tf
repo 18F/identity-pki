@@ -21,7 +21,7 @@ locals {
       [
         for sp in var.filter_sps :
         {
-          "value" : join(" or ", [for issuer in sp.issuers : "properties.service_provider = ${jsonencode(issuer)}"]),
+          "value" : "properties.service_provider in ${jsonencode(sp.issuers)}",
           "label" : sp.name
         }
       ]
