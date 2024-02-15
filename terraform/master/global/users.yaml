@@ -200,6 +200,15 @@ users:
   christine.guy:
     aws_groups:
     - finops
+  colter.nattras:
+    aws_groups:
+    - appdev
+    - devopsnonprod
+    ec2_username:
+    - cnattras
+    gitlab_groups:
+    - appdev
+    - devops
   connor.mccarthy:
     aws_groups:
     - devops
