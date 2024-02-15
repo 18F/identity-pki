@@ -264,6 +264,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  devin.cassidy:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - dcassidy
+    gitlab_groups:
+    - devops
   devon.johnson:
     aws_groups:
     - supporteng
