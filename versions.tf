@@ -59,15 +59,30 @@ provider "aws" {
 
 provider "aws" {
   alias  = "dr"
+  default_tags {
+    tags = var.fisma_tag == "" ? {} : {
+      fisma = var.fisma_tag
+    }
+  }
   region = var.dr_region
 }
 
 provider "aws" {
   alias  = "use1"
+  default_tags {
+    tags = var.fisma_tag == "" ? {} : {
+      fisma = var.fisma_tag
+    }
+  }
   region = "us-east-1"
 }
 
 provider "aws" {
   alias  = "usw2"
+  default_tags {
+    tags = var.fisma_tag == "" ? {} : {
+      fisma = var.fisma_tag
+    }
+  }
   region = var.region
 }
