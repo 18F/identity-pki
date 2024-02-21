@@ -893,6 +893,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   tahinee.felixmarin:
     aws_groups:
