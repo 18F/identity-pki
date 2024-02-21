@@ -58,7 +58,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "dr"
+  alias = "dr"
   default_tags {
     tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
@@ -68,7 +68,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "use1"
+  alias = "use1"
   default_tags {
     tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
@@ -78,7 +78,7 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "usw2"
+  alias = "usw2"
   default_tags {
     tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
