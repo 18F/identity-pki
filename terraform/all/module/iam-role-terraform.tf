@@ -1048,6 +1048,7 @@ locals {
           "guardduty:GetDetector",
           "guardduty:ListDetectors",
           "guardduty:ListPublishingDestinations",
+          "guardduty:TagResource",
           "guardduty:UpdateDetector",
           "guardduty:UpdatePublishingDestination",
         ]
