@@ -604,7 +604,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg
   malick.diarra:
     aws_groups:
     - apponcall
@@ -747,7 +746,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg
   philip.burke:
     gitlab_groups:
     - antifraud
@@ -1055,6 +1053,14 @@ projects:
       pm:
         access: reporter
   lg/identity-dashboard:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-reporting-rails:
     groups:
       devops:
         access: maintainer
