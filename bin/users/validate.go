@@ -7,11 +7,17 @@ import (
 // Ensure users.yaml is internally consistent by ensuring referenced groups are
 // also defined. Ensure root has the necessary properties and permissions.
 func (au *AuthorizedUsers) Validate() error {
+	// ensure we are running on initialized data
+	var nilau *AuthorizedUsers
+	if nilau == au {
+		return fmt.Errorf("cannot validate uninitialized AuthorizedUsers data")
+	}
+
 	// Every referenced gitlab group must be defined
 	for userName, user := range au.Users {
-		for _, groupName := range user.Gitlab_groups {
-			if _, ok := au.Groups[groupName]; !ok {
-				return fmt.Errorf("%v is not defined, but %v is a member of it", groupName, userName)
+		for _, group := range user.Gitlab_groups {
+			if _, ok := au.Groups[group.Name]; !ok {
+				return fmt.Errorf("%v is not defined, but %v is a member of it", group.Name, userName)
 			}
 		}
 	}
@@ -31,8 +37,8 @@ func (au *AuthorizedUsers) Validate() error {
 
 	// Root must be a member of every group
 	rootGroups := map[string]bool{}
-	for _, groupName := range rootUser.Gitlab_groups {
-		rootGroups[groupName] = true
+	for _, group := range rootUser.Gitlab_groups {
+		rootGroups[group.Name] = true
 	}
 	for groupName := range au.Groups {
 		if _, ok := rootGroups[groupName]; !ok {

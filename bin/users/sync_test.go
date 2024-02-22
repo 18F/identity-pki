@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/18F/identity-devops/bin/users/mocks"
-	"github.com/golang/mock/gomock"
 	"github.com/xanzy/go-gitlab"
+	"go.uber.org/mock/gomock"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -81,18 +81,33 @@ func TestResolveUsers(t *testing.T) {
 			AuthorizedUsers: &AuthorizedUsers{
 				Users: map[string]*AuthUser{
 					"john.doe": {
-						Gitlab_groups: []string{},
+						Gitlab_groups: []GitlabGroup{},
 					},
 					"alexandra.thegreat": {
-						Gitlab_groups: []string{"devops"},
-						Email:         "alex.dagreat@gsa.gov",
+						Gitlab_groups: []GitlabGroup{
+							{
+								Name: "devops",
+							},
+							{
+								Name: "appdev|owner",
+							},
+						},
+						Email: "alex.dagreat@gsa.gov",
 					},
 					"alexander.theok": {
-						Gitlab_groups: []string{"devops"},
-						Email:         "alexander.theok@gsa.gov",
+						Gitlab_groups: []GitlabGroup{
+							{
+								Name: "devops",
+							},
+						},
+						Email: "alexander.theok@gsa.gov",
 					},
 					"new.engineer": {
-						Gitlab_groups: []string{"appdev"},
+						Gitlab_groups: []GitlabGroup{
+							{
+								Name: "appdev",
+							},
+						},
 					},
 					// Not a member of any groups
 					"robbie.robot": {
@@ -150,7 +165,7 @@ var testResolveGroupsData = []struct {
 	Name            string
 	GitlabGroups    map[string]*gitlab.Group
 	AuthorizedUsers *AuthorizedUsers
-	AuthGroups      map[string]map[string]bool
+	AuthGroups      map[string]map[string]*gitlab.AccessLevelValue
 	WantToCreate    map[string]bool
 }{
 	{
@@ -162,20 +177,28 @@ var testResolveGroupsData = []struct {
 		AuthorizedUsers: &AuthorizedUsers{
 			Users: map[string]*AuthUser{
 				"user1": {
-					Gitlab_groups: []string{"lg"},
+					Gitlab_groups: []GitlabGroup{
+						{
+							Name: "lg",
+						},
+					},
 				},
 				"user2": {
-					Gitlab_groups: []string{"new_admin_group"},
+					Gitlab_groups: []GitlabGroup{
+						{
+							Name: "new_admin_group",
+						},
+					},
 				},
 			},
 		},
 
-		AuthGroups: map[string]map[string]bool{
+		AuthGroups: map[string]map[string]*gitlab.AccessLevelValue{
 			"lg": {
-				"user1": true,
+				"user1": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 			},
 			"new_admin_group": {
-				"user2": true,
+				"user2": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 			},
 		},
 		WantToCreate: map[string]bool{
@@ -195,28 +218,29 @@ func TestResolveGroups(t *testing.T) {
 func TestResolveMembers(t *testing.T) {
 	var testResolveMembersData = []struct {
 		Name         string
-		Memberships  map[string]map[string]bool
-		AuthGroups   map[string]map[string]bool
-		WantToCreate map[string]map[string]bool
+		Memberships  map[string]map[string]*gitlab.AccessLevelValue
+		AuthGroups   map[string]map[string]*gitlab.AccessLevelValue
+		WantToCreate map[string]map[string]*gitlab.AccessLevelValue
 		WantToDelete map[string]map[string]bool
+		WantToChange map[string]map[string]*gitlab.AccessLevelValue
 	}{
 		{
 			Name: "Create/Delete Members",
-			Memberships: map[string]map[string]bool{
+			Memberships: map[string]map[string]*gitlab.AccessLevelValue{
 				"lg": {
-					"lg_dev": true,
-					"ex_dev": true,
+					"lg_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
+					"ex_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 				},
 			},
-			AuthGroups: map[string]map[string]bool{
+			AuthGroups: map[string]map[string]*gitlab.AccessLevelValue{
 				"lg": {
-					"lg_dev":  true,
-					"new_dev": true,
+					"lg_dev":  gitlab.AccessLevel(gitlab.DeveloperPermissions),
+					"new_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 				},
 			},
-			WantToCreate: map[string]map[string]bool{
+			WantToCreate: map[string]map[string]*gitlab.AccessLevelValue{
 				"lg": {
-					"new_dev": true,
+					"new_dev": gitlab.AccessLevel(gitlab.DeveloperPermissions),
 				},
 			},
 			WantToDelete: map[string]map[string]bool{
@@ -224,34 +248,40 @@ func TestResolveMembers(t *testing.T) {
 					"ex_dev": true,
 				},
 			},
+			WantToChange: map[string]map[string]*gitlab.AccessLevelValue{
+				// XXX should manufacture some stuff that needs changing here
+				"lg": {},
+			},
 		},
 	}
 
 	for _, td := range testResolveMembersData {
-		toCreate, toDelete := resolveMembers(td.Memberships, td.AuthGroups)
+		toCreate, toDelete, toChange := resolveMembers(td.Memberships, td.AuthGroups)
 
 		assertEqual(t, td.Name, toCreate, td.WantToCreate)
 		assertEqual(t, td.Name, toDelete, td.WantToDelete)
+		assertEqual(t, td.Name, toChange, td.WantToChange)
 	}
 }
 
 func TestGetAuthorizedGroups(t *testing.T) {
-	want := map[string]map[string]bool{
+	want := map[string]map[string]*gitlab.AccessLevelValue{
 		"appdev": {
-			"mach.zargolis": true,
-			"root":          true,
+			"mach.zargolis": defaultAccessLevel,
+			"root":          defaultAccessLevel,
+			"kritty":        gitlab.AccessLevel(gitlab.MaintainerPermissions),
 		},
-		"bots": {"root": true},
+		"bots": {"root": defaultAccessLevel},
 		"devops": {
-			"kritty": true,
-			"root":   true,
+			"kritty": defaultAccessLevel,
+			"root":   defaultAccessLevel,
 		},
 		"lg": {
-			"gitlab.and.group.please": true,
-			"root":                    true,
+			"gitlab.and.group.please": defaultAccessLevel,
+			"root":                    defaultAccessLevel,
 		},
 		"pm": {
-			"root": true,
+			"root": defaultAccessLevel,
 		},
 	}
 	authUsers, err := getAuthorizedUsers("test_users.yaml")
@@ -286,7 +316,7 @@ func TestGitlabCache(t *testing.T) {
 		&gitlab.ListUsersOptions{
 			ListOptions: gitlab.ListOptions{
 				PerPage: 100,
-				Page: 2,
+				Page:    2,
 			},
 			ExcludeInternal: gitlab.Bool(true),
 		}).
@@ -320,7 +350,7 @@ func TestGitlabCache(t *testing.T) {
 			},
 		},
 	)
-	// Test pagination. Empty pages are OK. 
+	// Test pagination. Empty pages are OK.
 	mockClient.EXPECT().
 		ListGroupMembers(
 			1,
@@ -353,7 +383,7 @@ func TestGitlabCache(t *testing.T) {
 			},
 			nil,
 		)
-	
+
 	populateGitLabCache(mockClient)
 }
 
@@ -366,13 +396,21 @@ func TestResolveProjects(t *testing.T) {
 	authorizedUsers := &AuthorizedUsers{
 		Users: map[string]*AuthUser{
 			"john.doe": {
-				Gitlab_groups: []string{},
+				Gitlab_groups: []GitlabGroup{},
 			},
 			"alexandra.thegreat": {
-				Gitlab_groups: []string{"devops"},
+				Gitlab_groups: []GitlabGroup{
+					{
+						Name: "devops",
+					},
+				},
 			},
 			"new.engineer": {
-				Gitlab_groups: []string{"appdev"},
+				Gitlab_groups: []GitlabGroup{
+					{
+						Name: "appdev",
+					},
+				},
 			},
 		},
 		Groups: map[string]*AuthGroup{},
@@ -393,6 +431,7 @@ func TestResolveProjects(t *testing.T) {
 			SharedWithGroups: []struct {
 				GroupID          int    "json:\"group_id\""
 				GroupName        string "json:\"group_name\""
+				GroupFullPath    string "json:\"group_full_path\""
 				GroupAccessLevel int    "json:\"group_access_level\""
 			}{
 				{
@@ -443,21 +482,24 @@ func TestValidate(t *testing.T) {
 		"missing root membership": {input: "test_users_no_root_membership.yaml", want_err: true},
 		"no root member":          {input: "test_users_no_root.yaml", want_err: true},
 		"bot group member":        {input: "test_users_bot_member.yaml", want_err: true},
+		"bad AccessLevel":         {input: "test_users_bad_accesslevel.yaml", want_err: true},
+		"missing AccessLevel":     {input: "test_users_no_accesslevel.yaml", want_err: true},
 	}
 
 	for name, td := range tests {
 		t.Run(name, func(t *testing.T) {
 			au, err := getAuthorizedUsers(td.input)
-			if err != nil {
+			if err != nil && !td.want_err {
 				t.Errorf("error loading %v: %v", td.input, err)
 			}
-
-			err = au.Validate()
-			if err != nil && !td.want_err {
-				t.Errorf("error validating %s: %s", td.input, err)
-			}
-			if err == nil && td.want_err {
-				t.Errorf("expected an error when validating %s", td.input)
+			if err == nil {
+				err = au.Validate()
+				if err != nil && !td.want_err {
+					t.Errorf("error validating %s: %s", td.input, err)
+				}
+				if err == nil && td.want_err {
+					t.Errorf("expected an error when validating %s", td.input)
+				}
 			}
 		})
 	}

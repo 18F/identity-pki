@@ -7,12 +7,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/xanzy/go-gitlab"
 	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v2"
 )
+
 const gitlabTokenEnvVar = "GITLAB_API_TOKEN"
 const ghost = "ghost"
 
@@ -23,6 +25,8 @@ var userYaml string
 var apiToken string // env var
 var check bool
 var validateOnly bool
+var defaultAccessLevel *gitlab.AccessLevelValue
+var accesslevelstring string
 
 // What we care about w.r.t. GitLab authorization. These objects will be synced.
 type GitlabCache struct {
@@ -46,6 +50,24 @@ type AuthorizedProject struct {
 
 var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
+func CheckAccessLevel(accesslevelstring string) (*gitlab.AccessLevelValue, error) {
+	accessLevelAlias := map[string]gitlab.AccessLevelValue{
+		"none":       gitlab.NoPermissions,
+		"minimal":    gitlab.MinimalAccessPermissions,
+		"guest":      gitlab.GuestPermissions,
+		"reporter":   gitlab.ReporterPermissions,
+		"developer":  gitlab.DeveloperPermissions,
+		"maintainer": gitlab.MaintainerPermissions,
+		"owner":      gitlab.OwnerPermissions,
+	}
+
+	if val, ok := accessLevelAlias[accesslevelstring]; ok {
+		return gitlab.AccessLevel(val), nil
+	} else {
+		return nil, fmt.Errorf("access level '%v' not defined", accesslevelstring)
+	}
+}
+
 func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	type alias struct {
 		Groups map[string]struct {
@@ -61,29 +83,25 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 		Groups: make(map[string]struct{ Access *gitlab.AccessLevelValue }),
 	}
 
-	accessLevelAlias := map[string]gitlab.AccessLevelValue{
-		"none":       gitlab.NoPermissions,
-		"minimal":    gitlab.MinimalAccessPermissions,
-		"guest":      gitlab.GuestPermissions,
-		"reporter":   gitlab.ReporterPermissions,
-		"developer":  gitlab.DeveloperPermissions,
-		"maintainer": gitlab.MaintainerPermissions,
-		"owner":      gitlab.OwnerPermissions,
-	}
-
 	for gName, g := range tmp.Groups {
-		alias := g.Access
-		if val, ok := accessLevelAlias[alias]; ok {
+		val, err := CheckAccessLevel(g.Access)
+		if err != nil {
+			return err
+		} else {
 			p.Groups[gName] = struct {
 				Access *gitlab.AccessLevelValue
 			}{
-				Access: gitlab.AccessLevel(val),
+				Access: val,
 			}
-		} else {
-			return fmt.Errorf("access level %v not defined", alias)
 		}
 	}
 	return nil
+}
+
+// Format of gitlab groups
+type GitlabGroup struct {
+	Name        string
+	AccessLevel *gitlab.AccessLevelValue
 }
 
 // Format of users from parsing YAML. For backwards compatibility, all fields
@@ -91,7 +109,7 @@ func (p *AuthorizedProject) UnmarshalYAML(unmarshal func(interface{}) error) err
 type AuthUser struct {
 	Aws_groups         []string
 	Ec2_username       []string
-	Gitlab_groups      []string
+	Gitlab_groups      []GitlabGroup
 	Git_username       string
 	Name               string
 	Email              string
@@ -116,8 +134,34 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	*au = AuthUser{
-		Aws_groups:    tmp.Aws_groups,
-		Gitlab_groups: tmp.Gitlab_groups,
+		Aws_groups: tmp.Aws_groups,
+	}
+	// parse gitlab groups specially.  If there is a |,
+	// then it means that the user should be added to the
+	// group with the authlevel specified after the |.
+	// If there are more than one | in the string, it discards everything after the second |.
+	for _, gitlabgroup := range tmp.Gitlab_groups {
+		var a *gitlab.AccessLevelValue
+		var err error
+		var group string
+		if strings.Contains(gitlabgroup, "|") {
+			a, err = CheckAccessLevel(strings.SplitN(gitlabgroup, "|", 2)[1])
+			if err != nil {
+				return err
+			}
+			group = strings.SplitN(gitlabgroup, "|", 2)[0]
+		} else {
+			a = defaultAccessLevel
+			group = gitlabgroup
+		}
+		if group == "" {
+			return fmt.Errorf("group is empty")
+		}
+		g := GitlabGroup{
+			Name:        group,
+			AccessLevel: a,
+		}
+		au.Gitlab_groups = append(au.Gitlab_groups, g)
 	}
 	if len(tmp.Git_username) > 0 {
 		au.Git_username = tmp.Git_username[0]
@@ -165,6 +209,7 @@ func init() {
 		os.Exit(1)
 	}
 	flag.BoolVar(&validateOnly, "validate", false, "Only validate users.yaml - do not call the Gitlab API.")
+	flag.StringVar(&accesslevelstring, "defaultaccesslevel", "developer", "Default AccessLevel for group membership.")
 }
 
 func main() {
@@ -173,6 +218,11 @@ func main() {
 
 	// Check if we have flags and env vars set
 	flag.Parse()
+	var err error
+	defaultAccessLevel, err = CheckAccessLevel(accesslevelstring)
+	if err != nil {
+		log.Fatalf("invalid defaultaccesslevel: %s", err)
+	}
 
 	// Parse YAML
 	authorizedUsers, err := getAuthorizedUsers(userYaml)
@@ -257,7 +307,7 @@ func main() {
 		log.Fatalf("Failed to list memberships: %v", err)
 	}
 	authGroups := getAuthorizedGroups(authorizedUsers)
-	membersToCreate, membersToDelete := resolveMembers(groupsWithMembers, authGroups)
+	membersToCreate, membersToDelete, membersToChange := resolveMembers(groupsWithMembers, authGroups)
 	// Even if these fail, try to continue. There's still work to do.
 	err = createMemberships(gitc, membersToCreate)
 	if err != nil {
@@ -266,6 +316,10 @@ func main() {
 	err = deleteMemberships(gitc, membersToDelete)
 	if err != nil {
 		result = multierror.Append(result, fmt.Errorf("failed to delete members: %v", err))
+	}
+	err = changeMemberships(gitc, membersToChange)
+	if err != nil {
+		result = multierror.Append(result, fmt.Errorf("failed to change members: %v", err))
 	}
 
 	//
@@ -348,8 +402,8 @@ func resolveProjects(gitc GitlabClientIface, existingProjects map[string]*gitlab
 	return nil
 }
 
-func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool {
-	groups := map[string]map[string]bool{}
+func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]*gitlab.AccessLevelValue {
+	groups := map[string]map[string]*gitlab.AccessLevelValue{}
 	for username, au := range authUsers.Users {
 
 		// Use the overridden git username if available
@@ -358,10 +412,10 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]bool 
 		}
 
 		for _, g := range au.Gitlab_groups {
-			if _, ok := groups[g]; !ok {
-				groups[g] = make(map[string]bool)
+			if _, ok := groups[g.Name]; !ok {
+				groups[g.Name] = make(map[string]*gitlab.AccessLevelValue)
 			}
-			groups[g][username] = true
+			groups[g.Name][username] = g.AccessLevel
 		}
 	}
 
@@ -389,8 +443,8 @@ func getExistingGroups(gitc GitlabClientIface) (map[string]*gitlab.Group, error)
 	return groupMap, nil
 }
 
-func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]bool, error) {
-	memberships := map[string]map[string]bool{}
+func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]*gitlab.AccessLevelValue, error) {
+	memberships := map[string]map[string]*gitlab.AccessLevelValue{}
 
 	gitlabGroups, err := getExistingGroups(gitc)
 	if err != nil {
@@ -402,9 +456,9 @@ func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]bool, err
 		if err != nil {
 			return nil, err
 		}
-		memberships[gname] = make(map[string]bool)
+		memberships[gname] = make(map[string]*gitlab.AccessLevelValue)
 		for _, m := range members {
-			memberships[gname][m.Username] = true
+			memberships[gname][m.Username] = &m.AccessLevel
 		}
 	}
 	return memberships, nil
@@ -454,7 +508,7 @@ func getAuthorizedUsers(f string) (*AuthorizedUsers, error) {
 
 func getExistingUsers(gitc GitlabClientIface) (map[string]*gitlab.User, error) {
 	existingUsers := make(map[string]*gitlab.User)
-	opt := 		&gitlab.ListUsersOptions{
+	opt := &gitlab.ListUsersOptions{
 		ListOptions: gitlab.ListOptions{
 			PerPage: 100,
 		},
@@ -578,40 +632,47 @@ func resolveGroups(
 // Returns memberships to create and delete.
 // TODO: create and delete in-place, test with mocks, and recursively create subgroups.
 func resolveMembers(
-	liveGroupMemberships map[string]map[string]bool,
-	authorizedGroups map[string]map[string]bool,
-) (map[string]map[string]bool, map[string]map[string]bool) {
+	liveGroupMemberships map[string]map[string]*gitlab.AccessLevelValue,
+	authorizedGroups map[string]map[string]*gitlab.AccessLevelValue,
+) (map[string]map[string]*gitlab.AccessLevelValue, map[string]map[string]bool, map[string]map[string]*gitlab.AccessLevelValue) {
 
-	membersToCreate := map[string]map[string]bool{}
+	membersToCreate := map[string]map[string]*gitlab.AccessLevelValue{}
 	membersToDelete := map[string]map[string]bool{}
+	membersToChange := map[string]map[string]*gitlab.AccessLevelValue{}
 
 	// Go through each live group and members
 	for gname, liveMembers := range liveGroupMemberships {
-		
+
 		// If existing membership is for a group not in config, don't do anything.
 		if _, ok := authorizedGroups[gname]; !ok {
 			continue
 		}
 
 		// Create the structure where we can store new and invalid memberships
-		membersToCreate[gname] = make(map[string]bool)
+		membersToCreate[gname] = make(map[string]*gitlab.AccessLevelValue)
 		membersToDelete[gname] = make(map[string]bool)
-		
+		membersToChange[gname] = make(map[string]*gitlab.AccessLevelValue)
+
 		for username := range authorizedGroups[gname] {
 			if _, ok := liveMembers[username]; !ok {
 				// Create new memberships if required
-				membersToCreate[gname][username] = true
+				membersToCreate[gname][username] = authorizedGroups[gname][username]
 			}
 		}
 
-		for username := range liveMembers {
-			if _, ok := authorizedGroups[gname][username]; !ok {
+		for username, liveAccessLevel := range liveMembers {
+			authorizedAccessLevel, ok := authorizedGroups[gname][username]
+			if !ok {
 				// This user shouldn't be in this group. Delete.
 				membersToDelete[gname][username] = true
+				continue
+			}
+			if *authorizedAccessLevel != *liveAccessLevel {
+				membersToChange[gname][username] = authorizedAccessLevel
 			}
 		}
 	}
-	return membersToCreate, membersToDelete
+	return membersToCreate, membersToDelete, membersToChange
 }
 
 func blockUser(gitc GitlabClientIface, u *gitlab.User) error {
@@ -727,7 +788,7 @@ func deleteGroups(gitc GitlabClientIface, groupsToDelete map[string]*gitlab.Grou
 	return nil
 }
 
-func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[string]bool) error {
+func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[string]*gitlab.AccessLevelValue) error {
 	for groupName, members := range membersToCreate {
 		for memberName := range members {
 			fatalIfDryRun("Member %v should exist in %v, but doesn't.", memberName, groupName)
@@ -743,7 +804,7 @@ func createMemberships(gitc GitlabClientIface, membersToCreate map[string]map[st
 			groupID := group.ID
 			memberOpts := &gitlab.AddGroupMemberOptions{
 				UserID:      gitlab.Int(user.ID),
-				AccessLevel: gitlab.AccessLevel(gitlab.DeveloperPermissions),
+				AccessLevel: membersToCreate[groupName][memberName],
 			}
 			_, _, err := gitc.AddGroupMember(groupID, memberOpts)
 			if err != nil {
@@ -762,6 +823,34 @@ func deleteMemberships(gitc GitlabClientIface, membersToDelete map[string]map[st
 			groupID := cache.Groups[groupName].ID
 			userID := cache.Users[memberName].ID
 			_, err := gitc.RemoveGroupMember(groupID, userID, &gitlab.RemoveGroupMemberOptions{})
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// Warning:  not sure why, but changing root's group membership does not work.  It gives a 403.
+// You will need to change root's group membership by hand until we figure out why.
+func changeMemberships(gitc GitlabClientIface, membersToChange map[string]map[string]*gitlab.AccessLevelValue) error {
+	for groupName, members := range membersToChange {
+		for memberName := range members {
+			fatalIfDryRun("Member %v should exist in %v, and needs updating.", memberName, groupName)
+
+			group, ok := cache.Groups[groupName]
+			if !ok {
+				return fmt.Errorf("%v not found in group cache", groupName)
+			}
+			user, ok := cache.Users[memberName]
+			if !ok {
+				return fmt.Errorf("%v not found in user cache", memberName)
+			}
+			groupID := group.ID
+			memberOpts := &gitlab.EditGroupMemberOptions{
+				AccessLevel: membersToChange[groupName][memberName],
+			}
+			_, _, err := gitc.EditGroupMember(groupID, user.ID, memberOpts)
 			if err != nil {
 				return err
 			}

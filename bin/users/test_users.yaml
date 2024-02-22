@@ -27,6 +27,7 @@ users:
       - devops
     gitlab_groups:
       - devops
+      - appdev|maintainer
   mach.zargolis:
     email:
       - machary.zargolis@gsa.gov
