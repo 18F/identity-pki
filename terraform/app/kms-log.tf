@@ -9,9 +9,11 @@ locals {
 }
 
 module "kms_logging" {
-  source = "github.com/18F/identity-terraform//kms_log?ref=61285e3b825ba9f6d560e69718e4ff570f4d669b"
+  source = "github.com/18F/identity-terraform//kms_log?ref=3af3eae536ad47b4939b3ae443d2682cc6e93028"
   #source = "../../../identity-terraform/kms_log"
 
+  sqs_alarm_actions                       = var.kms_log_alerts_enabled ? [var.slack_events_sns_hook_arn] : []
+  sqs_ok_actions                          = var.kms_log_alerts_enabled ? [var.slack_events_sns_hook_arn] : []
   env_name                                = var.env_name
   sns_topic_dead_letter_arn               = var.slack_events_sns_hook_arn
   kinesis_shard_count                     = var.kms_log_kinesis_shards
