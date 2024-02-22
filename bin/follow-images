@@ -58,5 +58,5 @@ fi
 LOG_STREAM=$(echo ${BUILD_ID} | awk -F':' '{print $NF}')
 echo_green "Following log stream ID '${LOG_STREAM}'; press CTRL-C to exit."
 trap "echo && echo_green 'Finished following ${BUILD_ID} in login-${ACCOUNT}.'" INT
-ave aws logs tail /aws/codebuild/login-image-${TYPE} \
+ave aws logs tail /aws/codebuild/login-us-west-2-${ACCOUNT}-imagebuild-${TYPE} \
   --log-stream-names ${LOG_STREAM} --follow --format short

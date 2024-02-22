@@ -61,7 +61,7 @@ DESC
     delete_ami_snapshots    = "false"
     deregister_existing_ami = "false"
     encryption              = "true"
-    instance_type           = "c5.2xlarge"
+    instance_type           = "c6i.2xlarge"
     max_attempts            = "50"
     os_version              = "Ubuntu 20.04"
     packer_version          = "1.7.2"
@@ -127,6 +127,7 @@ variable "packer_instance_profile_name" {
 variable "git2s3_bucket_name" {
   description = "name of default git2s3 bucket for non_sandbox envs"
   type        = string
+  default     = "codesync-identitybaseimage-outputbucket-rlnx3kivn8t8"
 }
 
 variable "base_pipeline_name" {
@@ -175,3 +176,14 @@ variable "codepipeline_s3_bucket_name" {
   default     = ""
 }
 
+variable "ami_copy_region" {
+  description = "The name of a region that Packer copies AMIs to"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "codebuild_build_timeout" {
+  description = "the time codebuild allows a build to run before failing the build"
+  type        = string
+  default     = "120"
+}

@@ -9,6 +9,7 @@ module "fulladmin-assumerole" {
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
     var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
+    aws_iam_policy.ai_service_restriction.arn,
   ])
 
   iam_policies = [

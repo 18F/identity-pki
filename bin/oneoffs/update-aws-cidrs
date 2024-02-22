@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.prefixes[] | select(.service=="CLOUDFRONT_ORIGIN_FACING") | .ip_prefix' | sort > kitchen/cookbooks/login_dot_gov/templates/default/aws_ipv4_cidrs.txt
+curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.ipv6_prefixes[] | select(.service=="CLOUDFRONT") | .ipv6_prefix' | sort > kitchen/cookbooks/login_dot_gov/templates/default/aws_ipv6_cidrs.txt

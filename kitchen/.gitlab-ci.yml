@@ -1,0 +1,11 @@
+include:
+  local: /.gitlab-ci-rules.yml
+
+check_aws_ip_cidr_ranges:
+  image: cimg/ruby:3.0
+  # Temporarily allow failure until OBP allows requests for IP address fetching
+  allow_failure: true
+  script:
+    - ./bin/oneoffs/update-aws-cidrs
+    - |
+      (! git diff --name-only | grep "^kitchen/cookbooks/login_dot_gov/templates/default/aws_ipv.*_cidrs\.txt$") || (echo "Error: Run './bin/oneoffs/update-aws-cidrs' to update AWS CIDRs"; exit 1)

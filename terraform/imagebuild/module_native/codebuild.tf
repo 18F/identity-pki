@@ -1,7 +1,7 @@
 resource "aws_codebuild_project" "base_image" {
   name           = local.base_codebuild_name
   description    = "Template to create resources for CodeBuild Project integrated with Git2S3"
-  build_timeout  = "90"
+  build_timeout  = var.codebuild_build_timeout
   queued_timeout = "480"
 
   service_role = aws_iam_role.codebuild.arn
@@ -167,6 +167,11 @@ resource "aws_codebuild_project" "base_image" {
       name  = "AWS_INSTANCE_TYPE"
       value = var.packer_config["instance_type"]
     }
+
+    environment_variable {
+      name  = "AMI_COPY_REGION"
+      value = var.ami_copy_region
+    }
   }
 
   logs_config {
@@ -180,12 +185,19 @@ resource "aws_codebuild_project" "base_image" {
     location  = "${var.git2s3_bucket_name}/${local.identity_base_image_zip_s3_path}"
     buildspec = "buildspec-terraform.yml"
   }
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
+  }
 }
 
 resource "aws_codebuild_project" "rails_image" {
   name           = local.rails_codebuild_name
   description    = "Template to create resources for CodeBuild Project integrated with Git2S3"
-  build_timeout  = "90"
+  build_timeout  = var.codebuild_build_timeout
   queued_timeout = "480"
 
   service_role = aws_iam_role.codebuild.arn
@@ -346,6 +358,11 @@ resource "aws_codebuild_project" "rails_image" {
       name  = "AWS_INSTANCE_TYPE"
       value = var.packer_config["instance_type"]
     }
+
+    environment_variable {
+      name  = "AMI_COPY_REGION"
+      value = var.ami_copy_region
+    }
   }
 
   logs_config {
@@ -358,5 +375,12 @@ resource "aws_codebuild_project" "rails_image" {
     type      = "S3"
     location  = "${var.git2s3_bucket_name}/${local.identity_base_image_zip_s3_path}"
     buildspec = "buildspec-terraform.yml"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+      tags_all
+    ]
   }
 }

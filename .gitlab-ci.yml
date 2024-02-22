@@ -40,11 +40,11 @@ variables:
   # brew install crane
   # crane copy <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@sha256:42a373721c2c26[...] \
   #   <account>.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed
-  DEPLOY_IMAGE_DIGEST: "sha256:b75c53b879618df13d451d5e579a749d22aea853eec463b12edd5ce6fe7ea253"
-  STOP_IMAGE_DIGEST: "sha256:44e2be3f9477050e26f5bd1a8b7633a54e51a4d244c4a0b4a6ed96bf4a322a97"
-  TEST_IMAGE_DIGEST: "sha256:05c0599f0377551671b2d1606e8675ae6ffc40a1939b58b1f533f18dd7de8df3"
-  GITDEPLOY_IMAGE_DIGEST: "sha256:3bf1805154e4337b67f4518f533f8daf432cbba74681cdd5c79fef7ef23dc8ee"
-  GITTEST_IMAGE_DIGEST: "sha256:64034f2625a76c299576e5acb35b6fa074add0fa1725812f295a13c93fd21731"
+  DEPLOY_IMAGE_DIGEST: "sha256:6ddbe2d898f090db8ffbd0c2b5157818fe532814f00241e67cad5d020afa1395"
+  STOP_IMAGE_DIGEST: "sha256:eb477ac58eb9c56b5ebc6bb4dc3c01b5903af72bd91e5cdd52eeafdf3fe2fe0f"
+  TEST_IMAGE_DIGEST: "sha256:15351745a2bfd3b55a6d661d489d8db5cf1a1b4e3cc7d264ea1e56a3b23ca9aa"
+  GITDEPLOY_IMAGE_DIGEST: "sha256:9edb6dc7f1b3fa324f5260056d491d4285143ccf72af87c9fdf50dddcdd1647a"
+  GITTEST_IMAGE_DIGEST: "sha256:18db3f61d0b63a4c5a382bece62f0c23ecdb22eceead379bdfec76be824702ef"
   NESSUS_URL: "https://44.230.151.136:8834"
 
 .nessus_scan:
@@ -1068,6 +1068,7 @@ include:
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml
   - local: terraform/.gitlab-ci.yml
   - local: cloudlib/.gitlab-ci.yml
+  - local: kitchen/.gitlab-ci.yml
   - local: bin/users/.gitlab-ci.yml
   - template: Security/SAST-IaC.gitlab-ci.yml
   - template: Security/SAST.gitlab-ci.yml

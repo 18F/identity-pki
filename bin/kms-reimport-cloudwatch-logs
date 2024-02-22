@@ -1,0 +1,190 @@
+#!/usr/bin/env python
+
+# Reimports Cloudwatch KMS Events by inserting into kinesis stream
+
+import argparse
+import csv
+import gzip
+import json
+import os
+import random
+import string
+import sys
+import time
+
+import boto3
+from botocore.exceptions import ClientError
+
+DEFAULT_REGION = "us-west-2"
+
+
+def get_random_string(length):
+
+    return ''.join(
+        random.choices(string.ascii_letters + string.digits, k=length))
+
+
+def parse_commandline_arguments():
+    parser = argparse.ArgumentParser(
+        # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description=
+        "Reimport Cloudwatch KMS Events by inserting into Kineses Data Stream",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--environment",
+        dest="environment",
+        type=str,
+        help="Specify application environment",
+        required=True,
+    )
+    parser.add_argument(
+        "-c",
+        "--csv",
+        dest="input_csv",
+        type=str,
+        help="Specify the CSV File",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-r",
+        "--region",
+        dest="region",
+        type=str,
+        default=DEFAULT_REGION,
+        help="Specify the region of the AWS Account",
+    )
+
+    return parser.parse_args()
+
+
+def generate_log_event(timestamp, message):
+
+    return {
+        "id": "38034165967115199534268445655324557492236729568164904960",
+        "timestamp": int(timestamp),
+        "message": message,
+        "extractedFields": {
+            "json": message,
+        }
+    }
+
+
+def generate_init_record(aws_accountid, environment, logstream_source, message,
+                         timestamp):
+
+    data_dict = {
+        "messageType": "DATA_MESSAGE",
+        "owner": aws_accountid,
+        "logGroup": "{}_/srv/idp/shared/log/kms.log".format(environment),
+        "logStream": logstream_source,
+        "subscriptionFilters": [f"{environment}-kms-app-log"],
+        "logEvents": [generate_log_event(timestamp, message)]
+    }
+
+    return data_dict
+
+
+def put_record_to_kinesis(client,
+                          region,
+                          aws_accountid,
+                          environment,
+                          data,
+                          partitionKey,
+                          attempt=1):
+
+    print('Submitting ' + str(len(data['logEvents'])) + ' Log Events...')
+
+    compressed_value = gzip.compress(bytes(json.dumps(data), 'utf-8'))
+
+    streamArn = 'arn:aws:kinesis:{}:{}:stream/{}-kms-app-events'.format(
+        region, aws_accountid, environment)
+
+    try:
+        client.put_record(
+            StreamARN=streamArn,
+            Data=compressed_value,
+            PartitionKey=partitionKey,
+        )
+    except ClientError as execption_obj:
+        if execption_obj.response['Error'][
+                'Code'] == "ProvisionedThroughputExceededException":
+
+            if attempt <= 3:
+                print("Throttling Exeption Occured.")
+                print("Retrying.....")
+                print("Attempt No.: " + str(attempt))
+                time.sleep(3 * attempt)
+
+                return put_record_to_kinesis(client, region, aws_accountid,
+                                             environment, data, partitionKey,
+                                             attempt + 1)
+            else:
+                print("Attempted 3 Times But No Success.")
+                print("Raising Exception.....")
+                raise
+        else:
+            raise
+
+
+def main():
+    args = parse_commandline_arguments()
+
+    aws_accountid = os.popen(
+        "aws sts get-caller-identity --query Account --output text").read(
+        ).rstrip()
+
+    kinesis_client = boto3.client('kinesis')
+    logstream_to_record_map = {}
+
+    with open(args.input_csv) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+
+                continue
+
+            timestamp = row[0]
+            message = row[1]
+            logstream_source = row[2]
+
+            if logstream_source in logstream_to_record_map:
+
+                logstream_to_record_map[logstream_source]["logEvents"].append(
+                    generate_log_event(timestamp, message))
+
+                if len(logstream_to_record_map[logstream_source]
+                       ["logEvents"]) > 400:
+                    partitionKey = get_random_string(25)
+                    put_record_to_kinesis(
+                        kinesis_client, args.region, aws_accountid,
+                        args.environment,
+                        logstream_to_record_map[logstream_source],
+                        partitionKey)
+                    del logstream_to_record_map[logstream_source]
+            else:
+                logstream_to_record_map[
+                    logstream_source] = generate_init_record(
+                        aws_accountid, args.environment, logstream_source,
+                        message, timestamp)
+
+            line_count += 1
+
+    # Sends Remaining Records that are below 400 entries
+
+    for key in logstream_to_record_map:
+        partitionKey = get_random_string(25)
+        put_record_to_kinesis(kinesis_client, args.region, aws_accountid,
+                              args.environment, logstream_to_record_map[key],
+                              partitionKey)
+
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

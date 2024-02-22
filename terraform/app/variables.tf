@@ -569,28 +569,28 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-040a21d91923ef4d1" # 2024-01-02 Ubuntu 20.04
+  default     = "ami-0ad29786e123dab3d" # 2024-02-20 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_uw2" {
-  default     = "ami-00b472cdb28fcfeef" # 2024-01-02 Ubuntu 20.04
+  default     = "ami-0416a128b5d927ac4" # 2024-02-20 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-05d64f27eea10678a" # 2024-01-02 Ubuntu 20.04
+  default     = "ami-068aa281965886ec2" # 2024-02-20 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_uw2" {
-  default     = "ami-058eee18377c2dcdd" # 2024-01-02 Ubuntu 20.04
+  default     = "ami-0d1c6989814907f40" # 2024-02-20 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -612,7 +612,7 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
-  default     = "ami-0958663a928d9f32b" # 2024-01-02 Ubuntu 20.04
+  default     = "ami-05de838096769fdde" # 2024-02-20 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
@@ -626,7 +626,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
-  default     = "ami-08e9b79e34e36856e" # 2024-01-02 Ubuntu 20.04
+  default     = "ami-0c26916af64ce9093" # 2024-02-20 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
@@ -1064,7 +1064,8 @@ EOM
       long_name = "Pinpoint",
     }
     "trueid" = {
-      long_name = "TrueID",
+      long_name   = "TrueID",
+      runbook_url = "LexisNexis-TrueID-outage",
     }
   }
 }
@@ -1183,6 +1184,15 @@ variable "idp_sp_dashboards" {
   }))
   description = "Map of values for widgets on SP dashboard"
   default     = {}
+}
+
+variable "idp_dashboard_filter_sps" {
+  type = list(object({
+    name    = string
+    issuers = list(string)
+  }))
+  description = "List of SPs that can be added as filters to dashboards"
+  default     = []
 }
 
 variable "soc_destination_arn" {

@@ -1,5 +1,5 @@
 locals {
-  retention_days = (var.env_name == "prod" || var.env_name == "staging" ? "3653" : "30")
+  retention_days = (var.env_name == "prod" || var.env_name == "staging" ? "3653" : "90")
 }
 
 resource "aws_cloudwatch_log_group" "imagebuild_base" {

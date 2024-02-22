@@ -152,13 +152,15 @@ class IDPCommand
 
     awsusername = Aws::STS::Client.new.get_caller_identity.user_id.split(':').last
 
+    reason_args = ['--reason', config.reason] if command == 'action-account'
+
     Cloudlib::SSM::Single.new(
       instance: instance,
       document: command,
       parameters: {
         reason: [Shellwords.shellescape(config.reason)],
         investigator: [Shellwords.shellescape(config.investigator)],
-        subcommand: [Shellwords.shelljoin(config.subcommand)],
+        subcommand: [Shellwords.shelljoin([*config.subcommand, *reason_args])],
         awsusername: [Shellwords.shellescape(awsusername)],
       },
     ).ssm_send_command(show_progress_bar: true, raise_on_failure: false)
@@ -170,7 +172,7 @@ class IDPCommand
     if response.status == 'Success'
       output = JSON.parse(Zlib::Inflate.inflate(Base64.decode64(response.standard_output_content)))
 
-      formatted_output = if output.kind_of?(Hash)
+      formatted_output = if output.kind_of?(Hash) || config.subcommand == 'ig-request'
         JSON.pretty_generate(output)
       else
         format_table(output)
@@ -180,6 +182,9 @@ class IDPCommand
     else
       exit 1
     end
+  rescue Zlib::DataError
+    puts response.standard_output_content
+    exit 1
   end
 
   # @param [Array<Array<String>>] output

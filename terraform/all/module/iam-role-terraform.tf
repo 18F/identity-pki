@@ -25,6 +25,7 @@ module "terraform-assumerole" {
     aws_iam_policy.rds_delete_prevent.arn,
     aws_iam_policy.region_restriction.arn,
     var.dnssec_zone_exists ? data.aws_iam_policy.dnssec_disable_prevent[0].arn : "",
+    aws_iam_policy.ai_service_restriction.arn,
   ])
   iam_policies = [
     for pol in local.terraform_iam_policies : {
@@ -1047,6 +1048,7 @@ locals {
           "guardduty:GetDetector",
           "guardduty:ListDetectors",
           "guardduty:ListPublishingDestinations",
+          "guardduty:TagResource",
           "guardduty:UpdateDetector",
           "guardduty:UpdatePublishingDestination",
         ]

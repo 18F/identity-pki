@@ -6,7 +6,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.8.0"
+      version = "5.33.0"
     }
     archive = {
       source  = "hashicorp/archive"
@@ -58,16 +58,31 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "dr"
+  alias = "dr"
+  default_tags {
+    tags = var.fisma_tag == "" ? {} : {
+      fisma = var.fisma_tag
+    }
+  }
   region = var.dr_region
 }
 
 provider "aws" {
-  alias  = "use1"
+  alias = "use1"
+  default_tags {
+    tags = var.fisma_tag == "" ? {} : {
+      fisma = var.fisma_tag
+    }
+  }
   region = "us-east-1"
 }
 
 provider "aws" {
-  alias  = "usw2"
+  alias = "usw2"
+  default_tags {
+    tags = var.fisma_tag == "" ? {} : {
+      fisma = var.fisma_tag
+    }
+  }
   region = var.region
 }

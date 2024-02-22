@@ -1,35 +1,6 @@
----
-name: New Issue (User Story)
-about: Create a new issue in `identity-devops` using the "user story" format.
-title: ''
-labels: ''
-assignees: ''
+### Stop!
 
----
+Issues for Team Radia and the Platform Interrupts rotation are now being tracked in GitLab.  To submit a feature request, please go to [https://gitlab.login.gov/lg-people/platform/interrupts/-/issues/new?issuable_template=feature_request](https://gitlab.login.gov/lg-people/platform/interrupts/-/issues/new?issuable_template=feature_request)
 
-<!-- This issue MUST fulfill the accepted criteria defined for DevOps 'User Story' Issues: -->
-<!-- https://handbook.login.gov/articles/platform-acceptance-criteria.html#user-story-issues -->
-
-## Issue
-
-<!-- describe issue in user-story form -->
-
-As a ***TYPE_OF_USER***,
-I would like to ***NEW_FUNCTIONALITY***,
-So that I can ***ACCEPTED_OUTCOME***
-
-## Solution
-
-<!-- check boxes for each task to achieve ACCEPTED_OUTCOME -->
-
-- [ ] One task
-- [ ] Another task
-
-## Acceptance Criteria
-
-<!-- Define acceptance criteria for ACCEPTED_OUTCOME -->
-
-- [ ] One criteria
-- [ ] Another criteria
-
-<!-- REMOVE ALL COMMENT BLOCKS, LIKE THIS ONE, BEFORE SUBMITTING! -->
+### Questions?
+Please contact us in the `#login-platform-support` channel in slack or tag `@login-platform-help` for any questions/concerns.

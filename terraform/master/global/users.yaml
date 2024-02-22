@@ -7,15 +7,6 @@ users:
     - amorales
     gitlab_groups:
     - lg-public
-  aditi.anand:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - aanand
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   ajay.guru:
     aws_groups:
     - fraudopsnonprod
@@ -35,11 +26,15 @@ users:
     - lg-public
   alex.herrick:
     aws_groups:
-    - secopsnonprod
+    - secops
     ec2_username:
     - aherrick
     gitlab_groups:
     - devops
+    - lg-all
+    - lg-people
+    - lg-public
+    - login-security
   alex.kritikos:
     ec2_username:
     - akrito
@@ -159,6 +154,15 @@ users:
     - appdev
     ec2_username:
     - bgreaner
+  bruce.blackman:
+    aws_groups:
+    - fraudops
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    ec2_username:
+    - bblackman
   cale.rubenstein:
     gitlab_groups:
     - lg-all
@@ -196,6 +200,15 @@ users:
   christine.guy:
     aws_groups:
     - finops
+  colter.nattrass:
+    aws_groups:
+    - appdev
+    - devopsnonprod
+    ec2_username:
+    - cnattrass
+    gitlab_groups:
+    - appdev
+    - devops
   connor.mccarthy:
     aws_groups:
     - devops
@@ -215,6 +228,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  daphne.gold:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - dgold
   david.dsilva:
     aws_groups:
     - analytics
@@ -244,6 +264,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  devin.cassidy:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - dcassidy
+    gitlab_groups:
+    - devops
   devon.johnson:
     aws_groups:
     - supporteng
@@ -266,6 +293,8 @@ users:
   dustin.spiehler:
     aws_groups:
     - finops
+    gitlab_groups:
+    - lg-people
   eileen.mcfarland:
     aws_groups:
     - apponcall
@@ -374,13 +403,6 @@ users:
     - lg-all
     - lg-public
   jeffrey.holden:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
-  jenna.hansen:
     aws_groups:
     - analytics
     gitlab_groups:
@@ -565,10 +587,11 @@ users:
     aws_groups:
     - devopsnonprod
     ec2_username:
-    - lkouongadze
+    - lucasdze
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
     email:
     - lucas.kouongadze@gsa.gov
@@ -786,18 +809,9 @@ users:
     - antifraud
     - lg-all
     - lg-public
-  samatha.dondeti:
-    aws_groups:
-    - appdev
-    ec2_username:
-    - sdondeti
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   samy.orellana:
     aws_groups:
-    - secopsnonprod
+    - secops
     ec2_username:
     - sorellana
     gitlab_groups:
@@ -830,15 +844,6 @@ users:
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
-  sonia.connolly:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    ec2_username:
-    - sconnolly
   stacey.evans:
     aws_groups:
     - analytics
@@ -865,6 +870,9 @@ users:
     - lg-all
     - lg-people
     - lg-public
+  stesha.marcon:
+    aws_groups:
+    - analytics
   sudheer.dandamudi:
     aws_groups:
     - devops
@@ -883,6 +891,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
+    - lg-people
     - lg-public
   tahinee.felixmarin:
     aws_groups:
@@ -1044,6 +1053,14 @@ projects:
       pm:
         access: reporter
   lg/identity-dashboard:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-reporting-rails:
     groups:
       devops:
         access: maintainer

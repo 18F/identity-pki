@@ -11,7 +11,7 @@ BASEPATH="$(dirname "$0")/.."
 
 usage() {
     cat >&2 <<EOM
-usage: $(basename "$0") [-F][TF_ENV]
+usage: $(basename "$0") [-F][TF_ENV|-L|-U]
 
 Performs various actions for generating/uploading SAML certs:
 
@@ -28,11 +28,20 @@ Set -F flag to skip verifying presence of existing cert files/passphrase(s).
 EOM
 }
 
+s3_copy() {
+  local SRC_PATH=${1}
+  local DEST_PATH=${2}
+  local FILE_NAME=${3}
+  ${BASEPATH}/awsv -r ${ACCT_NAME} aws s3 cp \
+    "${SRC_PATH}/${FILE_NAME}" "${DEST_PATH}/${FILE_NAME}"
+}
+
 set_acct_info() {
   local ACCT_ENV=${1:-$(echo ${TF_ENV})}
   ACCT_NUM=$(cat "${PRIVATE_REPO}/env/${ACCT_ENV}.sh" |
              grep account_global | sed -E 's/.+_([0-9]+).+/\1/')
   SECRETS_BUCKET="s3://login-gov.secrets.${ACCT_NUM}-us-west-2"
+  APP_SECRETS_BUCKET="s3://login-gov.app-secrets.${ACCT_NUM}-us-west-2"
   case ${ACCT_NUM} in
     894947205914) ACCT_NAME='sandbox' ;;
     555546682965) ACCT_NAME='prod' ;;
@@ -43,65 +52,81 @@ get_passphrase() {
   local ENV_TO_CHECK=${1:-$(echo ${TF_ENV})}
   set_acct_info ${ENV_TO_CHECK}
   SAML_PASS=$(${BASEPATH}/awsv -r ${ACCT_NAME} ${BASEPATH}/app-s3-secret \
-      --env ${ENV_TO_CHECK} --app idp | grep -E '^ +saml_endpoint_configs' |
+      --env ${ENV_TO_CHECK} --app idp 2>/dev/null | grep -E '^ +saml_endpoint_configs' |
       awk -F"'" '{print $2}' | jq -r --arg SAMLDATE "${YEAR}" '.[]|
       select(.suffix == $SAMLDATE).secret_key_passphrase')
 }
 
 create_passphrase() {
-  local PASS_ENV=${1:-$(echo ${TF_ENV})}
-  echo && echo_cyan "Generating passphrase for ${PASS_ENV} ${CERT_NAME} cert..."
+  echo && echo_cyan "Generating ${CERT_NAME} cert passphrase for '${TF_ENV}' environment..."
   SAML_PASS=$(pwgen -sy -r "\"\`\'{}[];," 98 1)
-  echo "${PASS_ENV} : \"${SAML_PASS}\"" >> ${PASS_FILE}
-  echo_green "${PASS_ENV} passphrase added to ${PASS_FILE}."
+  echo "${TF_ENV} : \"${SAML_PASS}\"" >> ${PASS_FILE}
+  echo_green "${TF_ENV} passphrase added to ${PASS_FILE}."
+  YAML_BLOCK=
 }
 
-add_to_yaml() {
+set_yaml_pass() {
   local YAML_ENV=${1:-$(echo ${TF_ENV})}
-  local YAML_PASS=${2:-$(echo ${SAML_PASS})}
-  if [[ -z ${YAML_PASS} ]] ; then
-    create_passphrase ${YAML_ENV}
-    YAML_PASS=${SAML_PASS}
-  fi
 
   if [[ -z ${YAML_BLOCK} ]] ; then
-    YAML_BLOCK=",{\"suffix\":\"${YEAR}\",\"secret_key_passphrase\":\"${YAML_PASS}\"}"
+    YAML_BLOCK=",{\"suffix\":\"${YEAR}\",\"secret_key_passphrase\":\"${SAML_PASS}\"}"
     echo -n "${YAML_BLOCK}" | pbcopy
-    echo_green "Passphrase inside 'suffix' YAML block copied to clipboard."
-  fi
-
-  if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Ready to update application.yml for ${YAML_ENV} environment?" ; then
-    echo_yellow "Skipping application.yml update."
-  else
-    set_acct_info ${YAML_ENV}
-    ${BASEPATH}/awsv -r ${ACCT_NAME} ${BASEPATH}/app-s3-secret \
-      --env ${YAML_ENV} --app idp --edit --autoconfirm
+    echo_green "Passphrase for '${YAML_ENV}' added to 'suffix' YAML block and copied to clipboard."
     echo
   fi
 }
 
+add_to_yaml() {
+  set_acct_info ${TF_ENV}
+  local YAML_PASS="${SAML_PASS}"
+  local CHECK_CMD=
+  echo_cyan "Verifying application.yml file for '${TF_ENV}' environment..."
+  get_passphrase ${TF_ENV}
+  if [[ "${YAML_PASS}" == "${SAML_PASS}" ]] ; then
+    echo_yellow "${CERT_NAME} passphrase already correctly set in 'suffix' YAML block;
+skipping application.yml update."
+    echo
+  else
+    if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Ready to update application.yml for '${TF_ENV}' environment?" ; then
+      echo_yellow "Skipping application.yml update."
+    else
+        while CHECK_CMD=0 ; ${BASEPATH}/awsv -r ${ACCT_NAME} ${BASEPATH}/app-s3-secret \
+            --env ${TF_ENV} --app idp --edit --autoconfirm || CHECK_CMD=${?} ; [[ $CHECK_CMD -ne 0 ]] ; do
+          echo_red "application.yml not updated correctly; try again!"
+          sleep 1
+        done
+        echo
+    fi
+  fi
+  SAML_PASS="${YAML_PASS}"
+}
+
 create_cert_files() {
-  local CERT_ENV=${1:-$(echo ${TF_ENV})}
-  local CERT_PASS=${2:-$(echo ${SAML_PASS})}
-  echo "${CERT_PASS}" | pbcopy
+  if [[ -z ${SAML_PASS} ]] ; then
+    create_passphrase
+  fi
+  echo "${SAML_PASS}" | pbcopy
   echo_green "Passphrase copied to clipboard."
   
   if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Ready to create certs (paste passphrase when prompted)?" ; then
-    echo_yellow "Skipping cert creation for ${CERT_ENV} environment."
+    echo_yellow "Skipping cert creation for '${TF_ENV}' environment."
   else
-    case ${CERT_ENV} in
-      staging|dm) COMMON_NAME="${CERT_ENV}.login.gov" ;;
+    case ${TF_ENV} in
+      staging|dm) COMMON_NAME="${TF_ENV}.login.gov" ;;
       prod)       COMMON_NAME='login.gov'                       ;;
       localhost)  COMMON_NAME='localhost'                       ;;
-      *)          COMMON_NAME="${CERT_ENV}.identitysandbox.gov" ;;
+      *)          COMMON_NAME="${TF_ENV}.identitysandbox.gov" ;;
     esac
 
-    mkdir -p "SAML/${CERT_ENV}"
+    echo && echo_cyan "Creating cert files for '${TF_ENV}' environment.
+Paste in passphrase when prompted."
+    mkdir -p "SAML/${TF_ENV}"
     run openssl req -newkey rsa:2048 -sha256 -x509 -days "${DAYS}" \
       -subj "/C=US/ST=District of Columbia/L=Washington/O=GSA/OU=Login.gov/CN=${COMMON_NAME}" \
-      -keyout "SAML/${CERT_ENV}/saml${YEAR}.key.enc" \
-      -out "SAML/${CERT_ENV}/saml${YEAR}.crt"
+      -keyout "SAML/${TF_ENV}/saml${YEAR}.key.enc" \
+      -out "SAML/${TF_ENV}/saml${YEAR}.crt"
   fi
+  echo
 }
 
 upload_cert_files() {
@@ -112,20 +137,23 @@ upload_cert_files() {
   if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Upload ${DEST_ENV} ${CERT_NAME} cert files to S3?" ; then
     echo_yellow "Skipping ${TF_ENV}."
   else
+    echo_cyan "Uploading '${DEST_ENV}' cert files..."
     for CERT_FILE in "${CERT_FILES[@]}" ; do
-      if [[ $(${BASEPATH}/awsv -r ${ACCT_NAME} aws s3 ls \
-        "${SECRETS_BUCKET}/${DEST_ENV}/${CERT_FILE}") ]] ; then
-          echo_yellow "${DEST_ENV}/${CERT_FILE} already exists in S3."
-          if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Overwrite?" ; then
-            echo_yellow "Skipping ${DEST_ENV}/${CERT_FILE} file."
+      if [[ ${FORCE_MAKE} != true ]] ; then
+        if [[ $(${BASEPATH}/awsv -r ${ACCT_NAME} aws s3 ls \
+          "${SECRETS_BUCKET}/${DEST_ENV}/${CERT_FILE}") ]] ; then
+            echo_yellow "${DEST_ENV}/${CERT_FILE} already exists in S3."
+            if ! prompt_yn "Overwrite?" ; then
+              echo_yellow "Skipping ${DEST_ENV}/${CERT_FILE} file."
+            else
+              s3_copy "${GIT_DIR}/SAML/${SRC_ENV}" "${SECRETS_BUCKET}/${DEST_ENV}" "${CERT_FILE}"
+            fi
           fi
       else
-        ${BASEPATH}/awsv ${ACCT_NAME} aws s3 cp \
-            "${GIT_DIR}/SAML/${SRC_ENV}/${CERT_FILE}" \
-            "${SECRETS_BUCKET}/${DEST_ENV}/${CERT_FILE}"
+        s3_copy "${GIT_DIR}/SAML/${SRC_ENV}" "${SECRETS_BUCKET}/${DEST_ENV}" "${CERT_FILE}"
       fi
     done
-    echo_green "${CERT_NAME} cert created/uploaded for ${DEST_ENV} environment."
+    echo_green "${CERT_NAME} cert files created/uploaded for '${DEST_ENV}' environment."
   fi
   echo
 }
@@ -134,15 +162,16 @@ env_make_or_copy() {
   local TARGET_ENV=${1:-$(echo ${TF_ENV})}
   local ENV_ACTION=${2:-}
   if [[ ${ENV_ACTION} == 'new' ]] ; then
-    YAML_BLOCK=
-    create_passphrase "${TARGET_ENV}"
-    add_to_yaml "${TARGET_ENV}" "${SAML_PASS}"
-    create_cert_files "${TARGET_ENV}" "${SAML_PASS}"
+    create_passphrase
+    create_cert_files
     upload_cert_files "${TARGET_ENV}"
+    set_yaml_pass "${TARGET_ENV}"
+    add_to_yaml
   else
     [[ -z ${SAML_PASS} ]] && get_passphrase 'dev'
-    add_to_yaml "${TARGET_ENV}" "${SAML_PASS}"
     upload_cert_files 'dev' "${TARGET_ENV}"
+    [[ -z ${YAML_BLOCK} ]] && set_yaml_pass 'dev'
+    add_to_yaml
   fi
 }
 
@@ -158,14 +187,15 @@ verify_env_certs() {
   fi
   
   if [[ -z ${CERTS_EXIST} ]] ; then
-    echo_cyan "Verifying certs/passphrase for ${VERIFY_ENV}..."
+    echo && echo_cyan "Verifying certs/passphrase for '${VERIFY_ENV}' environment..."
     set_acct_info ${VERIFY_ENV}
     get_passphrase ${VERIFY_ENV}
     if [[ $(${BASEPATH}/awsv -r ${ACCT_NAME} aws s3 ls \
             "${SECRETS_BUCKET}/${VERIFY_ENV}/saml${YEAR}.crt") ]] && \
         [[ ! -z ${SAML_PASS} ]] ; then
-      echo
-      echo_yellow "${CERT_NAME} certs/passphrase already exists for ${VERIFY_ENV}."
+      if [[ ${FORCE_MAKE} != true ]] ; then
+        echo_yellow "${CERT_NAME} certs/passphrase already exist for '${VERIFY_ENV}' environment."
+      fi
       CERTS_EXIST=true
     else
       CERTS_EXIST=false
@@ -179,11 +209,30 @@ get_dev_certs() {
     echo_yellow "No/invalid certs/passphrase found for 'dev'; will recreate."
     env_make_or_copy 'dev' 'new'
   fi
+  echo_cyan "Downloading 'dev' cert files..."
   for CERT_FILE in "${CERT_FILES[@]}" ; do
     if [[ ! -f "${GIT_DIR}/SAML/dev/${CERT_FILE}" ]] ; then
-      ${BASEPATH}/awsv -r ${ACCT_NAME} aws s3 cp \
-        "${SECRETS_BUCKET}/dev/${CERT_FILE}" \
-        "${GIT_DIR}/SAML/dev/${CERT_FILE}"
+      s3_copy "${SECRETS_BUCKET}/dev" "${GIT_DIR}/SAML/dev" "${CERT_FILE}"
+    fi
+  done
+  echo
+  YAML_BLOCK=
+}
+
+get_lower_envs() {
+  set_acct_info 'dev'
+  S3_ENVS=$(comm -12 \
+    <(${BASEPATH}/awsv -r sandbox aws s3 ls ${SECRETS_BUCKET}/ |
+      grep -E '^.+PRE ([a-z0-9-]+)' | sed -E 's/^.+PRE ([a-z0-9-]+)\//\1/') \
+    <(${BASEPATH}/awsv -r sandbox aws s3 ls ${APP_SECRETS_BUCKET}/ |
+      grep -E '^.+PRE ([a-z0-9-]+)' | sed -E 's/^.+PRE ([a-z0-9-]+)\//\1/'))
+  KITCHEN_ENVS=$(ls -la ${GIT_DIR}/kitchen/environments | grep -E '\.json$' |
+    sed -E 's/^.+ ([0-9A-Za-z-]+)\.json.*$/\1/')
+  for ENV_TO_CHECK in $(comm -12 \
+    <(echo ${S3_ENVS} | tr ' ' '\n') \
+    <(echo ${KITCHEN_ENVS} | tr ' ' '\n')) ; do
+    if [[ ! "${ENV_TO_CHECK}" =~ (dev|int|pt|pt2) ]] ; then
+      CHECK_ENVS+=("${ENV_TO_CHECK}")
     fi
   done
 }
@@ -192,6 +241,10 @@ target_upper_envs() {
   echo && echo_green "Ready to create certs/passphrases for upper environments:"
   echo_cyan "${UPPER_ENVS[@]/#/$'\n'- }" && echo
   ENV_TYPE='upper'
+  if [[ ${FORCE_MAKE} == true ]] && [[ ${ALL_FORCE} != true ]] ; then
+    echo_yellow "Since FORCE is set, no additional confirmation prompts will be shown."
+    echo
+  fi
   for TF_ENV in "${UPPER_ENVS[@]}" ; do
     verify_env_certs "${TF_ENV}"
     if [[ ${CERTS_EXIST} == false ]] ; then
@@ -208,23 +261,22 @@ target_upper_envs() {
 }
 
 target_lower_envs() {
-  cat >&2 << EOM
-This script will now go through each sandbox environment, open its application.yml
-file (for the 'suffix' block to be pasted in), and then upload the certs from 'dev'
-to the sandbox environment's directory in the login-gov.secrets S3 bucket.
-
-EOM
-  if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Continue?" ; then
+  echo_green "This script will now go through each sandbox environment,
+create and upload the certs from 'dev' to the sandbox environment's directory
+in the login-gov.secrets S3 bucket, and open said environment's application.yml
+file (for the 'suffix' block to be pasted into) via the app-s3-secret script.
+"
+  if [[ ${FORCE_MAKE} == true ]] && [[ ${ALL_FORCE} != true ]] ; then
+    echo_yellow "Since FORCE is set, no additional confirmation prompts will be shown."
+    echo
+  fi
+  if ! prompt_yn "Continue?" ; then
     echo_yellow "Skipping certs for sandbox environments."
   else
     ENV_TYPE='lower'
     get_dev_certs
-    YAML_BLOCK=
-    for TF_ENV in $(${BASEPATH}/awsv -r sandbox aws s3 ls "${SECRETS_BUCKET}/" | grep PRE |
-                  awk '{print $NF}' | tr -d '/') ; do
-      if [[ $(echo $CHECK_ENVS | grep $TF_ENV) ]] && [[ ! "${TF_ENV}" =~ $SKIP_ENVS ]]; then
-        env_make_or_copy ${TF_ENV}
-      fi
+    for TF_ENV in ${CHECK_ENVS[@]}; do
+      env_make_or_copy ${TF_ENV}
     done
   fi
 }
@@ -239,41 +291,33 @@ rm_files() {
   fi
 }
 
-echo
-declare {TARGETS,FORCE_MAKE}=
+declare {TARGETS,FORCE_MAKE,GIT_DIR,PASS_FILE,ALL_FORCE}=
 # use -F flag to skip verify and recreate cert(s)
-if [[ $# -gt 3 ]] ; then
-  raise "Must use <3 arguments!"
-else
-  while [[ $# -gt 0 ]] ; do
-    ARG=${1}
-    case ${ARG} in
-      '-F')
-        FORCE_MAKE=true
-        echo_yellow "FORCE set; will create new certs/passphrases for target env(s)."
-      ;;
-      '-L'|'-U')
-        if [[ ! -z ${TARGETS} ]] ; then
-          TARGETS='-A'
-        else
-          TARGETS=${ARG}
-        fi
-      ;;
-      *)
-        [[ -z ${TARGETS} ]] || raise "Cannot specify an environment when '${TARGETS}' is set!"
-        TF_ENV=${ARG}
-      ;;
-    esac
-    shift 1
-  done
-fi
 
+while getopts lLuUfFh opt
+do
+  case "${opt}" in
+    l|L|u|U)
+      if [[ ! -z ${TARGETS} ]] ; then
+        TARGETS='-A'
+      else
+        TARGETS=$(echo "-${opt}" | tr '[:lower:]' '[:upper:]')
+      fi
+    ;;
+    f|F) FORCE_MAKE=true ;;
+    h) usage && exit 0 ;;
+    *) usage && exit 1   ;;
+  esac
+done
+shift $((OPTIND-1))
+
+TF_ENV=${1:-}
 if [[ -z ${TF_ENV:-} ]] && [[ -z ${TARGETS} ]] ; then
   TARGETS="-A"
 fi
 
 verify_root_repo
-verify_private_repo
+verify_private_repo >/dev/null
 
 DATE_TODAY=$(date -j +%s)
 DATE_EXPIRE=$(date -v2d -v4m -v+1y +%s)
@@ -284,18 +328,17 @@ CERT_FILES=("saml${YEAR}.crt" "saml${YEAR}.key.enc")
 CERT_NAME="SAML${YEAR}"
 UPPER_ENVS=($(grep -R 'STRICT_ENVIRONMENT' "${PRIVATE_REPO}/env" |
                 sort -u | sed -E 's/^.+env\/([a-z0-9]+)\..+$/\1/' | grep -v stable))
-CHECK_ENVS=$(ls ${GIT_DIR}/kitchen/environments/)
-SKIP_ENVS='(ci|dev|int|pt|pt2)'
-declare {SECRETS_BUCKET,SAML_PASS,YAML_BLOCK,ACCT_NAME,CERTS_EXIST,ENV_TYPE}=
+CHECK_ENVS=()
+declare {SECRETS_BUCKET,APP_SECRETS_BUCKET,SAML_PASS,YAML_BLOCK,ACCT_NAME,CERTS_EXIST,ENV_TYPE}=
 
+echo
 rm_files
 
 if [[ ! -z ${TF_ENV:-} ]] ; then
-  echo && echo_cyan "Checking ${TF_ENV} environment..."
-  if [[ ! $(echo $CHECK_ENVS | grep $TF_ENV) ]] ; then
-    raise "${TF_ENV} not found kitchen/environments ; check and try again!"
-  elif [[ "${UPPER_ENVS[@]}" =~ $TF_ENV ]] ; then
-    echo_green "${TF_ENV} identified as UPPER environment."
+  echo_cyan "Checking '${TF_ENV}' environment..."
+  get_lower_envs
+  if [[ "${UPPER_ENVS[@]}" =~ $TF_ENV ]] ; then
+    echo_green "'${TF_ENV}' identified as UPPER environment."
     ENV_TYPE='upper'
     verify_env_certs "${TF_ENV}"
     if [[ ${CERTS_EXIST} == false ]] ; then
@@ -307,34 +350,44 @@ if [[ ! -z ${TF_ENV:-} ]] ; then
         env_make_or_copy ${TF_ENV} 'new'
       fi
     fi
-  elif [[ ! "${TF_ENV}" =~ $SKIP_ENVS ]] ; then
-    echo_green "${TF_ENV} identified as LOWER environment."
+  elif [[ ! $(echo "${CHECK_ENVS[@]}" | grep $TF_ENV) ]] ; then
+    raise "'${TF_ENV}' not found in S3 or in kitchen/environments ; check and try again!"
+  else
+    echo_green "'${TF_ENV}' identified as LOWER environment."
     ENV_TYPE='lower'
     verify_env_certs "${TF_ENV}"
     if [[ ${CERTS_EXIST} == false ]] ; then
+      echo_green "Will obtain and use certs/passphrase from 'dev' environment."
       get_dev_certs
-      YAML_BLOCK=
       env_make_or_copy ${TF_ENV}
     else
       if [[ ${FORCE_MAKE} != true ]] && ! prompt_yn "Overwrite with 'dev' configs?" ; then
         echo_yellow "Stopping."
       else
         get_dev_certs
-        YAML_BLOCK=
         env_make_or_copy ${TF_ENV}        
       fi
     fi
   fi
 else
+  get_lower_envs
   case ${TARGETS} in
     -A)
       if [[ ${FORCE_MAKE} == true ]] ; then
-        echo_yellow "Since FORCE is set, this script will automatically"
-        echo_yellow "do the following for ALL environments:"
-        echo_yellow "create passphrases, open application.yml files (to paste into),"
-        echo_yellow "create certs (to paste into), and upload certs to S3."
+        echo_yellow "
+Since FORCE is set, this script will automatically do the following
+for ALL environments, with no additional confirmation prompts:
+
+1. create passphrases
+2. create cert files (with prompt to paste passphrase into)
+3. upload cert files to the login.gov secrets S3 bucket
+4. open application.yml files (to paste passphrase YAML block into)
+"
         if ! prompt_yn "Continue?" ; then
           echo_yellow "Exiting."
+          exit
+        else
+          ALL_FORCE=true
         fi
       fi
       target_upper_envs && target_lower_envs
@@ -344,5 +397,6 @@ else
   esac
 fi
 
+echo_green "Done!"
 rm_files
-echo_green "Done!" && echo
+echo
