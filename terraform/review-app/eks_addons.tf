@@ -19,7 +19,8 @@ module "eks_blueprints_addons" {
   enable_cluster_autoscaler           = true
   enable_external_dns                 = true
   enable_aws_load_balancer_controller = true
-  external_dns_route53_zone_arns      = [data.aws_route53_zone.selected.arn, data.aws_route53_zone.pivcac.arn]
+  enable_cert_manager                 = true
+  external_dns_route53_zone_arns      = [aws_route53_zone.selected.arn, aws_route53_zone.pivcac.arn]
 
   tags = local.tags
 }

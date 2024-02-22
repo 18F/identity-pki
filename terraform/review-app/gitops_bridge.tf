@@ -71,10 +71,14 @@ module "gitops_bridge" {
       path           = "chart"
       repoURL        = "https://github.com/aws-samples/eks-blueprints-add-ons.git"
       helmValues = templatefile("${path.module}/helm-values/addons.yaml.tpl", {
-        region          = var.region,
-        clusterName     = var.cluster_name,
-        repoUrl         = "https://github.com/aws-samples/eks-blueprints-add-ons.git",
-        targetRevision  = "main",
+        region         = var.region,
+        clusterName    = var.cluster_name,
+        repoUrl        = "https://github.com/aws-samples/eks-blueprints-add-ons.git",
+        targetRevision = "main",
+        domainFilters = [
+          aws_route53_zone.selected.name,
+          aws_route53_zone.pivcac.name,
+        ],
         gitops_metadata = module.eks_blueprints_addons.gitops_metadata # All our roles, service account names we setup with eks_addons
       })
       valueFiles = []
