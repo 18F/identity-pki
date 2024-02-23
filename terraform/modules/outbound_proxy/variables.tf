@@ -243,18 +243,11 @@ EOM
   default     = "nozero_norecycle"
 }
 
-variable "outboundproxy_rotation_schedules" {
+variable "use_outboundproxy_rotation_schedules" {
   description = <<EOM
-Customized set of cron jobs for recycling (up/down) and/or zeroing out hosts.
-MUST follow the defined format as shown for the default value!
+Use the outboundproxy set of cron jobs for recycling (up/down)
+and/or zeroing out hosts.
 EOM
-  type        = any
-  default = {
-    #   "custom_schedule" = {
-    #     recycle_up    = ["0 11 * * 1-5"]
-    #     recycle_down  = ["15 11 * * 1-5"]
-    #     autozero_up   = ["0 5 * * 1-5"]
-    #     autozero_down = ["0 17 * * 1-5"]
-    #   }
-  }
+  type        = bool
+  default     = false
 }

@@ -4,69 +4,69 @@ resource "aws_security_group" "obproxy" {
   description = "Allow inbound web traffic and whitelisted IP(s) for SSH"
 
   # TODO: limit this to what is actually needed
-  # allow outbound to the VPC so that we can get to db/redis/logstash/etc.
   egress {
+    description = "allow outbound to the VPC so that we can get to db/redis/logstash/etc."
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = [var.vpc_cidr_block]
   }
 
-  # need 80/443 to get packages/gems/etc
   egress {
+    description = "need 80/443 to get packages/gems/etc"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # need 80/443 to get packages/gems/etc as well as ssm
   egress {
+    description = "need 80/443 to get packages/gems/etc as well as ssm"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # allow github access to their static cidr block
   egress {
+    description = "allow github access to their static cidr block"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = var.github_ipv4_cidr_blocks
   }
 
-  #s3 gateway
   egress {
+    description     = "s3 gateway"
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
     prefix_list_ids = [var.s3_prefix_list_id]
   }
 
-  # need 8834 to comm with Nessus Server
   egress {
+    description = "need 8834 to comm with Nessus Server"
     from_port   = 8834
     to_port     = 8834
     protocol    = "tcp"
     cidr_blocks = [var.nessusserver_ip]
   }
 
-  # Allow egress to GSA Public Bigfix Relay Server
   egress {
-    from_port = 52311
-    to_port   = 52311
-    protocol  = "tcp"
+    description = "Allow egress to GSA Public Bigfix Relay Server"
+    from_port   = 52311
+    to_port     = 52311
+    protocol    = "tcp"
     cidr_blocks = [
       "3.209.219.136/32"
     ]
   }
 
-  # Allow egress to AAMVA
   egress {
-    from_port = 18449
-    to_port   = 18449
-    protocol  = "tcp"
+    description = "Allow egress to AAMVA"
+    from_port   = 18449
+    to_port     = 18449
+    protocol    = "tcp"
     cidr_blocks = [
       "66.227.17.192/26",
       "66.16.0.0/16",
@@ -76,17 +76,18 @@ resource "aws_security_group" "obproxy" {
     ] # This IP range includes AAMVA's failover, but is not exclusively controlled by AAMVA
   }
 
-  # Allow egress to Experian
   egress {
-    from_port = 8443
-    to_port   = 8443
-    protocol  = "tcp"
+    description = "Allow egress to Experian"
+    from_port   = 8443
+    to_port     = 8443
+    protocol    = "tcp"
     cidr_blocks = [
       "167.107.58.9/32",
     ]
   }
 
   ingress {
+    description = "Allow ingress from VPC"
     from_port   = 3128
     to_port     = 3128
     protocol    = "tcp"
