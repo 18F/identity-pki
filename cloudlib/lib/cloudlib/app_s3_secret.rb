@@ -132,6 +132,7 @@ module Cloudlib
           bucket: bucket,
           key: prefix,
           body: source == '-' ? STDIN.read : File.new(source),
+          tagging: "updated_by=#{Aws::STS::Client.new.get_caller_identity.arn.split("/").last}"
         ) if !dry_run?
       end
 
@@ -329,8 +330,8 @@ module Cloudlib
               return false
             end
 
-            out.puts "Comparing: #{newer.last_modified} (#{newer.version_id})"
-            out.puts "       to: #{older.last_modified} (#{older.version_id})"
+            out.puts "Comparing: #{newer.last_modified} (#{newer.version_id}), Updated by: #{version_updated_by(newer.version_id)}"
+            out.puts "       to: #{older.last_modified} (#{older.version_id}), Updated by: #{version_updated_by(older.version_id)}"
 
             success = system(differ, older_file.path, newer_file.path, out: out)
 
@@ -356,6 +357,14 @@ module Cloudlib
           bucket: bucket,
           prefix: prefix
         ).versions
+      end
+
+      def version_updated_by(version_id)
+        s3_client.get_object_tagging({
+          bucket: bucket,
+          key: prefix,
+          version_id: version_id,
+        }).tag_set.find {|tag| tag.key == 'updated_by'}&.value
       end
 
       def s3_client
