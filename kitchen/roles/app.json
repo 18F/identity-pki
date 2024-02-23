@@ -9,7 +9,7 @@
     "role[base]",
     "recipe[login_dot_gov::nginx_base]",
     "recipe[login_dot_gov::passenger_service]",
-    "recipe[login_dot_gov::app_selector]",
+    "recipe[login_dot_gov::dashboard]",
     "recipe[login_dot_gov::common_scripts]"
   ],
   "env_run_lists": {}
