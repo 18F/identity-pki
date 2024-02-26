@@ -77,7 +77,7 @@ sudo -E -u root certbot renew -n --deploy-hook "/usr/local/bin/push_letsencrypt_
 # Update Letsencrypt folder permissions
 sudo -E -u root chmod 755 /etc/letsencrypt/live
 sudo -E -u root chmod 755 /etc/letsencrypt/archive
-sudo -E -u root chmod -R 755 /etc/letsencrypt/archive/pivcac.identitysandbox.gov/*
+sudo -E -u root chmod -R 755 /etc/letsencrypt/archive/review-app.pivcac.identitysandbox.gov/*
 
 # Start nginx
 sudo -E -u root nginx
