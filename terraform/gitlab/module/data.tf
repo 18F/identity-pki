@@ -54,7 +54,7 @@ data "aws_ami" "base" {
 
   filter {
     name   = "name"
-    values = ["login.gov base role hardened image Ubuntu*"]
+    values = ["login.gov Base role hardened image Ubuntu*"]
   }
 
   filter {
