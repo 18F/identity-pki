@@ -816,6 +816,7 @@ users:
     - sorellana
     gitlab_groups:
     - devops
+    - lg-people
   sean.porter:
     gitlab_groups:
     - pm
