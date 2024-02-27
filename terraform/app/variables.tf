@@ -722,10 +722,12 @@ locals {
   rails_ami_id_ue1 = local.acct_type == "prod" ? (
   var.rails_ami_prod_ue1) : var.rails_ami_sandbox_ue1
 
-  in_person_alarm_actions         = [coalesce(var.in_person_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
-  doc_auth_alarm_actions          = [coalesce(var.doc_auth_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
-  low_priority_alarm_actions      = [var.slack_events_sns_hook_arn]
-  low_priority_alarm_actions_use1 = [var.slack_events_sns_hook_arn_use1]
+  in_person_alarm_actions              = [coalesce(var.in_person_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
+  doc_auth_alarm_actions               = [coalesce(var.doc_auth_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
+  low_priority_alarm_actions           = [var.slack_events_sns_hook_arn]
+  low_priority_alarm_actions_use1      = [var.slack_events_sns_hook_arn_use1]
+  moderate_priority_alarm_actions      = [var.slack_alarms_sns_hook_arn]
+  moderate_priority_alarm_actions_use1 = [var.slack_alarms_sns_hook_arn_use1]
   high_priority_alarm_actions = var.page_devops == 1 ? [
     var.high_priority_sns_hook, var.slack_events_sns_hook_arn
   ] : [var.slack_events_sns_hook_arn]
@@ -785,11 +787,19 @@ variable "db_restore_role_arns" {
 }
 
 variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+  description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack"
 }
 
 variable "slack_events_sns_hook_arn_use1" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
+  description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack from US-East-1"
+}
+
+variable "slack_alarms_sns_hook_arn" {
+  description = "ARN of SNS topic that will notify the #login-alarms channel in Slack"
+}
+
+variable "slack_alarms_sns_hook_arn_use1" {
+  description = "ARN of SNS topic that will notify the #login-alarms channel in Slack from US-East-1"
 }
 
 

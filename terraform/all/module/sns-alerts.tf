@@ -27,6 +27,7 @@ resource "aws_ssm_parameter" "slack_webhook_east1" {
 locals {
   slack_channel_map = merge(
     {
+      "alarms"      = "login-alarms"
       "events"      = "login-events"
       "otherevents" = "login-otherevents"
       "soc"         = "login-soc-events"
