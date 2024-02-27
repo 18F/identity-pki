@@ -33,10 +33,10 @@ fi
 
 # Set variables used to configure NGINX, SSL Certs, and Puma configuration
 
-if [[ "${ENV}" = "reviewapp" ]]; then
-  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.identitysandbox.gov"
-  export ENV_CONFIG_NGINX_SERVER_NAME="*.${CERT_ENV}.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-  CERT_DOMAIN="-d *.${CERT_ENV}.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+if [[ "${ENV}" = "reviewapps" ]]; then
+  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="${CERT_ENV}.pivcac.identitysandbox.gov"
+  export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+  CERT_DOMAIN="-d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
 else
   export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.${CERT_ENV}.identitysandbox.gov"
   export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
