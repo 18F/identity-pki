@@ -58,6 +58,14 @@ locals {
       logging     = false
       parameters  = []
     }
+    "puma-restart" = {
+      command = [
+        "id-puma-restart",
+      ]
+      description = "Restart puma service via id-puma-restart script"
+      logging     = false
+      parameters  = []
+    }
     "data-pull" = {
       description = "Calls the data-pull script in the IDP repo"
       parameters = [

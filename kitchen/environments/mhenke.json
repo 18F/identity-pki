@@ -10,7 +10,8 @@
       "idp_sync_static": true,
       "idp_artifacts": true,
       "deploy_branch_default": "main",
-      "idp_ruby_yjit_enabled": true
+      "idp_ruby_yjit_enabled": true,
+      "use_dashboard_puma": true
     }
   },
   "override_attributes": {

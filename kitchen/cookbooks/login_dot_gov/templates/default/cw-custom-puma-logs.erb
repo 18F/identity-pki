@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# Set instance and asg information for metrics dimensions
+instance_id='<%= @instanceId %>'
+autoscaling_group_name='<%= @environmentName %>-<%= @roleName %>'
+instance_type='<%= @instanceType %>'
+
+# NGINX status logs
+echo "$instance_id $autoscaling_group_name $instance_type $(curl -s http://127.0.0.1/nginx_status |
+      tr '\n' ' ' | awk '{ print $3, $8, $9, $10, $12, $14, $16 }') " >>/var/log/nginx/nginx_status.log
+
+puma_stats=$(curl -s http://127.0.0.1:9294/stats | jq -c '.name = "stats"')
+puma_gc_stats=$(curl -s http://127.0.0.1:9294/gc-stats | jq -c '.name = "gc" | .server = "puma"')
+
+instance_details="
+{
+    \"instance_id\": \"$instance_id\",
+    \"autoscaling_group_name\": \"$autoscaling_group_name\",
+    \"instance_type\": \"$instance_type\"
+}
+"
+
+echo "$( echo $instance_details | jq -rc --argjson METRICS "$puma_stats" '. += $METRICS')" >>/var/log/nginx/puma_status.log
+echo "$( echo $instance_details | jq -rc --argjson METRICS "$puma_gc_stats" '. += $METRICS')" >>/var/log/nginx/puma_status.log

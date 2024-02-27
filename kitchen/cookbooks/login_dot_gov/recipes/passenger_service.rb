@@ -39,7 +39,7 @@ if primary_role != 'worker'
   end
 
   template '/usr/local/bin/cw-custom-logs' do
-    source 'cw-custom-logs.erb'
+    source 'cw-custom-passenger-logs.erb'
     owner 'root'
     group 'root'
     mode '0755'

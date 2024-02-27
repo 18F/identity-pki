@@ -1,7 +1,9 @@
 primary_role = File.read('/etc/login.gov/info/role').chomp
 
 # Only enable passenger for IDP, Dashboard and PIVCAC when not configured for Puma
-passenger_enabled = ['app', 'pivcac', 'idp'].include?(primary_role)
+passenger_enabled = primary_role != 'worker' && ((primary_role == 'idp' && node['login_dot_gov']['use_idp_puma'] != true) ||
+  (primary_role == 'app' && node['login_dot_gov']['use_dashboard_puma'] != true) ||
+  (primary_role == 'pivcac' && node['login_dot_gov']['use_pivcac_puma'] != true))
 
 template "/opt/nginx/aws_v4_cidrs.txt" do
   source 'aws_ipv4_cidrs.txt'

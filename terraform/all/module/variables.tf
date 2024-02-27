@@ -24,6 +24,7 @@ locals {
     "work-restart"      = ["worker"]
     "passenger-stat"    = ["idp", "worker"]
     "passenger-restart" = ["idp", "worker"]
+    "puma-restart"      = ["idp"]
   }
 }
 
