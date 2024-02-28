@@ -723,7 +723,7 @@ users:
     - lg-all
     - lg-people
     - lg-public
-    - login-security
+    - login-security|owner
   nick.soutouras:
     aws_groups:
     - analytics
