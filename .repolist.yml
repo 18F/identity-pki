@@ -16,16 +16,4 @@ repolist:
   security:
     - github.com:18F/identity-security-private
   static:
-    - github.com:18F/identity-site
-
-
-
-
-
-
-
-
-
-
-
-
+    - github.com:GSA-TTS/identity-site
