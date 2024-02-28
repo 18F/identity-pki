@@ -30,7 +30,7 @@ resource "aws_network_acl_rule" "db-egress-s3-https" {
 
 resource "aws_s3_bucket" "analytics_export" {
   count = var.enable_dms_analytics ? 1 : 0
-  bucket = join(".", [
+  bucket = join("-", [
     "login-gov-analytics-export-${var.env_name}",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])

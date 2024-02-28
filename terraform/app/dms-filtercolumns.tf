@@ -5,7 +5,7 @@ locals {
 
 resource "aws_dms_replication_task" "filtercolumns" {
   count                    = var.enable_dms_analytics ? 1 : 0
-  migration_type           = "full-load-and-cdc"
+  migration_type           = "full-load"
   replication_instance_arn = module.dms[count.index].dms_replication_instance_arn
   replication_task_id      = "${var.env_name}-filter-columns-task"
   source_endpoint_arn      = module.dms[count.index].dms_source_endpoint_arn
