@@ -817,14 +817,6 @@ users:
     gitlab_groups:
     - devops
     - lg-people
-  sean.porter:
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-people
-    - lg-public
-    can_create_group:
-    - true
   shanice.musiitwa:
     aws_groups:
     - devopsnonprod
