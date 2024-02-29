@@ -32,7 +32,7 @@ template "/opt/nginx/conf/nginx.conf" do
     passenger_pool_idle_time: 0,
     passenger_max_request_queue_size: 512,
     passenger_max_instances_per_app: 0,
-    passenger_pool_size: node.fetch('cpu').fetch('total') * 4,
+    passenger_pool_size: node.fetch('cpu').fetch('total') * 2,
     passenger_root: passenger_enabled && lazy do
                      # dynamically compute passenger root at converge using rbenv
                      shell_out!(%w{rbenv exec passenger-config --root}).stdout.chomp
