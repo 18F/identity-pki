@@ -79,18 +79,6 @@ server {
         <%- end %>
     }
 
-    location / {
-        # Avoid ssl stripping attack
-        add_header Strict-Transport-Security $sts_value;
-        proxy_pass https://127.0.0.1:9293;
-        proxy_set_header   Host $host;
-        proxy_buffer_size          8k;
-        proxy_buffers              8 8k;
-        proxy_busy_buffers_size    8k;
-        # Override X-Forwarder-For header with singular NGINX remote address
-        proxy_set_header X-Forwarded-For $remote_addr;
-    }
-
     # TODO - The following matches result in inconsistent headers!  Should refactor to use include blocks
 
     ## Very large upload limits
@@ -124,10 +112,22 @@ server {
       client_max_body_size 30k;
     }
 
-    location /service_providers {
+    location ^~ /service_providers$ {
       add_header Strict-Transport-Security $sts_value;
       client_max_body_size 2M;
       error_page 413 =303 https://<%= @server_name %>/413_logo.html;
+    }
+
+    location / {
+        # Avoid ssl stripping attack
+        add_header Strict-Transport-Security $sts_value;
+        proxy_pass https://127.0.0.1:9293;
+        proxy_set_header   Host $host;
+        proxy_buffer_size          8k;
+        proxy_buffers              8 8k;
+        proxy_busy_buffers_size    8k;
+        # Override X-Forwarder-For header with singular NGINX remote address
+        proxy_set_header X-Forwarded-For $remote_addr;
     }
 }
 
