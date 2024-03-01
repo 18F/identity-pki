@@ -388,7 +388,7 @@ users:
     - lg-public
   jack.ryan:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - jryan
     gitlab_groups:
