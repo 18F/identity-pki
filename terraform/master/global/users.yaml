@@ -377,6 +377,11 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  isaac.arasato:
+    gitlab_groups:
+    - lg-all
+    - lg-people
+    - lg-public
   jack.cody:
     aws_groups:
     - apponcall
