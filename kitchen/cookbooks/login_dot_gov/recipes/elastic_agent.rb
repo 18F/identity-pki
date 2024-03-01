@@ -11,6 +11,19 @@ enroll_options    = "--enrollment-token=#{token} \
 --tag 'Q-LG' \
 --url=#{url}"
 
+# create systemD overrides to prevent agent/endpoint from consuming too many resources
+['elastic-agent', 'ElasticEndpoint'].each do |service|
+  directory "/etc/systemd/system/#{service}.service.d"
+  
+  cookbook_file "/etc/systemd/system/#{service}.service.d/override.conf" do
+    source 'systemd_override.conf'
+  end
+end
+
+execute 'reload daemon for elastic service updates' do
+  command 'systemctl daemon-reload'
+end
+
 execute 'enroll elastic agent' do
   command "elastic-agent enroll #{enroll_options}"
   ignore_failure true
