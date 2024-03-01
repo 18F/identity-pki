@@ -569,28 +569,28 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-0ad29786e123dab3d" # 2024-02-20 Ubuntu 20.04
+  default     = "ami-08d5b3016f6a6c810" # 2024-02-29 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_uw2" {
-  default     = "ami-0416a128b5d927ac4" # 2024-02-20 Ubuntu 20.04
+  default     = "ami-0fb5165e9c05123fc" # 2024-02-29 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-068aa281965886ec2" # 2024-02-20 Ubuntu 20.04
+  default     = "ami-01e5726544875794c" # 2024-02-29 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_uw2" {
-  default     = "ami-0d1c6989814907f40" # 2024-02-20 Ubuntu 20.04
+  default     = "ami-07d67235904cb8f63" # 2024-02-29 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -612,7 +612,7 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
-  default     = "ami-05de838096769fdde" # 2024-02-20 Ubuntu 20.04
+  default     = "ami-0d3c8166d9771b66c" # 2024-02-29 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
@@ -626,7 +626,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
-  default     = "ami-0c26916af64ce9093" # 2024-02-20 Ubuntu 20.04
+  default     = "ami-02b72e6197aaedb81" # 2024-02-29 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
