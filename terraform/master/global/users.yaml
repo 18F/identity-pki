@@ -348,7 +348,7 @@ users:
     - soc
   gina.yamada:
     aws_groups:
-    - appdev
+    - apponcall 
     ec2_username:
     - gyamada
     gitlab_groups:
