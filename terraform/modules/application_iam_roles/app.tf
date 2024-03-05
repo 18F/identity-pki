@@ -27,8 +27,7 @@ resource "aws_iam_role_policy" "app-secrets-manager" {
                 "arn:aws:secretsmanager:*:*:secret:global/common/*",
                 "arn:aws:secretsmanager:*:*:secret:global/app/*",
                 "arn:aws:secretsmanager:*:*:secret:${var.env_name}/common/*",
-                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/app/*",
-                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/sp-oidc-sinatra/*"
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/app/*"
             ]
         }
     ]

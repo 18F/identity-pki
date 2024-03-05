@@ -33,30 +33,3 @@ resource "aws_route53_record" "c_sp" {
   type    = "CNAME"
   zone_id = var.route53_id
 }
-
-resource "aws_route53_record" "c_sp_oidc_sinatra" {
-  count   = var.apps_enabled
-  name    = "sp-oidc-sinatra.${var.env_name}.${var.root_domain}"
-  records = ["app.${var.env_name}.${var.root_domain}"]
-  ttl     = "300"
-  type    = "CNAME"
-  zone_id = var.route53_id
-}
-
-resource "aws_route53_record" "c_sp_rails" {
-  count   = var.apps_enabled
-  name    = "sp-rails.${var.env_name}.${var.root_domain}"
-  records = ["app.${var.env_name}.${var.root_domain}"]
-  ttl     = "300"
-  type    = "CNAME"
-  zone_id = var.route53_id
-}
-
-resource "aws_route53_record" "c_sp_sinatra" {
-  count   = var.apps_enabled
-  name    = "sp-sinatra.${var.env_name}.${var.root_domain}"
-  records = ["app.${var.env_name}.${var.root_domain}"]
-  ttl     = "300"
-  type    = "CNAME"
-  zone_id = var.route53_id
-}

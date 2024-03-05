@@ -32,11 +32,7 @@ locals {
   app_domain_name = "sp.${var.env_name}.${var.root_domain}"
   app_alternative_names = [
     "app.${var.env_name}.${var.root_domain}",
-    "apps.${var.env_name}.${var.root_domain}",
     "dashboard.${var.env_name}.${var.root_domain}",
-    "sp-oidc-sinatra.${var.env_name}.${var.root_domain}",
-    "sp-rails.${var.env_name}.${var.root_domain}",
-    "sp-sinatra.${var.env_name}.${var.root_domain}",
   ]
 
 }
