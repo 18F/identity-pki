@@ -212,7 +212,7 @@ variable "s3_secrets_bucket_name" {
 }
 
 variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+  description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack"
 }
 
 variable "migration_security_group_id" {

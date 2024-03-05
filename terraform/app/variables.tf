@@ -729,11 +729,11 @@ locals {
   moderate_priority_alarm_actions      = [var.slack_alarms_sns_hook_arn]
   moderate_priority_alarm_actions_use1 = [var.slack_alarms_sns_hook_arn_use1]
   high_priority_alarm_actions = var.page_devops == 1 ? [
-    var.high_priority_sns_hook, var.slack_events_sns_hook_arn
-  ] : [var.slack_events_sns_hook_arn]
+    var.high_priority_sns_hook, var.slack_alarms_sns_hook_arn
+  ] : [var.slack_alarms_sns_hook_arn]
   high_priority_alarm_actions_use1 = var.page_devops == 1 ? [
-    var.high_priority_sns_hook_use1, var.slack_events_sns_hook_arn_use1
-  ] : [var.slack_events_sns_hook_arn_use1]
+    var.high_priority_sns_hook_use1, var.slack_alarms_sns_hook_arn_use1
+  ] : [var.slack_alarms_sns_hook_arn_use1]
 
   inventory_bucket_arn = join(".", [
     "arn:aws:s3:::login-gov.s3-inventory",

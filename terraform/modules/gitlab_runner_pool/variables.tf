@@ -202,7 +202,7 @@ variable "root_domain" {
 variable "route53_id" {}
 
 variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+  description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack"
 }
 
 variable "use_spot_instances" {

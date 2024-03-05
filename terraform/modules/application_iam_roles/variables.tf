@@ -119,12 +119,12 @@ variable "kinesis_kms_key_arn" {
 }
 
 variable "slack_events_sns_hook_arn" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
+  description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack"
   type        = string
 }
 
 variable "slack_events_sns_hook_arn_use1" {
-  description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack from US-East-1"
+  description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack from US-East-1"
 }
 
 variable "root_domain" {

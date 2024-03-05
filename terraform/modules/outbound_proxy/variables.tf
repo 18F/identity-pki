@@ -142,7 +142,7 @@ variable "default_ami_id" {
 variable "slack_events_sns_hook_arn" {
   description = <<EOM
 ARN of SNS topic that will notify the appropriate channel
-(#identity-events / #identity-otherevents) in Slack.
+(#login-events / #login-otherevents) in Slack.
 EOM
 }
 
