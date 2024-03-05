@@ -80,7 +80,7 @@ module "eks_cluster" {
       subnet_ids      = module.vpc.private_subnets
       capacity_type   = "SPOT"
       instance_types  = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
-      disk_size       = 100                                                             # disk_size will be ignored when using Launch Templates  
+      disk_size       = 200                                                             # disk_size will be ignored when using Launch Templates  
       # k8s_taints      = [{key= "spot", value="true", effect="NO_SCHEDULE"}]
     }
     ondemand = {
@@ -91,7 +91,7 @@ module "eks_cluster" {
       subnet_ids      = module.vpc.private_subnets
       capacity_type   = "ON_DEMAND"
       instance_types  = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
-      disk_size       = 100                                                             # disk_size will be ignored when using Launch Templates
+      disk_size       = 200                                                             # disk_size will be ignored when using Launch Templates
       k8s_taints      = [{ key = "ondemand", value = "true", effect = "NO_SCHEDULE" }]
     }
   }
