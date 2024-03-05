@@ -73,26 +73,28 @@ module "eks_cluster" {
   # EKS Managed Node Group
   eks_managed_node_groups = {
     spot = {
-      node_group_name = "${var.cluster_name}-managed-spot"
-      min_size        = 1
-      max_size        = 60
-      desired_size    = 2
-      subnet_ids      = module.vpc.private_subnets
-      capacity_type   = "SPOT"
-      instance_types  = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
-      disk_size       = 200                                                             # disk_size will be ignored when using Launch Templates  
+      node_group_name            = "${var.cluster_name}-managed-spot"
+      min_size                   = 1
+      max_size                   = 60
+      desired_size               = 2
+      subnet_ids                 = module.vpc.private_subnets
+      capacity_type              = "SPOT"
+      instance_types             = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
+      disk_size                  = 200                                                             # disk_size will be ignored when using Launch Templates  
+      use_custom_launch_template = false
       # k8s_taints      = [{key= "spot", value="true", effect="NO_SCHEDULE"}]
     }
     ondemand = {
-      node_group_name = "${var.cluster_name}-managed-ondemand"
-      min_size        = 1
-      max_size        = 2
-      desired_size    = 1
-      subnet_ids      = module.vpc.private_subnets
-      capacity_type   = "ON_DEMAND"
-      instance_types  = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
-      disk_size       = 200                                                             # disk_size will be ignored when using Launch Templates
-      k8s_taints      = [{ key = "ondemand", value = "true", effect = "NO_SCHEDULE" }]
+      node_group_name            = "${var.cluster_name}-managed-ondemand"
+      min_size                   = 1
+      max_size                   = 2
+      desired_size               = 1
+      subnet_ids                 = module.vpc.private_subnets
+      capacity_type              = "ON_DEMAND"
+      instance_types             = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
+      disk_size                  = 200                                                             # disk_size will be ignored when using Launch Templates
+      use_custom_launch_template = false
+      k8s_taints                 = [{ key = "ondemand", value = "true", effect = "NO_SCHEDULE" }]
     }
   }
   tags = local.tags
