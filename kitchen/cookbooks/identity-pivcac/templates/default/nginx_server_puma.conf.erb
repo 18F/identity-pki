@@ -1,0 +1,45 @@
+# Set HSTS header only if not already set by app. Some clients get unhappy if
+# you set multiple Strict-Transport-Security headers.
+# https://serverfault.com/a/598106
+map $upstream_http_strict_transport_security $sts_value {
+  '' "max-age=31536000; preload";
+}
+
+# Always add a HSTS header - This is still inside the http block, so will not
+# conflict with headers set in nginx.conf
+add_header Strict-Transport-Security $sts_value always;
+
+server {
+    listen        443 ssl;
+    server_name  <%= @server_name or raise 'no @server_name' %>;
+
+    ssl_certificate      /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/fullchain.pem;
+    ssl_certificate_key  /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/privkey.pem;
+    ssl_verify_client optional_no_ca; # on;
+    ssl_verify_depth 10;
+
+    ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH:!ECDHE-RSA-AES256-SHA384:!ECDHE-RSA-AES256-SHA:!DHE-RSA-AES256-SHA256:!DHE-RSA-AES256-SHA';
+    ssl_dhparam /etc/ssl/certs/dhparam.pem;
+    ssl_prefer_server_ciphers on;
+    ssl_protocols TLSv1.2;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 5m;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    location / {
+        root           /usr/local/var/www;
+
+        proxy_pass http://localhost:9292;
+
+        proxy_set_header X-Real-Host $host;
+        proxy_set_header X-Real-Ip $remote_addr;
+        proxy_set_header X-Real-Proto https;
+        proxy_set_header X-Client-Verify $ssl_client_verify;
+        proxy_set_header X-Client-S-Dn $ssl_client_s_dn;
+        proxy_set_header X-Client-I-Dn $ssl_client_i_dn;
+        proxy_set_header X-Client-Serial $ssl_client_serial;
+        proxy_set_header X-Client-Fingerprint $ssl_client_fingerprint;
+        proxy_set_header X-Client-Cert $ssl_client_escaped_cert;
+    }
+}

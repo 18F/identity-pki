@@ -15,7 +15,8 @@ end
 include_recipe 'identity-pivcac::update_letsencrypt_certs'
 
 base_dir    = "/srv/pki-rails"
-deploy_dir  = "#{base_dir}/current/public"
+deploy_dir  = "#{base_dir}/current"
+public_dir =  "#{deploy_dir}/public"
 shared_path = "#{base_dir}/shared"
 app_name    = 'pivcac'
 
@@ -99,15 +100,82 @@ execute 'tag instance from git repo sha' do
   ignore_failure true
 end
 
-template "/opt/nginx/conf/sites.d/pivcac.conf" do
-  notifies :restart, "service[passenger]"
-  source 'nginx_server.conf.erb'
-  variables({
-    log_path: '/var/log/nginx',
-    passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-    server_name: node.fetch('pivcac').fetch('wildcard'),
-    ssl_domain: node.fetch('pivcac').fetch('domain')
-  })
+if node['login_dot_gov']['use_pivcac_puma'] == true
+  puma_path = "#{deploy_dir}/bin/puma"
+  node.default[:puma] = {}
+  node.default[:puma][:bin_path] = puma_path
+
+  include_recipe 'login_dot_gov::puma_service'
+
+    web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
+
+    systemd_unit 'puma.service' do
+      action [:create]
+      ignore_failure true
+
+      content <<-EOM
+[Unit]
+Description=Puma HTTP Server
+After=network.target
+
+[Service]
+Type=notify
+
+# If your Puma process locks up, systemd's watchdog will restart it within seconds.
+WatchdogSec=10
+
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/default/puma
+WorkingDirectory=#{deploy_dir}
+User=#{web_system_user}
+Group=#{web_system_user}
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=pki-puma
+
+# Helpful for debugging socket activation, etc.
+# Environment=PUMA_DEBUG=1
+
+# SystemD will not run puma even if it is in your path. You must specify
+# an absolute URL to puma. For example /usr/local/bin/puma
+# Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
+ExecStart=#{puma_path} -C #{deploy_dir}/config/puma.rb -b tcp://127.0.0.1:9292 --control-url tcp://127.0.0.1:9294 --control-token none
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+      EOM
+    end
+
+    execute 'reload daemon to pickup the target file' do
+      command 'systemctl daemon-reload'
+    end
+  end
+
+if node['login_dot_gov']['use_pivcac_puma'] == true
+  template "/opt/nginx/conf/sites.d/pivcac.conf" do
+    notifies :reload, 'systemd_unit[puma.service]', :immediately
+    notifies :restart, "service[passenger]"
+    source 'nginx_server_puma.conf.erb'
+    variables({
+      log_path: '/var/log/nginx',
+      server_name: node.fetch('pivcac').fetch('wildcard'),
+      ssl_domain: node.fetch('pivcac').fetch('domain')
+    })
+  end
+else
+  template "/opt/nginx/conf/sites.d/pivcac.conf" do
+    notifies :restart, "service[passenger]"
+    source 'nginx_server.conf.erb'
+    variables({
+      log_path: '/var/log/nginx',
+      passenger_ruby: lazy { Dir.chdir(public_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
+      server_name: node.fetch('pivcac').fetch('wildcard'),
+      ssl_domain: node.fetch('pivcac').fetch('domain')
+    })
+  end
 end
 
 %w{config log}.each do |dir|
@@ -141,13 +209,13 @@ file "#{base_dir}/current/config/application.yml" do
   group node['login_dot_gov']['web_system_user']
 end
 
-directory "#{deploy_dir}/api" do
+directory "#{public_dir}/api" do
   owner node['login_dot_gov']['system_user']
   recursive true
   action :create
 end
 
-login_dot_gov_deploy_info "#{deploy_dir}/api/deploy.json" do
+login_dot_gov_deploy_info "#{public_dir}/api/deploy.json" do
   owner node['login_dot_gov']['system_user']
   branch deploy_branch
 end
@@ -181,3 +249,13 @@ end
 
 # Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
 include_recipe 'login_dot_gov::fix_permissions'
+
+if node['login_dot_gov']['use_pivcac_puma'] == true
+  execute 'enable puma target' do
+    command 'systemctl enable puma.service'
+  end
+
+  execute 'start puma target' do
+    command 'systemctl start puma.service'
+  end
+end
