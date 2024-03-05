@@ -22,28 +22,6 @@ ${local.free_space_type} storage is too low and may fill up soon!
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#storage-volumes
 EOM
     },
-    readIOPStoohigh = {
-      comparison_operator = "GreaterThanThreshold"
-      metric_name         = "ReadIOPS"
-      threshold           = var.rds_aurora_alarm_threshold_iops
-      evaluation_periods  = 10
-      alarm_description   = <<EOM
-ReadIOPS is too high. Check RDS Instance and consider provisioned IOPS adjustment
-
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#iops
-EOM
-    },
-    writeIOPStoohigh = {
-      comparison_operator = "GreaterThanThreshold"
-      metric_name         = "WriteIOPS"
-      threshold           = var.rds_aurora_alarm_threshold_iops
-      evaluation_periods  = 10
-      alarm_description   = <<EOM
-Write IOPS is too high. Check RDS Instance and consider provisioned IOPS adjustment
-
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#iops
-EOM
-    },
     MaximumUsedTransactionIDstoohigh = {
       comparison_operator = "GreaterThanThreshold"
       metric_name         = "MaximumUsedTransactionIDs"
