@@ -55,11 +55,8 @@ module "eks_cluster" {
     coredns    = {}
     kube-proxy = {}
     vpc-cni = {
-      # Specify the VPC CNI addon should be deployed before compute to ensure
-      # the addon is configured before data plane compute resources are created
-      # See README for further details
       before_compute = true
-      most_recent    = true # To ensure access to the latest settings provided
+      most_recent    = true
       configuration_values = jsonencode({
         env = {
           # Reference docs https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html
@@ -79,8 +76,8 @@ module "eks_cluster" {
       desired_size               = 2
       subnet_ids                 = module.vpc.private_subnets
       capacity_type              = "SPOT"
-      instance_types             = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
-      disk_size                  = 200                                                             # disk_size will be ignored when using Launch Templates  
+      instance_types             = ["m5.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
+      disk_size                  = 200                                                 # disk_size will be ignored when using Launch Templates  
       use_custom_launch_template = false
       # k8s_taints      = [{key= "spot", value="true", effect="NO_SCHEDULE"}]
     }
@@ -91,8 +88,8 @@ module "eks_cluster" {
       desired_size               = 1
       subnet_ids                 = module.vpc.private_subnets
       capacity_type              = "ON_DEMAND"
-      instance_types             = ["m5.large", "m4.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
-      disk_size                  = 200                                                             # disk_size will be ignored when using Launch Templates
+      instance_types             = ["m5.large", "m6a.large", "m5a.large", "m5d.large"] // Instances with same specs for memory and CPU so Cluster Autoscaler scales efficiently
+      disk_size                  = 200                                                 # disk_size will be ignored when using Launch Templates
       use_custom_launch_template = false
       k8s_taints                 = [{ key = "ondemand", value = "true", effect = "NO_SCHEDULE" }]
     }
