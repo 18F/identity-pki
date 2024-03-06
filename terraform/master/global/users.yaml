@@ -620,7 +620,7 @@ users:
     - lg-public
   marc.kananda:
     aws_groups:
-    - secopsnonprod
+    - secops
     ec2_username:
     - mkananda
     gitlab_groups:
