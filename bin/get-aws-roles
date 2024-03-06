@@ -51,6 +51,7 @@ for GROUP in $(aws iam list-groups-for-user \
                     --group ${GROUP} \
                     --query 'AttachedPolicies[].{Arn:PolicyArn}' \
                     --output text)
+  FOUND_POLICIES+=" "
 done
 
 MASTER_FILE='terraform/master/global/main.tf'
