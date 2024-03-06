@@ -90,6 +90,6 @@ module "pivcac_public_cert_bucket_config" {
 
 resource "aws_s3_object" "review_app_dhparam_folder" {
   bucket = data.aws_s3_bucket.secrets.id
-  key    = "reviewapp/"
+  key    = "${var.cluster_name}/"
   source = "/dev/null"
 }

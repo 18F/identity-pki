@@ -7,8 +7,8 @@ module "aws_secrets_to_kubernetes" {
       source = "s3"
       metadata = {
         name      = "identity-eks-charts-s3"
-        s3_bucket = "login-gov.secrets.894947205914-us-west-2"
-        s3_key    = "reviewapp/infra-charts-key"
+        s3_bucket = data.aws_s3_bucket.secrets.bucket
+        s3_key    = "${var.cluster_name}/infra-charts-key"
         namespace = "argocd"
         labels = {
           "argocd.argoproj.io/secret-type" = "repository"
@@ -26,7 +26,7 @@ module "aws_secrets_to_kubernetes" {
       metadata = {
         name      = "identity-idp-helm-chart-s3"
         s3_bucket = data.aws_s3_bucket.secrets.bucket
-        s3_key    = "reviewapp/identity-idp-helm-chart-key"
+        s3_key    = "${var.cluster_name}/identity-idp-helm-chart-key"
         namespace = "argocd"
         labels = {
           "argocd.argoproj.io/secret-type" = "repository"
