@@ -41,6 +41,7 @@
     "recipe[identity_base_config::ruby]",
     "recipe[identity-monitoring]",
     "recipe[identity-nessus]",
+    "recipe[login_dot_gov::elastic_agent]",
     "recipe[login_dot_gov::cis_fixes]",
     "recipe[login_dot_gov::update_aide]"
   ],

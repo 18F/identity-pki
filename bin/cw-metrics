@@ -5,6 +5,7 @@
 #
 # output: 
 # 
+require 'active_support'
 require 'active_support/time'
 require 'aws-sdk-cloudwatch'
 require 'optparse'

@@ -17,8 +17,7 @@
     "role[base]",
     "recipe[login_dot_gov::static_eip]",
     "recipe[login_dot_gov::common_scripts]",
-    "recipe[identity-gitlab]",
-    "recipe[login_dot_gov::elastic_agent]"
+    "recipe[identity-gitlab]"
   ],
   "env_run_lists": {
   }

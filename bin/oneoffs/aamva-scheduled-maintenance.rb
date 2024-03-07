@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'active_support'
 require 'active_support/time'
 require 'optparse'
 

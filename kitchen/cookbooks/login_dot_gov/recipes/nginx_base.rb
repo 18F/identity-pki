@@ -29,6 +29,7 @@ template "/opt/nginx/conf/nginx.conf" do
     pidfile: "/var/run/nginx.pid",
     passenger_user: node.fetch(:identity_shared_attributes).fetch(:production_user),
     passenger_enabled: passenger_enabled,
+    passenger_log_level: node['login_dot_gov']['passenger_log_level'],
     passenger_pool_idle_time: 0,
     passenger_max_request_queue_size: 512,
     passenger_max_instances_per_app: 0,

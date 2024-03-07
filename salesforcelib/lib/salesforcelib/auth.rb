@@ -1,4 +1,5 @@
 require 'uri'
+require 'active_support'
 require 'active_support/core_ext/object/to_query'
 require 'faraday'
 require 'restforce'
