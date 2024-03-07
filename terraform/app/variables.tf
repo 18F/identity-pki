@@ -1,7 +1,19 @@
+variable "force_destroy_app_static_bucket" {
+  description = "Allow destruction of app static bucket even if not empty"
+  type        = bool
+  default     = true
+}
+
 variable "force_destroy_idp_static_bucket" {
   description = "Allow destruction of IdP static bucket even if not empty"
   type        = bool
   default     = true
+}
+
+variable "app_static_bucket_cross_account_access" {
+  description = "Source roles from other accounts allowed access to the bucket"
+  type        = list(string)
+  default     = []
 }
 
 variable "idp_static_bucket_cross_account_access" {
@@ -1309,6 +1321,27 @@ EOM
   ]
 }
 
+variable "cloudfront_app_s3_cache_paths" {
+  description = <<EOM
+The list of paths to serve from the static content s3 bucket,
+should contain /packs/* and /assets/* to not break static content
+EOM
+  type = list(object({
+    path            = string
+    caching_enabled = bool
+  }))
+  default = [
+    {
+      path            = "/5xx-codes/*"
+      caching_enabled = false
+    },
+    {
+      path            = "/maintenance/*"
+      caching_enabled = false
+    }
+  ]
+}
+
 variable "cloudfront_custom_error_responses" {
   description = <<EOM
 List of custom error responses to show to the end user
@@ -1343,6 +1376,15 @@ EOM
 }
 
 variable "enable_cloudfront_maintenance_page" {
+  description = <<EOM
+Enables a maintenance page infront of idp servers
+and routes all traffic to that until disabled
+EOM
+  type        = bool
+  default     = false
+}
+
+variable "enable_app_cloudfront_maintenance_page" {
   description = <<EOM
 Enables a maintenance page infront of idp servers
 and routes all traffic to that until disabled
