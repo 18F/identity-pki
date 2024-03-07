@@ -131,7 +131,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
       {
         "height" : 6,
         "width" : 12,
-        "y" : 39,
+        "y" : 45,
         "x" : 0,
         "type" : "log",
         "properties" : {
@@ -145,7 +145,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
       {
         "height" : 6,
         "width" : 12,
-        "y" : 39,
+        "y" : 45,
         "x" : 12,
         "type" : "log",
         "properties" : {
@@ -153,6 +153,20 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Information Verify Failure by Hour",
+          "view" : "timeSeries"
+        }
+      },
+      {
+        "height" : 6,
+        "width" : 24,
+        "y" : 39,
+        "x" : 0,
+        "type" : "log",
+        "properties" : {
+          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields  @timestamp, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CROP.PT.Prod.2') as @non_liveness_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.PT.Prod.2') as @non_liveness_non_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CP.PM.Prod.2') as @liveness_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.NC.PM.Prod.2') as @liveness_non_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.PT.Prod.2' and properties.event_properties.transaction_status = 'passed') as @non_liveness_non_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CROP.PT.Prod.2' and properties.event_properties.transaction_status = 'passed') as @non_liveness_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.NC.PM.Prod.2' and properties.event_properties.transaction_status = 'passed') as @liveness_non_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CP.PM.Prod.2' and properties.event_properties.transaction_status = 'passed') as @liveness_cropping_passed \n       | filter name = 'IdV: doc auth image upload vendor submitted' and properties.event_properties.vendor = \"TrueID\" \n       | stats  \n       ((sum(@non_liveness_cropping) - sum(@non_liveness_cropping_passed))/sum(@non_liveness_cropping)) * 100 as non_liveness_cropping_fail_rate, \n       ((sum(@non_liveness_non_cropping) - sum(@non_liveness_non_cropping_passed))/sum(@non_liveness_non_cropping)) * 100 as non_liveness_non_cropping_fail_rate, \n       ((sum(@liveness_cropping) - sum(@liveness_cropping_passed))/sum(@liveness_cropping)) * 100 as liveness_cropping_fail_rate, \n       ((sum(@liveness_non_cropping) - sum(@liveness_non_cropping_passed))/sum(@liveness_non_cropping)) * 100 as liveness_non_cropping_fail_rate \n        by bin(15m)",
+          "region" : "us-west-2",
+          "stacked" : false,
+          "title" : "TrueID Failure Rates by Workflow",
           "view" : "timeSeries"
         }
       }
