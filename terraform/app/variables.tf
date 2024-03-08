@@ -1060,9 +1060,10 @@ variable "idv_high_proofing_resolution_result_missing_threshold" {
 
 variable "doc_auth_vendors" {
   type = map(object({
-    long_name          = string
-    evaluation_periods = optional(number, 1)
-    runbook_url        = optional(string, "")
+    long_name            = string
+    evaluation_periods   = optional(number, 1)
+    runbook_url          = optional(string, "")
+    slack_oncall_handles = optional(list(string), [])
   }))
   description = <<EOM
 List of DocAuth vendors mapped to long names, optionally with separately-configured
@@ -1071,55 +1072,55 @@ aws_cloudwatch_metric_alarm.doc_auth_vendor_exception_rate resource.
 EOM
   default = {
     "aamva" = {
-      long_name          = "AAMVA",
-      evaluation_periods = 2,
-      runbook_url        = "AAMVA-DLDV-outage",
-    }
-    "acuant" = {
-      long_name = "Acuant",
+      long_name            = "AAMVA",
+      evaluation_periods   = 2,
+      runbook_url          = "AAMVA-DLDV-outage",
+      slack_oncall_handles = ["@login-oncall-ada"]
     }
     "iv" = {
-      long_name   = "Instant Verify",
-      runbook_url = "LexisNexis-Instant-Verify-outage",
+      long_name            = "Instant Verify",
+      runbook_url          = "LexisNexis-Instant-Verify-outage",
+      slack_oncall_handles = ["@login-oncall-ada"]
     }
     "pinpoint" = {
-      long_name = "Pinpoint",
+      long_name            = "Pinpoint",
+      slack_oncall_handles = []
     }
     "trueid" = {
-      long_name   = "TrueID",
-      runbook_url = "LexisNexis-TrueID-outage",
+      long_name            = "TrueID",
+      runbook_url          = "LexisNexis-TrueID-outage",
+      slack_oncall_handles = ["@login-oncall-timnit", "@login-oncall-ada"]
     }
   }
 }
 
 variable "external_service_alarms" {
   type = map(object({
-    long_name          = string
-    tps_max            = optional(number)
-    tps_threshold_pct  = optional(number, 80)
-    latency_percentile = optional(number)
-    latency_threshold  = optional(number)
+    long_name            = string
+    tps_max              = optional(number)
+    tps_threshold_pct    = optional(number, 80)
+    latency_percentile   = optional(number)
+    latency_threshold    = optional(number)
+    slack_oncall_handles = optional(list(string), [])
   }))
   description = "List/Map of DocAuth vendors + configs for CloudWatch alarms"
   default = {
     "lexis_nexis_instant_verify" = {
-      long_name          = "LN Instant Verify",
-      latency_percentile = 90,
-      latency_threshold  = 10
+      long_name            = "LN Instant Verify",
+      latency_percentile   = 90,
+      latency_threshold    = 10
+      slack_oncall_handles = ["@login-oncall-ada"]
     },
     "lexis_nexis_phone_finder" = {
-      long_name          = "LN Phone Finder",
-      latency_percentile = 90,
-      latency_threshold  = 10
-    },
-    "acuant_doc_auth_create_document" = {
-      long_name          = "Acuant Create Document",
-      latency_percentile = 50,
-      latency_threshold  = 5
+      long_name            = "LN Phone Finder",
+      latency_percentile   = 90,
+      latency_threshold    = 10
+      slack_oncall_handles = ["@login-oncall-ada"]
     },
     "aamva_verification" = {
-      long_name = "AAMVA DLDV",
-      tps_max   = 8
+      long_name            = "AAMVA DLDV",
+      tps_max              = 8
+      slack_oncall_handles = ["@login-oncall-ada"]
     }
   }
 }

@@ -1,5 +1,5 @@
 # Iterate over vendors (in variables.tf) creating alarms for:
-# AAMVA, Acuant, Instant Verify, Pinpoint, & TrueID
+# AAMVA, Instant Verify, Pinpoint, & TrueID
 resource "aws_cloudwatch_metric_alarm" "doc_auth_vendor_exception_rate" {
   for_each = var.idp_external_service_alarms_enabled == 1 ? var.doc_auth_vendors : {}
 
@@ -13,8 +13,8 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-${each.value.runbo
 %{else~}
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
 %{endif~}
-%{if var.env_name == "prod"}
-Notifying:%{for handle in var.slack_proofing_groups} @${handle}%{endfor}
+%{if var.env_name == "prod" && length(each.value.slack_oncall_handles) > 0}
+Notifying: ${join(", ", each.value.slack_oncall_handles)}
 %{endif}
 EOM
 
@@ -146,6 +146,9 @@ ${each.value.long_name} ${each.value.latency_percentile}th percentile response t
 in ${var.env_name} has been greater than 10 seconds for 3 minutes
 
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
+%{if var.env_name == "prod" && length(each.value.slack_oncall_handles) > 0}
+Notifying: ${join(", ", each.value.slack_oncall_handles)}
+%{endif}
 EOM
   treat_missing_data        = "ignore"
   insufficient_data_actions = []

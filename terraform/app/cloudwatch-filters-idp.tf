@@ -161,28 +161,6 @@ locals {
         }
       EOT
     },
-    doc_auth_vendor_exception_acuant = {
-      name         = "doc-auth-vendor-exception-acuant"
-      metric_value = 1
-      dimensions   = {}
-      # These status codes are a normal part of Acuant, not a down indicator:
-      # 438: "Document image load failure"
-      # 439: "Invalid or unsupported document image pixel depth."
-      # 440: "Document image size is outside the acceptable range."
-      # 441: "Document image resolution is outside the acceptable range."
-      # 442: "Document image resolution difference between each axis is outside the acceptable range."
-      pattern = <<EOT
-        {
-          $.name="IdV: doc auth image upload vendor submitted" &&
-          $.properties.event_properties.vendor = "Acuant" &&
-          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 438" &&
-          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 439" &&
-          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 440" &&
-          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 441" &&
-          $.properties.event_properties.exception != "DocAuth::Acuant::Requests::UploadImageRequest Unexpected HTTP response 442"
-        }
-      EOT
-    },
     doc_auth_vendor_exception_iv = {
       name         = "doc-auth-vendor-exception-iv"
       metric_value = 1
@@ -230,17 +208,6 @@ locals {
         {
           $.name="IdV: doc auth verify proofing results" &&
           $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id"
-        }
-      EOT
-    },
-    doc_auth_vendor_overall_acuant = {
-      name         = "doc-auth-vendor-overall-acuant"
-      metric_value = 1
-      dimensions   = {}
-      pattern      = <<EOT
-        {
-          $.name="IdV: doc auth image upload vendor submitted" &&
-          $.properties.event_properties.vendor = "Acuant"
         }
       EOT
     },
