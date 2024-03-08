@@ -158,10 +158,10 @@ RSpec.describe IdentifyController, type: :controller do
               openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
               ficam_openssl_valid: false,
               ficam_openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
+              matched_policy_oids: ['2.16.840.1.101.2.1.11.9'],
             }.to_json).once
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
-
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
