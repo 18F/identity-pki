@@ -27,10 +27,14 @@ class CertificatePolicies
     # otherwise, we want to allow it for now, but log the cert so we can see what policies are
     # coming up
     # This policy check is only on the leaf certificate - not used by CAs
+    matched_policy_oids.any?
+  end
+
+  def matched_policy_oids
     mapping = PolicyMappingService.new(@certificate).call
     expected_policies = required_policies
-    cert_policies = policies.map { |policy| mapping[policy] }
-    (cert_policies & expected_policies).any?
+    cert_policies = policies.map { |policy| mapping[policy] }    
+    (cert_policies & expected_policies)
   end
 
   def policies
