@@ -31,7 +31,6 @@ module "waf_sets" {
   }
 
   limit_exempt_paths = [
-    "^/api/.*",
     "^/\\.well-known/.*",
     "^/.*/.*/-/blob/.*",
   ]
