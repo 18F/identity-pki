@@ -17,6 +17,35 @@ variable "splunk_oncall_newrelic_endpoint" {
   default = "UNSET"
 }
 
+import {
+  to = module.main.aws_iam_role.lambda_fn_CloudTrailResponder
+  id = "Detect-if-CloudTrail-is-disabled-rLambdaCTRole-IGMK70EPUDDZ"
+}
+
+import {
+  to = module.main.aws_iam_role_policy.fn_CloudTrailResponder_lambda
+  id = "Detect-if-CloudTrail-is-disabled-rLambdaCTRole-IGMK70EPUDDZ:rLambdaCTRole"
+}
+
+import {
+  to = module.main.aws_lambda_function.fn_CloudTrailResponder
+  id = "fn_CloudTrailResponder"
+}
+
+import {
+  to = module.main.aws_cloudwatch_event_rule.detect_if_cloudtrail_is_disabled
+  id = "Detect-if-CloudTrail-is-disabled-rEventRule-1VTVVM119QG58"
+}
+
+import {
+  to = module.main.aws_cloudwatch_event_target.target_fn_CloudTrailResponder
+  id = "Detect-if-CloudTrail-is-disabled-rEventRule-1VTVVM119QG58/TargetFunctionV1"
+}
+
+import {
+  to = module.main.aws_lambda_permission.cloudwatch_to_fn_CloudTrailResponder
+  id = "arn:aws:lambda:us-west-2:555546682965:function:fn_CloudTrailResponder/Detect-if-CloudTrail-is-disabled-rPermissionForEventsToInvokeLambda-1DRJ1Q8F87EAC"
+}
 module "main" {
   source            = "../module"
   iam_account_alias = "login-prod"
