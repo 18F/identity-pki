@@ -157,6 +157,7 @@ WantedBy=multi-user.target
 if node['login_dot_gov']['use_pivcac_puma'] == true
   template "/opt/nginx/conf/sites.d/pivcac.conf" do
     notifies :reload, 'systemd_unit[puma.service]', :immediately
+    # This is to restart nginx, passenger is not running
     notifies :restart, "service[passenger]"
     source 'nginx_server_puma.conf.erb'
     variables({

@@ -26,6 +26,9 @@ server {
     ssl_session_timeout 5m;
     ssl_stapling on;
     ssl_stapling_verify on;
+    proxy_buffer_size          32k;
+    proxy_buffers              8 32k;
+    proxy_busy_buffers_size    64k;
 
     location / {
         root           /usr/local/var/www;
