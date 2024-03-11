@@ -33,6 +33,8 @@ externalDns:
     annotations:
       eks.amazonaws.com/role-arn: ${gitops_metadata["external_dns_iam_role_arn"]}
   domainFilters:
+metricsServer:
+  enable: true
 %{ for domain in domainFilters ~}
     - "${domain}"
 %{ endfor ~}

@@ -21,6 +21,7 @@ module "eks_blueprints_addons" {
   enable_aws_load_balancer_controller = true
   enable_cert_manager                 = true
   external_dns_route53_zone_arns      = [aws_route53_zone.selected.arn, aws_route53_zone.pivcac.arn]
+  enable_metrics_server               = true
 
   tags = local.tags
 }
