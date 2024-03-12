@@ -885,6 +885,7 @@ users:
   sujana.gurung:
     aws_groups:
     - devopsnonprod
+    - finops
     ec2_username:
     - sujana09
     gitlab_groups:
