@@ -822,6 +822,7 @@ users:
     gitlab_groups:
     - devops
     - lg-people
+    - login-security
   shanice.musiitwa:
     aws_groups:
     - devopsnonprod
