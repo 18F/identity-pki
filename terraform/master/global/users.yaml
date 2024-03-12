@@ -625,6 +625,10 @@ users:
     - mkananda
     gitlab_groups:
     - devops
+    - lg-all|developer
+    - lg-people|developer
+    - lg-public|developer
+    - login-security|developer
     email:
     - m.kananda@gsa.gov
   matt.gardner:
