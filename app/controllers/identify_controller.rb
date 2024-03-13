@@ -121,7 +121,11 @@ class IdentifyController < ApplicationController
     }
 
     attributes.delete(:issuer) if validation_result == 'self-signed cert'
-    attributes[:matched_policy_oids] = cert.matched_policy_oids if valid
+    if valid
+      attributes[:matched_policy_oids] = cert.matched_policy_oids.each_with_object({}) do |oid, result|
+        result[oid] = true
+      end
+    end
 
     # Log certificate if it fails either OpenSSL validation, but passes our current validation or vice versa
     if valid != login_certs_openssl_result[:valid] || valid != ficam_certs_openssl_result[:valid]
