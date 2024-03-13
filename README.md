@@ -8,8 +8,8 @@ PIV/CAC support for login.gov.
 #### Dependencies
 
 - Ruby 3.0
-- OpenSSL 1.1
-- [Postgresql](http://www.postgresql.org/download/)
+- OpenSSL 1.1 (see [troubleshooting notes](#troubleshooting-openssl-or-certificate-validation-errors))
+- [PostgreSQL](http://www.postgresql.org/download/)
 
 #### Setting up and running the app
 
@@ -90,17 +90,32 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 1. Open the Keychain Access app
 
-2. Go to "Certificates" bottom left section
+2. Within your default keychain, search for the certificate "**identity-pki Development Certificate**"
 
-3. Find the cert named "**identity-pki Development Certificate**" open its settings
+3. Double-click the certificate to view its details
 
-4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown
+4. Expand the "Trust" section and select "Always Trust" for the top-level "When using this certificate" dropdown
 
-#### Troubleshooting Certificate invalid Error
-If you are attempting to register or sign in with your PIV locally and you get errors saying your Certificate is invalid, Ensure that you have OpenSSl 1.1 installed and running for ruby.
-To check run `ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'`.
+5. Close the details to save your changes. You'll be prompted to enter your password or PIN to confirm the changes.
 
-If you notice that the version is not valid you will need to install openssl@1.1 and reinstall ruby with the openssl directory pointing to the correct version.
+#### Troubleshooting OpenSSL or certificate validation errors
+
+Errors commonly occur due to a mismatch in the expected version of OpenSSL:
+
+- Trying to register or authenticate with your PIV locally produces errors saying your certificate is invalid
+- Running certificate Rake tasks produces Ruby errors
+
+If you encounter errors, ensure that you have OpenSSL 1.1 installed, including bindings for your Ruby installation.
+
+To check, run: `ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'`
+
+If the version is anything other than OpenSSL 1.1, you will need to install OpenSSL 1.1 and reinstall Ruby with the OpenSSL directory pointing to the correct version.
+
+If you have [Homebrew](https://brew.sh/) available and use [`rbenv`](https://github.com/rbenv/rbenv) to manage your Ruby installation, you can run the following command to reinstall the project's version of Ruby with OpenSSL 1.1:
+
+```
+RUBY_CONFIGURE_OPTS=--with-openssl-dir=$(brew --prefix openssl@1.1) rbenv install
+```
 
 #### Cleaning up the root SSL certificate
 
