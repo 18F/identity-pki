@@ -90,11 +90,13 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 1. Open the Keychain Access app
 
-2. Go to "Certificates" bottom left section
+2. Within your default keychain, search for the certificate "**identity-pki Development Certificate**"
 
-3. Find the cert named "**identity-pki Development Certificate**" open its settings
+3. Double-click the certificate to view its details
 
-4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown
+4. Expand the "Trust" section and select "Always Trust" for the top-level "When using this certificate" dropdown
+
+5. Close the details to save your changes. You'll be prompted to enter your password or PIN to confirm the changes.
 
 #### Troubleshooting OpenSSL or certificate validation errors
 
