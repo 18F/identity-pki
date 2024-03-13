@@ -29,4 +29,9 @@ module "waf_sets" {
       "(?i)readme.md",
     ]
   }
+
+  limit_exempt_paths = [
+    "^/\\.well-known/.*",
+    "^/.*/.*/-/blob/.*",
+  ]
 }
