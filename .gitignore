@@ -32,6 +32,9 @@
 
 /postgres-data
 
+# Avoid hard-pinning Homebrew dependencies
+Brewfile.lock.json
+
 # Ignore the files generated during setup
 /config/local-certs/rootCA.key
 /config/local-certs/rootCA.pem

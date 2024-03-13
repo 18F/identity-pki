@@ -10,77 +10,23 @@ PIV/CAC support for login.gov.
 - Ruby 3.0
 - OpenSSL 1.1 (see [troubleshooting notes](#troubleshooting-openssl-or-certificate-validation-errors))
 - [PostgreSQL](http://www.postgresql.org/download/)
+- Nginx
 
 #### Setting up and running the app
 
-1. Make sure you have a working development environment with all the
-  [dependencies](#dependencies) installed. On OS X, the easiest way
-  to set up a development environment is by running our [Laptop]
-  script. The script will install all of this project's dependencies.
+Run the following command to set up your local environment:
 
-  If using rbenv, you may need to alias your specific installed ruby
-  version to the more generic version found in the `.ruby-version` file.
-  To do this, use [`rbenv-aliases`](https://github.com/tpope/rbenv-aliases):
+```
+$ make setup
+```
 
-  ```
-  git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
+The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. You will also want to make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
 
-  rbenv alias 3.0 3.0.6 # create the version alias
-  ```
+Run the app server with:
 
-1. Make sure you have Nginx installed.
-
-  ```
-  $ brew install nginx
-  ```
-
-1. Make sure Postgres is running.
-
-  For example, if you've installed the laptop script on OS X, you can start the services like this:
-
-  ```
-  $ brew services start postgresql
-  ```
-
-1. Create the development and test databases:
-
-  ```
-  $ psql -c "CREATE DATABASE identity_pki_dev;"
-  $ psql -c "CREATE DATABASE identity_pki_test;"
-  ```
-
-1. Run the following command to set up the environment
-
-  - The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. To keep it simple, try `salty pickles`.
-
-  - Make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
-
-  ```
-  $ make setup
-  ```
-
-  This command copies sample configuration files, installs required gems
-  and sets up the database.
-
-1. Run the app server with:
-
-  ```
-  $ make run
-  ```
-
-Before making any commits, you'll also need to run `overcommit --sign.`
-This verifies that the commit hooks defined in our `.overcommit.yml` file are
-the ones we expect. Each change to the `.overcommit.yml` file, including the initial install
-performed in the setup script, will necessitate a new signature.
-
-For more information, see [overcommit](https://github.com/brigade/overcommit)
-
-If you want to measure the app's performance in development, set the
-`rack_mini_profiler` option to `'on'` in `config/application.yml` and
-restart the server. See the [rack_mini_profiler] gem for more details.
-
-[Laptop]: https://github.com/18F/laptop
-[rack_mini_profiler]: https://github.com/MiniProfiler/rack-mini-profiler
+```
+$ make run
+```
 
 ### Running the app locally with the IDP
 
