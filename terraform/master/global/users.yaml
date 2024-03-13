@@ -380,7 +380,7 @@ users:
   isaac.arasato:
     gitlab_groups:
     - lg-all
-    - lg-people
+    - lg-people|developer
     - lg-public
   jack.cody:
     aws_groups:
