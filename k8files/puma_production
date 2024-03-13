@@ -11,4 +11,4 @@ state_path "#{app_dir}/tmp/pids/puma.state"
 
 
 set_remote_address proxy_protocol: :v1
-bind "ssl://0.0.0.0:3001?key=/etc/letsencrypt/live/review-app.pivcac.identitysandbox.gov/privkey.pem&cert=/etc/letsencrypt/live/review-app.pivcac.identitysandbox.gov/fullchain.pem"
+bind "ssl://0.0.0.0:3001?key=/etc/letsencrypt/live/${ENV_CONFIG_PIVCAC_SSL_DOMAIN}/privkey.pem&cert=/etc/letsencrypt/live/${ENV_CONFIG_PIVCAC_SSL_DOMAIN}/fullchain.pem"
