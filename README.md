@@ -7,80 +7,26 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 3.0
-- OpenSSL 1.1
-- [Postgresql](http://www.postgresql.org/download/)
+- Ruby 3.2
+- OpenSSL 1.1 (see [troubleshooting notes](#troubleshooting-openssl-or-certificate-validation-errors))
+- [PostgreSQL](http://www.postgresql.org/download/)
+- Nginx
 
 #### Setting up and running the app
 
-1. Make sure you have a working development environment with all the
-  [dependencies](#dependencies) installed. On OS X, the easiest way
-  to set up a development environment is by running our [Laptop]
-  script. The script will install all of this project's dependencies.
+Run the following command to set up your local environment:
 
-  If using rbenv, you may need to alias your specific installed ruby
-  version to the more generic version found in the `.ruby-version` file.
-  To do this, use [`rbenv-aliases`](https://github.com/tpope/rbenv-aliases):
+```
+$ make setup
+```
 
-  ```
-  git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
+The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. You will also want to make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
 
-  rbenv alias 3.0 3.0.6 # create the version alias
-  ```
+Run the app server with:
 
-1. Make sure you have Nginx installed.
-
-  ```
-  $ brew install nginx
-  ```
-
-1. Make sure Postgres is running.
-
-  For example, if you've installed the laptop script on OS X, you can start the services like this:
-
-  ```
-  $ brew services start postgresql
-  ```
-
-1. Create the development and test databases:
-
-  ```
-  $ psql -c "CREATE DATABASE identity_pki_dev;"
-  $ psql -c "CREATE DATABASE identity_pki_test;"
-  ```
-
-1. Run the following command to set up the environment
-
-  - The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. To keep it simple, try `salty pickles`.
-
-  - Make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
-
-  ```
-  $ make setup
-  ```
-
-  This command copies sample configuration files, installs required gems
-  and sets up the database.
-
-1. Run the app server with:
-
-  ```
-  $ make run
-  ```
-
-Before making any commits, you'll also need to run `overcommit --sign.`
-This verifies that the commit hooks defined in our `.overcommit.yml` file are
-the ones we expect. Each change to the `.overcommit.yml` file, including the initial install
-performed in the setup script, will necessitate a new signature.
-
-For more information, see [overcommit](https://github.com/brigade/overcommit)
-
-If you want to measure the app's performance in development, set the
-`rack_mini_profiler` option to `'on'` in `config/application.yml` and
-restart the server. See the [rack_mini_profiler] gem for more details.
-
-[Laptop]: https://github.com/18F/laptop
-[rack_mini_profiler]: https://github.com/MiniProfiler/rack-mini-profiler
+```
+$ make run
+```
 
 ### Running the app locally with the IDP
 
@@ -90,17 +36,32 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 1. Open the Keychain Access app
 
-2. Go to "Certificates" bottom left section
+2. Within your default keychain, search for the certificate "**identity-pki Development Certificate**"
 
-3. Find the cert named "**identity-pki Development Certificate**" open its settings
+3. Double-click the certificate to view its details
 
-4. Under the "Trust" section, select "Always Trust" for the top-level "When using this certificate" dropdown
+4. Expand the "Trust" section and select "Always Trust" for the top-level "When using this certificate" dropdown
 
-#### Troubleshooting Certificate invalid Error
-If you are attempting to register or sign in with your PIV locally and you get errors saying your Certificate is invalid, Ensure that you have OpenSSl 1.1 installed and running for ruby.
-To check run `ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'`.
+5. Close the details to save your changes. You'll be prompted to enter your password or PIN to confirm the changes.
 
-If you notice that the version is not valid you will need to install openssl@1.1 and reinstall ruby with the openssl directory pointing to the correct version.
+#### Troubleshooting OpenSSL or certificate validation errors
+
+Errors commonly occur due to a mismatch in the expected version of OpenSSL:
+
+- Trying to register or authenticate with your PIV locally produces errors saying your certificate is invalid
+- Running certificate Rake tasks produces Ruby errors
+
+If you encounter errors, ensure that you have OpenSSL 1.1 installed, including bindings for your Ruby installation.
+
+To check, run: `ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'`
+
+If the version is anything other than OpenSSL 1.1, you will need to install OpenSSL 1.1 and reinstall Ruby with the OpenSSL directory pointing to the correct version.
+
+If you have [Homebrew](https://brew.sh/) available and use [`rbenv`](https://github.com/rbenv/rbenv) to manage your Ruby installation, you can run the following command to reinstall the project's version of Ruby with OpenSSL 1.1:
+
+```
+RUBY_CONFIGURE_OPTS=--with-openssl-dir=$(brew --prefix openssl@1.1) rbenv install
+```
 
 #### Cleaning up the root SSL certificate
 

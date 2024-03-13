@@ -103,7 +103,6 @@ envsubst '${ENV_CONFIG_PIVCAC_SSL_DOMAIN}' < /app/config/puma/production.rbtemp 
 sudo rm -f /opt/nginx/conf/sites.d/pivcac.conftemp
 sudo rm -f /app/config/puma/production.rbtempd
 
-
 # Start nginx
 sudo -E -u root nginx
 
