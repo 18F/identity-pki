@@ -143,8 +143,10 @@ resource "aws_cloudwatch_metric_alarm" "send_by_country" {
   for_each          = local.alarm_volume_alert_countries
   alarm_name        = "sms-country-${each.key}-volume-too-high"
   alarm_description = <<EOM
-${var.env}: More than 100 SMS have been sent to phone numbers in ${each.key} in the last hour. This may a problem with delivery or malicious usage.
-See https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+${var.env}: More than ${lookup(var.sms_unexpected_individual_country_alarm_thresholds, each.key, var.sms_unexpected_country_alarm_default_threshold)} SMS have been sent to phone numbers in ${each.key} in the last hour. This may a problem with delivery or malicious usage.
+
+Alerting: @login-oncall-katherine
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
 EOM
 
   comparison_operator = "GreaterThanThreshold"
