@@ -24,8 +24,11 @@ end
 
 primary_role = File.read('/etc/login.gov/info/role').chomp
 
-if primary_role != 'worker'
-  
+passenger_enabled = primary_role != 'worker' && ((primary_role == 'idp' && node['login_dot_gov']['use_idp_puma'] != true) ||
+  (primary_role == 'app' && node['login_dot_gov']['use_dashboard_puma'] != true) ||
+  (primary_role == 'pivcac' && node['login_dot_gov']['use_pivcac_puma'] != true))
+
+if passenger_enabled && primary_role != 'worker'
   template '/etc/apparmor.d/opt.ruby_build.shims.passenger' do
     source 'opt.ruby_build.shims.passenger.erb'
     owner 'root'
@@ -35,7 +38,6 @@ if primary_role != 'worker'
 
   execute 'enable_passenger_apparmor' do
     command 'aa-complain /etc/apparmor.d/opt.ruby_build.shims.passenger'
-    notifies :restart, 'service[passenger]'
   end
 
   template '/usr/local/bin/cw-custom-logs' do
@@ -64,5 +66,4 @@ if primary_role != 'worker'
     group 'root'
     mode '0755'
   end
-
 end

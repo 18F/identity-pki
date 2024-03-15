@@ -41,6 +41,7 @@ default['login_dot_gov']['nginx_worker_connections']                  = 1024
 default['login_dot_gov']['passenger_log_level']                       = 3
 default['login_dot_gov']['use_dashboard_puma']                        = false
 default['login_dot_gov']['use_pivcac_puma']                           = false
+default['login_dot_gov']['use_idp_puma']                              = false
 
 # User for installing various application data
 default['login_dot_gov']['system_user']                               = 'appinstall'

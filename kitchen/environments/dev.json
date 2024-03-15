@@ -15,7 +15,8 @@
       "idp_sync_static": true,
       "idp_ruby_yjit_enabled": true,
       "use_dashboard_puma": true,
-      "use_pivcac_puma": true
+      "use_pivcac_puma": true,
+      "use_idp_puma": true
     },
     "identity-jumphost": {
       "retrieve-ssh-host-keys": true

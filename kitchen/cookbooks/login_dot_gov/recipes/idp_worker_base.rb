@@ -257,6 +257,7 @@ link cert_path do
 end
 
 # disable passenger service for workers
+# this is not necessary for puma since the puma service is started in idp_web
 execute 'stop passenger' do
   command 'systemctl stop passenger.service'
 end

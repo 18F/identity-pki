@@ -74,6 +74,7 @@ app_name = 'idp'
 # https://docs.chef.io/resource_deploy.html
 # deploy_branch defaults to stages/<env>
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
+primary_role = File.read('/etc/login.gov/info/role').chomp
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
 deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
 git_sha = shell_out("git ls-remote https://github.com/18F/identity-idp.git #{deploy_branch} | awk '{print $1}'").stdout.chomp
@@ -271,4 +272,91 @@ end
 end
 (shared_dirs-['bin', 'certs', 'config', 'keys']).each do |dir|
   execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}" unless node['login_dot_gov']['setup_only']
+end
+
+if node['login_dot_gov']['use_idp_puma'] == true && primary_role == 'idp'
+  # Generate certificate for Puma
+  key_path = "#{release_path}/idp-server.key"
+  cert_path = "#{release_path}/idp-server.crt"
+  web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
+
+  key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(
+    "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}",
+    365,
+  )
+  key_content = key.to_pem
+  cert_content = cert.to_pem
+
+  file key_path do
+    action :create
+
+    mode '0644'
+    content key_content
+    sensitive true
+    owner web_system_user
+    group web_system_user
+  end
+
+  file cert_path do
+    action :create
+
+    mode '0644'
+    content cert_content
+    owner web_system_user
+    group web_system_user
+  end
+
+  puma_path = "#{release_path}/bin/puma"
+
+  node.default[:puma] = {}
+  node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
+  node.default[:puma][:bin_path] = puma_path
+  node.default[:puma][:ctl_path] = "#{release_path}/bin/pumactl"
+  node.default[:puma][:config_path] = "#{release_path}/config/puma.rb"
+
+  include_recipe 'login_dot_gov::puma_service'
+
+  systemd_unit 'puma.service' do
+    action [:create]
+
+    content <<-EOM
+[Unit]
+Description=Puma HTTP Server
+After=network.target
+
+[Service]
+Type=notify
+
+# If your Puma process locks up, systemd's watchdog will restart it within seconds.
+WatchdogSec=10
+TimeoutSec=90
+
+EnvironmentFile=/etc/environment
+EnvironmentFile=/etc/default/puma
+WorkingDirectory=#{release_path}
+User=#{web_system_user}
+Group=#{web_system_user}
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=idp-puma
+
+# Helpful for debugging socket activation, etc.
+# Environment=PUMA_DEBUG=1
+
+# SystemD will not run puma even if it is in your path. You must specify
+# an absolute URL to puma. For example /usr/local/bin/puma
+# Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
+ExecStart=#{puma_path} -C #{release_path}/config/puma.rb -b tcp://127.0.0.1:9292 -b ssl://127.0.0.1:9293?key=#{release_path}/idp-server.key&cert=#{release_path}/idp-server.crt --control-url tcp://127.0.0.1:9294 --control-token none
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+    EOM
+  end
+
+  execute 'reload daemon to pickup the target file' do
+    command 'systemctl daemon-reload'
+  end
 end
