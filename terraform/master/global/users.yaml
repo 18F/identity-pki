@@ -921,6 +921,8 @@ users:
     - pm
     - lg-all
     - lg-public
+    aws_groups:
+    - analytics
   timothy.spencer:
     aws_groups:
     - devops
