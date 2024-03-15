@@ -103,6 +103,15 @@ users:
     - appdev
     - lg-all
     - lg-public
+  andrew.farkas:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - afarkas
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   andrew.hsieh:
     aws_groups:
     - analytics
@@ -348,7 +357,7 @@ users:
     - soc
   gina.yamada:
     aws_groups:
-    - apponcall 
+    - apponcall
     ec2_username:
     - gyamada
     gitlab_groups:
