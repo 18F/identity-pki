@@ -78,7 +78,7 @@ data "aws_s3_object" "slack_low_webhook_url" {
 
 data "aws_s3_object" "slack_high_webhook_url" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
-  key    = "common/slack/events_webhook_url"
+  key    = "common/slack/alarms_webhook_url"
 }
 
 data "aws_s3_object" "slack_in_person_webhook_url" {
@@ -98,14 +98,14 @@ data "aws_ssm_parameter" "splunk_oncall_newrelic_endpoint" {
 }
 
 # Logic for notification channels/destinations is as follows:
-# 
+#
 # 1. All alert policies are created, regardless of var.pager_alerts_enabled
 # 2. Slack notification channels/destinations are always created
 # 3. If var.pager_alerts_enabled = true, high / enduser should all
 #    go to the 'high' slack destination; otherwise, they should all go to the 'low' one
 # 4. If var.pager_alerts_enabled = true, then on-call paging channels/destinations
 #    are also created
-# 
+#
 
 # Alert Policies
 resource "newrelic_alert_policy" "low" {
