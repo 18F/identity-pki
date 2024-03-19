@@ -11,7 +11,9 @@
       "idp_artifacts": true,
       "lockdown": "true",
       "idp_sync_static": true,
-      "idp_ruby_yjit_enabled": true
+      "use_dashboard_puma": false,
+      "use_pivcac_puma": false,
+      "use_idp_puma": false
     },
     "ssh_keys": {
     },
