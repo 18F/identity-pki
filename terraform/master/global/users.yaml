@@ -845,14 +845,6 @@ users:
     - devops
     - lg-people
     - login-security
-  shanice.musiitwa:
-    aws_groups:
-    - devopsnonprod
-    - finops
-    ec2_username:
-    - smusiitwa
-    gitlab_groups:
-    - devops
   shannon.alexander-navarro:
     aws_groups:
     - apponcall
