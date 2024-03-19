@@ -574,15 +574,6 @@ users:
     - antifraud
     - lg-all
     - lg-public
-  kimball.bighorse:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - kbighorse
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   kirsten.a.green:
     aws_groups:
     - analytics
