@@ -313,6 +313,8 @@ if node['login_dot_gov']['use_idp_puma'] == true && primary_role == 'idp'
   node.default[:puma][:bin_path] = puma_path
   node.default[:puma][:ctl_path] = "#{release_path}/bin/pumactl"
   node.default[:puma][:config_path] = "#{release_path}/config/puma.rb"
+  node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
+  node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
 
   include_recipe 'login_dot_gov::puma_service'
 
