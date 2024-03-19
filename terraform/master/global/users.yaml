@@ -640,15 +640,6 @@ users:
     - login-security|developer
     email:
     - m.kananda@gsa.gov
-  matt.gardner:
-    aws_groups:
-    - appdev
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    ec2_username:
-    - mgardner
   matt.hinz:
     aws_groups:
     - apponcall
