@@ -133,7 +133,7 @@ check_expiring_certificates:
   script:
     - *bundle_install
     - bundle exec rake db:setup --trace
-    - bundle exec rake certs:print_expiring
+    - bundle exec rake certs:print_expiring[0]
 
 # Build a container image async, and don't block CI tests
 # Cache intermediate images for 1 week (168 hours)
