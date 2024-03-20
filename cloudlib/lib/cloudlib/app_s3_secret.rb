@@ -143,7 +143,7 @@ module Cloudlib
         tempfile = Tempfile.new([base, ext])
         tempfile_copy = Tempfile.new([base, 'copy', ext])
 
-        download(destination: tempfile.path)
+        object = download(destination: tempfile.path)
 
         FileUtils.copy(tempfile.path, tempfile_copy.path)
 
@@ -175,6 +175,20 @@ module Cloudlib
         end
 
         if autoconfirm
+          current_object = s3_client.get_object(
+            bucket: bucket,
+            key: prefix,
+          )
+
+          if current_object.version_id != object.version_id
+            STDERR.puts <<~ERR
+            #{basename}: The file version has changed since editing started.
+            Version changed to #{current_object.version_id}, but we expected to see #{object.version_id}.
+
+            Aborting to avoid overwriting other changes.
+            ERR
+            exit 1
+          end
           upload(source: tempfile.path) if !dry_run?
         else
           STDOUT.puts "#{basename}: Upload changes to S3? (y/n)"
@@ -183,6 +197,21 @@ module Cloudlib
 
           input = tty_in.read(1)
           if input == 'y'
+            current_object = s3_client.get_object(
+              bucket: bucket,
+              key: prefix,
+            )
+
+            if current_object.version_id != object.version_id
+              STDERR.puts <<~ERR
+              #{basename}: The file version has changed since editing started.
+              Version changed to #{current_object.version_id}, but we expected to see #{object.version_id}.
+
+              Aborting to avoid overwriting other changes.
+              ERR
+              exit 1
+            end
+
             upload(source: tempfile.path) if !dry_run?
           else
             STDERR.puts "#{basename}: diff not approved, not uploading to S3"
