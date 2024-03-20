@@ -683,6 +683,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people
   michael.fay:
     aws_groups:
     - finops
