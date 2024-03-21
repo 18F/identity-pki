@@ -144,7 +144,7 @@ users:
     - ahirshman
   anthony.barbara:
     aws_groups:
-    - secopsnonprod
+    - secops
     ec2_username:
     - abarbara
     gitlab_groups:
