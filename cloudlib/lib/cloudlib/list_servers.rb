@@ -40,6 +40,13 @@ module Cloudlib
       'az' => 'AZ',
     }.freeze
 
+    COMPACT_HEADERS = %w[
+      instance-id
+      name
+      state
+      uptime
+    ]
+
     DEFAULT_HEADERS = %w[
       instance-id
       image-id
@@ -68,10 +75,12 @@ module Cloudlib
       uptime
     ].freeze
 
-    def self.data_for_instances(instances, headers: nil, long_headers: false)
+    def self.data_for_instances(instances, headers: nil, long_headers: false, compact_headers: false)
       unless headers
         if long_headers
           headers = LONG_HEADERS + OPTIONAL_HEADERS
+        elsif compact_headers
+          headers = COMPACT_HEADERS + OPTIONAL_HEADERS
         else
           headers = DEFAULT_HEADERS + OPTIONAL_HEADERS
         end

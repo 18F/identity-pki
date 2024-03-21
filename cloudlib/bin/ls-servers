@@ -113,6 +113,10 @@ Options:
       find_opts[:env] = val
     end
 
+    opts.on('-c', '--compact', 'Reduce the number of columns displayed') do
+      data_for_instances_opts[:compact_headers] = true
+    end
+
     opts.on('-l', '--long', 'Use long header listing') do
       data_for_instances_opts[:long_headers] = true
     end
@@ -169,6 +173,12 @@ Options:
   if find_opts.reject{|k, v| k == :states}.empty?
     STDERR.puts optparse
     STDERR.puts "\n#{basename}: must pass at least one filter (-e, -n, etc.)"
+    exit 1
+  end
+
+  if data_for_instances_opts[:long_headers] && data_for_instances_opts[:compact_headers]
+    STDERR.puts optparse
+    STDERR.puts "\n#{basename}: cannot specify both --long and --compact."
     exit 1
   end
 
