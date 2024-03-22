@@ -85,6 +85,15 @@ variable "ip_reputation_ruleset_exclusions" {
   default     = []
 }
 
+variable "anonymous_ip_ruleset_actions" {
+  description = "Actions to take for rules in AWSManagedRulesAnonymousIpList"
+  type        = map(string)
+  default = {
+    "AnonymousIPList"       = "count",
+    "HostingProviderIPList" = "count"
+  }
+}
+
 variable "common_ruleset_exclusions" {
   description = "List of rules to exclude for AWSManagedRulesCommonRuleSet"
   type        = list(string)

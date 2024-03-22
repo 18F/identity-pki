@@ -638,6 +638,67 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
+  rule {
+    name     = "AWSManagedRulesAnonymousIpList"
+    priority = 650
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAnonymousIpList"
+        vendor_name = "AWS"
+
+        scope_down_statement {
+          byte_match_statement {
+            field_to_match {
+              uri_path {}
+            }
+            positional_constraint = "CONTAINS"
+            search_string         = "/phone_setup"
+            text_transformation {
+              priority = 0
+              type     = "LOWERCASE"
+            }
+          }
+        }
+
+        dynamic "rule_action_override" {
+          for_each = var.anonymous_ip_ruleset_actions
+
+          content {
+            name = rule_action_override.key
+
+            action_to_use {
+              dynamic "block" {
+                for_each = rule_action_override.value == "block" ? [1] : []
+                content {}
+              }
+
+              dynamic "count" {
+                for_each = rule_action_override.value == "count" ? [1] : []
+                content {}
+              }
+
+              dynamic "challenge" {
+                for_each = rule_action_override.value == "challenge" ? [1] : []
+                content {}
+              }
+            }
+          }
+        }
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${local.web_acl_name}-AWSManagedRulesAnonymousIpList-metric"
+      sampled_requests_enabled   = true
+    }
+  }
+
   dynamic "rule" {
     # MUST match var.header_block_regex in terraform/core or terraform/gitlab!
     for_each = length(var.header_block_regex) >= 1 ? [1] : []

@@ -20,6 +20,11 @@ module "main" {
   enforce_rate_limit    = true
   geo_allow_list        = [] # allow all countries in app WAFv2
 
+  anonymous_ip_ruleset_actions = {
+    "AnonymousIPList"       = "count",
+    "HostingProviderIPList" = "block"
+  }
+
   waf_alert_actions  = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
   ddos_alert_actions = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
 
@@ -57,6 +62,11 @@ module "cloudfront-waf" {
   enforce_rate_limit               = true
   email_password_rate_limit_per_ip = 100
   geo_allow_list                   = [] # allow all countries in app WAFv2
+
+  anonymous_ip_ruleset_actions = {
+    "AnonymousIPList"       = "count",
+    "HostingProviderIPList" = "block"
+  }
 
   waf_alert_actions = ["arn:aws:sns:us-east-1:894947205914:slack-otherevents"]
 }

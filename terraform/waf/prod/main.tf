@@ -20,6 +20,11 @@ module "main" {
   waf_alert_blocked_threshold = "1500"
   geo_allow_list              = [] # allow all countries in app WAFv2
 
+  anonymous_ip_ruleset_actions = {
+    "AnonymousIPList"       = "count",
+    "HostingProviderIPList" = "block"
+  }
+
   waf_alert_actions  = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
   ddos_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
 
@@ -56,6 +61,11 @@ module "cloudfront-waf" {
   enforce_rate_limit               = true
   email_password_rate_limit_per_ip = 300
   geo_allow_list                   = [] # allow all countries in app WAFv2
+
+  anonymous_ip_ruleset_actions = {
+    "AnonymousIPList"       = "count",
+    "HostingProviderIPList" = "block"
+  }
 
   # populate to define rules to COUNT (and BLOCK all others),
   # or leave blank to skip applying the bot control ruleset
