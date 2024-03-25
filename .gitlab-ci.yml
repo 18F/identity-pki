@@ -727,6 +727,7 @@ env-timnit:
 
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
+  timeout: 2h
   environment:
     name: $env
     url: $url
