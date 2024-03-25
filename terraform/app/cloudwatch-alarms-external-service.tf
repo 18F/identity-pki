@@ -70,7 +70,7 @@ EOM
   period      = 900
   statistic   = "Sum"
 
-  alarm_actions       = local.low_priority_alarm_actions
+  alarm_actions       = local.moderate_priority_alarm_actions
   comparison_operator = "GreaterThanThreshold"
   threshold           = var.idv_high_proofing_resolution_result_missing_threshold
   evaluation_periods  = 1
