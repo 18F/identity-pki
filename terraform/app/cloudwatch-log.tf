@@ -1,5 +1,5 @@
 locals {
-  retention_days = (var.env_name == "prod" || var.env_name == "staging" ? "3653" : "30")
+  retention_days = (local.acct_type == "prod" ? "3653" : "30")
 }
 
 resource "aws_cloudwatch_log_group" "kms_log" {
