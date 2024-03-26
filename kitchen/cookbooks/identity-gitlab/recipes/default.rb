@@ -170,7 +170,7 @@ template '/etc/gitlab/gitlab.rb' do
       ses_password: ses_password,
       runner_token: runner_token,
   }.merge(saml_params))
-  notifies :run, 'execute[reconfigure_gitlab]', :delayed
+  # notifies :run, 'execute[reconfigure_gitlab]', :delayed
   sensitive true
 end
 
@@ -235,6 +235,7 @@ execute 'chgrp git /etc/login.gov/keys/id_ecdsa.identity-servers'
 
 package 'gitlab-ee' do
   version node['identity_gitlab']['gitlab_version']
+  timeout 1800
 end
 
 # Loosen permissions on gitaly data directory on 20.04
@@ -769,88 +770,89 @@ template '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/gitlabc
   notifies :restart, 'service[amazon-cloudwatch-agent]', :delayed
 end
 
-# Run PlantUML service
-plantuml_version = 'v1.2020.10'
-# Tomcat8 is able to apt install in 18.04
-if node['platform_version'].to_f == 18.04
-  tomcat_version = '8'
-  tomcat_user = 'tomcat8'
-  tomcat_group = 'tomcat8'
-# Tomcat8 is not a package in 20.04, need to migrate to tomcat9
-elsif node['platform_version'].to_f == 20.04
-  tomcat_version = '9'
-  tomcat_user = 'tomcat'
-  tomcat_group = 'tomcat'
-  # Tomcat9 package install fails if tomcat user:group isn't created
-  group 'tomcat' do
-    action :create
-  end
+# # XXX disable plantuml for now because it adds 5-8 minutes onto the deploy and the ASGs are giving up on recycling hosts.
+# # Run PlantUML service
+# plantuml_version = 'v1.2020.10'
+# # Tomcat8 is able to apt install in 18.04
+# if node['platform_version'].to_f == 18.04
+#   tomcat_version = '8'
+#   tomcat_user = 'tomcat8'
+#   tomcat_group = 'tomcat8'
+# # Tomcat8 is not a package in 20.04, need to migrate to tomcat9
+# elsif node['platform_version'].to_f == 20.04
+#   tomcat_version = '9'
+#   tomcat_user = 'tomcat'
+#   tomcat_group = 'tomcat'
+#   # Tomcat9 package install fails if tomcat user:group isn't created
+#   group 'tomcat' do
+#     action :create
+#   end
 
-  user 'tomcat' do
-    comment 'Tomcat user'
-    gid 'tomcat'
-    shell '/bin/false'
-    home '/opt/tomcat'
-    action :create
-  end
-end
-package "tomcat#{tomcat_version}"
-package 'openjdk-8-jdk'
-package 'graphviz'
+#   user 'tomcat' do
+#     comment 'Tomcat user'
+#     gid 'tomcat'
+#     shell '/bin/false'
+#     home '/opt/tomcat'
+#     action :create
+#   end
+# end
+# package "tomcat#{tomcat_version}"
+# package 'openjdk-8-jdk'
+# package 'graphviz'
 
-service "tomcat#{tomcat_version}" do
-  action :nothing
-  supports({
-    restart: true,
-    status: true,
-    start: true,
-    stop: true,
-  })
-end
+# service "tomcat#{tomcat_version}" do
+#   action :nothing
+#   supports({
+#     restart: true,
+#     status: true,
+#     start: true,
+#     stop: true,
+#   })
+# end
 
-remote_file 'plantuml.war' do
-  path "/var/lib/tomcat#{tomcat_version}/webapps/plantuml.war"
-  source "https://github.com/plantuml/plantuml-server/releases/download/#{plantuml_version}/plantuml-#{plantuml_version}.war"
-  owner tomcat_user
-  group tomcat_group
-  mode '600'
-  notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
-end
+# remote_file 'plantuml.war' do
+#   path "/var/lib/tomcat#{tomcat_version}/webapps/plantuml.war"
+#   source "https://github.com/plantuml/plantuml-server/releases/download/#{plantuml_version}/plantuml-#{plantuml_version}.war"
+#   owner tomcat_user
+#   group tomcat_group
+#   mode '600'
+#   notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+# end
 
-cookbook_file 'tomcat server.xml' do
-  path "/etc/tomcat#{tomcat_version}/server.xml"
-  source 'server.xml'
-  owner 'root'
-  group tomcat_group
-  mode '640'
-  notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
-end
+# cookbook_file 'tomcat server.xml' do
+#   path "/etc/tomcat#{tomcat_version}/server.xml"
+#   source 'server.xml'
+#   owner 'root'
+#   group tomcat_group
+#   mode '640'
+#   notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+# end
 
-if node['platform_version'].to_f == 18.04
-  cookbook_file 'tomcat env vars' do
-    path "/etc/default/tomcat#{tomcat_version}"
-    source "tomcat#{tomcat_version}"
-    owner 'root'
-    group 'root'
-    mode '644'
-    notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
-  end
-elsif node['platform_version'].to_f == 20.04
-  cookbook_file 'tomcat systemd unit' do
-    path "/usr/lib/systemd/system/tomcat#{tomcat_version}.service"
-    source "tomcat#{tomcat_version}.service"
-    owner 'root'
-    group 'root'
-    mode '644'
-    notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
-  end
+# if node['platform_version'].to_f == 18.04
+#   cookbook_file 'tomcat env vars' do
+#     path "/etc/default/tomcat#{tomcat_version}"
+#     source "tomcat#{tomcat_version}"
+#     owner 'root'
+#     group 'root'
+#     mode '644'
+#     notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+#   end
+# elsif node['platform_version'].to_f == 20.04
+#   cookbook_file 'tomcat systemd unit' do
+#     path "/usr/lib/systemd/system/tomcat#{tomcat_version}.service"
+#     source "tomcat#{tomcat_version}.service"
+#     owner 'root'
+#     group 'root'
+#     mode '644'
+#     notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+#   end
 
-  execute 'reload_systemctl_units' do
-    command 'systemctl daemon-reload'
-    action :run
-    notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
-  end
-end
+#   execute 'reload_systemctl_units' do
+#     command 'systemctl daemon-reload'
+#     action :run
+#     notifies :restart, "service[tomcat#{tomcat_version}]", :delayed
+#   end
+# end
 
 # random gitlab maintenance tasks
 # https://docs.gitlab.com/ee/administration/raketasks/maintenance.html
