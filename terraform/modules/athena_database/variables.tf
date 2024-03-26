@@ -14,3 +14,11 @@ variable "region" {
 variable "apps_enabled" {
 }
 
+variable "queries" {
+  type = list(object({
+    name  = string
+    query = string
+  }))
+  default     = []
+  description = "List of queries to be saved in the athena."
+}
