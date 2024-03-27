@@ -3,8 +3,6 @@ include:
 
 check_aws_ip_cidr_ranges:
   image: cimg/ruby:3.0
-  # Temporarily allow failure until OBP allows requests for IP address fetching
-  allow_failure: true
   script:
     - ./bin/oneoffs/update-aws-cidrs
     - |
