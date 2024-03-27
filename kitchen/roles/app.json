@@ -10,7 +10,8 @@
     "recipe[login_dot_gov::nginx_base]",
     "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::dashboard]",
-    "recipe[login_dot_gov::common_scripts]"
+    "recipe[login_dot_gov::common_scripts]",
+    "recipe[login_dot_gov::elastic_agent]"
   ],
   "env_run_lists": {}
 }

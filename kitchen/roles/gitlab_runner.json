@@ -16,7 +16,8 @@
   "run_list": [
     "role[base]",
     "recipe[login_dot_gov::common_scripts]",
-    "recipe[identity-gitlab::runner]"
+    "recipe[identity-gitlab::runner]",
+    "recipe[login_dot_gov::elastic_agent]"
   ],
   "env_run_lists": {
   }

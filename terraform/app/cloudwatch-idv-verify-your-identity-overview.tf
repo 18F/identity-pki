@@ -160,11 +160,39 @@ module "dashboard-idv-verify-your-identity-overview" {
       {
         "height" : 3,
         "width" : 24,
-        "y" : 19,
+        "y" : 30,
         "x" : 0,
         "type" : "text",
         "properties" : {
           "markdown" : "### Dig Even Deeper\nFor a more detailed breakdown of which attributes are failing, see the [Identity resolution attribute failures dashboard](#dashboards:name=prod-idv-resolution-failed-attributes).\n\n\nFor a more detailed breakdown of the AAMVA failures, see the [mva timeouts dashboard](#dashboards:name=prod-idv-mva-timeouts)."
+        }
+      },
+      {
+        "height" : 11,
+        "width" : 17,
+        "y" : 19,
+        "x" : 0,
+        "type" : "log",
+        "properties" : {
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider) | filter name = 'IdV: doc auth verify proofing results' and properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n| fields properties.event_properties.proofing_results.context.stages.state_id.success as aamva_success, ispresent(properties.event_properties.proofing_results.context.stages.state_id.exception) as aamva_exception\n| fields !aamva_success and !aamva_exception as aamva_failure\n| fields properties.event_properties.proofing_results.context.stages.state_id.state_id_jurisdiction\tas state_id_jurisdiction\n| stats avg(aamva_exception) as exception_rate by state_id_jurisdiction\n| sort exception_rate desc\n| limit 20\n",
+          "region" : var.region,
+          "stacked" : false,
+          "title" : "Exception rate for 20 states with highest exception rate",
+          "view" : "bar"
+        }
+      },
+      {
+        "height" : 11,
+        "width" : 7,
+        "y" : 19,
+        "x" : 17,
+        "type" : "log",
+        "properties" : {
+          "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter ispresent(properties.service_provider) or not ispresent(properties.service_provider)  | filter name = 'IdV: doc auth verify proofing results' and properties.event_properties.proofing_results.context.stages.state_id.mva_exception\n| fields properties.event_properties.proofing_results.context.stages.state_id.success as aamva_success, ispresent(properties.event_properties.proofing_results.context.stages.state_id.exception) as aamva_exception\n| fields !aamva_success and !aamva_exception as aamva_failure\n| fields properties.event_properties.proofing_results.context.stages.state_id.state_id_jurisdiction\tas state_id_jurisdiction\n| stats avg(aamva_exception) as exception_rate, count(*) as request_count, sum(aamva_exception) as exception_count by state_id_jurisdiction\n| sort exception_rate desc\n",
+          "region" : var.region,
+          "stacked" : false,
+          "title" : "Exception rate for top states",
+          "view" : "table"
         }
       }
     ]

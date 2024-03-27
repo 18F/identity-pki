@@ -15,7 +15,8 @@
     "recipe[login_dot_gov::idp_web]",
     "recipe[login_dot_gov::idp_prewarm]",
     "recipe[login_dot_gov::idp_pt]",
-    "recipe[login_dot_gov::common_scripts]"
+    "recipe[login_dot_gov::common_scripts]",
+    "recipe[login_dot_gov::elastic_agent]"
   ],
   "env_run_lists": {}
 }

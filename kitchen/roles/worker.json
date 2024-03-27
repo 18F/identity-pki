@@ -13,7 +13,8 @@
     "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::pgbouncer_autoconfig]",
     "recipe[login_dot_gov::idp_worker_base]",
-    "recipe[login_dot_gov::common_scripts]"
+    "recipe[login_dot_gov::common_scripts]",
+    "recipe[login_dot_gov::elastic_agent]"
   ],
   "env_run_lists": {
   }
