@@ -19,7 +19,8 @@
     "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::dhparam]",
     "recipe[identity-pivcac]",
-    "recipe[login_dot_gov::common_scripts]"
+    "recipe[login_dot_gov::common_scripts]",
+    "recipe[login_dot_gov::elastic_agent]"
   ],
   "env_run_lists": {
   }
