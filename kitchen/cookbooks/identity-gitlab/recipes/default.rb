@@ -59,17 +59,28 @@ email_from = "gitlab@#{external_fqdn}"
 external_url = "https://#{external_fqdn}"
 pages_external_url = "https://pages.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}/"
 
-target_url = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
-               'https://secure.login.gov/api/saml/auth2023'
-             else
-               'https://idp.int.identitysandbox.gov/api/saml/auth2023'
-             end
+# fingerprint is the SHA1 of the DER form of the certificate
+# Where certificate.cert are the certificates copied from https://developers.login.gov/saml/getting-started/#annual-certificate-rotation
+# I am sorry for the following one-liner:
+# openssl x509 -in certificate.cert -outform DER | openssl sha1 | sed 's/(stdin)= //g'| sed 's/../&:/g; s/:$//' | awk '{print toupper($0)}'
+# TODO: Delete the S3 fingerprints in ConfigLoader.load_config(node, 'saml_idp_cert_fingerprint', common: false).chomp,
+saml_config = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
+                {
+                  target_url: 'https://secure.login.gov/api/saml/auth2024',
+                  cert_fingerprint: '2F:C4:2B:69:85:4A:45:84:41:0E:C9:4D:A6:2F:78:AF:FE:63:31:A8',
+                }
+              else
+                {
+                  target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2024',
+                  cert_fingerprint: '03:0B:68:E7:C4:79:B5:DF:56:7B:8E:A1:9F:E3:67:CC:EC:2F:3F:22',
+                }
+              end
 
 # Login.gov SAML parameters
 saml_params = {
   saml_assertion_consumer_service_url: "#{external_url}/users/auth/saml/callback",
-  saml_idp_cert_fingerprint: ConfigLoader.load_config(node, 'saml_idp_cert_fingerprint', common: false).chomp,
-  saml_idp_sso_target_url: target_url,
+  saml_idp_cert_fingerprint: saml_config[:cert_fingerprint],
+  saml_idp_sso_target_url: saml_config[:target_url],
   saml_issuer: "urn:gov:gsa:openidconnect.profiles:sp:sso:login_gov:gitlab_#{node.chef_environment}",
   saml_name_identifier_format: 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
   saml_certificate: ConfigLoader.load_config(node, 'saml_certificate', common: false).chomp,
