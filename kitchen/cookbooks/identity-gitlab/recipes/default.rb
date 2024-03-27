@@ -67,12 +67,12 @@ pages_external_url = "https://pages.#{node.chef_environment}.#{node['login_dot_g
 saml_config = if node.chef_environment == 'production' || node.chef_environment == 'gitstaging'
                 {
                   target_url: 'https://secure.login.gov/api/saml/auth2024',
-                  cert_fingerprint: '2F:C4:2B:69:85:4A:45:84:41:0E:C9:4D:A6:2F:78:AF:FE:63:31:A8',
+                  cert_fingerprint: '03:0B:68:E7:C4:79:B5:DF:56:7B:8E:A1:9F:E3:67:CC:EC:2F:3F:22',
                 }
               else
                 {
                   target_url: 'https://idp.int.identitysandbox.gov/api/saml/auth2024',
-                  cert_fingerprint: '03:0B:68:E7:C4:79:B5:DF:56:7B:8E:A1:9F:E3:67:CC:EC:2F:3F:22',
+                  cert_fingerprint: '2F:C4:2B:69:85:4A:45:84:41:0E:C9:4D:A6:2F:78:AF:FE:63:31:A8',
                 }
               end
 
