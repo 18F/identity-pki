@@ -129,17 +129,6 @@ execute 'resize2fs_securefolders-variables' do
   group 'root'
 end
 
-# The elastic stuff is causing deploys to take too long, so stop them and restart them at the end
-execute 'stop_elastic_stuff' do
-  command 'systemctl stop elastic-agent.service ; systemctl stop ElasticEndpoint.service'
-  action :run
-  notifies :run, 'execute[start_elastic_stuff]', :delayed
-end
-execute 'start_elastic_stuff' do
-  command 'systemctl start elastic-agent.service ; systemctl start ElasticEndpoint.service'
-  action :nothing
-end
-
 package 'postfix'
 package 'openssh-server'
 package 'ca-certificates'
