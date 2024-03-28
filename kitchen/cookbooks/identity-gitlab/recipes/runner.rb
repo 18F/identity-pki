@@ -32,6 +32,19 @@ filesystem 'docker' do
   action [:create, :enable, :mount]
 end
 
+# The elastic stuff is causing deploys to take too long, so stop them and restart them at the end
+execute 'stop_elastic_stuff' do
+  command 'systemctl stop elastic-agent.service ; systemctl stop ElasticEndpoint.service'
+  action :run
+  notifies :run, 'execute[start_elastic_stuff]', :delayed
+  ignore_failure true
+end
+execute 'start_elastic_stuff' do
+  command 'systemctl start elastic-agent.service ; systemctl start ElasticEndpoint.service'
+  action :nothing
+  ignore_failure true
+end
+
 packagecloud_repo 'runner/gitlab-runner' do
   type 'deb'
   base_url 'https://packages.gitlab.com/'
