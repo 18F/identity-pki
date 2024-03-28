@@ -163,6 +163,17 @@ users:
     - benjaminchait
     email:
     - benjamin.chait@gsa.gov
+  birane.seck:
+    aws_groups:
+    - appdev
+    - devopsnonprod
+    gitlab_groups:
+    - devops
+    - appdev
+    - lg-all
+    - lg-public
+    ec2_username:
+    - bseck
   brittany.greaner:
     aws_groups:
     - apponcall
