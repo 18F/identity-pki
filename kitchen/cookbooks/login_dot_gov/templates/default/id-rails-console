@@ -8,11 +8,11 @@ trap '' 1 2 3 15 19 20
 
 set -eu
 
-app=idp
+app=""
 APP_USER="${APP_USER-websrv}"
 CONSOLE_INFO=()
 
-ENV_VARS=("app=$app")
+ENV_VARS=()
 LOGIN_TASK_LOG_LEVEL='warn'
 
 usage() {
@@ -79,14 +79,24 @@ while [ $# -gt 0 ]; do
     ;;
     *)
       app="$1"
-      if [[ ! -d "/srv/${app}/current" ]] ; then
-        echo "Directory '/srv/${app}/current' not found! Verify app name and run again"
-        exit 1
-      fi
     ;;
   esac
   shift
 done
+
+if [[ -n "$app" && ! -d "/srv/${app}/current" ]] ; then
+  echo "Directory '/srv/${app}/current' not found! Verify app name and run again"
+  exit 1
+elif [[ -z "$app" ]] ; then
+  found_app=$(find /srv -maxdepth 2 -name "current" -type l 2>/dev/null | head -n 1 | cut -d/ -f 3)
+  if [[ -z "$found_app" ]]; then
+    echo "Cound not find a /srv/*/current symlink"
+    exit 1
+  fi
+  app="$found_app"
+fi
+
+ENV_VARS+=("app=$app")
 
 # Pass through ALLOW_CONSOLE_DB_WRITE_ACCESS, if set
 if [ -n "${ALLOW_CONSOLE_DB_WRITE_ACCESS-}" ]; then
