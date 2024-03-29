@@ -274,6 +274,10 @@ end
   execute "ln -fns /srv/idp/shared/#{dir} /srv/idp/releases/chef/#{dir}" unless node['login_dot_gov']['setup_only']
 end
 
+execute 'Fix pid directory permissions' do
+  command "chmod -c 777 /srv/idp/releases/chef/tmp/pids"
+end
+
 if node['login_dot_gov']['use_idp_puma'] == true && primary_role == 'idp'
   # Generate certificate for Puma
   key_path = "#{release_path}/idp-server.key"
