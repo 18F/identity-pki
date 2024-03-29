@@ -12,7 +12,7 @@ module "pivcac_unhealthy_instances_alerts" {
   asg_name = "${var.env_name}-pivcac"
   elb_name = "${var.env_name}-pivcac"
 
-  alarm_actions = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "low_pivcac_mfa_activity" {
@@ -40,7 +40,7 @@ EOM
 
   treat_missing_data = "breaching"
 
-  alarm_actions = local.low_priority_alarm_actions
-  ok_actions    = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
+  ok_actions    = local.moderate_priority_alarm_actions
 }
 

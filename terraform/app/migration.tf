@@ -42,7 +42,7 @@ module "migration_uw2" {
   proxy_server                     = var.proxy_server
   root_domain                      = var.root_domain
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
-  slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  slack_events_sns_hook_arn        = var.slack_alarms_sns_hook_arn
 }
 
 ##### moved blocks, remove once state moves are complete
@@ -126,5 +126,5 @@ module "migration_use1" {
   region                           = "us-east-1"
   root_domain                      = var.root_domain
   s3_secrets_bucket_name           = local.secrets_bucket_ue1
-  slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn_use1
+  slack_events_sns_hook_arn        = var.slack_alarms_sns_hook_arn_use1
 }

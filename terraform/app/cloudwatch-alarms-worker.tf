@@ -368,7 +368,7 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Worke
 EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
@@ -390,7 +390,7 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Worke
 EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_perform_time_alarm" {
@@ -412,7 +412,7 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Worke
 EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_threatmetrix_js_verification_alarm" {
@@ -434,6 +434,6 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-ThreatMetrix-Javas
 EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
+  alarm_actions             = local.moderate_priority_alarm_actions
 }
 

@@ -10,7 +10,7 @@ module "idp_user_data" {
   env                    = var.env_name
   domain                 = var.root_domain
   s3_secrets_bucket_name = data.aws_s3_bucket.secrets.bucket
-  sns_topic_arn          = var.slack_events_sns_hook_arn
+  sns_topic_arn          = var.slack_alarms_sns_hook_arn
 
   chef_download_url    = var.chef_download_url
   chef_download_sha256 = var.chef_download_sha256
@@ -209,7 +209,7 @@ module "app_low_resource_alerts" {
   env_name            = var.env_name
   alert_handle        = ""
   paths               = ["/", "/var", "/var/log", "/srv"]
-  alarm_actions       = var.env_name == "prod" ? local.high_priority_alarm_actions : local.low_priority_alarm_actions
+  alarm_actions       = var.env_name == "prod" ? local.high_priority_alarm_actions : local.moderate_priority_alarm_actions
   high_disk_threshold = 85
   high_mem_threshold  = 85
   treat_missing_data  = "notBreaching"

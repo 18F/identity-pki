@@ -34,7 +34,7 @@ module "dnssec" {
   dnssec_errors_alarm_desc          = "${local.dnssec_runbook_prefix}_errors"
   dnssec_zone_name                  = aws_route53_zone.pivcac_zone.name
   dnssec_zone_id                    = aws_route53_zone.pivcac_zone.id
-  alarm_actions                     = local.low_priority_alarm_actions
+  alarm_actions                     = local.moderate_priority_alarm_actions
   protect_resources                 = false
   # ^ don't create an IAM policy preventing disabling/deletion of pivcac DNSSEC stuff
 }

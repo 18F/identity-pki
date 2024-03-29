@@ -22,7 +22,7 @@ module "outboundproxy_uw2" {
   env_name                             = var.env_name
   root_domain                          = var.root_domain
   default_ami_id                       = local.account_default_ami_id
-  slack_events_sns_hook_arn            = var.slack_events_sns_hook_arn
+  slack_events_sns_hook_arn            = var.slack_alarms_sns_hook_arn
   name                                 = var.name
   region                               = var.region
   fisma_tag                            = var.fisma_tag
@@ -147,7 +147,7 @@ module "outboundproxy_use1" {
   default_ami_id                       = local.base_ami_id_ue1
   external_role                        = module.application_iam_roles.obproxy_iam_role_name
   external_instance_profile            = module.outboundproxy_uw2.proxy_instance_profile
-  slack_events_sns_hook_arn            = var.slack_events_sns_hook_arn_use1
+  slack_events_sns_hook_arn            = var.slack_alarms_sns_hook_arn_use1
   name                                 = var.name
   region                               = "us-east-1"
   fisma_tag                            = var.fisma_tag

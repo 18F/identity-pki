@@ -56,7 +56,7 @@ module "idp_unhealthy_instances_alerts" {
   alb_arn_suffix          = aws_alb.idp.arn_suffix
   target_group_arn_suffix = aws_alb_target_group.idp-ssl.arn_suffix
 
-  alarm_actions = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "low_proofing_activity" {
@@ -80,8 +80,8 @@ EOM
 
   treat_missing_data = "breaching"
 
-  alarm_actions = local.low_priority_alarm_actions
-  ok_actions    = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
+  ok_actions    = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_activity" {
@@ -109,8 +109,8 @@ EOM
 
   treat_missing_data = "breaching"
 
-  alarm_actions = local.low_priority_alarm_actions
-  ok_actions    = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
+  ok_actions    = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_success" {
@@ -164,8 +164,8 @@ EOM
 
   treat_missing_data = "breaching"
 
-  alarm_actions = local.low_priority_alarm_actions
-  ok_actions    = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
+  ok_actions    = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "critical_low_sms_mfa_success" {
@@ -294,7 +294,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_too_many_healthy_instances_alert" {
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "worker_too_many_healthy_instances_alert" {
@@ -316,7 +316,7 @@ resource "aws_cloudwatch_metric_alarm" "worker_too_many_healthy_instances_alert"
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "pii_spill_detector_alarm" {
@@ -375,7 +375,7 @@ resource "aws_cloudwatch_metric_alarm" "low-sp-oidc-token-success" {
   alarm_description  = <<EOM
 ${var.env_name}: Low OpenID Connect Token success - ${each.value.sp_name} (${each.value.client_id})
 
-Less than ${each.value.threshold} successful server to server calls to /api/openid_connect/token in the last 5 minutes. 
+Less than ${each.value.threshold} successful server to server calls to /api/openid_connect/token in the last 5 minutes.
 See https://github.com/18F/identity-devops/wiki/Runbook:-OIDC-Connect-Token-Low-Success-Rate
 EOM
 }

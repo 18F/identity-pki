@@ -12,13 +12,13 @@ module "kms_logging" {
   source = "github.com/18F/identity-terraform//kms_log?ref=a842c4a8b111436179872f49f872447ceab93d1d"
   #source = "../../../identity-terraform/kms_log"
 
-  sqs_alarm_actions                       = var.kms_log_alerts_enabled ? [var.slack_events_sns_hook_arn] : []
-  sqs_ok_actions                          = var.kms_log_alerts_enabled ? [var.slack_events_sns_hook_arn] : []
+  sqs_alarm_actions                       = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []
+  sqs_ok_actions                          = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []
   env_name                                = var.env_name
-  sns_topic_dead_letter_arn               = var.slack_events_sns_hook_arn
+  sns_topic_dead_letter_arn               = var.slack_alarms_sns_hook_arn
   kinesis_shard_count                     = var.kms_log_kinesis_shards
   ec2_kms_arns                            = local.kms_arns
-  alarm_sns_topic_arns                    = var.kms_log_alerts_enabled ? [var.slack_events_sns_hook_arn] : []
+  alarm_sns_topic_arns                    = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []
   kinesis_retention_hours                 = var.kms_log_kinesis_retention_hours
   ct_queue_message_retention_seconds      = var.kms_log_ct_queue_message_retention_seconds
   dynamodb_retention_days                 = var.kms_log_dynamodb_retention_days
@@ -150,7 +150,7 @@ module "kms_keymaker_multiregion_primary_uw2" {
   env_name            = var.env_name
   ec2_kms_arns        = local.kms_arns
   sqs_queue_arn       = module.kms_logging.kms-ct-events-queue
-  alarm_sns_topic_arn = var.slack_events_sns_hook_arn
+  alarm_sns_topic_arn = var.slack_alarms_sns_hook_arn
 }
 
 module "kms_keymaker_multiregion_replica_ue1" {
@@ -165,7 +165,7 @@ module "kms_keymaker_multiregion_replica_ue1" {
   ec2_kms_arns    = local.kms_arns
   sqs_queue_arn   = module.kms_logging.kms-ct-events-queue
   primary_key_arn = module.kms_keymaker_multiregion_primary_uw2.multi_region_primary_key_arn
-  # alarm_sns_topic_arn = var.slack_events_sns_hook_arn
+  # alarm_sns_topic_arn = var.slack_alarms_sns_hook_arn
 }
 
 moved {
