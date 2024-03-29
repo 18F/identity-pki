@@ -57,8 +57,8 @@ resource "aws_iam_role_policy_attachment" "dms_vpc_management" {
 }
 
 resource "aws_cloudwatch_log_group" "dms" {
-  name              = "${var.env_name}-dms-tasks"
-  retention_in_days = 365
+  name              = "dms-tasks-${aws_dms_replication_instance.dms.id}"
+  retention_in_days = var.log_retention_days
 }
 
 resource "aws_dms_certificate" "dms" {

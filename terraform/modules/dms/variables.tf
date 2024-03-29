@@ -63,3 +63,7 @@ variable "subnet_ids" {
   description = "List of subnet ids"
   type        = list(any)
 }
+
+variable "log_retention_days" {
+  description = "How long to keep dms logs"
+}
