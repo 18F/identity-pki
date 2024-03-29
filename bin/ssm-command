@@ -135,10 +135,22 @@ if [[ -z ${AUTORUN} ]] ; then
 fi
 
 echo && echo_cyan "Running $TF_ENV-ssm-cmd-$DOC..."
+
+# determine whether or not to log command output; send to ssm-sessions if so
+CONFIG_LINE=$(cat ${GIT_DIR}/terraform/app/ssm.tf | grep -n "${DOC}" |
+              grep ' = {' | awk -F: '{print $1}')
+LOGGING=$(cat ${GIT_DIR}/terraform/app/ssm.tf | tail -n +${CONFIG_LINE} |
+          grep -m 1 'logging' | awk '{print $NF}')
+if [[ ${LOGGING} == 'true' ]] ; then
+  CLOUDWATCH_FLAG="CloudWatchOutputEnabled=true,CloudWatchLogGroupName=aws-ssm-sessions-${TF_ENV}"
+else
+  CLOUDWATCH_FLAG="CloudWatchOutputEnabled=false"
+fi
+
 SSM_CMD=$(run aws ssm send-command \
            --document-name "${DOC_NAME}" \
            --targets Key=tag:aws:autoscaling:groupName,Values="${TF_ENV}-${ROLE}" \
-           --cloud-watch-output-config '{"CloudWatchOutputEnabled":true}' \
+           --cloud-watch-output-config "${CLOUDWATCH_FLAG}" \
            --max-concurrency "${CONCUR}" --max-errors "${FAILS}")
 
 CMD_ID=$(echo $SSM_CMD | jq -r '.Command.CommandId')
