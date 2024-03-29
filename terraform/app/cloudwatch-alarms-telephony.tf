@@ -134,8 +134,8 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-V
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
-  alarm_actions             = local.low_priority_alarm_actions
-  ok_actions                = local.low_priority_alarm_actions
+  alarm_actions             = local.moderate_priority_alarm_actions
+  ok_actions                = local.moderate_priority_alarm_actions
 
 
   metric_query {

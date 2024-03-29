@@ -207,7 +207,7 @@ module "cloudfront_idp_cdn_alarms" {
   providers = {
     aws = aws.use1
   }
-  alarm_actions = local.low_priority_alarm_actions_use1
+  alarm_actions = local.moderate_priority_alarm_actions_use1
   dimensions = {
     DistributionId = aws_cloudfront_distribution.idp_static_cdn.id
     Region         = "Global"

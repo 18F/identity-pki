@@ -52,6 +52,7 @@ data "aws_iam_policy_document" "sns-publish-alerts-policy" {
     ]
     resources = [
       var.slack_events_sns_hook_arn,
+      var.slack_alarms_sns_hook_arn,
     ]
   }
 }

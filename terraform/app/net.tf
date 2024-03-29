@@ -756,7 +756,7 @@ module "vpc_flow_cloudwatch_filters" {
   depends_on = [module.network_uw2]
 
   env_name      = var.env_name
-  alarm_actions = [var.slack_events_sns_hook_arn]
+  alarm_actions = [var.slack_alarms_sns_hook_arn]
   vpc_flow_rejections_internal_fields = {
     action  = "action=REJECT"
     srcAddr = "srcAddr=172.16.* || srcAddr=100.106.*"

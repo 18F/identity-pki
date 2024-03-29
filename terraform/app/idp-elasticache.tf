@@ -4,7 +4,7 @@ locals {
     idp = local.idp_redis_clusters
   })
 
-  elasticache_notification_arn = var.enable_redis_notifications ? var.slack_events_sns_hook_arn : ""
+  elasticache_notification_arn = var.enable_redis_notifications ? var.slack_alarms_sns_hook_arn : ""
 
 }
 

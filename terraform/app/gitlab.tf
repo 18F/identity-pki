@@ -62,7 +62,7 @@ module "env-runner" {
   runner_subnet_ids                = [for subnet in module.network_uw2.app_subnet : subnet.id]
   s3_prefix_list_id                = module.network_uw2.s3_prefix_list_id
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
-  slack_events_sns_hook_arn        = var.slack_events_sns_hook_arn
+  slack_events_sns_hook_arn        = var.slack_alarms_sns_hook_arn
   endpoint_security_groups = [
     module.network_uw2.endpoint_sg["kms"],
     module.network_uw2.endpoint_sg["ssm"],

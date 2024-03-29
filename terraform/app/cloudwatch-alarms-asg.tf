@@ -32,7 +32,7 @@ resource "aws_cloudwatch_event_rule" "asg_refresh" {
 resource "aws_cloudwatch_event_target" "asg_refresh" {
   rule      = aws_cloudwatch_event_rule.asg_refresh.name
   target_id = "SendInstanceRefreshEventsToSlackViaSNS"
-  arn       = var.slack_events_sns_hook_arn
+  arn       = var.slack_alarms_sns_hook_arn
 
   input_transformer {
     input_paths = {

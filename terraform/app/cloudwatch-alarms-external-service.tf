@@ -114,7 +114,7 @@ EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions = var.env_name == "prod" ? (
-  local.high_priority_alarm_actions) : local.low_priority_alarm_actions
+  local.high_priority_alarm_actions) : local.moderate_priority_alarm_actions
 
   lifecycle {
     create_before_destroy = true

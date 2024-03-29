@@ -54,7 +54,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_memory" {
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_memory} memory utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
 EOM
-  alarm_actions       = local.low_priority_alarm_actions
+  alarm_actions       = local.moderate_priority_alarm_actions
 
   dimensions = {
     CacheClusterId = each.key
@@ -117,7 +117,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_cpu" {
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_cpu} CPU utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
 EOM
-  alarm_actions       = local.low_priority_alarm_actions
+  alarm_actions       = local.moderate_priority_alarm_actions
 
   dimensions = {
     CacheClusterId = each.key
@@ -179,7 +179,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_currconnections" {
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_currconnections} connections for over 120 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
 EOM
-  alarm_actions       = local.low_priority_alarm_actions
+  alarm_actions       = local.moderate_priority_alarm_actions
 
   dimensions = {
     CacheClusterId = each.key
@@ -241,7 +241,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_replication_lag" {
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_replication_lag} replication lag for over 60 seconds. Please address this to avoid session lock-up or failure.
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
 EOM
-  alarm_actions       = local.low_priority_alarm_actions
+  alarm_actions       = local.moderate_priority_alarm_actions
 
   dimensions = {
     CacheClusterId = each.key
