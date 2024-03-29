@@ -89,7 +89,7 @@ module "worker_aurora_uw2_cloudwatch" {
   type                          = "aurora"
   rds_storage_threshold         = var.rds_storage_threshold
   rds_db                        = module.worker_aurora_uw2.writer_instance
-  alarm_actions                 = local.low_priority_alarm_actions
+  alarm_actions                 = local.moderate_priority_alarm_actions
   unvacummed_transactions_count = var.unvacummed_transactions_count
   db_instance_class             = var.rds_instance_class_worker
 }
