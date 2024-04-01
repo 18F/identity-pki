@@ -1078,3 +1078,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-design-system:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
