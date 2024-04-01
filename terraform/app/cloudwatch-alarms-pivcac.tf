@@ -21,7 +21,7 @@ resource "aws_cloudwatch_metric_alarm" "low_pivcac_mfa_activity" {
   alarm_name        = "${var.env_name}-low_pivcac_mfa_activity"
   alarm_description = <<EOM
 ${var.env_name}: Less than ${var.pivcac_mfa_low_alert_threshold} users have authenticated with PIV or CAC in 60 minutes
-See https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_pivcac_mfa_activity
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_pivcac_mfa_activity
 EOM
 
   namespace = "${var.env_name}/idp-authentication"

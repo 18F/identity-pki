@@ -65,7 +65,7 @@ resource "aws_cloudwatch_metric_alarm" "low_proofing_activity" {
   alarm_name        = "${var.env_name}-low_proofing_activity"
   alarm_description = <<EOM
 ${var.env_name}: Less than ${var.proofing_low_alert_threshold} users have completed ID verifcation in the last hour
-See https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_proofing_activity
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_proofing_activity
 EOM
 
   namespace = "${var.env_name}/idp-ialx"
@@ -90,7 +90,7 @@ resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_activity" {
   alarm_name        = "${var.env_name}-low_sms_mfa_activity"
   alarm_description = <<EOM
 ${var.env_name}: Less than ${var.sms_mfa_low_alert_threshold} users have authenticated with SMS in 10 minutes
-See https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_sms_mfa_activity
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_sms_mfa_activity
 EOM
 
   namespace = "${var.env_name}/idp-authentication"
@@ -118,7 +118,7 @@ resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_success" {
   alarm_name        = "${var.env_name}-low_sms_mfa_success"
   alarm_description = <<EOM
 ${var.env_name}: SMS MFA confirmation success rate less than ${var.sms_mfa_low_success_alert_threshold}% in 10 minutes
-See https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
 EOM
 
   metric_query {
@@ -173,7 +173,7 @@ resource "aws_cloudwatch_metric_alarm" "critical_low_sms_mfa_success" {
   alarm_name        = "${var.env_name}-critical_low_sms_mfa_success"
   alarm_description = <<EOM
 ${var.env_name}: SMS MFA confirmation success rate less than ${var.sms_mfa_low_success_alert_critical_threshold}% in 10 minutes
-See https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
 EOM
 
   metric_query {
@@ -229,7 +229,7 @@ resource "aws_cloudwatch_metric_alarm" "low_sp_return_activity" {
   alarm_name        = "${var.env_name}-low_sp_return_activity"
   alarm_description = <<EOM
 ${var.env_name}: Less than ${var.sp_return_low_alert_threshold} users have been returned to an SP in 10 minutes
-See https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_sp_return_activity
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_sp_return_activity
 EOM
 
   namespace = "${var.env_name}/idp-authentication"
@@ -255,7 +255,7 @@ resource "aws_cloudwatch_metric_alarm" "low_user_registration_activity" {
   alarm_name        = "${var.env_name}-low_user_registration_activity"
   alarm_description = <<EOM
 ${var.env_name}: Less than ${var.user_registration_low_alert_threshold} users have created new accounts in the last 10 minutes.
-See https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_user_registration_activity
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Low-User-Activity#low_user_registration_activity
 EOM
 
   namespace = "${var.env_name}/idp-authentication"
@@ -334,7 +334,7 @@ resource "aws_cloudwatch_metric_alarm" "pii_spill_detector_alarm" {
   alarm_actions             = local.high_priority_alarm_actions
   alarm_description         = <<EOM
 ${var.env_name}: PII Spill Detector Alarm - Sample PII may be present in event.log
-See https://github.com/18F/identity-devops/wiki/Runbook:-PII-spilled-into-logs#pii_spill_event-alert
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-PII-spilled-into-logs#pii_spill_event-alert
 EOM
 }
 
@@ -353,7 +353,7 @@ resource "aws_cloudwatch_metric_alarm" "in-person-proofing-enrollment-alarm" {
   alarm_actions             = local.in_person_alarm_actions
   alarm_description         = <<EOM
 ${var.env_name}: Alarm tracking In Person Proofing Enrollment Requests Failure
-See https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms
 EOM
 }
 
@@ -376,6 +376,6 @@ resource "aws_cloudwatch_metric_alarm" "low-sp-oidc-token-success" {
 ${var.env_name}: Low OpenID Connect Token success - ${each.value.sp_name} (${each.value.client_id})
 
 Less than ${each.value.threshold} successful server to server calls to /api/openid_connect/token in the last 5 minutes.
-See https://github.com/18F/identity-devops/wiki/Runbook:-OIDC-Connect-Token-Low-Success-Rate
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-OIDC-Connect-Token-Low-Success-Rate
 EOM
 }
