@@ -36,5 +36,20 @@ module "main" {
     iam_supporteng_enabled     = true
     iam_terraform_enabled      = true
   }
+
+  ssm_document_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+    "FraudOps"          = [],
+  }
+
+  ssm_command_access_map = {
+    "FullAdministrator" = [{ "*" = ["*"] }],
+    "PowerUser"         = [{ "*" = ["*"] }],
+    "Terraform"         = [{ "*" = ["*"] }],
+    "FraudOps"          = [],
+  }
+
 }
 
