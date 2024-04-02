@@ -832,6 +832,16 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  samatha.dondeti:
+    aws_groups:
+    - appdev
+    - devopsnonprod
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
+    ec2_username:
+    - sdondeti
   samy.orellana:
     aws_groups:
     - secops
