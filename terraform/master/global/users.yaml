@@ -121,6 +121,8 @@ users:
     - appdev
     - lg-all
     - lg-public
+    email:
+    - aj.farkas@gsa.gov
   andrew.hsieh:
     aws_groups:
     - analytics
