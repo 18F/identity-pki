@@ -44,3 +44,12 @@ variable "lifecycle_policies_enabled" {
   description = "whether to enable repository lifecycle policies"
   type        = bool
 }
+
+variable "lifecycle_policy_settings" {
+  description = "Settings to populate the ECR lifecycle policy with, images for number of images to keep before expiring and days for days before images expire"
+  type        = map(number)
+  default = {
+    images = 10
+    days   = 7
+  }
+}

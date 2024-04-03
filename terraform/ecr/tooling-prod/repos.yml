@@ -74,6 +74,9 @@ repos:
     <<: *all_write_template
   identity_idp_review:
     name: "identity-idp/review"
+    lifecycle_policy_settings: {
+      days: 10
+    }
     <<: *all_write_template
   identity_idp_review_cache:
     name: "identity-idp/review/cache"
