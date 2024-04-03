@@ -9,7 +9,7 @@ locals {
 }
 
 module "kms_logging" {
-  source = "github.com/18F/identity-terraform//kms_log?ref=a842c4a8b111436179872f49f872447ceab93d1d"
+  source = "github.com/18F/identity-terraform//kms_log?ref=e4d7e415e0a5185b1c86ebd7093b471403536815"
   #source = "../../../identity-terraform/kms_log"
 
   sqs_alarm_actions                       = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []
@@ -24,6 +24,7 @@ module "kms_logging" {
   dynamodb_retention_days                 = var.kms_log_dynamodb_retention_days
   kmslog_lambda_debug                     = var.kms_log_kmslog_lambda_debug
   lambda_identity_lambda_functions_gitrev = var.kms_log_lambda_identity_lambda_functions_gitrev
+  cloudwatch_retention_days               = local.retention_days
 
   lambda_kms_cw_processor_zip      = module.kms_cloudwatch_processor_code.zip_output_path
   cw_processor_memory_size         = var.kms_log_cw_processor_memory_size
