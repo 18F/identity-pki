@@ -594,6 +594,15 @@ users:
     - kgreen
     gitlab_groups:
     - lg-public
+  lauren.george:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - lgeorge
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   laurie.cole:
     aws_groups:
     - analytics
