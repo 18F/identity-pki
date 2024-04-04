@@ -54,17 +54,18 @@ DESC
   default = {
     ami_filter_name         = "ubuntu-pro-fips-server/images/hvm-ssd/ubuntu-focal-20.04-amd64*"
     ami_owner_id            = "679593333241",
-    berkshelf_version       = "7.1.0"
-    chef_version            = "17.5.22" # also passed to CFN as ChefVersion parameter
+    berkshelf_version       = "8.0.9"
+    chef_version            = "18.4.12" # also passed to CFN as ChefVersion parameter
     data_vol_size           = "200"
     delay_seconds           = "60"
     delete_ami_snapshots    = "false"
     deregister_existing_ami = "false"
     encryption              = "true"
+    inspec_version          = "5.22.40"
     instance_type           = "c6i.2xlarge"
     max_attempts            = "50"
     os_version              = "Ubuntu 20.04"
-    packer_version          = "1.7.2"
+    packer_version          = "1.10.2"
     root_vol_size           = "40"
     ubuntu_major_version    = "20"
   }

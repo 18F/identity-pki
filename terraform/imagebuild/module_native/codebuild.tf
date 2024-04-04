@@ -172,6 +172,11 @@ resource "aws_codebuild_project" "base_image" {
       name  = "AMI_COPY_REGION"
       value = var.ami_copy_region
     }
+
+    environment_variable {
+      name  = "INSPEC_VERSION"
+      value = var.packer_config["inspec_version"]
+    }
   }
 
   logs_config {
@@ -362,6 +367,11 @@ resource "aws_codebuild_project" "rails_image" {
     environment_variable {
       name  = "AMI_COPY_REGION"
       value = var.ami_copy_region
+    }
+
+    environment_variable {
+      name  = "INSPEC_VERSION"
+      value = var.packer_config["inspec_version"]
     }
   }
 

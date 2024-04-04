@@ -2,8 +2,8 @@ DEPENDENCIES
   apt (~> 7.0)
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
-    revision: 51910a936e56349117db2485d43c263d712027a0
-    ref: 51910a9
+    revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
+    ref: 85cee92
     rel: aws_metadata
   aws_s3
     path: kitchen/cookbooks/aws_s3
@@ -15,8 +15,8 @@ DEPENDENCIES
     path: kitchen/cookbooks/chef_proxy_env
   config_loader
     git: https://github.com/18F/identity-cookbooks
-    revision: 51910a936e56349117db2485d43c263d712027a0
-    ref: 51910a9
+    revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
+    ref: 85cee92
     rel: config_loader
   deploy_resource (~> 1.0)
   docker (~> 10.1.0)
@@ -36,13 +36,13 @@ DEPENDENCIES
     path: kitchen/cookbooks/identity-pivcac
   identity_base_config
     git: https://github.com/18F/identity-cookbooks
-    revision: 51910a936e56349117db2485d43c263d712027a0
-    ref: 51910a9
+    revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
+    ref: 85cee92
     rel: identity_base_config
   identity_shared_attributes
     git: https://github.com/18F/identity-cookbooks
-    revision: 51910a936e56349117db2485d43c263d712027a0
-    ref: 51910a9
+    revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
+    ref: 85cee92
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
@@ -57,15 +57,15 @@ DEPENDENCIES
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
-    revision: 51910a936e56349117db2485d43c263d712027a0
-    ref: 51910a9
+    revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
+    ref: 85cee92
     rel: static_eip
   sudo
   users
 
 GRAPH
-  apt (7.5.16)
-  ark (6.0.26)
+  apt (7.5.17)
+  ark (6.0.27)
     seven_zip (>= 3.1)
   aws_metadata (0.3.0)
   aws_s3 (0.2.0)
@@ -120,7 +120,7 @@ GRAPH
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
-  lvm (6.1.16)
+  lvm (6.1.17)
   motd (1.0.1)
   newrelic-infra (0.12.3)
   openssl (8.5.5)
