@@ -959,6 +959,15 @@ users:
     - devops
     - lg-all
     - lg-public
+  vraj.mohan:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - vmohan
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   zach.margolis:
     ec2_username:
     - zmargolis
