@@ -1,19 +1,19 @@
 source 'https://api.berkshelf.com'
 
-cookbook 'apt', '~> 7.0'
+cookbook 'apt', '>= 7.0'
 cookbook 'bash-completion'
 cookbook 'cacert'
-cookbook 'deploy_resource', '~> 1.0'
+cookbook 'deploy_resource', '>= 1.0'
 cookbook 'git'
-cookbook 'letsencrypt', '~> 1.0.0'
+cookbook 'letsencrypt', '>= 1.0.0'
 cookbook 'motd'
 cookbook 'openssl'
 cookbook 'ssh-keys'
 cookbook 'sudo'
 cookbook 'users'
 cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16
-cookbook 'filesystem', '~> 3.0.5'
-cookbook 'docker', '~> 10.1.0'
+cookbook 'filesystem', '>= 3.0.5'
+cookbook 'docker', '>= 11.3.2'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
