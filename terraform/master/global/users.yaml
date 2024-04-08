@@ -1116,7 +1116,7 @@ projects:
         access: developer
       pm:
         access: reporter
-  lg-public/identity-eks-control
+  lg-public/identity-eks-control:
     groups:
       devops:
         access: maintainer
