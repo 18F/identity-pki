@@ -1116,3 +1116,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg-public/identity-eks-control:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
