@@ -1,5 +1,3 @@
-data "aws_caller_identity" "current" {}
-
 resource "aws_macie2_account" "account_scan" {
   finding_publishing_frequency = "ONE_HOUR"
   status                       = "ENABLED"
@@ -35,4 +33,10 @@ resource "aws_macie2_findings_filter" "account_filter" {
     }
   }
   depends_on = [aws_macie2_account.account_scan]
+}
+
+resource "aws_cloudwatch_log_group" "macie2_classification_jobs" {
+  name              = "/aws/macie/classificationjobs"
+  retention_in_days = var.cloudwatch_retention_days
+  skip_destroy      = true
 }

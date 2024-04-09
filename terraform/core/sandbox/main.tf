@@ -117,10 +117,7 @@ module "main" {
     ]
   }
   enable_waf_mrg_update_notifications = true
-}
 
-module "macie-bucket-scans-sandbox" {
-  source = "../../modules/macie_v2"
   macie_scan_buckets = [
     "login-gov-pivcac-dev.894947205914-us-west-2",
     "login-gov-pivcac-int.894947205914-us-west-2",
@@ -131,8 +128,31 @@ module "macie-bucket-scans-sandbox" {
     "login-gov.app-secrets.894947205914-us-west-2",
     "login-gov.secrets.894947205914-us-west-2",
   ]
-
 }
+
+##### REMOVE once resources are moved/imported #####
+
+moved {
+  from = module.macie-bucket-scans-sandbox.aws_macie2_account.account_scan
+  to   = module.main.aws_macie2_account.account_scan
+}
+
+moved {
+  from = module.macie-bucket-scans-sandbox.aws_macie2_classification_job.account_bucket_scan
+  to   = module.main.aws_macie2_classification_job.account_bucket_scan
+}
+
+moved {
+  from = module.macie-bucket-scans-sandbox.aws_macie2_findings_filter.account_filter
+  to   = module.main.aws_macie2_findings_filter.account_filter
+}
+
+import {
+  id = "/aws/macie/classificationjobs"
+  to = module.main.aws_cloudwatch_log_group.macie2_classification_jobs
+}
+
+####################################################
 
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks

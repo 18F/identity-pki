@@ -203,10 +203,6 @@ module "main" {
   # per-account per-region regex pattern sets
   #query_block_regex  = ["ExampleStringToBlock"]
 
-}
-
-module "macie-bucket-scans-prod" {
-  source = "../../modules/macie_v2"
   macie_scan_buckets = [
     "login-gov-pivcac-dm.555546682965-us-west-2",
     "login-gov-pivcac-prod.555546682965-us-west-2",
@@ -221,6 +217,30 @@ module "macie-bucket-scans-prod" {
     "login-gov.secrets.555546682965-us-west-2",
   ]
 }
+
+##### REMOVE once resources are moved/imported #####
+
+moved {
+  from = module.macie-bucket-scans-prod.aws_macie2_account.account_scan
+  to   = module.main.aws_macie2_account.account_scan
+}
+
+moved {
+  from = module.macie-bucket-scans-prod.aws_macie2_classification_job.account_bucket_scan
+  to   = module.main.aws_macie2_classification_job.account_bucket_scan
+}
+
+moved {
+  from = module.macie-bucket-scans-prod.aws_macie2_findings_filter.account_filter
+  to   = module.main.aws_macie2_findings_filter.account_filter
+}
+
+import {
+  id = "/aws/macie/classificationjobs"
+  to = module.main.aws_cloudwatch_log_group.macie2_classification_jobs
+}
+
+####################################################
 
 output "primary_zone_dnssec_ksks" {
   value = module.main.primary_zone_dnssec_ksks

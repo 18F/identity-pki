@@ -220,3 +220,18 @@ Leave BLANK to disable creation of resources in the secondary region of this acc
 EOM
   default     = ""
 }
+
+variable "macie_scan_buckets" {
+  type        = list(string)
+  description = "Buckets that need to be scanned by Macie"
+  default     = []
+}
+
+variable "cloudwatch_retention_days" {
+  default     = 0
+  description = <<EOM
+Number of days to retain CloudWatch Logs for any Log Groups defined in this module.
+Defaults to 0 (never expire).
+EOM
+  type        = number
+}
