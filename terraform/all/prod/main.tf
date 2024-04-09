@@ -133,4 +133,15 @@ module "main" {
     # "Terraform"         = [{ "*" = ["*"] }], This will need to be specific before enabling
     "FraudOps" = [{ "*" = ["data-pull", "action-account"] }],
   }
+
+  account_cloudwatch_log_groups = [
+    "/aws/ssm/dm-ssm-cmd-passenger-restart",
+    "/aws/ssm/prod-ssm-cmd-passenger-restart",
+    "/aws/ssm/staging-ssm-cmd-passenger-restart",
+    "/var/log/audit/audit.log",
+    "/var/log/auth.log",
+    "/var/log/kern.log",
+    "/var/log/mail.log",
+    "/var/log/syslog",
+  ]
 }

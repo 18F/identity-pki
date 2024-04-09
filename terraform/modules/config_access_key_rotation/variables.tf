@@ -35,3 +35,12 @@ variable "schedule" {
   description = "Cron expression for cloudwatch event rule schedule"
   default     = "cron(0 22 * * ? *)"
 }
+
+variable "cloudwatch_retention_days" {
+  default     = 0
+  description = <<EOM
+Number of days to retain CloudWatch Logs for the Lambda function.
+Defaults to 0 (never expire).
+EOM
+  type        = number
+}

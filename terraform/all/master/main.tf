@@ -28,6 +28,10 @@ module "main" {
     iam_billing_enabled        = true
     iam_auto_terraform_enabled = false
   }
+
+  account_cloudwatch_log_groups = [
+    "/var/log/messages"
+  ]
 }
 
 module "config_password_rotation" {

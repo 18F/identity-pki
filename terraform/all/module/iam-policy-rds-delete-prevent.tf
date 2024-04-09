@@ -81,6 +81,34 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
     ]
   }
   statement {
+    sid    = "LogGroupDeletePrevent"
+    effect = "Deny"
+    actions = [
+      "logs:DeleteLogGroup",
+    ]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/var/log/cloud-init.log",
+      "arn:aws:logs:*:*:log-group:/var/log/cloud-init-output.log",
+      "arn:aws:logs:*:*:log-group:*int*",
+      "arn:aws:logs:*:*:log-group:*staging*",
+      "arn:aws:logs:*:*:log-group:*prod*",
+    ]
+  }
+  statement {
+    sid    = "LogStreamDeletePrevent"
+    effect = "Deny"
+    actions = [
+      "logs:DeleteLogStream",
+    ]
+    resources = [
+      "arn:aws:logs:*:*:log-group:/var/log/cloud-init.log:log-stream:*",
+      "arn:aws:logs:*:*:log-group:/var/log/cloud-init-output.log:log-stream:*",
+      "arn:aws:logs:*:*:log-group:*int*:log-stream:*",
+      "arn:aws:logs:*:*:log-group:*staging*:log-stream:*",
+      "arn:aws:logs:*:*:log-group:*prod*:log-stream:*",
+    ]
+  }
+  statement {
     sid    = "KMSDeletePrevent"
     effect = "Deny"
     actions = [

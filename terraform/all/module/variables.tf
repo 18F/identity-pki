@@ -486,3 +486,24 @@ confirms the elp-guardduty-lg destination for us-east-1.
 EOM
   default     = true
 }
+
+variable "cloudwatch_retention_days" {
+  default     = 0
+  description = <<EOM
+Number of days to retain CloudWatch Logs for all Log Groups defined in either the
+local.cloudwatch_log_group_names or var.account_cloudwatch_log_groups variable(s).
+Defaults to 0 (never expire).
+EOM
+  type        = number
+}
+
+variable "account_cloudwatch_log_groups" {
+  default     = []
+  description = <<EOM
+List of CloudWatch Log Groups to manage in Terraform which are otherwise
+not managed in other modules/modulesets, likely to being stale.
+TODO: export these log groups to the appropriate logarchive account(s),
+and then tear down these resources.
+EOM
+  type        = list(string)
+}

@@ -15,55 +15,65 @@ resource "aws_iam_role" "config_access_key_rotation_lambda_role" {
   assume_role_policy = data.aws_iam_policy_document.config_access_key_rotation_lambda_policy.json
 }
 
-resource "aws_iam_policy" "config_access_key_rotation_lambda_iam_access" {
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${aws_lambda_function.config_access_key_rotation_lambda.function_name}:*"
-      },
-      {
-        Action = [
-          "logs:CreateLogGroup"
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:*"
-      },
-      {
-        Action = [
-          "ses:SendEmail",
-          "ses:SendRawEmail"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-      {
-        Action = [
-          "sts:AssumeRole"
-        ]
-        Effect   = "Allow"
-        Resource = "${aws_iam_role.assumeRole_lambda.arn}"
-      },
-      {
-        Action = [
-          "iam:ListAccessKeys",
-          "iam:ListUsers"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      }
+data "aws_iam_policy_document" "lambda_iam_access" {
+  statement {
+    sid    = "CreateLogGroupAndEvents"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
     ]
-  })
+
+    resources = [
+      aws_cloudwatch_log_group.lambda.arn,
+      "${aws_cloudwatch_log_group.lambda.arn}:*"
+    ]
+  }
+  statement {
+    sid    = "SESAccess"
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+  statement {
+    sid    = "LambdaAssumeRole"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+
+    resources = [
+      aws_iam_role.assumeRole_lambda.arn,
+    ]
+  }
+  statement {
+    sid    = "IAMListKeysAndUsers"
+    effect = "Allow"
+    actions = [
+      "iam:ListAccessKeys",
+      "iam:ListUsers"
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
 }
 
-resource "aws_iam_role_policy_attachment" "config_access_key_rotation_lambda_iam_access" {
-  role       = aws_iam_role.config_access_key_rotation_lambda_role.name
-  policy_arn = aws_iam_policy.config_access_key_rotation_lambda_iam_access.arn
+resource "aws_iam_role_policy" "config_access_key_rotation_lambda_iam_access" {
+  role   = aws_iam_role.config_access_key_rotation_lambda_role.name
+  policy = data.aws_iam_policy_document.lambda_iam_access.json
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # This is an additional role which Lambda can assume, with limited permissions

@@ -97,6 +97,7 @@ resource "aws_cloudwatch_log_group" "slack_usw2_success_logs_groups" {
 
   name              = "sns/us-west-2/${data.aws_caller_identity.current.account_id}/slack-${each.key}"
   retention_in_days = 365
+  skip_destroy      = true
 }
 
 resource "aws_cloudwatch_log_group" "slack_usw2_failure_logs_groups" {
@@ -104,6 +105,7 @@ resource "aws_cloudwatch_log_group" "slack_usw2_failure_logs_groups" {
 
   name              = "sns/us-west-2/${data.aws_caller_identity.current.account_id}/slack-${each.key}/Failure"
   retention_in_days = 365
+  skip_destroy      = true
 }
 
 resource "aws_sns_topic" "slack_usw2" {
@@ -184,6 +186,7 @@ resource "aws_cloudwatch_log_group" "slack_use1_success_logs_groups" {
 
   name              = "sns/us-east-1/${data.aws_caller_identity.current.account_id}/slack-${each.key}"
   retention_in_days = 365
+  skip_destroy      = true
 }
 
 resource "aws_cloudwatch_log_group" "slack_use1_failure_logs_groups" {
@@ -192,6 +195,7 @@ resource "aws_cloudwatch_log_group" "slack_use1_failure_logs_groups" {
 
   name              = "sns/us-east-1/${data.aws_caller_identity.current.account_id}/slack-${each.key}/Failure"
   retention_in_days = 365
+  skip_destroy      = true
 }
 
 resource "aws_sns_topic" "slack_use1" {

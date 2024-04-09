@@ -9,6 +9,12 @@ module "config_access_key_rotation_code" {
 
 data "aws_caller_identity" "current" {}
 
+resource "aws_cloudwatch_log_group" "lambda" {
+  name              = "/aws/lambda/${var.config_access_key_rotation_name}-function"
+  retention_in_days = var.cloudwatch_retention_days
+  skip_destroy      = true
+}
+
 resource "aws_lambda_function" "config_access_key_rotation_lambda" {
   filename      = module.config_access_key_rotation_code.zip_output_path
   function_name = "${var.config_access_key_rotation_name}-function"
