@@ -20,10 +20,10 @@ moved {
 
 ##### Resources
 
-# Monitoring role (if not importing)
+# Monitoring
 
 resource "aws_iam_role" "rds_monitoring" {
-  count = var.monitoring_role == "" ? 1 : 0
+  count = var.monitoring_role == "" ? 1 : 0 # create if not importing
   name  = "rds-monitoring-role"
 
   assume_role_policy = <<EOF
@@ -48,6 +48,13 @@ resource "aws_iam_role_policy_attachment" "rds_monitoring" {
   count      = var.monitoring_role == "" ? 1 : 0
   role       = aws_iam_role.rds_monitoring[count.index].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}
+
+resource "aws_cloudwatch_log_group" "aurora" {
+  for_each = toset(local.cw_logs)
+
+  name              = "/aws/rds/cluster/${local.db_name}/${each.key}"
+  retention_in_days = var.cloudwatch_retention_days
 }
 
 # Global Cluster 'head' resource
@@ -166,13 +173,8 @@ resource "aws_rds_cluster" "aurora" {
       availability_zones
     ]
   }
-}
 
-resource "aws_cloudwatch_log_group" "aurora" {
-  for_each = toset(local.cw_logs)
-
-  name              = "/aws/rds/cluster/${local.db_name}/${each.key}"
-  retention_in_days = var.cloudwatch_retention_days
+  depends_on = [aws_cloudwatch_log_group.aurora]
 }
 
 resource "aws_rds_cluster_instance" "aurora" {
