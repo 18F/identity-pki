@@ -157,7 +157,7 @@ resource "aws_autoscaling_group" "idp" {
   depends_on = [
     module.outboundproxy_uw2.proxy_asg_name,
     module.migration_uw2.migration_asg_name,
-    aws_cloudwatch_log_group.nginx_access_log
+    aws_cloudwatch_log_group.log["nginx_access"]
   ]
 }
 

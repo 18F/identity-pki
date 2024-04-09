@@ -7,6 +7,15 @@ resource "aws_cloudwatch_log_group" "squid_access_log" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "squid_cache_log" {
+  name        = var.use_prefix ? null : "${var.env_name}_/var/log/squid/cache.log"
+  name_prefix = var.use_prefix ? "${var.env_name}_/var/log/squid/cache.log" : null
+
+  tags = {
+    environment = var.env_name
+  }
+}
+
 # This module creates cloudwatch logs filters that create metrics for squid
 # total requests and denied requests. It also creates an alarm on denied
 # creates alarm on total requests following below a threshold

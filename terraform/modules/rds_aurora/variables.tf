@@ -3,6 +3,10 @@
 locals {
   db_name = var.db_name_override == "" ? (
   "${var.env_name}-${var.db_identifier}") : var.db_name_override
+
+  cw_logs = var.cw_logs_exports == [] ? (
+    can(regex("postgresql", var.db_engine)) ? ["postgresql"] : ["general"]
+  ) : var.cw_logs_exports
 }
 
 # Identifiers
@@ -185,10 +189,19 @@ EOM
 variable "cw_logs_exports" {
   type        = list(string)
   description = <<EOM
-List of log types to export to CloudWatch (will use ["general"] if not specified
+List of log types to export to CloudWatch. Will use ["general"] if not specified,
 or ["postgresql"] if var.db_engine is "aurora-postgresql".
 EOM
   default     = []
+}
+
+variable "cloudwatch_retention_days" {
+  default     = 0
+  description = <<EOM
+Number of days to retain CloudWatch Logs for groups defined in var.cw_logs_exports
+Defaults to 0 (never expire).
+EOM
+  type        = number
 }
 
 variable "pi_enabled" {

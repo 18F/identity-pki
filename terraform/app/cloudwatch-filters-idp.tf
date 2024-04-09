@@ -490,7 +490,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_external_service" {
   for_each       = local.idp_external_service_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_production.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_production"].name
   metric_transformation {
     name       = each.value["name"]
     namespace  = "${var.env_name}/idp-external-service"
@@ -502,7 +502,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_events_auth" {
   for_each       = local.idp_events_auth_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_events.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_events"].name
   metric_transformation {
     name       = each.value["name"]
     namespace  = "${var.env_name}/idp-authentication"
@@ -515,7 +515,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_events_in_person_proofing" {
   for_each       = local.in_person_proofing_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_events.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_events"].name
   metric_transformation {
     name       = each.value["name"]
     namespace  = "${var.env_name}/idp-in-person-proofing"
@@ -528,7 +528,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_events_ialx" {
   for_each       = local.idp_events_ialx_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_events.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_events"].name
   metric_transformation {
     name       = each.value["name"]
     namespace  = "${var.env_name}/idp-ialx"
@@ -541,7 +541,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_kms_auth" {
   for_each       = local.idp_kms_auth_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.kms_log.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_kms"].name
   metric_transformation {
     name      = each.value["name"]
     namespace = "${var.env_name}/idp-authentication"
@@ -553,7 +553,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_telephony_auth" {
   for_each       = local.idp_telephony_auth_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_telephony.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_telephony"].name
   metric_transformation {
     name      = each.value["name"]
     namespace = "${var.env_name}/idp-authentication"
@@ -565,7 +565,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_worker" {
   for_each       = local.idp_worker_filters
   name           = each.value["name"]
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.idp_workers.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_workers"].name
   metric_transformation {
     name      = each.value["name"]
     namespace = "${var.env_name}/idp-worker"
@@ -576,7 +576,7 @@ resource "aws_cloudwatch_log_metric_filter" "idp_worker" {
 resource "aws_cloudwatch_log_metric_filter" "pii_spill_detector" {
   name           = "pii-spill-detector"
   pattern        = join(" ", [for v in var.idp_pii_spill_patterns : "?\"${v}\""])
-  log_group_name = aws_cloudwatch_log_group.idp_events.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_events"].name
 
   metric_transformation {
     name          = "PII_Spill_Event"

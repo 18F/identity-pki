@@ -106,7 +106,7 @@ resource "aws_cloudwatch_log_metric_filter" "nginx_asg" {
   for_each       = local.nginx_status_filters
   name           = "${each.value["name"]}_asg"
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.nginx_status.name
+  log_group_name = aws_cloudwatch_log_group.log["nginx_status"].name
   metric_transformation {
     name      = "nginx_${each.value["name"]}"
     namespace = "${var.env_name}/nginx"
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_log_metric_filter" "nginx_instance" {
   for_each       = local.nginx_status_filters
   name           = "${each.value["name"]}_instance_type"
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.nginx_status.name
+  log_group_name = aws_cloudwatch_log_group.log["nginx_status"].name
   metric_transformation {
     name      = "nginx_${each.value["name"]}"
     namespace = "${var.env_name}/nginx"
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_log_metric_filter" "passenger_asg" {
   for_each       = local.passenger_status_filters
   name           = "${each.value["name"]}_asg"
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.passenger_status.name
+  log_group_name = aws_cloudwatch_log_group.log["nginx_passenger_status"].name
   metric_transformation {
     name      = "passenger_${each.value["name"]}"
     namespace = "${var.env_name}/passenger"
@@ -156,7 +156,7 @@ resource "aws_cloudwatch_log_metric_filter" "passenger_instance" {
   for_each       = local.passenger_status_filters
   name           = "${each.value["name"]}_instance_type"
   pattern        = each.value["pattern"]
-  log_group_name = aws_cloudwatch_log_group.passenger_status.name
+  log_group_name = aws_cloudwatch_log_group.log["nginx_passenger_status"].name
   metric_transformation {
     name      = "passenger_${each.value["name"]}"
     namespace = "${var.env_name}/passenger"

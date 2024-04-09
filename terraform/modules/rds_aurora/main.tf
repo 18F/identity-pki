@@ -110,9 +110,7 @@ resource "aws_rds_cluster" "aurora" {
   var.global_db_id) : null
 
   # send logs to cloudwatch
-  enabled_cloudwatch_logs_exports = var.cw_logs_exports == [] ? (
-    can(regex("postgresql", var.db_engine)) ? ["postgresql"] : ["general"]
-  ) : var.cw_logs_exports
+  enabled_cloudwatch_logs_exports = local.cw_logs
 
   tags = {
     Name = local.db_name
@@ -168,6 +166,13 @@ resource "aws_rds_cluster" "aurora" {
       availability_zones
     ]
   }
+}
+
+resource "aws_cloudwatch_log_group" "aurora" {
+  for_each = toset(local.cw_logs)
+
+  name              = "/aws/rds/cluster/${local.db_name}/${each.key}"
+  retention_in_days = var.cloudwatch_retention_days
 }
 
 resource "aws_rds_cluster_instance" "aurora" {

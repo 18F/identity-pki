@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_log_metric_filter" "id_token_hint" {
   name           = "id_token_hint-use"
-  log_group_name = aws_cloudwatch_log_group.idp_production.name
+  log_group_name = aws_cloudwatch_log_group.log["idp_production"].name
   pattern        = "id_token_hint="
 
   metric_transformation {

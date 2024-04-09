@@ -9,7 +9,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, strcontains(properties.event_properties.vendor, 'Acuant') as @acuant_vendor, strcontains(properties.event_properties.vendor, 'TrueID') as @trueid_vendor\n| stats count() as Total_Submissions, \n        sum(@acuant_vendor) as Acuant_Submissions, \n        sum(@trueid_vendor) as TrueID_Submissions, \n        Acuant_Submissions/Total_Submissions*100 as Acuant_Percentage,\n        TrueID_Submissions/Total_Submissions*100 as TrueID_Percentage",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, strcontains(properties.event_properties.vendor, 'Acuant') as @acuant_vendor, strcontains(properties.event_properties.vendor, 'TrueID') as @trueid_vendor\n| stats count() as Total_Submissions, \n        sum(@acuant_vendor) as Acuant_Submissions, \n        sum(@trueid_vendor) as TrueID_Submissions, \n        Acuant_Submissions/Total_Submissions*100 as Acuant_Percentage,\n        TrueID_Submissions/Total_Submissions*100 as TrueID_Percentage",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Submission Event Total for Timeframe",
@@ -23,7 +23,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, \n         strcontains(properties.event_properties.success, '1') as @success, \n         strcontains(properties.event_properties.success, '0') as @failure\n\n| stats sum(@success)/count()*100 as Success_Percentage,\n        sum(@failure)/count()*100 as Failed_Percentage\n        by properties.event_properties.vendor\n",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, \n         strcontains(properties.event_properties.success, '1') as @success, \n         strcontains(properties.event_properties.success, '0') as @failure\n\n| stats sum(@success)/count()*100 as Success_Percentage,\n        sum(@failure)/count()*100 as Failed_Percentage\n        by properties.event_properties.vendor\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Success & Failure Percent by Vendor",
@@ -37,7 +37,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 12,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, strcontains(properties.event_properties.success, '1') as @success, strcontains(properties.event_properties.success, '0') as @failure\n| stats count() as Total_Submissions, \n        sum(@success) as Successful_Submissions, \n        sum(@failure) as Failed_Submissions\n        by properties.event_properties.vendor\n",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, strcontains(properties.event_properties.success, '1') as @success, strcontains(properties.event_properties.success, '0') as @failure\n| stats count() as Total_Submissions, \n        sum(@success) as Successful_Submissions, \n        sum(@failure) as Failed_Submissions\n        by properties.event_properties.vendor\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Total Events by Vendor",
@@ -51,7 +51,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp,properties.event_properties.vendor as vendor, properties.event_properties.doc_auth_result as result, properties.event_properties.success as success, @message\n| filter name = 'IdV: doc auth image upload vendor submitted'\n| parse vendor \"Acuant\" as acuant\n| parse vendor \"TrueID\" as true_id\n| stats count() as Total, count(acuant) as Acuant, count(true_id) as TrueID by bin(1h) as event_time\n| sort event_time ASC",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp,properties.event_properties.vendor as vendor, properties.event_properties.doc_auth_result as result, properties.event_properties.success as success, @message\n| filter name = 'IdV: doc auth image upload vendor submitted'\n| parse vendor \"Acuant\" as acuant\n| parse vendor \"TrueID\" as true_id\n| stats count() as Total, count(acuant) as Acuant, count(true_id) as TrueID by bin(1h) as event_time\n| sort event_time ASC",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Event Counts by Hour",
@@ -65,7 +65,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, strcontains(properties.event_properties.vendor, 'Acuant') as @acuant_vendor, strcontains(properties.event_properties.vendor, 'TrueID') as @trueid_vendor\n| stats sum(@acuant_vendor) / count() * 100 as Acuant_Percent, \n        sum(@trueid_vendor) / count() * 100 as TrueID_Percent \n        by bin(1h)",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @message, strcontains(properties.event_properties.vendor, 'Acuant') as @acuant_vendor, strcontains(properties.event_properties.vendor, 'TrueID') as @trueid_vendor\n| stats sum(@acuant_vendor) / count() * 100 as Acuant_Percent, \n        sum(@trueid_vendor) / count() * 100 as TrueID_Percent \n        by bin(1h)",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Vendor Percentages by Hour",
@@ -79,7 +79,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'Acuant'\n| fields @message, \n         strcontains(properties.event_properties.success, '1') as @success, \n         strcontains(properties.event_properties.success, '0') as @failure\n| stats sum(@success) / count() * 100 as Success_Percent, \n        sum(@failure) / count() * 100 as Failure_Percent \n        by bin(1h)\n",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'Acuant'\n| fields @message, \n         strcontains(properties.event_properties.success, '1') as @success, \n         strcontains(properties.event_properties.success, '0') as @failure\n| stats sum(@success) / count() * 100 as Success_Percent, \n        sum(@failure) / count() * 100 as Failure_Percent \n        by bin(1h)\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Acuant Success/Failure by Hour",
@@ -93,7 +93,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'TrueID'\n| fields @message, \n         strcontains(properties.event_properties.success, '1') as @success, \n         strcontains(properties.event_properties.success, '0') as @failure\n| stats sum(@success) / count() * 100 as Success_Percent, \n        sum(@failure) / count() * 100 as Failure_Percent \n        by bin(1h)\n",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'TrueID'\n| fields @message, \n         strcontains(properties.event_properties.success, '1') as @success, \n         strcontains(properties.event_properties.success, '0') as @failure\n| stats sum(@success) / count() * 100 as Success_Percent, \n        sum(@failure) / count() * 100 as Failure_Percent \n        by bin(1h)\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "TrueID Success/Failure by Hour",
@@ -107,7 +107,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'Acuant'\n| stats count() as Result_Count by properties.event_properties.doc_auth_result",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'Acuant'\n| stats count() as Result_Count by properties.event_properties.doc_auth_result",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Acuant Results by Type",
@@ -121,7 +121,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 12,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'TrueID'\n| stats count() as Result_Count by properties.event_properties.doc_auth_result",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | filter name = 'IdV: doc auth image upload vendor submitted' AND properties.event_properties.vendor = 'TrueID'\n| stats count() as Result_Count by properties.event_properties.doc_auth_result",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "TrueID Results by Type",
@@ -135,7 +135,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '1') as iv_success, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '1') as aamva_success, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth verify proofing results'\n| stats sum(iv_success) as Instant_Verify_Success, sum(aamva_success) as AAMVA_Success by bin(1h)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '1') as iv_success, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '1') as aamva_success, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth verify proofing results'\n| stats sum(iv_success) as Instant_Verify_Success, sum(aamva_success) as AAMVA_Success by bin(1h)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Information Verify Success by Hour",
@@ -149,7 +149,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 12,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '0') as iv_failure, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '0') as aamva_failure, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth verify proofing results'\n| stats sum(iv_failure) as Instant_Verify_Failure, sum(aamva_failure) as AAMVA_Failure by bin(1h)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields strcontains(properties.event_properties.proofing_results.context.stages.resolution.success, '0') as iv_failure, \n       strcontains(properties.event_properties.proofing_results.context.stages.state_id.success, '0') as aamva_failure, \n       properties.event_properties.proofing_results.context.stages.state_id.state as state, \n       @timestamp, @message\n| filter name = 'IdV: doc auth verify proofing results'\n| stats sum(iv_failure) as Instant_Verify_Failure, sum(aamva_failure) as AAMVA_Failure by bin(1h)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Information Verify Failure by Hour",
@@ -163,7 +163,7 @@ resource "aws_cloudwatch_dashboard" "idp_idv_trueid_transition" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields  @timestamp, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CROP.PT.Prod.2') as @non_liveness_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.PT.Prod.2') as @non_liveness_non_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CP.PM.Prod.2') as @liveness_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.NC.PM.Prod.2') as @liveness_non_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.PT.Prod.2' and properties.event_properties.transaction_status = 'passed') as @non_liveness_non_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CROP.PT.Prod.2' and properties.event_properties.transaction_status = 'passed') as @non_liveness_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.NC.PM.Prod.2' and properties.event_properties.transaction_status = 'passed') as @liveness_non_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CP.PM.Prod.2' and properties.event_properties.transaction_status = 'passed') as @liveness_cropping_passed \n       | filter name = 'IdV: doc auth image upload vendor submitted' and properties.event_properties.vendor = \"TrueID\" \n       | stats  \n       ((sum(@non_liveness_cropping) - sum(@non_liveness_cropping_passed))/sum(@non_liveness_cropping)) * 100 as non_liveness_cropping_fail_rate, \n       ((sum(@non_liveness_non_cropping) - sum(@non_liveness_non_cropping_passed))/sum(@non_liveness_non_cropping)) * 100 as non_liveness_non_cropping_fail_rate, \n       ((sum(@liveness_cropping) - sum(@liveness_cropping_passed))/sum(@liveness_cropping)) * 100 as liveness_cropping_fail_rate, \n       ((sum(@liveness_non_cropping) - sum(@liveness_non_cropping_passed))/sum(@liveness_non_cropping)) * 100 as liveness_non_cropping_fail_rate \n        by bin(15m)",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields  @timestamp, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CROP.PT.Prod.2') as @non_liveness_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.PT.Prod.2') as @non_liveness_non_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CP.PM.Prod.2') as @liveness_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.NC.PM.Prod.2') as @liveness_non_cropping, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.PT.Prod.2' and properties.event_properties.transaction_status = 'passed') as @non_liveness_non_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CROP.PT.Prod.2' and properties.event_properties.transaction_status = 'passed') as @non_liveness_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.NC.PM.Prod.2' and properties.event_properties.transaction_status = 'passed') as @liveness_non_cropping_passed, \n       (properties.event_properties.workflow = 'GSA2.TrueID.WF.CP.PM.Prod.2' and properties.event_properties.transaction_status = 'passed') as @liveness_cropping_passed \n       | filter name = 'IdV: doc auth image upload vendor submitted' and properties.event_properties.vendor = \"TrueID\" \n       | stats  \n       ((sum(@non_liveness_cropping) - sum(@non_liveness_cropping_passed))/sum(@non_liveness_cropping)) * 100 as non_liveness_cropping_fail_rate, \n       ((sum(@non_liveness_non_cropping) - sum(@non_liveness_non_cropping_passed))/sum(@non_liveness_non_cropping)) * 100 as non_liveness_non_cropping_fail_rate, \n       ((sum(@liveness_cropping) - sum(@liveness_cropping_passed))/sum(@liveness_cropping)) * 100 as liveness_cropping_fail_rate, \n       ((sum(@liveness_non_cropping) - sum(@liveness_non_cropping_passed))/sum(@liveness_non_cropping)) * 100 as liveness_non_cropping_fail_rate \n        by bin(15m)",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "TrueID Failure Rates by Workflow",

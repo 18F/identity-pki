@@ -31,9 +31,10 @@ module "worker_aurora_uw2" {
   db_kms_key_id       = module.idp_aurora_uw2.kms_arn
   key_admin_role_name = "KMSAdministrator"
 
-  cw_logs_exports     = ["postgresql"]
-  pi_enabled          = true
-  monitoring_interval = var.rds_enhanced_monitoring_interval
+  cw_logs_exports           = ["postgresql"]
+  cloudwatch_retention_days = local.retention_days
+  pi_enabled                = true
+  monitoring_interval       = var.rds_enhanced_monitoring_interval
   monitoring_role = join(":", [
     "arn:aws:iam::${data.aws_caller_identity.current.account_id}",
     "role/${var.rds_monitoring_role_name}"

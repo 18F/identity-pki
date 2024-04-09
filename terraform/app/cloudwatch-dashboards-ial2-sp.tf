@@ -12,7 +12,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'SAML Auth'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'SAML Auth'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "SAML Auths",
@@ -25,7 +25,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'OpenID Connect: authorization request'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'OpenID Connect: authorization request'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "OIDC Requests",
@@ -39,7 +39,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 12,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'SP redirect initiated'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'SP redirect initiated'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Redirects back to SP",
@@ -83,7 +83,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter (\n    (name = 'IdV: doc auth image upload vendor submitted' and !properties.event_properties.success) or\n    (name = 'Doc Auth optional submitted' and !properties.event_properties.success) or\n    (name = 'IdV: phone confirmation vendor' and !properties.event_properties.success)\n)\n| parse @message \"IdV: doc auth image upload vendor submitted\" as document_capture_error\n| parse @message \"Doc Auth optional submitted\" as verify_error\n| parse @message \"IdV: phone confirmation vendor\" as phone_error\n| stats \n    count(document_capture_error) as document_capture_error_count,\n    count(verify_error)           as verify_error_count,\n    count(phone_error)            as phone_error_count\n    by bin(10min)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter (\n    (name = 'IdV: doc auth image upload vendor submitted' and !properties.event_properties.success) or\n    (name = 'Doc Auth optional submitted' and !properties.event_properties.success) or\n    (name = 'IdV: phone confirmation vendor' and !properties.event_properties.success)\n)\n| parse @message \"IdV: doc auth image upload vendor submitted\" as document_capture_error\n| parse @message \"Doc Auth optional submitted\" as verify_error\n| parse @message \"IdV: phone confirmation vendor\" as phone_error\n| stats \n    count(document_capture_error) as document_capture_error_count,\n    count(verify_error)           as verify_error_count,\n    count(phone_error)            as phone_error_count\n    by bin(10min)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Unsuccessful proofing vendor submissions",
@@ -97,7 +97,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter name = 'User Registration: Email Submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| stats count_distinct(visit_id) as count by bin(10min)",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter name = 'User Registration: Email Submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| stats count_distinct(visit_id) as count by bin(10min)",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Email Registration Submissions",
@@ -111,7 +111,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name IN ['IdV: doc auth welcome visited', 'IdV: doc auth welcome submitted', 'IdV: doc auth hybrid handoff visited', 'IdV: doc auth hybrid handoff submitted', 'IdV: doc auth document_capture visited', 'Frontend: IdV: front image added', 'Frontend: IdV: back image added', 'IdV: doc auth image upload vendor submitted', 'IdV: doc auth image upload vendor pii validation', 'IdV: doc auth verify visited', 'IdV: doc auth verify submitted', 'IdV: phone of record visited', 'IdV: phone confirmation vendor', 'IdV: review info visited', 'idv_enter_password_visited', 'IdV: final resolution', 'Return to SP: Failed to proof'] OR (name = 'User registration: complete' and properties.event_properties.ial2)\n| filter properties.new_event = 1| stats count(visit_id) as session_count by name\n| sort session_count desc, name asc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name IN ['IdV: doc auth welcome visited', 'IdV: doc auth welcome submitted', 'IdV: doc auth hybrid handoff visited', 'IdV: doc auth hybrid handoff submitted', 'IdV: doc auth document_capture visited', 'Frontend: IdV: front image added', 'Frontend: IdV: back image added', 'IdV: doc auth image upload vendor submitted', 'IdV: doc auth image upload vendor pii validation', 'IdV: doc auth verify visited', 'IdV: doc auth verify submitted', 'IdV: phone of record visited', 'IdV: phone confirmation vendor', 'IdV: review info visited', 'idv_enter_password_visited', 'IdV: final resolution', 'Return to SP: Failed to proof'] OR (name = 'User registration: complete' and properties.event_properties.ial2)\n| filter properties.new_event = 1| stats count(visit_id) as session_count by name\n| sort session_count desc, name asc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Proofing Funnel - Sessions",
@@ -125,7 +125,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name IN ['IdV: doc auth welcome visited', 'IdV: doc auth welcome submitted', 'IdV: doc auth hybrid handoff visited', 'IdV: doc auth hybrid handoff submitted', 'IdV: doc auth document_capture visited', 'Frontend: IdV: front image added', 'Frontend: IdV: back image added', 'IdV: doc auth image upload vendor submitted', 'IdV: doc auth image upload vendor pii validation', 'IdV: doc auth verify visited', 'IdV: doc auth verify submitted', 'IdV: phone of record visited', 'IdV: phone confirmation vendor', 'IdV: review info visited', 'idv_enter_password_visited', 'IdV: final resolution', 'Return to SP: Failed to proof'] OR (name = 'User registration: complete' and properties.event_properties.ial2)\n| filter properties.new_event = 1| stats count(properties.user_id) as user_count by name\n| sort user_count desc, name asc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name IN ['IdV: doc auth welcome visited', 'IdV: doc auth welcome submitted', 'IdV: doc auth hybrid handoff visited', 'IdV: doc auth hybrid handoff submitted', 'IdV: doc auth document_capture visited', 'Frontend: IdV: front image added', 'Frontend: IdV: back image added', 'IdV: doc auth image upload vendor submitted', 'IdV: doc auth image upload vendor pii validation', 'IdV: doc auth verify visited', 'IdV: doc auth verify submitted', 'IdV: phone of record visited', 'IdV: phone confirmation vendor', 'IdV: review info visited', 'idv_enter_password_visited', 'IdV: final resolution', 'Return to SP: Failed to proof'] OR (name = 'User registration: complete' and properties.event_properties.ial2)\n| filter properties.new_event = 1| stats count(properties.user_id) as user_count by name\n| sort user_count desc, name asc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Proofing Funnel - Unique Users",
@@ -139,7 +139,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'Return to SP: Failed to proof'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'Return to SP: Failed to proof'\n| stats count_distinct(visit_id) as count by bin(10min)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "view" : "timeSeries",
@@ -153,7 +153,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message, properties.event_properties.step, properties.event_properties.errors.results.0 as error_message\n| filter name = 'IdV: doc auth image upload vendor submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter !properties.event_properties.success\n| stats count(*) as error_count by error_message\n| sort error_count desc\n",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message, properties.event_properties.step, properties.event_properties.errors.results.0 as error_message\n| filter name = 'IdV: doc auth image upload vendor submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter !properties.event_properties.success\n| stats count(*) as error_count by error_message\n| sort error_count desc\n",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Primary (First) Error from Doc Auth Vendor",
@@ -167,7 +167,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, @message, properties.event_properties.exception as exception\n| filter name = 'IdV: doc auth image upload vendor submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter !properties.event_properties.success and !isblank(properties.event_properties.exception)\n| stats count(*) as exception_count, count_distinct(properties.user_id) as unique_users by exception\n| sort exception_count desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, @message, properties.event_properties.exception as exception\n| filter name = 'IdV: doc auth image upload vendor submitted'\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter !properties.event_properties.success and !isblank(properties.event_properties.exception)\n| stats count(*) as exception_count, count_distinct(properties.user_id) as unique_users by exception\n| sort exception_count desc",
           "region" : "us-west-2",
           "stacked" : false,
           "title" : "Acuant Exceptions",
@@ -181,7 +181,7 @@ resource "aws_cloudwatch_dashboard" "idp_ial2_sp_dashboards" {
         "x" : 0,
         "type" : "log",
         "properties" : {
-          "query" : "SOURCE '${aws_cloudwatch_log_group.idp_events.name}' | fields @timestamp, properties.event_properties.source as image_capture_type, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'Frontend: IdV: front image added' OR name = 'Frontend: IdV: back image added'\n| parse image_capture_type \"acuant\" as acuant\n| parse image_capture_type \"upload\" as upload\n| stats count(acuant) as acuant_count, count(upload) as upload_count, acuant_count + upload_count as total_count by bin(10min)\n| sort @timestamp desc",
+          "query" : "SOURCE '${aws_cloudwatch_log_group.log["idp_events"].name}' | fields @timestamp, properties.event_properties.source as image_capture_type, @message\n| filter properties.service_provider = '${each.value["issuer"]}'\n| filter name = 'Frontend: IdV: front image added' OR name = 'Frontend: IdV: back image added'\n| parse image_capture_type \"acuant\" as acuant\n| parse image_capture_type \"upload\" as upload\n| stats count(acuant) as acuant_count, count(upload) as upload_count, acuant_count + upload_count as total_count by bin(10min)\n| sort @timestamp desc",
           "region" : "us-west-2",
           "stacked" : false,
           "view" : "timeSeries",

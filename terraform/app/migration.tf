@@ -8,7 +8,7 @@ resource "aws_iam_instance_profile" "migration" {
 module "migration_uw2" {
   depends_on = [
     module.outboundproxy_uw2.proxy_asg_name,
-    aws_cloudwatch_log_group.nginx_access_log
+    aws_cloudwatch_log_group.log["nginx_access"]
   ]
   source                           = "../modules/migration_hosts"
   ami_id_map                       = var.ami_id_map_uw2

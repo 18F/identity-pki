@@ -1644,3 +1644,12 @@ Whether or not to make a replica key for the multi-region keymaker key
 in the us-east-1 region.
 EOM
 }
+
+variable "prevent_tf_log_deletion" {
+  type        = bool
+  default     = false
+  description = <<EOM
+Whether or not to allow Terraform to ACTUALLY destroy the CloudWatch Log Groups
+defined in terraform/app/cloudwatch-log.tf (vs. simply removing them from state).
+EOM
+}
