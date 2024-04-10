@@ -19,5 +19,9 @@ module "gitops_bridge_bootstrap" {
   }
 
   # Iterate over gitops_applications and create ArgoCD applications
-  apps = { for app in var.gitops_applications : app.name => templatefile("${path.module}/templates/application.yaml.tpl", app) }
+  # and the cluster config
+  apps = merge(
+    { for app in var.gitops_applications : app.name => templatefile("${path.module}/templates/application.yaml.tpl", app) },
+    { cluster-control = templatefile("${path.module}/templates/cluster-control.yaml.tpl", { cluster_name = "${var.cluster_name}" }) }
+  )
 }
