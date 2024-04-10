@@ -188,3 +188,19 @@ variable "codebuild_build_timeout" {
   type        = string
   default     = "120"
 }
+
+variable "ami_lifecycle_enabled" {
+  description = "Enable AMI lifecycle cleanup"
+  type        = bool
+  default     = false
+}
+
+variable "ami_regions" {
+  description = <<EOM
+List of region(s) where AMIs should exist. AMIs are created in us-west-2 and will be
+copied to other regions IFF this variable has more than one region listed.
+EOM
+  type        = list(string)
+  default     = ["us-west-2", "us-east-1"]
+}
+

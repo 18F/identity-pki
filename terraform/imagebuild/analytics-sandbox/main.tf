@@ -22,6 +22,7 @@ module "main" {
   identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id
   vpc_id                = module.vpc.vpc_id
+  ami_lifecycle_enabled = true
 }
 
 module "vpc" {
