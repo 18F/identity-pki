@@ -40,7 +40,42 @@ if node.fetch('identity-outboundproxy').fetch('use_dashboard_dynamic_updates')
 end
 
 #install squid
-package 'squid'
+# package 'squid'
+
+package %w(libecap3 libdbi-perl)
+
+file '/var/cache/apt/archives/squid-langpack_20191103-1_all.deb' do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content ConfigLoader.load_config(node, 'squid-langpack_20191103-1_all.deb', common: true)
+end
+
+file '/var/cache/apt/archives/squid-common_4.10-1ubuntu1.9_all.deb' do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content ConfigLoader.load_config(node, 'squid-common_4.10-1ubuntu1.9_all.deb', common: true)
+end
+
+file '/var/cache/apt/archives/squid_4.10-1ubuntu1.9_amd64.deb' do
+    owner 'root'
+    group 'root'
+    mode '0644'
+    content ConfigLoader.load_config(node, 'squid_4.10-1ubuntu1.9_amd64.deb', common: true)
+end
+
+dpkg_package 'squid-langpack' do
+    source '/var/cache/apt/archives/squid-langpack_20191103-1_all.deb'
+end
+
+dpkg_package 'squid-common' do
+    source '/var/cache/apt/archives/squid-common_4.10-1ubuntu1.9_all.deb'
+end
+
+dpkg_package 'squid' do
+    source '/var/cache/apt/archives/squid_4.10-1ubuntu1.9_amd64.deb'
+end
 
 aws_vpc_cidr = (Chef::Recipe::AwsMetadata.get_aws_all_vpc_cidr).tr("\n", " ")
 aws_account_id = Chef::Recipe::AwsMetadata.get_aws_account_id
