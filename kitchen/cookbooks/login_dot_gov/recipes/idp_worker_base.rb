@@ -86,15 +86,18 @@ if ENV['TEST_KITCHEN']
   end
 end
 
-# worker
-execute 'config idp bundler' do
-  command 'rbenv exec bundle config build.nokogiri --use-system-libraries'
-  cwd release_path
-end
+# The build step runs bundle install, yarn install, etc.
+execute 'deploy build step' do
+  cwd '/srv/idp/releases/chef'
 
-execute 'run idp bundle' do
-  command "rbenv exec bundle install --deployment --jobs 4 --path '/srv/idp/shared/bundle' --binstubs  '/srv/idp/shared/bundle/bin' --without 'deploy development doc test'"
-  cwd release_path
+  # We need to have a secondary group of "github" in order to read the github
+  # SSH key, but chef doesn't set secondary sgids when executing processes,
+  # so we use sudo instead to get all the login secondary groups.
+  # https://github.com/chef/chef/issues/6162
+  command [
+    'sudo', '-H', '-u', node.fetch('login_dot_gov').fetch('system_user'), './deploy/build'
+  ]
+  user 'root'
 end
 
 # Run the activate script from the repo, which is used to download app
