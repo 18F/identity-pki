@@ -1645,6 +1645,23 @@ in the us-east-1 region.
 EOM
 }
 
+variable "low_sms_mfa_setup_success_country_codes" {
+  type        = list(string)
+  default     = []
+  description = <<EOM
+Country codes to alarm on for low sms MFA setup success
+EOM
+}
+
+variable "sms_mfa_setup_success_threshold" {
+  type        = number
+  default     = 80
+  description = <<EOM
+Threshold for percentage of successful confirmations OTPs relative to the number of confirmation/setup OTPs sent.
+If less than X% of OTPs sent for confirming new phone numbers are converted successfully, it may indicate abuse or telephony problems.
+EOM
+}
+
 variable "prevent_tf_log_deletion" {
   type        = bool
   default     = false

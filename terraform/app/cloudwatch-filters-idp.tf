@@ -18,6 +18,16 @@ locals {
       metric_value = 1
       dimensions   = {}
     },
+    telephony_otp_sent_country_code = {
+      name         = "telephony-otp-sent-country-code"
+      pattern      = "{ ($.name = \"Telephony: OTP sent\" && $.properties.event_properties.success is true) }"
+      metric_value = 1
+      dimensions = {
+        country_code             = "$.properties.event_properties.country_code",
+        multi_factor_auth_method = "$.properties.event_properties.otp_delivery_preference",
+        context                  = "$.properties.event_properties.context"
+      }
+    },
     telephony_otp_sent_method_is_resend = {
       name         = "telephony-otp-sent-method-is-resend"
       pattern      = "{ ($.name = \"Telephony: OTP sent\") && $.properties.event_properties.success is true && $.properties.event_properties.resend is true }"
@@ -123,6 +133,17 @@ locals {
       dimensions = {
         service_provider = "$.properties.event_properties.client_id",
       }
+    },
+
+    # This only shows up for phone-based methods because non-phone methods do not include a country_code
+    multi_factor_authentication_setup_success_by_country_code_method = {
+      name         = "mfa-setup-success-by-country-code-method"
+      pattern      = "{ $.name = \"Multi-Factor Authentication Setup\" && $.properties.event_properties.success is true }"
+      metric_value = 1
+      dimensions = {
+        country_code             = "$.properties.event_properties.country_code",
+        multi_factor_auth_method = "$.properties.event_properties.multi_factor_auth_method"
+      },
     },
   }
 

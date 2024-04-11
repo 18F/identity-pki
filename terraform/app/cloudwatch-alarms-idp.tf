@@ -379,3 +379,62 @@ Less than ${each.value.threshold} successful server to server calls to /api/open
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-OIDC-Connect-Token-Low-Success-Rate
 EOM
 }
+
+resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_setup_success_by_country" {
+  for_each          = toset(var.low_sms_mfa_setup_success_country_codes)
+  alarm_name        = "${var.env_name}-${each.key}-low_sms_mfa_setup_success_by_country"
+  alarm_description = <<EOM
+${var.env_name}: The success rate for phone confirmation SMS in ${each.key} is below ${var.sms_mfa_setup_success_threshold}%. This may a problem with delivery or malicious usage.
+
+Alerting: @login-oncall-katherine
+Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+EOM
+
+  metric_query {
+    id          = "success_rate"
+    expression  = "(successes / (successes + otp_send)) * 100"
+    label       = "Success Rate"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "otp_send"
+
+    metric {
+      metric_name = "telephony-otp-sent-country-code"
+      namespace   = "${var.env_name}/idp-authentication"
+      period      = 300
+      stat        = "Sum"
+
+      dimensions = {
+        multi_factor_auth_method = "sms"
+        context                  = "confirmation"
+        country_code             = each.key
+      }
+    }
+  }
+
+  metric_query {
+    id = "successes"
+
+    metric {
+      metric_name = "mfa-setup-success-by-country-code-method"
+      namespace   = "${var.env_name}/idp-authentication"
+      period      = 300
+      stat        = "Sum"
+
+      dimensions = {
+        multi_factor_auth_method = "sms",
+        country_code             = each.key
+      }
+    }
+  }
+
+  comparison_operator = "LessThanThreshold"
+  threshold           = var.sms_mfa_setup_success_threshold
+  evaluation_periods  = 1
+
+  treat_missing_data = "notBreaching"
+
+  alarm_actions = local.low_priority_alarm_actions
+}
