@@ -54,35 +54,58 @@ provider "aws" {
       fisma = var.fisma_tag
     }
   }
+
+  ignore_tags {
+    key_prefixes = ["aws", "AWS"]
+  }
+
   region = var.region
 }
 
 provider "aws" {
   alias = "dr"
+
   default_tags {
     tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
     }
   }
+
+  ignore_tags {
+    key_prefixes = ["aws", "AWS"]
+  }
+
   region = var.dr_region
 }
 
 provider "aws" {
   alias = "use1"
+
   default_tags {
     tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
     }
   }
+
+  ignore_tags {
+    key_prefixes = ["aws", "AWS"]
+  }
+
   region = "us-east-1"
 }
 
 provider "aws" {
   alias = "usw2"
+
   default_tags {
     tags = var.fisma_tag == "" ? {} : {
       fisma = var.fisma_tag
     }
   }
+
+  ignore_tags {
+    key_prefixes = ["aws", "AWS"]
+  }
+
   region = var.region
 }
