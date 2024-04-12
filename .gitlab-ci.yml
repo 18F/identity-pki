@@ -498,10 +498,6 @@ build-rc-container:
     entrypoint: ['']
   script:
     - mkdir -p /kaniko/.docker
-    - echo ${CI_ENVIRONMENT_SLUG}
-    - echo $CI_ENVIRONMENT_SLUG
-    - echo $CI_COMMIT_BRANCH
-    - echo $CI_COMMIT_SHA
     - rcTag=$(echo $CI_COMMIT_BRANCH | sed -E 's/^.*\/(.*)/\1/')
     - |-
       KANIKOCFG="\"credsStore\":\"ecr-login\""
@@ -513,9 +509,9 @@ build-rc-container:
     - >-
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/dockerfiles/idp_review_app.Dockerfile"
-      --destination "${ECR_REGISTRY}/identity-idp/rc:${rcTag}"
-      --cache-repo="${ECR_REGISTRY}/identity-idp/rc/cache"
+      --dockerfile "${CI_PROJECT_DIR}/k8.Dockerfile"
+      --destination "${ECR_REGISTRY}/identity-pivcac/rc:${rcTag}"
+      --cache-repo="${ECR_REGISTRY}/identity-pivcac/rc/cache"
       --cache-ttl=168h
       --cache=true
       --compressed-caching=false
