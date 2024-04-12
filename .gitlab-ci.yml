@@ -145,12 +145,12 @@ build-pivcac-image:
   variables:
     BRANCH_TAGGING_STRING: ""
   rules:
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       variables:
         BRANCH_TAGGING_STRING: "--destination ${ECR_REGISTRY}/identity-pivcac/review:main"
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
-      when: never
   tags:
     - build-pool
   image:
@@ -291,9 +291,9 @@ review-app:
     on_stop: stop-review-app
     auto_stop_in: 2 days
   rules:
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE != "merge_request_event"
       when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
 
 stop-review-app:
   resource_group: $CI_ENVIRONMENT_SLUG-review-app.pivcac.identitysandbox.gov
@@ -311,9 +311,9 @@ stop-review-app:
     action: stop
   when: manual
   rules:
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE != "merge_request_event"
       when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
 
 # Export the automated ECR scan results into a format Gitlab can use
 # Report schema https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/master/dist/container-scanning-report-format.json
@@ -322,10 +322,10 @@ ecr-scan:
   interruptible: true
   allow_failure: true
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE != "merge_request_event"
       when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
   tags:
     - build-pool
   needs:
