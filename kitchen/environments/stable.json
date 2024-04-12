@@ -15,9 +15,6 @@
       "allow_unsafe_migrations": true,
       "auto_eip_enabled_roles": ["outboundproxy"],
       "idp_sync_static": true
-    },
-    "identity-jumphost": {
-      "retrieve-ssh-host-keys": true
     }
   },
   "override_attributes": {

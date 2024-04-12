@@ -5,12 +5,6 @@
   "default_attributes": {
   },
   "override_attributes": {
-    "identity-jumphost": {
-      "retrieve-ssh-host-keys": false,
-      "loadtest": {
-        "enabled": false
-      }
-    }
   },
   "chef_type": "role",
   "run_list": [

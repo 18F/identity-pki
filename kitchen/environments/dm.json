@@ -12,16 +12,13 @@
         "identity-idp": "stages/dm"
       },
       "idp_artifacts": true,
-      "auto_eip_enabled_roles": ["jumphost", "outboundproxy"],
+      "auto_eip_enabled_roles": ["outboundproxy"],
       "idp_sync_static": true,
       "use_dashboard_puma": false,
       "use_pivcac_puma": false,
       "use_idp_puma": false
     },
     "ssh_keys": {
-    },
-    "identity-jumphost": {
-      "retrieve-ssh-host-keys": true
     }
   },
   "override_attributes": {

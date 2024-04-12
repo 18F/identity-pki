@@ -66,7 +66,7 @@ default['login_dot_gov']['rbenv_shims_ruby'] = default.fetch('identity-ruby').fe
 default['login_dot_gov']['rbenv_shims_gem'] = default.fetch('identity-ruby').fetch('rbenv_root') + '/shims/gem'
 
 # Allocate a static EIP on startup for auto scaled instances that have one of
-# these as their primary role (e.g. 'outboundproxy', 'jumphost').
+# these as their primary role (e.g. 'outboundproxy').
 # The instance run list must also include the login_dot_gov::static_eip recipe.
 default['login_dot_gov']['auto_eip_enabled_roles'] = []
 
