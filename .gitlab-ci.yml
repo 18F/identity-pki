@@ -29,6 +29,7 @@ stages:
   - test
   - review
   - scan
+  - eks_release
 
 workflow:
   rules:
