@@ -9,7 +9,7 @@
     },
     "imports": [
       {
-        "href": "https://github.com/usnistgov/oscal-content/raw/main/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_MODERATE-baseline-resolved-profile_catalog.json",
+        "href": "https://github.com/usnistgov/oscal-content/raw/b940aec9fe9515184448a7e0782cfb2adb56293c/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_MODERATE-baseline-resolved-profile_catalog.json",
         "include-controls": [
           {
             "with-ids": [
@@ -107,7 +107,7 @@
         ]
       },
       {
-        "href": "https://github.com/usnistgov/oscal-content/raw/main/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_catalog.json",
+        "href": "https://github.com/usnistgov/oscal-content/raw/b940aec9fe9515184448a7e0782cfb2adb56293c/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_catalog.json",
         "include-controls": [
           {
             "with-ids": [
@@ -136,7 +136,7 @@
         ]
       },
       {
-        "href": "https://github.com/usnistgov/oscal-content/raw/main/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_HIGH-baseline-resolved-profile_catalog.json",
+        "href": "https://github.com/usnistgov/oscal-content/raw/b940aec9fe9515184448a7e0782cfb2adb56293c/nist.gov/SP800-53/rev4/json/NIST_SP-800-53_rev4_HIGH-baseline-resolved-profile_catalog.json",
         "include-controls": [
           {
             "with-ids": [
@@ -151,7 +151,7 @@
         ]
       },
       {
-        "href": "https://github.com/usnistgov/oscal-content/raw/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline-resolved-profile_catalog.json",
+        "href": "https://github.com/usnistgov/oscal-content/raw/b940aec9fe9515184448a7e0782cfb2adb56293c/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline-resolved-profile_catalog.json",
         "include-controls": [
           {
             "with-ids": [
