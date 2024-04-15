@@ -7,3 +7,8 @@ check_aws_ip_cidr_ranges:
     - ./bin/oneoffs/update-aws-cidrs
     - |
       (! git diff --name-only | grep "^kitchen/cookbooks/login_dot_gov/templates/default/aws_ipv.*_cidrs\.txt$") || (echo "Error: Run './bin/oneoffs/update-aws-cidrs' to update AWS CIDRs"; exit 1)
+
+check_valid_json_chef:
+  image: cimg/ruby:3.0
+  script:
+    - ./bin/oneoffs/check_valid_json_chef

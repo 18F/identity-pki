@@ -1,0 +1,3 @@
+#!/bin/bash
+
+git ls-files ./kitchen/**/*.json | xargs -n 1 -I % sh -c 'echo %; jq . % || exit 255'
