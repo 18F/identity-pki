@@ -971,7 +971,9 @@ users:
     - lg-public
   vraj.mohan:
     aws_groups:
-    - appdev
+    - apponcall
+    - devops
+    - secops
     ec2_username:
     - vmohan
     gitlab_groups:
