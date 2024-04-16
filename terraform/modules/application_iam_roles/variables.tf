@@ -108,16 +108,6 @@ variable "cloudfront_oai_iam_arn" {
   type        = string
 }
 
-variable "kinesis_bucket_arn" {
-  description = "The ARN of the Kinesis bucket"
-  type        = string
-}
-
-variable "kinesis_kms_key_arn" {
-  description = "The ARN of the Kinesis KMS key"
-  type        = string
-}
-
 variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack"
   type        = string

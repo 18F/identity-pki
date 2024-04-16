@@ -399,33 +399,6 @@ data "aws_iam_policy_document" "glue-assume-role-policy" {
   }
 }
 
-data "aws_iam_policy_document" "glue_crawler_policy" {
-  statement {
-    sid    = "AllowGlue"
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-    ]
-    resources = [
-      "${var.kinesis_bucket_arn}/athena/*",
-    ]
-  }
-
-  statement {
-    sid    = "AllowDecryptFromKMS"
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:Encrypt",
-      "kms:GenerateDataKey",
-      "kms:DescribeKey"
-    ]
-    resources = [var.kinesis_kms_key_arn]
-  }
-
-}
-
 data "aws_iam_policy_document" "describe_instances_role_policy" {
   statement {
     sid    = "AllowDescribeInstancesIntegrationTest"

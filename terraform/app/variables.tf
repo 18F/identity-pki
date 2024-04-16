@@ -1021,7 +1021,19 @@ variable "web_low_traffic_warn_threshold" {
 
 
 variable "keep_legacy_bucket" {
-  description = "Whether or not to preserve the login-gov-ENV-logs bucket. Should only be used in staging and prod."
+  description = <<EOM
+Whether or not to preserve the login-gov-ENV-logs bucket.
+Should only be set to 'true' in upper environments.
+EOM
+  default     = false
+}
+
+variable "keep_log_cache_bucket" {
+  description = <<EOM
+Whether or not to preserve the login-gov-log-cache-ENV bucket, previously used
+with the send_logs_to_s3 module/cw-kinesis-s3-idp-events Subscription Filter.
+Should only be set to 'true' in upper environments.
+EOM
   default     = false
 }
 
@@ -1452,16 +1464,6 @@ variable "events_log_lambda_timeout" {
   description = "Timeout for Lambda function"
   type        = number
   default     = 30
-}
-
-variable "destroy_firehose_bucket" {
-  description = <<EOM
-Whether or not to allow the Kinesis Firehose stream bucket to be destroyed
-with objects still present in it.
-Defaults to true; MUST be set to false in upper environments!
-EOM
-  type        = bool
-  default     = true
 }
 
 variable "enable_loadtesting" {
