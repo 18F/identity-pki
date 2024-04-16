@@ -610,6 +610,16 @@ users:
     - lcole
     gitlab_groups:
     - lg-public
+  lily.rappaport:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - lrappaport
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-people
+    - lg-public
   louise.hoffman:
     aws_groups:
     - fraudops
