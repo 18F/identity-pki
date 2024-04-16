@@ -41,14 +41,14 @@ module "main" {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"          = [],
+    #"FraudOps"          = [],     # must fill in if uncommenting
   }
 
   ssm_command_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
-    "FraudOps"          = [],
+    #"FraudOps"          = [],     # must fill in if uncommenting
   }
 
 }
