@@ -771,8 +771,9 @@ users:
     - analytics
     gitlab_groups:
     - pm
+    - devops|owner
     - lg-all
-    - lg-people
+    - lg-people|owner
     - lg-public
   olayemisi.ogunshina:
     gitlab_groups:
