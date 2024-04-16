@@ -175,7 +175,7 @@ users:
     - lg-all
     - lg-public
     ec2_username:
-    - bseck
+    - biraneseck
   brittany.greaner:
     aws_groups:
     - apponcall
