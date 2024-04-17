@@ -114,7 +114,7 @@ users:
     - lg-public
   andrew.farkas:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - afarkas
     gitlab_groups:
