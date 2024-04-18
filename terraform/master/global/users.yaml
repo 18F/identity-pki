@@ -233,13 +233,13 @@ users:
     - finops
   colter.nattrass:
     aws_groups:
-    - appdev
-    - devopsnonprod
+    - apponcall
     ec2_username:
     - cnattrass
     gitlab_groups:
     - appdev
-    - devops
+    - lg-public
+    - lg-all
   connor.mccarthy:
     aws_groups:
     - devops
