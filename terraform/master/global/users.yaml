@@ -167,8 +167,7 @@ users:
     - benjamin.chait@gsa.gov
   birane.seck:
     aws_groups:
-    - appdev
-    - devopsnonprod
+    - apponcall
     gitlab_groups:
     - devops
     - appdev
