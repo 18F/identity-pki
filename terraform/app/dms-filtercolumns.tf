@@ -214,12 +214,12 @@ resource "aws_dms_replication_task" "filtercolumns" {
             {
               "rule-type" : "transformation",
               "rule-id" : "2${format("%04d", idx)}${format("%04d", idx1)}",
-              "rule-name" : "transformation-rule-${rule.table}-include-column-${column}",
+              "rule-name" : "transformation-rule-${rule.table}-include-column-${column.name}",
               "rule-target" : "column",
               "object-locator" : {
                 "schema-name" : rule.schema,
                 "table-name" : rule.table,
-                "column-name" : column
+                "column-name" : column.name,
               },
               "rule-action" : "include-column",
               "value" : null,
