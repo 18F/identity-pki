@@ -1136,3 +1136,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg-public/identity-eks-charts:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
