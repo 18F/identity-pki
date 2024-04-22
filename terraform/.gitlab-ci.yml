@@ -59,3 +59,23 @@ users-yaml-validation:
   script:
     - cd bin/users
     - make validate
+
+lambda-unit-tests:
+  image: "$ECR_REGISTRY/ecr-public/docker/library/python:3.9.18-alpine3.18"
+  script:
+    - apk add --no-cache bash git
+    - ./bin/lambda-utilities/test.sh
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+        - terraform/**/*
+
+lambda-lint:
+  image: "$ECR_REGISTRY/ecr-public/docker/library/python:3.9.18-alpine3.18"
+  script:
+    - apk add --no-cache bash git
+    - ./bin/lambda-utilities/lint.sh
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+        - terraform/**/*

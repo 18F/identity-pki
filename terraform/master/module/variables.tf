@@ -30,3 +30,11 @@ variable "group_role_map" {
   description = "Roles map for IAM groups, along with account types per role to grant access to."
   type        = map(list(map(list(string))))
 }
+
+variable "default_email_domain" {
+  description = <<EOM
+If a user does not have an explicit email address in the user_map,
+then their email is set to this domain: (their username)@(default_email_domain)
+EOM
+  type        = string
+}

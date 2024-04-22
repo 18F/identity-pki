@@ -156,6 +156,8 @@ module "main" {
 
   # User to group mappings - Groups defined in ../module/iam_groups.tf
   user_map = local.users_yaml.users
+
+  default_email_domain = "gsa.gov"
 }
 
 output "ses_token" {

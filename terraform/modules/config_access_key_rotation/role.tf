@@ -58,7 +58,8 @@ data "aws_iam_policy_document" "lambda_iam_access" {
     effect = "Allow"
     actions = [
       "iam:ListAccessKeys",
-      "iam:ListUsers"
+      "iam:ListUsers",
+      "iam:ListUserTags"
     ]
 
     resources = [

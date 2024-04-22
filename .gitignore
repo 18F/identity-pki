@@ -4,7 +4,7 @@ certs/*
 .chef/knife.rb
 .chef/syntaxcache
 .DS_Store
-/env/*
+env/
 .idea/
 .kitchen/
 .kitchen.local.yml

@@ -11,20 +11,19 @@ import sys
 from datetime import timedelta
 from datetime import date
 
-iam = boto3.client("iam")
-ses = boto3.client("ses")
 
-account_id = boto3.client("sts").get_caller_identity()["Account"]
+def lambda_handler(event, context, iam=None):
+    iam = iam or boto3.client("iam")
+    ses = boto3.client("ses")
 
-rotationPeriod = int(os.environ["RotationPeriod"])
-oldPasswordInactivationPeriod = int(os.environ["InactivePeriod"])
-oldPasswordDeletionPeriod = int(os.environ["DeletionPeriod"])
-
-
-def lambda_handler(event, context):
     # print(event)
-    credential_report = get_credential_report()
+    credential_report = get_credential_report(iam)
     # print(credential_report)
+
+    account_id = boto3.client("sts").get_caller_identity()["Account"]
+    rotation_period = int(os.environ["RotationPeriod"])
+    old_password_inactivation_period = int(os.environ["InactivePeriod"])
+    old_password_deletion_period = int(os.environ["DeletionPeriod"])
 
     for value in credential_report.items():
         test1 = value[1]
@@ -53,16 +52,45 @@ def lambda_handler(event, context):
 
                 # action to take by comparing date
                 action = compare_time(
-                    user_name, last_changed_date, last_used_date, account_id
+                    user_name=user_name,
+                    lastchanged=last_changed_date,
+                    lastlogin=last_used_date,
+                    account_id=account_id,
+                    rotation_period=rotation_period,
+                    old_password_inactivation_period=old_password_inactivation_period,
+                    old_password_deletion_period=old_password_deletion_period,
+                    iam=iam,
+                    ses=ses,
                 )
                 # print("Returned value from function compare_time()", action)
+
+
+def load_user_email(user_name, iam):
+    iam_tags = iam.list_user_tags(UserName=user_name)
+    try:
+        email_tag = next(
+            filter(lambda config: config["Key"] == "email", iam_tags["Tags"])
+        )
+        return email_tag["Value"]
+    except StopIteration:
+        return user_name + "@gsa.gov"
 
 
 # https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_getting-report.html
 # Check the age of password and number of days from last login
 
 
-def compare_time(user_name, lastchanged, lastlogin, account_id):
+def compare_time(
+    user_name,
+    lastchanged,
+    lastlogin,
+    account_id,
+    rotation_period,
+    old_password_inactivation_period,
+    old_password_deletion_period,
+    iam,
+    ses,
+):
     password_age = ((datetime.datetime.now()).date() - lastchanged).days
     recent_password_used_age = ((datetime.datetime.now()).date() - lastlogin).days
 
@@ -82,14 +110,14 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 """
 
     sender_email = "noreply@humans.login.gov"
-    realemail = user_name + "@gsa.gov"
+    realemail = load_user_email(user_name, iam=iam)
     print("real recipient_email", realemail)
 
     recipient_email = user_name + "@gsa.gov"
 
-    if recent_password_used_age < oldPasswordDeletionPeriod:
-        if rotationPeriod <= password_age <= oldPasswordInactivationPeriod:
-            expire_in = oldPasswordInactivationPeriod - password_age
+    if recent_password_used_age < old_password_deletion_period:
+        if rotation_period <= password_age <= old_password_inactivation_period:
+            expire_in = old_password_inactivation_period - password_age
             expiration_date = (datetime.datetime.now()).date() + timedelta(
                 days=expire_in
             )
@@ -97,9 +125,9 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             check = expiration_date.strftime("%m/%d/%Y")
             print(
                 "Password age between "
-                + str(rotationPeriod)
+                + str(rotation_period)
                 + "-"
-                + str(oldPasswordInactivationPeriod)
+                + str(old_password_inactivation_period)
                 + " days so sending warning notification for user",
                 user_name,
             )
@@ -111,11 +139,11 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             BODY_HTML = """<html>
                 <head>Dear {user_name},</head>
                 <body>
-            
+
                     <p>
                         Your AWS Console login access is going to be disabled at {check}. Console access is disabled
-                        if there is missing login activity for more than {oldPasswordDeletionPeriod} days or if password is
-                        not rotated in every {oldPasswordInactivationPeriod} days with active login activity.
+                        if there is missing login activity for more than {old_password_deletion_period} days or if password is
+                        not rotated in every {old_password_inactivation_period} days with active login activity.
                     </p>
                     <p>
                         Please see <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
@@ -132,35 +160,33 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             """.format(
                 user_name=user_name,
                 check=check,
-                oldPasswordDeletionPeriod=oldPasswordDeletionPeriod,
-                oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
+                old_password_deletion_period=old_password_deletion_period,
+                old_password_inactivation_period=old_password_inactivation_period,
             )
             send_notification(
-                recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET
+                recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET, ses=ses
             )
 
-        elif password_age > oldPasswordInactivationPeriod:
+        elif password_age > old_password_inactivation_period:
             print(
                 "Password age older than "
-                + str(oldPasswordInactivationPeriod)
+                + str(old_password_inactivation_period)
                 + " days so disabling it for user ",
                 user_name,
             )
             action1 = invoke_console_access(user_name)
             if action1 == "Success":
-                SUBJECT = (
-                    " Your expired AWS console password has been deactivated."
-                )
+                SUBJECT = " Your expired AWS console password has been deactivated."
                 BODY_HTML = """<html>
                     <head>Dear {user_name},</head>
                     <body>
-                        
+
                         <p>Your AWS Console password is disabled.</p>
                         <p>
-                            We recommend updating your AWS Console password every {oldPasswordInactivationPeriod}
+                            We recommend updating your AWS Console password every {old_password_inactivation_period}
                             days in order to be able to continue to log into the AWS console.
-                            AWS Console access is disabled if there is missing login activity for more than {oldPasswordDeletionPeriod}
-                            days or if password is not rotated in every {oldPasswordInactivationPeriod} days with active login activity.
+                            AWS Console access is disabled if there is missing login activity for more than {old_password_deletion_period}
+                            days or if password is not rotated in every {old_password_inactivation_period} days with active login activity.
                         </p>
                         <p>
                             Please see
@@ -173,11 +199,11 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 </html>
                 """.format(
                     user_name=user_name,
-                    oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
-                    oldPasswordDeletionPeriod=oldPasswordDeletionPeriod,
+                    old_password_inactivation_period=old_password_inactivation_period,
+                    old_password_deletion_period=old_password_deletion_period,
                 )
                 send_notification(
-                    recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET
+                    recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET, ses=ses
                 )
             else:
                 print("Failed to update user's login profile")
@@ -188,16 +214,16 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
             BODY_HTML = """<html>
                 <head> Dear {user_name}, </head>
                 <body>
-                
+
                 <p>Your AWS Console Password is beyond the required rotation period. </p>
-         
+
                 <p><p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
-                
-                <p> We recommend rotating (updating) AWS Console password in every {oldPasswordInactivationPeriod} days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than {oldPasswordDeletionPeriod} days or if password is not rotated in every {oldPasswordInactivationPeriod} days with active login activity. Please refer <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
+
+                <p> We recommend rotating (updating) AWS Console password in every {old_password_inactivation_period} days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than {old_password_deletion_period} days or if password is not rotated in every {old_password_inactivation_period} days with active login activity. Please refer <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
                  Runbook</a> for directions on rotating the password or reach out to @login-platform-help oncall in Slack for any additional information. </p>
-                
+
                 <p>Thank you for your understanding!</p><br>
-              
+
                 <p> Helpful links: <br>
                 <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
                  Runbook</a><br>
@@ -206,18 +232,18 @@ def compare_time(user_name, lastchanged, lastlogin, account_id):
                 </html>
                         """.format(
                 user_name=user_name,
-                oldPasswordDeletionPeriod=oldPasswordDeletionPeriod,
-                oldPasswordInactivationPeriod=oldPasswordInactivationPeriod,
+                old_password_deletion_period=old_password_deletion_period,
+                old_password_inactivation_period=old_password_inactivation_period,
             )
             send_notification(
-                recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET
+                recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET, ses=ses
             )
         else:
             print("Failed to update user's login profile")
 
 
 # Request the credential report, download and parse the CSV.
-def get_credential_report():
+def get_credential_report(iam):
     generate_report = iam.generate_credential_report()
     if generate_report["State"] == "COMPLETE":
         try:
@@ -231,13 +257,13 @@ def get_credential_report():
             print("Unknown error getting Report: ")
     else:
         sleep(2)
-        return get_credential_report()
+        return get_credential_report(iam)
 
 
 ### SES function to send notification ###
 
 
-def send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET):
+def send_notification(recipient_email, sender_email, SUBJECT, BODY_HTML, CHARSET, ses):
     try:
         response = ses.send_email(
             Destination={
@@ -325,9 +351,7 @@ def disable_console_access(temp_credentials, user_name):
 
         print("Here is the user's login profile", profile)
 
-        response = iam.delete_login_profile(
-             UserName=user_name
-        )
+        response = iam.delete_login_profile(UserName=user_name)
 
         print("Console access disabled for the user", user_name)
 
