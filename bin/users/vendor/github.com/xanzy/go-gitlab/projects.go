@@ -135,6 +135,7 @@ type Project struct {
 	ImportError                              string             `json:"import_error"`
 	CIDefaultGitDepth                        int                `json:"ci_default_git_depth"`
 	CIForwardDeploymentEnabled               bool               `json:"ci_forward_deployment_enabled"`
+	CIForwardDeploymentRollbackAllowed       bool               `json:"ci_forward_deployment_rollback_allowed"`
 	CISeperateCache                          bool               `json:"ci_separated_caches"`
 	CIJobTokenScopeEnabled                   bool               `json:"ci_job_token_scope_enabled"`
 	CIOptInJWT                               bool               `json:"ci_opt_in_jwt"`
@@ -167,6 +168,7 @@ type Project struct {
 	SecurityAndComplianceAccessLevel         AccessControlValue `json:"security_and_compliance_access_level"`
 	MergeRequestDefaultTargetSelf            bool               `json:"mr_default_target_self"`
 	ModelExperimentsAccessLevel              AccessControlValue `json:"model_experiments_access_level"`
+	ModelRegistryAccessLevel                 AccessControlValue `json:"model_registry_access_level"`
 
 	// Deprecated: Use EmailsEnabled instead
 	EmailsDisabled bool `json:"emails_disabled"`
@@ -639,6 +641,7 @@ type CreateProjectOptions struct {
 	Mirror                                    *bool                                `url:"mirror,omitempty" json:"mirror,omitempty"`
 	MirrorTriggerBuilds                       *bool                                `url:"mirror_trigger_builds,omitempty" json:"mirror_trigger_builds,omitempty"`
 	ModelExperimentsAccessLevel               *AccessControlValue                  `url:"model_experiments_access_level,omitempty" json:"model_experiments_access_level,omitempty"`
+	ModelRegistryAccessLevel                  *AccessControlValue                  `url:"model_registry_access_level,omitempty" json:"model_registry_access_level,omitempty"`
 	Name                                      *string                              `url:"name,omitempty" json:"name,omitempty"`
 	NamespaceID                               *int                                 `url:"namespace_id,omitempty" json:"namespace_id,omitempty"`
 	OnlyAllowMergeIfAllDiscussionsAreResolved *bool                                `url:"only_allow_merge_if_all_discussions_are_resolved,omitempty" json:"only_allow_merge_if_all_discussions_are_resolved,omitempty"`
@@ -842,6 +845,7 @@ type EditProjectOptions struct {
 	CIConfigPath                              *string                              `url:"ci_config_path,omitempty" json:"ci_config_path,omitempty"`
 	CIDefaultGitDepth                         *int                                 `url:"ci_default_git_depth,omitempty" json:"ci_default_git_depth,omitempty"`
 	CIForwardDeploymentEnabled                *bool                                `url:"ci_forward_deployment_enabled,omitempty" json:"ci_forward_deployment_enabled,omitempty"`
+	CIForwardDeploymentRollbackAllowed        *bool                                `url:"ci_forward_deployment_rollback_allowed,omitempty" json:"ci_forward_deployment_rollback_allowed,omitempty"`
 	CISeperateCache                           *bool                                `url:"ci_separated_caches,omitempty" json:"ci_separated_caches,omitempty"`
 	CIRestrictPipelineCancellationRole        *AccessControlValue                  `url:"ci_restrict_pipeline_cancellation_role,omitempty" json:"ci_restrict_pipeline_cancellation_role,omitempty"`
 	ContainerExpirationPolicyAttributes       *ContainerExpirationPolicyAttributes `url:"container_expiration_policy_attributes,omitempty" json:"container_expiration_policy_attributes,omitempty"`
@@ -871,6 +875,7 @@ type EditProjectOptions struct {
 	MirrorTriggerBuilds                       *bool                                `url:"mirror_trigger_builds,omitempty" json:"mirror_trigger_builds,omitempty"`
 	MirrorUserID                              *int                                 `url:"mirror_user_id,omitempty" json:"mirror_user_id,omitempty"`
 	ModelExperimentsAccessLevel               *AccessControlValue                  `url:"model_experiments_access_level,omitempty" json:"model_experiments_access_level,omitempty"`
+	ModelRegistryAccessLevel                  *AccessControlValue                  `url:"model_registry_access_level,omitempty" json:"model_registry_access_level,omitempty"`
 	Name                                      *string                              `url:"name,omitempty" json:"name,omitempty"`
 	OnlyAllowMergeIfAllDiscussionsAreResolved *bool                                `url:"only_allow_merge_if_all_discussions_are_resolved,omitempty" json:"only_allow_merge_if_all_discussions_are_resolved,omitempty"`
 	OnlyAllowMergeIfPipelineSucceeds          *bool                                `url:"only_allow_merge_if_pipeline_succeeds,omitempty" json:"only_allow_merge_if_pipeline_succeeds,omitempty"`
@@ -1197,24 +1202,26 @@ type ProjectMember struct {
 // GitLab API docs:
 // https://docs.gitlab.com/ee/api/projects.html#list-project-hooks
 type ProjectHook struct {
-	ID                       int        `json:"id"`
-	URL                      string     `json:"url"`
-	ConfidentialNoteEvents   bool       `json:"confidential_note_events"`
-	ProjectID                int        `json:"project_id"`
-	PushEvents               bool       `json:"push_events"`
-	PushEventsBranchFilter   string     `json:"push_events_branch_filter"`
-	IssuesEvents             bool       `json:"issues_events"`
-	ConfidentialIssuesEvents bool       `json:"confidential_issues_events"`
-	MergeRequestsEvents      bool       `json:"merge_requests_events"`
-	TagPushEvents            bool       `json:"tag_push_events"`
-	NoteEvents               bool       `json:"note_events"`
-	JobEvents                bool       `json:"job_events"`
-	PipelineEvents           bool       `json:"pipeline_events"`
-	WikiPageEvents           bool       `json:"wiki_page_events"`
-	DeploymentEvents         bool       `json:"deployment_events"`
-	ReleasesEvents           bool       `json:"releases_events"`
-	EnableSSLVerification    bool       `json:"enable_ssl_verification"`
-	CreatedAt                *time.Time `json:"created_at"`
+	ID                        int        `json:"id"`
+	URL                       string     `json:"url"`
+	ConfidentialNoteEvents    bool       `json:"confidential_note_events"`
+	ProjectID                 int        `json:"project_id"`
+	PushEvents                bool       `json:"push_events"`
+	PushEventsBranchFilter    string     `json:"push_events_branch_filter"`
+	IssuesEvents              bool       `json:"issues_events"`
+	ConfidentialIssuesEvents  bool       `json:"confidential_issues_events"`
+	MergeRequestsEvents       bool       `json:"merge_requests_events"`
+	TagPushEvents             bool       `json:"tag_push_events"`
+	NoteEvents                bool       `json:"note_events"`
+	JobEvents                 bool       `json:"job_events"`
+	PipelineEvents            bool       `json:"pipeline_events"`
+	WikiPageEvents            bool       `json:"wiki_page_events"`
+	DeploymentEvents          bool       `json:"deployment_events"`
+	ReleasesEvents            bool       `json:"releases_events"`
+	EnableSSLVerification     bool       `json:"enable_ssl_verification"`
+	CreatedAt                 *time.Time `json:"created_at"`
+	ResourceAccessTokenEvents bool       `json:"resource_access_token_events"`
+	CustomWebhookTemplate     string     `json:"custom_webhook_template"`
 }
 
 // ListProjectHooksOptions represents the available ListProjectHooks() options.
@@ -1277,22 +1284,24 @@ func (s *ProjectsService) GetProjectHook(pid interface{}, hook int, options ...R
 // GitLab API docs:
 // https://docs.gitlab.com/ee/api/projects.html#add-project-hook
 type AddProjectHookOptions struct {
-	ConfidentialIssuesEvents *bool   `url:"confidential_issues_events,omitempty" json:"confidential_issues_events,omitempty"`
-	ConfidentialNoteEvents   *bool   `url:"confidential_note_events,omitempty" json:"confidential_note_events,omitempty"`
-	DeploymentEvents         *bool   `url:"deployment_events,omitempty" json:"deployment_events,omitempty"`
-	EnableSSLVerification    *bool   `url:"enable_ssl_verification,omitempty" json:"enable_ssl_verification,omitempty"`
-	IssuesEvents             *bool   `url:"issues_events,omitempty" json:"issues_events,omitempty"`
-	JobEvents                *bool   `url:"job_events,omitempty" json:"job_events,omitempty"`
-	MergeRequestsEvents      *bool   `url:"merge_requests_events,omitempty" json:"merge_requests_events,omitempty"`
-	NoteEvents               *bool   `url:"note_events,omitempty" json:"note_events,omitempty"`
-	PipelineEvents           *bool   `url:"pipeline_events,omitempty" json:"pipeline_events,omitempty"`
-	PushEvents               *bool   `url:"push_events,omitempty" json:"push_events,omitempty"`
-	PushEventsBranchFilter   *string `url:"push_events_branch_filter,omitempty" json:"push_events_branch_filter,omitempty"`
-	ReleasesEvents           *bool   `url:"releases_events,omitempty" json:"releases_events,omitempty"`
-	TagPushEvents            *bool   `url:"tag_push_events,omitempty" json:"tag_push_events,omitempty"`
-	Token                    *string `url:"token,omitempty" json:"token,omitempty"`
-	URL                      *string `url:"url,omitempty" json:"url,omitempty"`
-	WikiPageEvents           *bool   `url:"wiki_page_events,omitempty" json:"wiki_page_events,omitempty"`
+	ConfidentialIssuesEvents  *bool   `url:"confidential_issues_events,omitempty" json:"confidential_issues_events,omitempty"`
+	ConfidentialNoteEvents    *bool   `url:"confidential_note_events,omitempty" json:"confidential_note_events,omitempty"`
+	DeploymentEvents          *bool   `url:"deployment_events,omitempty" json:"deployment_events,omitempty"`
+	EnableSSLVerification     *bool   `url:"enable_ssl_verification,omitempty" json:"enable_ssl_verification,omitempty"`
+	IssuesEvents              *bool   `url:"issues_events,omitempty" json:"issues_events,omitempty"`
+	JobEvents                 *bool   `url:"job_events,omitempty" json:"job_events,omitempty"`
+	MergeRequestsEvents       *bool   `url:"merge_requests_events,omitempty" json:"merge_requests_events,omitempty"`
+	NoteEvents                *bool   `url:"note_events,omitempty" json:"note_events,omitempty"`
+	PipelineEvents            *bool   `url:"pipeline_events,omitempty" json:"pipeline_events,omitempty"`
+	PushEvents                *bool   `url:"push_events,omitempty" json:"push_events,omitempty"`
+	PushEventsBranchFilter    *string `url:"push_events_branch_filter,omitempty" json:"push_events_branch_filter,omitempty"`
+	ReleasesEvents            *bool   `url:"releases_events,omitempty" json:"releases_events,omitempty"`
+	TagPushEvents             *bool   `url:"tag_push_events,omitempty" json:"tag_push_events,omitempty"`
+	Token                     *string `url:"token,omitempty" json:"token,omitempty"`
+	URL                       *string `url:"url,omitempty" json:"url,omitempty"`
+	WikiPageEvents            *bool   `url:"wiki_page_events,omitempty" json:"wiki_page_events,omitempty"`
+	ResourceAccessTokenEvents *bool   `url:"resource_access_token_events,omitempty" json:"resource_access_token_events,omitempty"`
+	CustomWebhookTemplate     *string `url:"custom_webhook_template,omitempty" json:"custom_webhook_template,omitempty"`
 }
 
 // AddProjectHook adds a hook to a specified project.
@@ -1325,22 +1334,24 @@ func (s *ProjectsService) AddProjectHook(pid interface{}, opt *AddProjectHookOpt
 // GitLab API docs:
 // https://docs.gitlab.com/ee/api/projects.html#edit-project-hook
 type EditProjectHookOptions struct {
-	ConfidentialIssuesEvents *bool   `url:"confidential_issues_events,omitempty" json:"confidential_issues_events,omitempty"`
-	ConfidentialNoteEvents   *bool   `url:"confidential_note_events,omitempty" json:"confidential_note_events,omitempty"`
-	DeploymentEvents         *bool   `url:"deployment_events,omitempty" json:"deployment_events,omitempty"`
-	EnableSSLVerification    *bool   `url:"enable_ssl_verification,omitempty" json:"enable_ssl_verification,omitempty"`
-	IssuesEvents             *bool   `url:"issues_events,omitempty" json:"issues_events,omitempty"`
-	JobEvents                *bool   `url:"job_events,omitempty" json:"job_events,omitempty"`
-	MergeRequestsEvents      *bool   `url:"merge_requests_events,omitempty" json:"merge_requests_events,omitempty"`
-	NoteEvents               *bool   `url:"note_events,omitempty" json:"note_events,omitempty"`
-	PipelineEvents           *bool   `url:"pipeline_events,omitempty" json:"pipeline_events,omitempty"`
-	PushEvents               *bool   `url:"push_events,omitempty" json:"push_events,omitempty"`
-	PushEventsBranchFilter   *string `url:"push_events_branch_filter,omitempty" json:"push_events_branch_filter,omitempty"`
-	ReleasesEvents           *bool   `url:"releases_events,omitempty" json:"releases_events,omitempty"`
-	TagPushEvents            *bool   `url:"tag_push_events,omitempty" json:"tag_push_events,omitempty"`
-	Token                    *string `url:"token,omitempty" json:"token,omitempty"`
-	URL                      *string `url:"url,omitempty" json:"url,omitempty"`
-	WikiPageEvents           *bool   `url:"wiki_page_events,omitempty" json:"wiki_page_events,omitempty"`
+	ConfidentialIssuesEvents  *bool   `url:"confidential_issues_events,omitempty" json:"confidential_issues_events,omitempty"`
+	ConfidentialNoteEvents    *bool   `url:"confidential_note_events,omitempty" json:"confidential_note_events,omitempty"`
+	DeploymentEvents          *bool   `url:"deployment_events,omitempty" json:"deployment_events,omitempty"`
+	EnableSSLVerification     *bool   `url:"enable_ssl_verification,omitempty" json:"enable_ssl_verification,omitempty"`
+	IssuesEvents              *bool   `url:"issues_events,omitempty" json:"issues_events,omitempty"`
+	JobEvents                 *bool   `url:"job_events,omitempty" json:"job_events,omitempty"`
+	MergeRequestsEvents       *bool   `url:"merge_requests_events,omitempty" json:"merge_requests_events,omitempty"`
+	NoteEvents                *bool   `url:"note_events,omitempty" json:"note_events,omitempty"`
+	PipelineEvents            *bool   `url:"pipeline_events,omitempty" json:"pipeline_events,omitempty"`
+	PushEvents                *bool   `url:"push_events,omitempty" json:"push_events,omitempty"`
+	PushEventsBranchFilter    *string `url:"push_events_branch_filter,omitempty" json:"push_events_branch_filter,omitempty"`
+	ReleasesEvents            *bool   `url:"releases_events,omitempty" json:"releases_events,omitempty"`
+	TagPushEvents             *bool   `url:"tag_push_events,omitempty" json:"tag_push_events,omitempty"`
+	Token                     *string `url:"token,omitempty" json:"token,omitempty"`
+	URL                       *string `url:"url,omitempty" json:"url,omitempty"`
+	WikiPageEvents            *bool   `url:"wiki_page_events,omitempty" json:"wiki_page_events,omitempty"`
+	ResourceAccessTokenEvents *bool   `url:"resource_access_token_events,omitempty" json:"resource_access_token_events,omitempty"`
+	CustomWebhookTemplate     *string `url:"custom_webhook_template,omitempty" json:"custom_webhook_template,omitempty"`
 }
 
 // EditProjectHook edits a hook for a specified project.
@@ -1562,6 +1573,7 @@ type ProjectPushRules struct {
 	FileNameRegex              string     `json:"file_name_regex"`
 	MaxFileSize                int        `json:"max_file_size"`
 	CommitCommitterCheck       bool       `json:"commit_committer_check"`
+	CommitCommitterNameCheck   bool       `json:"commit_committer_name_check"`
 	RejectUnsignedCommits      bool       `json:"reject_unsigned_commits"`
 }
 
@@ -1599,6 +1611,7 @@ type AddProjectPushRuleOptions struct {
 	AuthorEmailRegex           *string `url:"author_email_regex,omitempty" json:"author_email_regex,omitempty"`
 	BranchNameRegex            *string `url:"branch_name_regex,omitempty" json:"branch_name_regex,omitempty"`
 	CommitCommitterCheck       *bool   `url:"commit_committer_check,omitempty" json:"commit_committer_check,omitempty"`
+	CommitCommitterNameCheck   *bool   `url:"commit_committer_name_check,omitempty" json:"commit_committer_name_check,omitempty"`
 	CommitMessageNegativeRegex *string `url:"commit_message_negative_regex,omitempty" json:"commit_message_negative_regex,omitempty"`
 	CommitMessageRegex         *string `url:"commit_message_regex,omitempty" json:"commit_message_regex,omitempty"`
 	DenyDeleteTag              *bool   `url:"deny_delete_tag,omitempty" json:"deny_delete_tag,omitempty"`
@@ -1643,6 +1656,7 @@ type EditProjectPushRuleOptions struct {
 	AuthorEmailRegex           *string `url:"author_email_regex,omitempty" json:"author_email_regex,omitempty"`
 	BranchNameRegex            *string `url:"branch_name_regex,omitempty" json:"branch_name_regex,omitempty"`
 	CommitCommitterCheck       *bool   `url:"commit_committer_check,omitempty" json:"commit_committer_check,omitempty"`
+	CommitCommitterNameCheck   *bool   `url:"commit_committer_name_check,omitempty" json:"commit_committer_name_check,omitempty"`
 	CommitMessageNegativeRegex *string `url:"commit_message_negative_regex,omitempty" json:"commit_message_negative_regex,omitempty"`
 	CommitMessageRegex         *string `url:"commit_message_regex,omitempty" json:"commit_message_regex,omitempty"`
 	DenyDeleteTag              *bool   `url:"deny_delete_tag,omitempty" json:"deny_delete_tag,omitempty"`
