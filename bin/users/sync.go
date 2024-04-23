@@ -963,7 +963,7 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 	members := []*gitlab.GroupMember{}
 	opt := &gitlab.ListGroupMembersOptions{
 		ListOptions: gitlab.ListOptions{
-			PerPage: 200,
+			PerPage: 100,
 		},
 	}
 	for {
