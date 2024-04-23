@@ -363,22 +363,6 @@ func TestGitlabCache(t *testing.T) {
 		Return(
 			[]*gitlab.GroupMember{},
 			&gitlab.Response{
-				NextPage: 2,
-			},
-			nil,
-		)
-	mockClient.EXPECT().
-		ListGroupMembers(
-			1,
-			&gitlab.ListGroupMembersOptions{
-				ListOptions: gitlab.ListOptions{
-					PerPage: 100,
-				},
-			},
-		).
-		Return(
-			[]*gitlab.GroupMember{},
-			&gitlab.Response{
 				NextPage: 0,
 			},
 			nil,

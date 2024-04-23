@@ -141,7 +141,7 @@ func (mr *MockGitlabClientIfaceMockRecorder) DeactivateUser(user any, options ..
 }
 
 // DeleteGroup mocks base method.
-func (m *MockGitlabClientIface) DeleteGroup(gid any, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Response, error) {
+func (m *MockGitlabClientIface) DeleteGroup(gid any, opt *go_gitlab.DeleteGroupOptions, options ...go_gitlab.RequestOptionFunc) (*go_gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{gid}
 	for _, a := range options {
