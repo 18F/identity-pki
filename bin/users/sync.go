@@ -968,7 +968,7 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 	}
 	for {
 		if debug {
-			fmt.Printf("getGroupMembers: before ListGroupMembers %d in loop\n", group.ID)
+			fmt.Printf("getGroupMembers: before ListGroupMembers %d in loop and members is size %d\n", group.ID, len(members))
 		}
 
 		ms, resp, err := gitc.ListGroupMembers(group.ID, opt)
