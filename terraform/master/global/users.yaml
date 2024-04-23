@@ -1144,3 +1144,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg-people/lg-people-appdev:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
