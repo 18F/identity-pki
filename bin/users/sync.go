@@ -988,11 +988,15 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 			}
 		}
 		if debug {
-			fmt.Printf("getGroupMembers: resp.NextPage is %d\n", resp.NextPage)
+			fmt.Printf("getGroupMembers: ListGroupMembers got a list of %d members\n", len(ms))
+			fmt.Printf("getGroupMembers: resp is %#v\n", resp)
 		}
 		if resp.NextPage == 0 {
 			break
 		}
+
+		// Update the page number to get the next page.
+		opt.Page = resp.NextPage
 	}
 
 	if debug {
