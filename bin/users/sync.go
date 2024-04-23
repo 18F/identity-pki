@@ -462,7 +462,7 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]*gitl
 			}
 			groups[g.Name][username] = g.AccessLevel
 			if debug {
-				fmt.Printf("getAuthorizedGroups: setting %s to have accesslevel %s\n", groups[g.Name][username], g.AccessLevel)
+				fmt.Printf("getAuthorizedGroups: setting %d to have accesslevel %d\n", groups[g.Name][username], g.AccessLevel)
 			}
 		}
 	}
@@ -934,7 +934,7 @@ func populateGitLabCache(gitc GitlabClientIface) error {
 
 	for _, group := range gitLabGroups {
 		if debug {
-			fmt.Printf("populateGitLabCache: before getGroupMembers(%s) in gitLabGroups loop\n", group)
+			fmt.Printf("populateGitLabCache: before getGroupMembers(%#v) in gitLabGroups loop\n", group)
 		}
 
 		groupMembers, err := getGroupMembers(gitc, group)
