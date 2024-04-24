@@ -3,6 +3,39 @@ set -euo pipefail
 
 # Runs unit tests on python lambda functions
 
+coverage=false
+xml=false
+
+if [[ " $@ " =~ [[:space:]]--help[[:space:]] ]]; then
+  cat <<EOS
+$(basename $0): Runs unit tests on Python AWS lambda functions
+
+Usage
+  Run unit tests
+    $(basename $0)
+
+  Print this help message
+    $(basename $0) --help
+
+  Run unit tests with code coverage
+    $(basename $0) --coverage
+
+  Run unit tests with XML output (can be combined with --coverage)
+    $(basename $0) --xml
+
+
+EOS
+  exit 0
+fi
+
+if [[ " $@ " =~ [[:space:]]--coverage[[:space:]] ]]; then
+  coverage=true
+fi
+
+if [[ " $@ " =~ [[:space:]]--xml[[:space:]] ]]; then
+  xml=true
+fi
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$(git rev-parse --show-toplevel)
 
@@ -12,6 +45,26 @@ python3.9 -m venv env
 pip install -r requirements.txt > /dev/null
 
 cd "$ROOT_DIR"
-python3.9 -m unittest $(
+
+runner="python3.9"
+if $coverage; then
+  runner="coverage run"
+fi
+
+unittest="unittest"
+if $xml; then
+  mkdir -p tmp/junit
+  unittest="xmlrunner --output-file tmp/unittest.xml"
+fi
+
+$runner -m $unittest $(
   git ls-files $ROOT_DIR --full-name -- | grep '_test.py'
 )
+
+if $coverage; then
+  coverage html
+
+  if $xml; then
+    coverage xml -o coverage.xml
+  fi
+fi

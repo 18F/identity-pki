@@ -19,6 +19,9 @@ Vagrantfile
 .vscode
 **.zip
 *.zip
+.coverage
+coverage.xml
+tmp
 
 # Don't track ASDF tool versions for now
 .tool-versions
