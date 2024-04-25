@@ -49,6 +49,7 @@ resource "aws_cloudformation_stack" "image_codebuild_stack" {
 
   name          = join("", ["CodeBuild-Image", title(each.key), "Role"])
   template_body = file("${path.module}/login-codebuild-image.template")
+  policy_body   = data.aws_iam_policy_document.override.json
   parameters = {
     AccountAlias       = local.aws_alias
     NetworkStackName   = aws_cloudformation_stack.image_network_stack.name
@@ -71,6 +72,7 @@ resource "aws_cloudformation_stack" "image_codepipeline_stack" {
 
   name          = join("", ["CodePipeline-Image", title(each.key), "Role"])
   template_body = file("${path.module}/login-codepipeline-image.template")
+  policy_body   = data.aws_iam_policy_document.override.json
   parameters = {
     CodeBuildProjectName = aws_ssm_parameter.project_name[each.key].name
     Git2S3OutputBucket   = local.git2s3_bucket
@@ -78,4 +80,21 @@ resource "aws_cloudformation_stack" "image_codepipeline_stack" {
     TriggerSource        = var.trigger_source
   }
   capabilities = ["CAPABILITY_IAM"]
+}
+
+data "aws_iam_policy_document" "override" {
+  statement {
+    effect  = "Deny"
+    actions = ["Update:*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "ResourceType"
+      values = [
+        "AWS::CodePipeline::Pipeline",
+        "AWS::CodeBuild::Project",
+        "AWS::S3::Bucket"
+      ]
+    }
+  }
 }
