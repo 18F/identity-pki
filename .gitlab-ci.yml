@@ -494,7 +494,7 @@ ecr-scan:
       timeoutCounter=0
       while [ "$updateComplete" -lt 1 ] && [ "$timeoutCounter" -lt 60 ]; do
         sleep 10
-        imageArray=$(argocd app manifests "${testEnvironment}"-logingov | yq -NM '.spec.template.spec.containers.[].image' | grep identity-dashboard)
+        imageArray=$(argocd app manifests "${testEnvironment}"-logingov | yq -NM '.spec.template.spec.containers.[].image' | grep identity-dashboard || true)
         if [ "${imageArray}" == "${rcRepoName}:${rcTag}" ]; then
           updateComplete=1
           echo "Image updated in manifest"
