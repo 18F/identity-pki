@@ -301,6 +301,7 @@ users:
     - dcassidy
     gitlab_groups:
     - devops
+    - login-security|developer
   devon.johnson:
     aws_groups:
     - supporteng
