@@ -3,6 +3,7 @@ module IdentityConfig
     Identity::Hostdata.config
   end
 
+  # rubocop:disable Metrics/BlockLength
   CONFIG_BUILDER = proc do |config|
     config.add(:aws_http_timeout, type: :integer)
     config.add(:aws_region)
@@ -41,4 +42,5 @@ module IdentityConfig
     config.add(:token_encryption_key_salt_old)
     config.add(:trusted_ca_root_identifiers, type: :comma_separated_string_list)
   end.freeze
+  # rubocop:enable Metrics/BlockLength
 end
