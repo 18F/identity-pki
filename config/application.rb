@@ -19,10 +19,12 @@ module IdentityPki
     # Remove once 7.0 has been deployed
     config.active_support.cache_format_version = 6.1
 
-    configuration = Identity::Hostdata::ConfigReader.new(app_root: Rails.root).read_configuration(
-      Rails.env, write_copy_to: Rails.root.join('tmp/application.yml')
+    Identity::Hostdata.load_config!(
+      app_root: Rails.root,
+      rails_env: Rails.env,
+      write_copy_to: Rails.root.join('tmp/application.yml'),
+      &IdentityConfig::CONFIG_BUILDER
     )
-    IdentityConfig.build_store(configuration)
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
