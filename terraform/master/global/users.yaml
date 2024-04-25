@@ -385,6 +385,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - login-security|developer
   harlan.weber:
     aws_groups:
     - analytics
