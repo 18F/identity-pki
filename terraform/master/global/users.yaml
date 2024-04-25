@@ -153,6 +153,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - login-security|developer
   benjamin.chait:
     aws_groups:
     - analytics
