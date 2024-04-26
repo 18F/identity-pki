@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe IdentityConfig do
   describe '.key_types' do
-    subject(:key_types) { IdentityConfig.store_builder.key_types }
+    subject(:key_types) { Identity::Hostdata.config_builder.key_types }
 
     it 'has all _enabled keys as booleans' do
       aggregate_failures do
