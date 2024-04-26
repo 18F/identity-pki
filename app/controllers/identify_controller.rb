@@ -16,6 +16,7 @@ class IdentifyController < ApplicationController
     if referrer
       # given a valid certificate from the client, return a token
       referrer.query = "token=#{token_for_referrer}"
+      @user_uuid = params[:user_uuid] 
 
       # redirect to referer OR redirect to a preconfigured URL template
       redirect_to referrer.to_s
@@ -112,6 +113,7 @@ class IdentifyController < ApplicationController
       certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
       valid_policies: cert.valid_policies?,
+      user_uuid: @user_uuid,
       valid: valid,
       error: !valid ? validation_result : nil,
       openssl_valid: login_certs_openssl_result[:valid],
