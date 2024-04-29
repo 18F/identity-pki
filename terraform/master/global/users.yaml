@@ -748,6 +748,15 @@ users:
     - lg-all
     - lg-people
     - lg-public
+  mostyn.griffith:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - mgriffith
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   nadya.primak:
     aws_groups:
     - apponcall
