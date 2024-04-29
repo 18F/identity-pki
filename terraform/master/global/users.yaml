@@ -1165,3 +1165,12 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg-public/identity-internal-handbook:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: maintainer
+      pm:
+        access: developer
+
