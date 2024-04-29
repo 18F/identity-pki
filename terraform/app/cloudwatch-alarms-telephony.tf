@@ -130,6 +130,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_resend_percentage_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP experienced more than ${var.sms_high_retry_percentage_threshold} percent of SMS retries in 5 minutes
 
+Alerting: @login-oncall-katherine
 Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
