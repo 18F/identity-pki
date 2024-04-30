@@ -12,6 +12,9 @@ from datetime import date
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# ignore accounts in this list
+USERS_TO_IGNORE = ["ses-smtp"]
+
 
 def lambda_handler(event, context):
     iam = boto3.client("iam")
@@ -52,15 +55,19 @@ def lambda_handler(event, context):
             response = iam.list_users()
 
         for user in response["Users"]:
-            process_user(
-                user["UserName"],
-                iam=iam,
-                ses=ses,
-                rotation_date=rotation_date,
-                inactivation_date=inactivation_date,
-                deletion_date=deletion_date,
-                old_key_inactivation_period=old_key_inactivation_period,
-            )
+            user_name = user["UserName"]
+            if user_name in USERS_TO_IGNORE:
+                print(f"Skipping user from ignore list UserName={user_name}")
+            else:
+                process_user(
+                    user_name,
+                    iam=iam,
+                    ses=ses,
+                    rotation_date=rotation_date,
+                    inactivation_date=inactivation_date,
+                    deletion_date=deletion_date,
+                    old_key_inactivation_period=old_key_inactivation_period,
+                )
 
         if not response["IsTruncated"]:
             break
