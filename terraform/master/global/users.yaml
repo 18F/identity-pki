@@ -69,6 +69,7 @@ users:
     - arowley
     gitlab_groups:
     - pm
+    - lg-people/lg-people-appdev/protocols|owner
   alexander.bradley:
     aws_groups:
     - apponcall
@@ -286,6 +287,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people/lg-people-appdev/protocols|owner
   dawei.wang:
     aws_groups:
     - apponcall
@@ -605,6 +607,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people/lg-people-appdev/protocols|maintainer
   laurie.cole:
     aws_groups:
     - analytics
@@ -993,6 +996,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people/lg-people-appdev/protocols|maintainer
   zach.margolis:
     ec2_username:
     - zmargolis
@@ -1019,6 +1023,7 @@ users:
     - pm|owner
     - antifraud|owner
     - login-security|owner
+    - lg-people/lg-people-appdev/protocols|owner
     can_create_group:
     - true
 groups:
@@ -1044,6 +1049,8 @@ groups:
     description: Gitlab automation accounts
   login-security:
     description: Security Team Project and Documentation Management
+  lg-people/lg-people-appdev/protocols:
+    description: Appdev protocols group
 projects:
   lg/identity-devops:
     groups:
