@@ -8,7 +8,7 @@ gem 'rails', '~> 7.0.8'
 gem 'activerecord-import', '>= 1.0.2'
 gem 'aws-sdk-s3'
 gem 'bloomfilter-rb'
-gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v3.4.2'
+gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v4.0.0'
 gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.0'
 gem 'mini_cache'
 gem 'newrelic_rpm', '~> 8.0'
@@ -16,7 +16,7 @@ gem 'pg'
 gem 'pry-rails'
 gem 'puma'
 gem 'bootsnap', '~> 1.0', require: false
-gem 'redacted_struct', '~> 1.0'
+gem 'redacted_struct', '~> 2.0'
 gem 'rgl'
 
 group :development, :test do
