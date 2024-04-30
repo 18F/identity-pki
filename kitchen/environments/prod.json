@@ -12,8 +12,8 @@
       "lockdown": "true",
       "idp_sync_static": true,
       "use_dashboard_puma": false,
-      "use_pivcac_puma": false,
-      "use_idp_puma": false
+      "use_pivcac_puma": true,
+      "use_idp_puma": true
     },
     "ssh_keys": {
     }
