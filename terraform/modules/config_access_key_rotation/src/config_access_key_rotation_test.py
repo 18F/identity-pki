@@ -13,6 +13,7 @@ class TestConfigAccessKeyRotation(unittest.TestCase):
         "InactivePeriod": "90",
         "RetentionPeriod": "100",
         "temp_role_arn": "temp:role:arn:12345676890",
+        "users_to_ignore": "ses-smtp",
     }
 
     @mock.patch.dict(os.environ, ENV_VARS, clear=True)
