@@ -49,8 +49,6 @@ type AuthorizedProject struct {
 	}
 }
 
-var logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
 func CheckAccessLevel(accesslevelstring string) (*gitlab.AccessLevelValue, error) {
 	accessLevelAlias := map[string]gitlab.AccessLevelValue{
 		"none":       gitlab.NoPermissions,
@@ -175,9 +173,7 @@ func (au *AuthUser) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	au.Can_create_group = len(tmp.Can_create_group) > 0 && tmp.Can_create_group[0] == "true"
 	au.Gitlab_project_bot = len(tmp.Gitlab_project_bot) > 0 && tmp.Gitlab_project_bot[0] == "true"
-	if debug {
-		fmt.Printf("UnmarshalYAML parsing user: %#v\n", au)
-	}
+	slog.Debug(fmt.Sprintf("UnmarshalYAML parsing user: %#v", au))
 	return nil
 }
 
@@ -223,15 +219,22 @@ func main() {
 
 	// Check if we have flags and env vars set
 	flag.Parse()
+
+	// Initialize logger at the correct level (INFO by default, DEBUG with --debug)
+	var programLevel = new(slog.LevelVar)
+	if debug {
+		programLevel.Set(slog.LevelDebug)
+	}
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: programLevel}))
+	slog.SetDefault(logger)
+
 	var err error
 	defaultAccessLevel, err = CheckAccessLevel(accesslevelstring)
 	if err != nil {
 		log.Fatalf("invalid defaultaccesslevel: %s", err)
 	}
 
-	if debug {
-		fmt.Printf("main: before getAuthorizedUsers\n")
-	}
+	slog.Debug("main: before getAuthorizedUsers")
 
 	// Parse YAML
 	authorizedUsers, err := getAuthorizedUsers(userYaml)
@@ -239,9 +242,7 @@ func main() {
 		log.Fatalf("Error reading user YAML: %s", err)
 	}
 
-	if debug {
-		fmt.Printf("main: before authorizedUsers.Validate()\n")
-	}
+	slog.Debug("main: before authorizedUsers.Validate()")
 
 	// Run internal validations before we attempt any external changes
 	if err := authorizedUsers.Validate(); err != nil {
@@ -260,9 +261,7 @@ func main() {
 		flag.Usage()
 	}
 
-	if debug {
-		fmt.Printf("main: before gitlab.NewClient\n")
-	}
+	slog.Debug("main: before gitlab.NewClient")
 
 	// Set up GitLab connection
 	rawClient, err := gitlab.NewClient(
@@ -276,9 +275,7 @@ func main() {
 		client: rawClient,
 	}
 
-	if debug {
-		fmt.Printf("main: before filling cache\n")
-	}
+	slog.Debug("main: before filling cache")
 
 	// Fill cache
 	err = populateGitLabCache(gitc)
@@ -290,9 +287,7 @@ func main() {
 	// Sync Users
 	//
 
-	if debug {
-		fmt.Printf("main: before getExistingUsers\n")
-	}
+	slog.Debug("main: before getExistingUsers")
 
 	// Get existing GitLab users
 	existingUsers, err := getExistingUsers(gitc)
@@ -300,9 +295,7 @@ func main() {
 		log.Fatalf("Failed to list users: %v", err)
 	}
 
-	if debug {
-		fmt.Printf("main: before resolveUsers\n")
-	}
+	slog.Debug("main: before resolveUsers")
 
 	// This may fail if Gitlab returns errors. Don't bail, because there's still useful work to do.
 	if err := resolveUsers(gitc, existingUsers, authorizedUsers); err != nil {
@@ -313,9 +306,7 @@ func main() {
 	// Sync Groups
 	//
 
-	if debug {
-		fmt.Printf("main: before getExistingGroups\n")
-	}
+	slog.Debug("main: before getExistingGroups")
 
 	// Get existing groups
 	gitlabGroups, err := getExistingGroups(gitc)
@@ -323,15 +314,11 @@ func main() {
 		log.Fatalf("Could not get GitLab groups: %v", err)
 	}
 
-	if debug {
-		fmt.Printf("main: before resolveGroups\n")
-	}
+	slog.Debug("main: before resolveGroups")
 
 	groupsToCreate := resolveGroups(gitlabGroups, authorizedUsers)
 
-	if debug {
-		fmt.Printf("main: before createGroups\n")
-	}
+	slog.Debug("main: before createGroups")
 
 	// Even if these fail, try to continue. There's still work to do.
 	err = createGroups(gitc, groupsToCreate)
@@ -343,9 +330,7 @@ func main() {
 	// Sync Group Members
 	//
 
-	if debug {
-		fmt.Printf("main: before getExistingMembers\n")
-	}
+	slog.Debug("main: before getExistingMembers")
 
 	groupsWithMembers, err := getExistingMembers(gitc)
 	if err != nil {
@@ -461,9 +446,7 @@ func getAuthorizedGroups(authUsers *AuthorizedUsers) map[string]map[string]*gitl
 				groups[g.Name] = make(map[string]*gitlab.AccessLevelValue)
 			}
 			groups[g.Name][username] = g.AccessLevel
-			if debug {
-				fmt.Printf("getAuthorizedGroups: setting %d to have accesslevel %d\n", groups[g.Name][username], g.AccessLevel)
-			}
+			slog.Debug(fmt.Sprintf("getAuthorizedGroups: setting %d to have accesslevel %d", groups[g.Name][username], g.AccessLevel))
 		}
 	}
 
@@ -486,9 +469,7 @@ func getExistingGroups(gitc GitlabClientIface) (map[string]*gitlab.Group, error)
 	for _, g := range groups {
 		groupMap[g.Name] = g
 		cache.Groups[g.Name] = g
-		if debug {
-			fmt.Printf("getExistingGroups: caching group %#v\n", g)
-		}
+		slog.Debug(fmt.Sprintf("getExistingGroups: caching group %#v", g))
 	}
 
 	return groupMap, nil
@@ -669,7 +650,7 @@ func resolveGroups(
 
 	for g := range gitlabGroups {
 		if _, ok := authorizedGroups[g]; !ok {
-			logger.Info(
+			slog.Info(
 				fmt.Sprintf("%v not found in authorized groups; doing nothing.", g),
 				"event", "skip_unauthorized_group",
 				"group", g,
@@ -918,9 +899,7 @@ func populateGitLabCache(gitc GitlabClientIface) error {
 	}
 	cache.Users = gitLabUsers
 
-	if debug {
-		fmt.Printf("populateGitLabCache: before getExistingGroups\n")
-	}
+	slog.Debug("populateGitLabCache: before getExistingGroups")
 
 	gitLabGroups, err := getExistingGroups(gitc)
 	if err != nil {
@@ -928,14 +907,10 @@ func populateGitLabCache(gitc GitlabClientIface) error {
 	}
 	cache.Groups = gitLabGroups
 
-	if debug {
-		fmt.Printf("populateGitLabCache: before gitLabGroups loop\n")
-	}
+	slog.Debug("populateGitLabCache: before gitLabGroups loop")
 
 	for _, group := range gitLabGroups {
-		if debug {
-			fmt.Printf("populateGitLabCache: before getGroupMembers(%#v) in gitLabGroups loop\n", group)
-		}
+		slog.Debug(fmt.Sprintf("populateGitLabCache: before getGroupMembers(%#v) in gitLabGroups loop", group))
 
 		groupMembers, err := getGroupMembers(gitc, group)
 		if err != nil {
@@ -967,30 +942,20 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 		},
 	}
 	for {
-		if debug {
-			fmt.Printf("getGroupMembers: before ListGroupMembers %d in loop and members is size %d\n", group.ID, len(members))
-		}
+		slog.Debug(fmt.Sprintf("getGroupMembers: before ListGroupMembers %d in loop and members is size %d", group.ID, len(members)))
 
 		ms, resp, err := gitc.ListGroupMembers(group.ID, opt)
-		if debug {
-			fmt.Printf("getGroupMembers: after ListGroupMembers %d in loop\n", group.ID)
-		}
+		slog.Debug(fmt.Sprintf("getGroupMembers: after ListGroupMembers %d in loop", group.ID))
 		if err != nil {
-			if debug {
-				fmt.Printf("getGroupMembers: ListGroupMembers had an error\n")
-			}
+			slog.Debug("getGroupMembers: ListGroupMembers had an error")
 			return nil, err
 		}
 		for _, m := range ms {
 			members = append(members, m)
-			if debug {
-				fmt.Printf("getGroupMembers: ListGroupMembers appended member %#v onto members\n", m)
-			}
+			slog.Debug(fmt.Sprintf("getGroupMembers: ListGroupMembers appended member %#v onto members", m))
 		}
-		if debug {
-			fmt.Printf("getGroupMembers: ListGroupMembers got a list of %d members\n", len(ms))
-			fmt.Printf("getGroupMembers: resp is %#v\n", resp)
-		}
+		slog.Debug(fmt.Sprintf("getGroupMembers: ListGroupMembers got a list of %d members", len(ms)))
+		slog.Debug(fmt.Sprintf("getGroupMembers: resp is %#v", resp))
 		if resp.NextPage == 0 {
 			break
 		}
@@ -999,9 +964,7 @@ func getGroupMembers(gitc GitlabClientIface, group *gitlab.Group) ([]*gitlab.Gro
 		opt.Page = resp.NextPage
 	}
 
-	if debug {
-		fmt.Printf("getGroupMembers: done with members\n")
-	}
+	slog.Debug("getGroupMembers: done with members")
 	return members, nil
 }
 
