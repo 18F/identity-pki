@@ -1433,7 +1433,6 @@ variable "idp_pii_spill_patterns" {
   # well as common test fixture data
   default = [
     # First Names
-    "Susan",
     "FAKEY",
     # Last Names
     "MCFAKERSON",
