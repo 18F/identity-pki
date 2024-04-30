@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Cut a new release, create a MR, and add the release to GitLab
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [NEW_VERSION] [OLD_VERSION]
+
+Calculates the current, and next, releases, based on the contents of VERSION.txt,
+and runs 'rake release' to cut a new release. Once the tags are pushed to origin,
+creates both a merge request and a GitLab Release for the version update.
+
+By default, should be run with no arguments. If a specific NEW_VERSION and/or
+OLD_VERSION is desired for this script, those can be specified via the first
+and second arguments, respectively.
+
+EOM
+}
+
+[ $# -gt 2 ] && raise 'Must provide < 3 arguments'
+verify_root_repo
+
+if [[ ! $(command -v glab) ]] ; then
+  brew install glab || raise "glab not installed!"
+fi
+
+declare {MANUAL,NEW_RELEASE,NEW_VERSION_MR,BREAKING_MRS,REGULAR_MRS}=
+if [[ $# -eq 0 ]] ; then
+  NEW_RELEASE=$(cat VERSION.txt | sed -E 's/pre\-//')
+else
+  NEW_RELEASE=${1}
+  MANUAL=true
+fi
+OLD_RELEASE=${2:-$(($(echo ${NEW_RELEASE} | sed -E 's/\..+//')-1))}
+
+MR_LIST=$(glab  mr list --merged  --target-branch=main --per-page 300  | cut -f1 -f3 -f4)
+
+OLD_VERSION_MR=$(echo "${MR_LIST}" | grep "Release v${OLD_RELEASE}" | tr -d '\n')
+
+[[ ${MANUAL} ]] && NEW_VERSION_MR=$(echo "${MR_LIST}" | grep "Release v${NEW_RELEASE}" | tr -d '\n')
+if [[ -z ${NEW_VERSION_MR} ]] ; then
+  RELEASE_MRS=$(echo "${MR_LIST}" |
+    sed "/${OLD_VERSION_MR}/q" | sed '$d')
+else
+  RELEASE_MRS=$(echo "${MR_LIST}" |
+     awk -v beg="$NEW_VERSION_MR" -v end="$OLD_VERSION_MR" '$0==beg{f=1} f{print; if ($0==end) exit}' |
+     sed '1d;$d')
+fi
+
+REGULAR_MRS=$(echo "${RELEASE_MRS}" | grep -v BREAKING) || true
+if [[ $(echo "${RELEASE_MRS}" | grep BREAKING) ]] ; then
+  BREAKING_MRS="
+BREAKING CHANGES:
+$(echo "${RELEASE_MRS}" | grep BREAKING | sed -E 's/\(BREAKING\)| \| BREAKING//g')"
+  if [[ ! -z ${REGULAR_MRS:-} ]] ; then
+  REGULAR_MRS="
+
+REGULAR CHANGES:
+$(echo "${REGULAR_MRS}")"
+  fi
+fi
+
+run git checkout -b release/v${NEW_RELEASE}
+run bundle exec rake release
+run git push origin release/v${NEW_RELEASE}
+run git push origin v${NEW_RELEASE} # push w/remote tags
+
+${GIT_DIR}/bin/gitlab-mr -t "$(cat <<EOF
+Release v${NEW_RELEASE}
+$(echo "${BREAKING_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
+$(echo "${REGULAR_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
+EOF
+)"
+
+run glab release create v${NEW_RELEASE} -N "$(cat <<EOF
+Release v${NEW_RELEASE}
+${BREAKING_MRS}
+${REGULAR_MRS}
+EOF
+)"
