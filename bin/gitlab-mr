@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# Powerful/quick way to create merge requests easily using glab merge-request
+
+set -eu
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+Usage: ${0} [-t 'MR_TITLE'] [-r 'GITLAB_REVIEWERS'] [-p] [-x] [-b]
+
+Runs \`glab mr create\` with validation and custom args.
+
+Arguments:
+  -t : Sets the title of the Merge Request
+  -r : GitLab username who will be added
+       as reviewers for the MR
+  -p : Also add all changes, commit, and push/set upstream to origin
+  -x : Instead of opening a MR, merge and delete the current branch.
+  -b : Run with -x to preserve the local branch after merging
+
+Defaults:
+  - If MR_TITLE is not declared, will use the name of the most recent
+    commit as the MR title.
+
+EOM
+}
+
+if [[ ! $(command -v glab) ]] ; then
+  brew install glab || raise "glab not installed!"
+fi
+
+declare {PUSH,MR_TITLE,GL_REVS}=
+ACTION='open'
+SAVE_BRANCH=false
+while getopts r:t:pxb opt
+do
+    case "${opt}" in
+        r) GL_REVS="${OPTARG}"    ;;
+        t) MR_TITLE=("${OPTARG}") ;;
+        p) PUSH=true              ;;
+        x) ACTION='merge'         ;;
+        b) SAVE_BRANCH=true       ;;
+    esac
+done
+
+[[ -z ${MR_TITLE} ]] && MR_TITLE=("$(git show -s --format=%s)")
+
+gh_revs
+
+if [[ "${ACTION}" == 'open' ]] ; then
+  if [[ "${PUSH}" == true ]] ; then
+    run git add --all
+    run git commit -m "${MR_TITLE[@]}"
+    run git push --set-upstream origin $(git_current_branch)
+  fi
+  run glab mr create -t "$MR_TITLE" --reviewer "${GL_REVS}"
+  
+  # Check for errors during MR creation
+  if [ $? -ne 0 ]; then
+  echo "Error: Failed to create merge request."
+  exit 1
+  fi
+
+else
+  OLD_BRANCH=$(git_current_branch)
+  run git checkout main
+  run git pull origin main
+  run git checkout ${OLD_BRANCH}
+  run git rebase main
+  run git push --set-upstream origin $(git_current_branch)
+  run git push --force-with-lease
+  run git merge main --no-edit
+  run git checkout main
+  run git merge --no-edit --no-ff ${OLD_BRANCH} 
+  run git push origin main
+  if [[ "${SAVE_BRANCH}" == false ]]; then
+    run git checkout main
+    run git pull origin main
+    run git branch -d ${OLD_BRANCH}
+  fi
+fi
