@@ -426,7 +426,7 @@ sns_topic_arn=$(cat /etc/login.gov/info/sns_topic_arn)
 aws_region=#{aws_region}
 external_url=#{external_url}
 environment=#{node.chef_environment}
-slack_handle=\\<\\!subteam\\^SUY1QMZE3\\>
+slack_handle=\\<\\!subteam\\^S03H0URC86M\\>
 
 failure() {
   echo $1 > .message
@@ -500,7 +500,7 @@ if [[ $debug -ne 0 || ! $debug ]]; then
     echo "delta set to $delta" 1>&2
 fi
 
-if [ "$delta" -ge 600 ]; then
+if [ "$delta" -ge 3600 ]; then
       failure "warning:  Identity-devops in Gitlab ${environment} is out of date by ${delta} seconds ${slack_handle}"
     else
       echo "Identity-devops in ${environment} has synced recently"
