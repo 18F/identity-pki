@@ -368,7 +368,13 @@ Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Asynchronous-Worke
 EOM
   treat_missing_data        = "missing"
   insufficient_data_actions = []
-  alarm_actions             = local.moderate_priority_alarm_actions
+
+  #### revert once UspsAuthTokenRefreshJob bug in staging/int is fixed:
+  #### https://gsa-tts.slack.com/archives/C04GA9WQ85B/p1714425382952849
+  # alarm_actions = local.moderate_priority_alarm_actions
+  alarm_actions = var.env_name == "prod" ? (
+  local.moderate_priority_alarm_actions) : local.low_priority_alarm_actions
+
 }
 
 resource "aws_cloudwatch_metric_alarm" "idp_worker_queue_time_alarm" {
