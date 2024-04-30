@@ -32,6 +32,7 @@ resource "aws_lambda_function" "config_access_key_rotation_lambda" {
       RotationPeriod   = 80,
       InactivePeriod   = 90,
       RetentionPeriod  = 100,
+      users_to_ignore  = "ses-smtp" #comma delimited list of IAM usernames to ignore
       lambda_temp_role = "${aws_iam_role.assumeRole_lambda.arn}"
     }
   }

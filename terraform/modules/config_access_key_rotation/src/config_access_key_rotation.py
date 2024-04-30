@@ -12,13 +12,14 @@ from datetime import date
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# ignore accounts in this list
-USERS_TO_IGNORE = ["ses-smtp"]
-
 
 def lambda_handler(event, context):
     iam = boto3.client("iam")
     ses = boto3.client("ses")
+
+    # Environment Variable: users_to_ignore
+    # ignore accounts in this list
+    users_to_ignore = os.environ["users_to_ignore"].split(",")
 
     # Environment Variable: RotationPeriod
     # The number of days after which a key should be evaluated either for sending notification or change it's status to Inactive
@@ -56,7 +57,7 @@ def lambda_handler(event, context):
 
         for user in response["Users"]:
             user_name = user["UserName"]
-            if user_name in USERS_TO_IGNORE:
+            if user_name in users_to_ignore:
                 print(f"Skipping user from ignore list UserName={user_name}")
             else:
                 process_user(
