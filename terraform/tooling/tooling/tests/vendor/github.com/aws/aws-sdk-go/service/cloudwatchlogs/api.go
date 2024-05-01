@@ -3,13 +3,22 @@
 package cloudwatchlogs
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"sync"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/eventstream"
+	"github.com/aws/aws-sdk-go/private/protocol/eventstream/eventstreamapi"
 	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
+	"github.com/aws/aws-sdk-go/private/protocol/rest"
 )
 
 const opAssociateKmsKey = "AssociateKmsKey"
@@ -286,7 +295,7 @@ func (c *CloudWatchLogs) CreateDeliveryRequest(input *CreateDeliveryInput) (req 
 // in the table at Enabling logging from Amazon Web Services services. (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AWS-logs-and-resource-policy.html)
 //
 // A delivery destination can represent a log group in CloudWatch Logs, an Amazon
-// S3 bucket, or a delivery stream in Kinesis Data Firehose.
+// S3 bucket, or a delivery stream in Firehose.
 //
 // To configure logs delivery between a supported Amazon Web Services service
 // and a destination, you must do the following:
@@ -300,7 +309,7 @@ func (c *CloudWatchLogs) CreateDeliveryRequest(input *CreateDeliveryInput) (req 
 //     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestination.html).
 //
 //   - If you are delivering logs cross-account, you must use PutDeliveryDestinationPolicy
-//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationolicy.html)
+//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationPolicy.html)
 //     in the destination account to assign an IAM policy to the destination.
 //     This policy allows delivery to that destination.
 //
@@ -660,6 +669,8 @@ func (c *CloudWatchLogs) CreateLogGroupRequest(input *CreateLogGroupInput) (req 
 //     '_' (underscore), '-' (hyphen), '/' (forward slash), '.' (period), and
 //     '#' (number sign)
 //
+//   - Log group names can't start with the string aws/
+//
 // When you create a log group, by default the log events in the log group do
 // not expire. To set a retention policy so that events expire and are deleted
 // after a specified time, use PutRetentionPolicy (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutRetentionPolicy.html).
@@ -870,10 +881,18 @@ func (c *CloudWatchLogs) DeleteAccountPolicyRequest(input *DeleteAccountPolicyIn
 
 // DeleteAccountPolicy API operation for Amazon CloudWatch Logs.
 //
-// Deletes a CloudWatch Logs account policy.
+// Deletes a CloudWatch Logs account policy. This stops the policy from applying
+// to all log groups or a subset of log groups in the account. Log-group level
+// policies will still be in effect.
 //
-// To use this operation, you must be signed on with the logs:DeleteDataProtectionPolicy
-// and logs:DeleteAccountPolicy permissions.
+// To use this operation, you must be signed on with the correct permissions
+// depending on the type of policy that you are deleting.
+//
+//   - To delete a data protection policy, you must have the logs:DeleteDataProtectionPolicy
+//     and logs:DeleteAccountPolicy permissions.
+//
+//   - To delete a subscription filter policy, you must have the logs:DeleteSubscriptionFilter
+//     and logs:DeleteAccountPolicy permissions.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2347,6 +2366,15 @@ func (c *CloudWatchLogs) DescribeDeliveriesRequest(input *DescribeDeliveriesInpu
 //
 // Retrieves a list of the deliveries that have been created in the account.
 //
+// A delivery is a connection between a delivery source (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliverySource.html)
+// and a delivery destination (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestination.html).
+//
+// A delivery source represents an Amazon Web Services resource that sends logs
+// to an logs delivery destination. The destination can be CloudWatch Logs,
+// Amazon S3, or Firehose. Only some Amazon Web Services services support being
+// configured as a delivery source. These services are listed in Enable logging
+// from Amazon Web Services services. (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AWS-logs-and-resource-policy.html)
+//
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
 // the error.
@@ -3543,7 +3571,8 @@ func (c *CloudWatchLogs) DescribeQueryDefinitionsRequest(input *DescribeQueryDef
 // DescribeQueryDefinitions API operation for Amazon CloudWatch Logs.
 //
 // This operation returns a paginated list of your saved CloudWatch Logs Insights
-// query definitions.
+// query definitions. You can retrieve query definitions from the current account
+// or from a source account that is linked to the current account.
 //
 // You can use the queryDefinitionNamePrefix parameter to limit the results
 // to only the query definitions that have names that start with a certain string.
@@ -4221,8 +4250,15 @@ func (c *CloudWatchLogs) GetDeliveryRequest(input *GetDeliveryInput) (req *reque
 
 // GetDelivery API operation for Amazon CloudWatch Logs.
 //
-// Returns complete information about one delivery. A delivery is a connection
-// between a logical delivery source and a logical delivery destination
+// Returns complete information about one logical delivery. A delivery is a
+// connection between a delivery source (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliverySource.html)
+// and a delivery destination (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestination.html).
+//
+// A delivery source represents an Amazon Web Services resource that sends logs
+// to an logs delivery destination. The destination can be CloudWatch Logs,
+// Amazon S3, or Firehose. Only some Amazon Web Services services support being
+// configured as a delivery source. These services are listed in Enable logging
+// from Amazon Web Services services. (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AWS-logs-and-resource-policy.html)
 //
 // You need to specify the delivery id in this operation. You can find the IDs
 // of the deliveries in your account with the DescribeDeliveries (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_DescribeDeliveries.html)
@@ -5609,10 +5645,14 @@ func (c *CloudWatchLogs) PutAccountPolicyRequest(input *PutAccountPolicyInput) (
 
 // PutAccountPolicy API operation for Amazon CloudWatch Logs.
 //
-// Creates an account-level data protection policy that applies to all log groups
-// in the account. A data protection policy can help safeguard sensitive data
-// that's ingested by your log groups by auditing and masking the sensitive
-// log data. Each account can have only one account-level policy.
+// Creates an account-level data protection policy or subscription filter policy
+// that applies to all log groups or a subset of log groups in the account.
+//
+// # Data protection policy
+//
+// A data protection policy can help safeguard sensitive data that's ingested
+// by your log groups by auditing and masking the sensitive log data. Each account
+// can have only one account-level data protection policy.
 //
 // Sensitive data is detected and masked when it is ingested into a log group.
 // When you set a data protection policy, log events ingested into the log groups
@@ -5620,7 +5660,7 @@ func (c *CloudWatchLogs) PutAccountPolicyRequest(input *PutAccountPolicyInput) (
 //
 // If you use PutAccountPolicy to create a data protection policy for your whole
 // account, it applies to both existing log groups and all log groups that are
-// created later in this account. The account policy is applied to existing
+// created later in this account. The account-level policy is applied to existing
 // log groups with eventual consistency. It might take up to 5 minutes before
 // sensitive data in existing log groups begins to be masked.
 //
@@ -5636,15 +5676,46 @@ func (c *CloudWatchLogs) PutAccountPolicyRequest(input *PutAccountPolicyInput) (
 // For more information, including a list of types of data that can be audited
 // and masked, see Protect sensitive log data with masking (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/mask-sensitive-log-data.html).
 //
-// To use the PutAccountPolicy operation, you must be signed on with the logs:PutDataProtectionPolicy
-// and logs:PutAccountPolicy permissions.
+// To use the PutAccountPolicy operation for a data protection policy, you must
+// be signed on with the logs:PutDataProtectionPolicy and logs:PutAccountPolicy
+// permissions.
 //
 // The PutAccountPolicy operation applies to all log groups in the account.
-// You can also use PutDataProtectionPolicy (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDataProtectionPolicy.html)
+// You can use PutDataProtectionPolicy (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDataProtectionPolicy.html)
 // to create a data protection policy that applies to just one log group. If
 // a log group has its own data protection policy and the account also has an
 // account-level data protection policy, then the two policies are cumulative.
 // Any sensitive term specified in either policy is masked.
+//
+// # Subscription filter policy
+//
+// A subscription filter policy sets up a real-time feed of log events from
+// CloudWatch Logs to other Amazon Web Services services. Account-level subscription
+// filter policies apply to both existing log groups and log groups that are
+// created later in this account. Supported destinations are Kinesis Data Streams,
+// Firehose, and Lambda. When log events are sent to the receiving service,
+// they are Base64 encoded and compressed with the GZIP format.
+//
+// The following destinations are supported for subscription filters:
+//
+//   - An Kinesis Data Streams data stream in the same account as the subscription
+//     policy, for same-account delivery.
+//
+//   - An Firehose data stream in the same account as the subscription policy,
+//     for same-account delivery.
+//
+//   - A Lambda function in the same account as the subscription policy, for
+//     same-account delivery.
+//
+//   - A logical destination in a different account created with PutDestination
+//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDestination.html),
+//     for cross-account delivery. Kinesis Data Streams and Firehose are supported
+//     as logical destinations.
+//
+// Each account can have one account-level subscription filter policy. If you
+// are updating an existing filter, you must specify the correct name in PolicyName.
+// To perform a PutAccountPolicy subscription filter operation for any destination
+// except a Lambda function, you must also have the iam:PassRole permission.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -5852,8 +5923,8 @@ func (c *CloudWatchLogs) PutDeliveryDestinationRequest(input *PutDeliveryDestina
 //
 // Creates or updates a logical delivery destination. A delivery destination
 // is an Amazon Web Services resource that represents an Amazon Web Services
-// service that logs can be sent to. CloudWatch Logs, Amazon S3, and Kinesis
-// Data Firehose are supported as logs delivery destinations.
+// service that logs can be sent to. CloudWatch Logs, Amazon S3, and Firehose
+// are supported as logs delivery destinations.
 //
 // To configure logs delivery between a supported Amazon Web Services service
 // and a destination, you must do the following:
@@ -5866,7 +5937,7 @@ func (c *CloudWatchLogs) PutDeliveryDestinationRequest(input *PutDeliveryDestina
 //     a logical object that represents the actual delivery destination.
 //
 //   - If you are delivering logs cross-account, you must use PutDeliveryDestinationPolicy
-//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationolicy.html)
+//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationPolicy.html)
 //     in the destination account to assign an IAM policy to the destination.
 //     This policy allows delivery to that destination.
 //
@@ -6095,7 +6166,7 @@ func (c *CloudWatchLogs) PutDeliverySourceRequest(input *PutDeliverySourceInput)
 //
 // Creates or updates a logical delivery source. A delivery source represents
 // an Amazon Web Services resource that sends logs to an logs delivery destination.
-// The destination can be CloudWatch Logs, Amazon S3, or Kinesis Data Firehose.
+// The destination can be CloudWatch Logs, Amazon S3, or Firehose.
 //
 // To configure logs delivery between a delivery destination and an Amazon Web
 // Services service that is supported as a delivery source, you must do the
@@ -6109,7 +6180,7 @@ func (c *CloudWatchLogs) PutDeliverySourceRequest(input *PutDeliverySourceInput)
 //     more information, see PutDeliveryDestination (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestination.html).
 //
 //   - If you are delivering logs cross-account, you must use PutDeliveryDestinationPolicy
-//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationolicy.html)
+//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationPolicy.html)
 //     in the destination account to assign an IAM policy to the destination.
 //     This policy allows delivery to that destination.
 //
@@ -6975,7 +7046,7 @@ func (c *CloudWatchLogs) PutSubscriptionFilterRequest(input *PutSubscriptionFilt
 //
 //   - A logical destination created with PutDestination (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDestination.html)
 //     that belongs to a different account, for cross-account delivery. We currently
-//     support Kinesis Data Streams and Kinesis Data Firehose as logical destinations.
+//     support Kinesis Data Streams and Firehose as logical destinations.
 //
 //   - An Amazon Kinesis Data Firehose delivery stream that belongs to the
 //     same account as the subscription filter, for same-account delivery.
@@ -7034,6 +7105,336 @@ func (c *CloudWatchLogs) PutSubscriptionFilterWithContext(ctx aws.Context, input
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
+}
+
+const opStartLiveTail = "StartLiveTail"
+
+// StartLiveTailRequest generates a "aws/request.Request" representing the
+// client's request for the StartLiveTail operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See StartLiveTail for more information on using the StartLiveTail
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//	// Example sending a request using the StartLiveTailRequest method.
+//	req, resp := client.StartLiveTailRequest(params)
+//
+//	err := req.Send()
+//	if err == nil { // resp is now filled
+//	    fmt.Println(resp)
+//	}
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/logs-2014-03-28/StartLiveTail
+func (c *CloudWatchLogs) StartLiveTailRequest(input *StartLiveTailInput) (req *request.Request, output *StartLiveTailOutput) {
+	op := &request.Operation{
+		Name:       opStartLiveTail,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &StartLiveTailInput{}
+	}
+
+	output = &StartLiveTailOutput{}
+	req = c.newRequest(op, input, output)
+
+	es := NewStartLiveTailEventStream()
+	output.eventStream = es
+
+	req.Handlers.Send.Swap(client.LogHTTPResponseHandler.Name, client.LogHTTPResponseHeaderHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, rest.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBack(es.runOutputStream)
+	es.output = output
+	req.Handlers.Unmarshal.PushBack(es.recvInitialEvent)
+	req.Handlers.Unmarshal.PushBack(es.runOnStreamPartClose)
+	req.Handlers.Build.PushBackNamed(protocol.NewHostPrefixHandler("streaming-", nil))
+	req.Handlers.Build.PushBackNamed(protocol.ValidateEndpointHostHandler)
+	return
+}
+
+// StartLiveTail API operation for Amazon CloudWatch Logs.
+//
+// Starts a Live Tail streaming session for one or more log groups. A Live Tail
+// session returns a stream of log events that have been recently ingested in
+// the log groups. For more information, see Use Live Tail to view logs in near
+// real time (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CloudWatchLogs_LiveTail.html).
+//
+// The response to this operation is a response stream, over which the server
+// sends live log events and the client receives them.
+//
+// The following objects are sent over the stream:
+//
+//   - A single LiveTailSessionStart (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_LiveTailSessionStart.html)
+//     object is sent at the start of the session.
+//
+//   - Every second, a LiveTailSessionUpdate (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_LiveTailSessionUpdate.html)
+//     object is sent. Each of these objects contains an array of the actual
+//     log events. If no new log events were ingested in the past second, the
+//     LiveTailSessionUpdate object will contain an empty array. The array of
+//     log events contained in a LiveTailSessionUpdate can include as many as
+//     500 log events. If the number of log events matching the request exceeds
+//     500 per second, the log events are sampled down to 500 log events to be
+//     included in each LiveTailSessionUpdate object. If your client consumes
+//     the log events slower than the server produces them, CloudWatch Logs buffers
+//     up to 10 LiveTailSessionUpdate events or 5000 log events, after which
+//     it starts dropping the oldest events.
+//
+//   - A SessionStreamingException (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_SessionStreamingException.html)
+//     object is returned if an unknown error occurs on the server side.
+//
+//   - A SessionTimeoutException (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_SessionTimeoutException.html)
+//     object is returned when the session times out, after it has been kept
+//     open for three hours.
+//
+// You can end a session before it times out by closing the session stream or
+// by closing the client that is receiving the stream. The session also ends
+// if the established connection between the client and the server breaks.
+//
+// For examples of using an SDK to start a Live Tail session, see Start a Live
+// Tail session using an Amazon Web Services SDK (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/example_cloudwatch-logs_StartLiveTail_section.html).
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon CloudWatch Logs's
+// API operation StartLiveTail for usage and error information.
+//
+// Returned Error Types:
+//
+//   - AccessDeniedException
+//     You don't have sufficient permissions to perform this action.
+//
+//   - InvalidParameterException
+//     A parameter is specified incorrectly.
+//
+//   - ResourceNotFoundException
+//     The specified resource does not exist.
+//
+//   - LimitExceededException
+//     You have reached the maximum number of resources that can be created.
+//
+//   - InvalidOperationException
+//     The operation is not valid on the specified resource.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/logs-2014-03-28/StartLiveTail
+func (c *CloudWatchLogs) StartLiveTail(input *StartLiveTailInput) (*StartLiveTailOutput, error) {
+	req, out := c.StartLiveTailRequest(input)
+	return out, req.Send()
+}
+
+// StartLiveTailWithContext is the same as StartLiveTail with the addition of
+// the ability to pass a context and additional request options.
+//
+// See StartLiveTail for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *CloudWatchLogs) StartLiveTailWithContext(ctx aws.Context, input *StartLiveTailInput, opts ...request.Option) (*StartLiveTailOutput, error) {
+	req, out := c.StartLiveTailRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+var _ awserr.Error
+var _ time.Time
+
+// StartLiveTailEventStream provides the event stream handling for the StartLiveTail.
+//
+// For testing and mocking the event stream this type should be initialized via
+// the NewStartLiveTailEventStream constructor function. Using the functional options
+// to pass in nested mock behavior.
+type StartLiveTailEventStream struct {
+
+	// Reader is the EventStream reader for the StartLiveTailResponseStream
+	// events. This value is automatically set by the SDK when the API call is made
+	// Use this member when unit testing your code with the SDK to mock out the
+	// EventStream Reader.
+	//
+	// Must not be nil.
+	Reader StartLiveTailResponseStreamReader
+
+	outputReader io.ReadCloser
+	output       *StartLiveTailOutput
+
+	done      chan struct{}
+	closeOnce sync.Once
+	err       *eventstreamapi.OnceError
+}
+
+// NewStartLiveTailEventStream initializes an StartLiveTailEventStream.
+// This function should only be used for testing and mocking the StartLiveTailEventStream
+// stream within your application.
+//
+// The Reader member must be set before reading events from the stream.
+//
+//	es := NewStartLiveTailEventStream(func(o *StartLiveTailEventStream){
+//	    es.Reader = myMockStreamReader
+//	})
+func NewStartLiveTailEventStream(opts ...func(*StartLiveTailEventStream)) *StartLiveTailEventStream {
+	es := &StartLiveTailEventStream{
+		done: make(chan struct{}),
+		err:  eventstreamapi.NewOnceError(),
+	}
+
+	for _, fn := range opts {
+		fn(es)
+	}
+
+	return es
+}
+
+func (es *StartLiveTailEventStream) runOnStreamPartClose(r *request.Request) {
+	if es.done == nil {
+		return
+	}
+	go es.waitStreamPartClose()
+
+}
+
+func (es *StartLiveTailEventStream) waitStreamPartClose() {
+	var outputErrCh <-chan struct{}
+	if v, ok := es.Reader.(interface{ ErrorSet() <-chan struct{} }); ok {
+		outputErrCh = v.ErrorSet()
+	}
+	var outputClosedCh <-chan struct{}
+	if v, ok := es.Reader.(interface{ Closed() <-chan struct{} }); ok {
+		outputClosedCh = v.Closed()
+	}
+
+	select {
+	case <-es.done:
+	case <-outputErrCh:
+		es.err.SetError(es.Reader.Err())
+		es.Close()
+	case <-outputClosedCh:
+		if err := es.Reader.Err(); err != nil {
+			es.err.SetError(es.Reader.Err())
+		}
+		es.Close()
+	}
+}
+
+type eventTypeForStartLiveTailEventStreamOutputEvent struct {
+	unmarshalerForEvent func(string) (eventstreamapi.Unmarshaler, error)
+	output              *StartLiveTailOutput
+}
+
+func (e eventTypeForStartLiveTailEventStreamOutputEvent) UnmarshalerForEventName(eventType string) (eventstreamapi.Unmarshaler, error) {
+	if eventType == "initial-response" {
+		return e.output, nil
+	}
+	return e.unmarshalerForEvent(eventType)
+}
+
+// Events returns a channel to read events from.
+//
+// These events are:
+//
+//   - LiveTailSessionStart
+//   - LiveTailSessionUpdate
+//   - StartLiveTailResponseStreamUnknownEvent
+func (es *StartLiveTailEventStream) Events() <-chan StartLiveTailResponseStreamEvent {
+	return es.Reader.Events()
+}
+
+func (es *StartLiveTailEventStream) runOutputStream(r *request.Request) {
+	var opts []func(*eventstream.Decoder)
+	if r.Config.Logger != nil && r.Config.LogLevel.Matches(aws.LogDebugWithEventStreamBody) {
+		opts = append(opts, eventstream.DecodeWithLogger(r.Config.Logger))
+	}
+
+	unmarshalerForEvent := unmarshalerForStartLiveTailResponseStreamEvent{
+		metadata: protocol.ResponseMetadata{
+			StatusCode: r.HTTPResponse.StatusCode,
+			RequestID:  r.RequestID,
+		},
+	}.UnmarshalerForEventName
+	unmarshalerForEvent = eventTypeForStartLiveTailEventStreamOutputEvent{
+		unmarshalerForEvent: unmarshalerForEvent,
+		output:              es.output,
+	}.UnmarshalerForEventName
+
+	decoder := eventstream.NewDecoder(r.HTTPResponse.Body, opts...)
+	eventReader := eventstreamapi.NewEventReader(decoder,
+		protocol.HandlerPayloadUnmarshal{
+			Unmarshalers: r.Handlers.UnmarshalStream,
+		},
+		unmarshalerForEvent,
+	)
+
+	es.outputReader = r.HTTPResponse.Body
+	es.Reader = newReadStartLiveTailResponseStream(eventReader)
+}
+func (es *StartLiveTailEventStream) recvInitialEvent(r *request.Request) {
+	// Wait for the initial response event, which must be the first
+	// event to be received from the API.
+	select {
+	case event, ok := <-es.Events():
+		if !ok {
+			return
+		}
+
+		v, ok := event.(*StartLiveTailOutput)
+		if !ok || v == nil {
+			r.Error = awserr.New(
+				request.ErrCodeSerialization,
+				fmt.Sprintf("invalid event, %T, expect %T, %v",
+					event, (*StartLiveTailOutput)(nil), v),
+				nil,
+			)
+			return
+		}
+
+		*es.output = *v
+		es.output.eventStream = es
+	}
+}
+
+// Close closes the stream. This will also cause the stream to be closed.
+// Close must be called when done using the stream API. Not calling Close
+// may result in resource leaks.
+//
+// You can use the closing of the Reader's Events channel to terminate your
+// application's read from the API's stream.
+func (es *StartLiveTailEventStream) Close() (err error) {
+	es.closeOnce.Do(es.safeClose)
+	return es.Err()
+}
+
+func (es *StartLiveTailEventStream) safeClose() {
+	if es.done != nil {
+		close(es.done)
+	}
+
+	es.Reader.Close()
+	if es.outputReader != nil {
+		es.outputReader.Close()
+	}
+}
+
+// Err returns any error that occurred while reading or writing EventStream
+// Events from the service API's response. Returns nil if there were no errors.
+func (es *StartLiveTailEventStream) Err() error {
+	if err := es.err.Err(); err != nil {
+		return err
+	}
+	if err := es.Reader.Err(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 const opStartQuery = "StartQuery"
@@ -8004,6 +8405,9 @@ type AccountPolicy struct {
 
 	// The scope of the account policy.
 	Scope *string `locationName:"scope" type:"string" enum:"Scope"`
+
+	// The log group selection criteria for this subscription filter policy.
+	SelectionCriteria *string `locationName:"selectionCriteria" type:"string"`
 }
 
 // String returns the string representation.
@@ -8057,6 +8461,12 @@ func (s *AccountPolicy) SetPolicyType(v string) *AccountPolicy {
 // SetScope sets the Scope field's value.
 func (s *AccountPolicy) SetScope(v string) *AccountPolicy {
 	s.Scope = &v
+	return s
+}
+
+// SetSelectionCriteria sets the SelectionCriteria field's value.
+func (s *AccountPolicy) SetSelectionCriteria(v string) *AccountPolicy {
+	s.SelectionCriteria = &v
 	return s
 }
 
@@ -8126,7 +8536,7 @@ type Anomaly struct {
 	// anomaly.
 	//
 	// LogSamples is a required field
-	LogSamples []*string `locationName:"logSamples" type:"list" required:"true"`
+	LogSamples []*LogEvent `locationName:"logSamples" type:"list" required:"true"`
 
 	// The ID of the pattern used to help identify this anomaly.
 	//
@@ -8248,7 +8658,7 @@ func (s *Anomaly) SetLogGroupArnList(v []*string) *Anomaly {
 }
 
 // SetLogSamples sets the LogSamples field's value.
-func (s *Anomaly) SetLogSamples(v []*string) *Anomaly {
+func (s *Anomaly) SetLogSamples(v []*LogEvent) *Anomaly {
 	s.LogSamples = v
 	return s
 }
@@ -8984,8 +9394,8 @@ type CreateLogAnomalyDetectorInput struct {
 	// see Use a KMS key with an anomaly detector (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/LogsAnomalyDetection-KMS.html).
 	KmsKeyId *string `locationName:"kmsKeyId" type:"string"`
 
-	// An array containing the ARNs of the log groups that this anomaly detector
-	// will watch. You must specify at least one ARN.
+	// An array containing the ARN of the log group that this anomaly detector will
+	// watch. You can specify only one log group ARN.
 	//
 	// LogGroupArnList is a required field
 	LogGroupArnList []*string `locationName:"logGroupArnList" type:"list" required:"true"`
@@ -9126,6 +9536,8 @@ type CreateLogGroupInput struct {
 	//    features and incurs lower costs.
 	//
 	// If you omit this parameter, the default of STANDARD is used.
+	//
+	// The value of logGroupClass can't be changed after a log group is created.
 	//
 	// For details about the features supported by each class, see Log classes (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/CloudWatch_Logs_Log_Classes.html)
 	LogGroupClass *string `locationName:"logGroupClass" type:"string" enum:"LogGroupClass"`
@@ -9396,7 +9808,7 @@ type DeleteAccountPolicyInput struct {
 	// PolicyName is a required field
 	PolicyName *string `locationName:"policyName" type:"string" required:"true"`
 
-	// The type of policy to delete. Currently, the only valid value is DATA_PROTECTION_POLICY.
+	// The type of policy to delete.
 	//
 	// PolicyType is a required field
 	PolicyType *string `locationName:"policyType" type:"string" required:"true" enum:"PolicyType"`
@@ -10532,7 +10944,7 @@ type Delivery struct {
 	DeliveryDestinationArn *string `locationName:"deliveryDestinationArn" type:"string"`
 
 	// Displays whether the delivery destination associated with this delivery is
-	// CloudWatch Logs, Amazon S3, or Kinesis Data Firehose.
+	// CloudWatch Logs, Amazon S3, or Firehose.
 	DeliveryDestinationType *string `locationName:"deliveryDestinationType" type:"string" enum:"DeliveryDestinationType"`
 
 	// The name of the delivery source that is associated with this delivery.
@@ -10602,7 +11014,7 @@ func (s *Delivery) SetTags(v map[string]*string) *Delivery {
 // This structure contains information about one delivery destination in your
 // account. A delivery destination is an Amazon Web Services resource that represents
 // an Amazon Web Services service that logs can be sent to. CloudWatch Logs,
-// Amazon S3, are supported as Kinesis Data Firehose delivery destinations.
+// Amazon S3, are supported as Firehose delivery destinations.
 //
 // To configure logs delivery between a supported Amazon Web Services service
 // and a destination, you must do the following:
@@ -10615,7 +11027,7 @@ func (s *Delivery) SetTags(v map[string]*string) *Delivery {
 //     the actual delivery destination.
 //
 //   - If you are delivering logs cross-account, you must use PutDeliveryDestinationPolicy
-//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationolicy.html)
+//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationPolicy.html)
 //     in the destination account to assign an IAM policy to the destination.
 //     This policy allows delivery to that destination.
 //
@@ -10637,7 +11049,7 @@ type DeliveryDestination struct {
 	DeliveryDestinationConfiguration *DeliveryDestinationConfiguration `locationName:"deliveryDestinationConfiguration" type:"structure"`
 
 	// Displays whether this delivery destination is CloudWatch Logs, Amazon S3,
-	// or Kinesis Data Firehose.
+	// or Firehose.
 	DeliveryDestinationType *string `locationName:"deliveryDestinationType" type:"string" enum:"DeliveryDestinationType"`
 
 	// The name of this delivery destination.
@@ -10710,7 +11122,7 @@ type DeliveryDestinationConfiguration struct {
 
 	// The ARN of the Amazon Web Services destination that this delivery destination
 	// represents. That Amazon Web Services destination can be a log group in CloudWatch
-	// Logs, an Amazon S3 bucket, or a delivery stream in Kinesis Data Firehose.
+	// Logs, an Amazon S3 bucket, or a delivery stream in Firehose.
 	//
 	// DestinationResourceArn is a required field
 	DestinationResourceArn *string `locationName:"destinationResourceArn" type:"string" required:"true"`
@@ -10756,7 +11168,7 @@ func (s *DeliveryDestinationConfiguration) SetDestinationResourceArn(v string) *
 // This structure contains information about one delivery source in your account.
 // A delivery source is an Amazon Web Services resource that sends logs to an
 // Amazon Web Services destination. The destination can be CloudWatch Logs,
-// Amazon S3, or Kinesis Data Firehose.
+// Amazon S3, or Firehose.
 //
 // Only some Amazon Web Services services support being configured as a delivery
 // source. These services are listed as Supported [V2 Permissions] in the table
@@ -10774,7 +11186,7 @@ func (s *DeliveryDestinationConfiguration) SetDestinationResourceArn(v string) *
 //     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestination.html).
 //
 //   - If you are delivering logs cross-account, you must use PutDeliveryDestinationPolicy
-//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationolicy.html)
+//     (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDeliveryDestinationPolicy.html)
 //     in the destination account to assign an IAM policy to the destination.
 //     This policy allows delivery to that destination.
 //
@@ -10881,8 +11293,7 @@ type DescribeAccountPoliciesInput struct {
 	PolicyName *string `locationName:"policyName" type:"string"`
 
 	// Use this parameter to limit the returned policies to only the policies that
-	// match the policy type that you specify. Currently, the only valid value is
-	// DATA_PROTECTION_POLICY.
+	// match the policy type that you specify.
 	//
 	// PolicyType is a required field
 	PolicyType *string `locationName:"policyType" type:"string" required:"true" enum:"PolicyType"`
@@ -14980,11 +15391,364 @@ func (s *ListTagsLogGroupOutput) SetTags(v map[string]*string) *ListTagsLogGroup
 	return s
 }
 
+// This object contains the information for one log event returned in a Live
+// Tail stream.
+type LiveTailSessionLogEvent struct {
+	_ struct{} `type:"structure"`
+
+	// The timestamp specifying when this log event was ingested into the log group.
+	IngestionTime *int64 `locationName:"ingestionTime" type:"long"`
+
+	// The name or ARN of the log group that ingested this log event.
+	LogGroupIdentifier *string `locationName:"logGroupIdentifier" min:"1" type:"string"`
+
+	// The name of the log stream that ingested this log event.
+	LogStreamName *string `locationName:"logStreamName" min:"1" type:"string"`
+
+	// The log event message text.
+	Message *string `locationName:"message" min:"1" type:"string"`
+
+	// The timestamp specifying when this log event was created.
+	Timestamp *int64 `locationName:"timestamp" type:"long"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionLogEvent) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionLogEvent) GoString() string {
+	return s.String()
+}
+
+// SetIngestionTime sets the IngestionTime field's value.
+func (s *LiveTailSessionLogEvent) SetIngestionTime(v int64) *LiveTailSessionLogEvent {
+	s.IngestionTime = &v
+	return s
+}
+
+// SetLogGroupIdentifier sets the LogGroupIdentifier field's value.
+func (s *LiveTailSessionLogEvent) SetLogGroupIdentifier(v string) *LiveTailSessionLogEvent {
+	s.LogGroupIdentifier = &v
+	return s
+}
+
+// SetLogStreamName sets the LogStreamName field's value.
+func (s *LiveTailSessionLogEvent) SetLogStreamName(v string) *LiveTailSessionLogEvent {
+	s.LogStreamName = &v
+	return s
+}
+
+// SetMessage sets the Message field's value.
+func (s *LiveTailSessionLogEvent) SetMessage(v string) *LiveTailSessionLogEvent {
+	s.Message = &v
+	return s
+}
+
+// SetTimestamp sets the Timestamp field's value.
+func (s *LiveTailSessionLogEvent) SetTimestamp(v int64) *LiveTailSessionLogEvent {
+	s.Timestamp = &v
+	return s
+}
+
+// This object contains the metadata for one LiveTailSessionUpdate structure.
+// It indicates whether that update includes only a sample of 500 log events
+// out of a larger number of ingested log events, or if it contains all of the
+// matching log events ingested during that second of time.
+type LiveTailSessionMetadata struct {
+	_ struct{} `type:"structure"`
+
+	// If this is true, then more than 500 log events matched the request for this
+	// update, and the sessionResults includes a sample of 500 of those events.
+	//
+	// If this is false, then 500 or fewer log events matched the request for this
+	// update, so no sampling was necessary. In this case, the sessionResults array
+	// includes all log events that matched your request during this time.
+	Sampled *bool `locationName:"sampled" type:"boolean"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionMetadata) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionMetadata) GoString() string {
+	return s.String()
+}
+
+// SetSampled sets the Sampled field's value.
+func (s *LiveTailSessionMetadata) SetSampled(v bool) *LiveTailSessionMetadata {
+	s.Sampled = &v
+	return s
+}
+
+// This object contains information about this Live Tail session, including
+// the log groups included and the log stream filters, if any.
+type LiveTailSessionStart struct {
+	_ struct{} `type:"structure"`
+
+	// An optional pattern to filter the results to include only log events that
+	// match the pattern. For example, a filter pattern of error 404 displays only
+	// log events that include both error and 404.
+	//
+	// For more information about filter pattern syntax, see Filter and Pattern
+	// Syntax (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html).
+	LogEventFilterPattern *string `locationName:"logEventFilterPattern" type:"string"`
+
+	// An array of the names and ARNs of the log groups included in this Live Tail
+	// session.
+	LogGroupIdentifiers []*string `locationName:"logGroupIdentifiers" min:"1" type:"list"`
+
+	// If your StartLiveTail operation request included a logStreamNamePrefixes
+	// parameter that filtered the session to only include log streams that have
+	// names that start with certain prefixes, these prefixes are listed here.
+	LogStreamNamePrefixes []*string `locationName:"logStreamNamePrefixes" min:"1" type:"list"`
+
+	// If your StartLiveTail operation request included a logStreamNames parameter
+	// that filtered the session to only include certain log streams, these streams
+	// are listed here.
+	LogStreamNames []*string `locationName:"logStreamNames" min:"1" type:"list"`
+
+	// The unique ID generated by CloudWatch Logs to identify this Live Tail session
+	// request.
+	RequestId *string `locationName:"requestId" type:"string"`
+
+	// The unique ID generated by CloudWatch Logs to identify this Live Tail session.
+	SessionId *string `locationName:"sessionId" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionStart) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionStart) GoString() string {
+	return s.String()
+}
+
+// SetLogEventFilterPattern sets the LogEventFilterPattern field's value.
+func (s *LiveTailSessionStart) SetLogEventFilterPattern(v string) *LiveTailSessionStart {
+	s.LogEventFilterPattern = &v
+	return s
+}
+
+// SetLogGroupIdentifiers sets the LogGroupIdentifiers field's value.
+func (s *LiveTailSessionStart) SetLogGroupIdentifiers(v []*string) *LiveTailSessionStart {
+	s.LogGroupIdentifiers = v
+	return s
+}
+
+// SetLogStreamNamePrefixes sets the LogStreamNamePrefixes field's value.
+func (s *LiveTailSessionStart) SetLogStreamNamePrefixes(v []*string) *LiveTailSessionStart {
+	s.LogStreamNamePrefixes = v
+	return s
+}
+
+// SetLogStreamNames sets the LogStreamNames field's value.
+func (s *LiveTailSessionStart) SetLogStreamNames(v []*string) *LiveTailSessionStart {
+	s.LogStreamNames = v
+	return s
+}
+
+// SetRequestId sets the RequestId field's value.
+func (s *LiveTailSessionStart) SetRequestId(v string) *LiveTailSessionStart {
+	s.RequestId = &v
+	return s
+}
+
+// SetSessionId sets the SessionId field's value.
+func (s *LiveTailSessionStart) SetSessionId(v string) *LiveTailSessionStart {
+	s.SessionId = &v
+	return s
+}
+
+// The LiveTailSessionStart is and event in the StartLiveTailResponseStream group of events.
+func (s *LiveTailSessionStart) eventStartLiveTailResponseStream() {}
+
+// UnmarshalEvent unmarshals the EventStream Message into the LiveTailSessionStart value.
+// This method is only used internally within the SDK's EventStream handling.
+func (s *LiveTailSessionStart) UnmarshalEvent(
+	payloadUnmarshaler protocol.PayloadUnmarshaler,
+	msg eventstream.Message,
+) error {
+	if err := payloadUnmarshaler.UnmarshalPayload(
+		bytes.NewReader(msg.Payload), s,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalEvent marshals the type into an stream event value. This method
+// should only used internally within the SDK's EventStream handling.
+func (s *LiveTailSessionStart) MarshalEvent(pm protocol.PayloadMarshaler) (msg eventstream.Message, err error) {
+	msg.Headers.Set(eventstreamapi.MessageTypeHeader, eventstream.StringValue(eventstreamapi.EventMessageType))
+	var buf bytes.Buffer
+	if err = pm.MarshalPayload(&buf, s); err != nil {
+		return eventstream.Message{}, err
+	}
+	msg.Payload = buf.Bytes()
+	return msg, err
+}
+
+// This object contains the log events and metadata for a Live Tail session.
+type LiveTailSessionUpdate struct {
+	_ struct{} `type:"structure"`
+
+	// This object contains the session metadata for a Live Tail session.
+	SessionMetadata *LiveTailSessionMetadata `locationName:"sessionMetadata" type:"structure"`
+
+	// An array, where each member of the array includes the information for one
+	// log event in the Live Tail session.
+	//
+	// A sessionResults array can include as many as 500 log events. If the number
+	// of log events matching the request exceeds 500 per second, the log events
+	// are sampled down to 500 log events to be included in each sessionUpdate structure.
+	SessionResults []*LiveTailSessionLogEvent `locationName:"sessionResults" type:"list"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionUpdate) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LiveTailSessionUpdate) GoString() string {
+	return s.String()
+}
+
+// SetSessionMetadata sets the SessionMetadata field's value.
+func (s *LiveTailSessionUpdate) SetSessionMetadata(v *LiveTailSessionMetadata) *LiveTailSessionUpdate {
+	s.SessionMetadata = v
+	return s
+}
+
+// SetSessionResults sets the SessionResults field's value.
+func (s *LiveTailSessionUpdate) SetSessionResults(v []*LiveTailSessionLogEvent) *LiveTailSessionUpdate {
+	s.SessionResults = v
+	return s
+}
+
+// The LiveTailSessionUpdate is and event in the StartLiveTailResponseStream group of events.
+func (s *LiveTailSessionUpdate) eventStartLiveTailResponseStream() {}
+
+// UnmarshalEvent unmarshals the EventStream Message into the LiveTailSessionUpdate value.
+// This method is only used internally within the SDK's EventStream handling.
+func (s *LiveTailSessionUpdate) UnmarshalEvent(
+	payloadUnmarshaler protocol.PayloadUnmarshaler,
+	msg eventstream.Message,
+) error {
+	if err := payloadUnmarshaler.UnmarshalPayload(
+		bytes.NewReader(msg.Payload), s,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalEvent marshals the type into an stream event value. This method
+// should only used internally within the SDK's EventStream handling.
+func (s *LiveTailSessionUpdate) MarshalEvent(pm protocol.PayloadMarshaler) (msg eventstream.Message, err error) {
+	msg.Headers.Set(eventstreamapi.MessageTypeHeader, eventstream.StringValue(eventstreamapi.EventMessageType))
+	var buf bytes.Buffer
+	if err = pm.MarshalPayload(&buf, s); err != nil {
+		return eventstream.Message{}, err
+	}
+	msg.Payload = buf.Bytes()
+	return msg, err
+}
+
+// This structure contains the information for one sample log event that is
+// associated with an anomaly found by a log anomaly detector.
+type LogEvent struct {
+	_ struct{} `type:"structure"`
+
+	// The message content of the log event.
+	Message *string `locationName:"message" min:"1" type:"string"`
+
+	// The time stamp of the log event.
+	Timestamp *int64 `locationName:"timestamp" type:"long"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LogEvent) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s LogEvent) GoString() string {
+	return s.String()
+}
+
+// SetMessage sets the Message field's value.
+func (s *LogEvent) SetMessage(v string) *LogEvent {
+	s.Message = &v
+	return s
+}
+
+// SetTimestamp sets the Timestamp field's value.
+func (s *LogEvent) SetTimestamp(v int64) *LogEvent {
+	s.Timestamp = &v
+	return s
+}
+
 // Represents a log group.
 type LogGroup struct {
 	_ struct{} `type:"structure"`
 
-	// The Amazon Resource Name (ARN) of the log group.
+	// The Amazon Resource Name (ARN) of the log group. This version of the ARN
+	// includes a trailing :* after the log group name.
+	//
+	// Use this version to refer to the ARN in IAM policies when specifying permissions
+	// for most API actions. The exception is when specifying permissions for TagResource
+	// (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_TagResource.html),
+	// UntagResource (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_UntagResource.html),
+	// and ListTagsForResource (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_ListTagsForResource.html).
+	// The permissions for those three actions require the ARN version that doesn't
+	// include a trailing :*.
 	Arn *string `locationName:"arn" type:"string"`
 
 	// The creation time of the log group, expressed as the number of milliseconds
@@ -15002,6 +15766,20 @@ type LogGroup struct {
 	// The Amazon Resource Name (ARN) of the KMS key to use when encrypting log
 	// data.
 	KmsKeyId *string `locationName:"kmsKeyId" type:"string"`
+
+	// The Amazon Resource Name (ARN) of the log group. This version of the ARN
+	// doesn't include a trailing :* after the log group name.
+	//
+	// Use this version to refer to the ARN in the following situations:
+	//
+	//    * In the logGroupIdentifier input field in many CloudWatch Logs APIs.
+	//
+	//    * In the resourceArn field in tagging APIs
+	//
+	//    * In IAM policies, when specifying permissions for TagResource (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_TagResource.html),
+	//    UntagResource (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_UntagResource.html),
+	//    and ListTagsForResource (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_ListTagsForResource.html).
+	LogGroupArn *string `locationName:"logGroupArn" type:"string"`
 
 	// This specifies the log group class for this log group. There are two classes:
 	//
@@ -15076,6 +15854,12 @@ func (s *LogGroup) SetInheritedProperties(v []*string) *LogGroup {
 // SetKmsKeyId sets the KmsKeyId field's value.
 func (s *LogGroup) SetKmsKeyId(v string) *LogGroup {
 	s.KmsKeyId = &v
+	return s
+}
+
+// SetLogGroupArn sets the LogGroupArn field's value.
+func (s *LogGroup) SetLogGroupArn(v string) *LogGroup {
+	s.LogGroupArn = &v
 	return s
 }
 
@@ -15800,9 +16584,11 @@ func (s *Policy) SetDeliveryDestinationPolicy(v string) *Policy {
 type PutAccountPolicyInput struct {
 	_ struct{} `type:"structure"`
 
-	// Specify the data protection policy, in JSON.
+	// Specify the policy, in JSON.
 	//
-	// This policy must include two JSON blocks:
+	// Data protection policy
+	//
+	// A data protection policy must include two JSON blocks:
 	//
 	//    * The first block must include both a DataIdentifer array and an Operation
 	//    property with an Audit action. The DataIdentifer array lists the types
@@ -15812,8 +16598,8 @@ type PutAccountPolicyInput struct {
 	//    data terms. This Audit action must contain a FindingsDestination object.
 	//    You can optionally use that FindingsDestination object to list one or
 	//    more destinations to send audit findings to. If you specify destinations
-	//    such as log groups, Kinesis Data Firehose streams, and S3 buckets, they
-	//    must already exist.
+	//    such as log groups, Firehose streams, and S3 buckets, they must already
+	//    exist.
 	//
 	//    * The second block must include both a DataIdentifer array and an Operation
 	//    property with an Deidentify action. The DataIdentifer array must exactly
@@ -15831,7 +16617,35 @@ type PutAccountPolicyInput struct {
 	// policyName parameter, and is used as a dimension when CloudWatch Logs reports
 	// audit findings metrics to CloudWatch.
 	//
-	// The JSON specified in policyDocument can be up to 30,720 characters.
+	// The JSON specified in policyDocument can be up to 30,720 characters long.
+	//
+	// Subscription filter policy
+	//
+	// A subscription filter policy can include the following attributes in a JSON
+	// block:
+	//
+	//    * DestinationArn The ARN of the destination to deliver log events to.
+	//    Supported destinations are: An Kinesis Data Streams data stream in the
+	//    same account as the subscription policy, for same-account delivery. An
+	//    Firehose data stream in the same account as the subscription policy, for
+	//    same-account delivery. A Lambda function in the same account as the subscription
+	//    policy, for same-account delivery. A logical destination in a different
+	//    account created with PutDestination (https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutDestination.html),
+	//    for cross-account delivery. Kinesis Data Streams and Firehose are supported
+	//    as logical destinations.
+	//
+	//    * RoleArn The ARN of an IAM role that grants CloudWatch Logs permissions
+	//    to deliver ingested log events to the destination stream. You don't need
+	//    to provide the ARN when you are working with a logical destination for
+	//    cross-account delivery.
+	//
+	//    * FilterPattern A filter pattern for subscribing to a filtered stream
+	//    of log events.
+	//
+	//    * DistributionThe method used to distribute log data to the destination.
+	//    By default, log data is grouped by log stream, but the grouping can be
+	//    set to Random for a more even distribution. This property is only applicable
+	//    when the destination is an Kinesis Data Streams data stream.
 	//
 	// PolicyDocument is a required field
 	PolicyDocument *string `locationName:"policyDocument" type:"string" required:"true"`
@@ -15841,7 +16655,7 @@ type PutAccountPolicyInput struct {
 	// PolicyName is a required field
 	PolicyName *string `locationName:"policyName" type:"string" required:"true"`
 
-	// Currently the only valid value for this parameter is DATA_PROTECTION_POLICY.
+	// The type of policy that you're creating or updating.
 	//
 	// PolicyType is a required field
 	PolicyType *string `locationName:"policyType" type:"string" required:"true" enum:"PolicyType"`
@@ -15850,6 +16664,18 @@ type PutAccountPolicyInput struct {
 	// that the data protection policy applies to all log groups in the account.
 	// If you omit this parameter, the default of ALL is used.
 	Scope *string `locationName:"scope" type:"string" enum:"Scope"`
+
+	// Use this parameter to apply the subscription filter policy to a subset of
+	// log groups in the account. Currently, the only supported filter is LogGroupName
+	// NOT IN []. The selectionCriteria string can be up to 25KB in length. The
+	// length is determined by using its UTF-8 bytes.
+	//
+	// Using the selectionCriteria parameter is useful to help prevent infinite
+	// loops. For more information, see Log recursion prevention (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Subscriptions-recursion-prevention.html).
+	//
+	// Specifing selectionCriteria is valid only when you specify SUBSCRIPTION_FILTER_POLICY
+	// for policyType.
+	SelectionCriteria *string `locationName:"selectionCriteria" type:"string"`
 }
 
 // String returns the string representation.
@@ -15913,6 +16739,12 @@ func (s *PutAccountPolicyInput) SetScope(v string) *PutAccountPolicyInput {
 	return s
 }
 
+// SetSelectionCriteria sets the SelectionCriteria field's value.
+func (s *PutAccountPolicyInput) SetSelectionCriteria(v string) *PutAccountPolicyInput {
+	s.SelectionCriteria = &v
+	return s
+}
+
 type PutAccountPolicyOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -15964,8 +16796,8 @@ type PutDataProtectionPolicyInput struct {
 	//    data terms. This Audit action must contain a FindingsDestination object.
 	//    You can optionally use that FindingsDestination object to list one or
 	//    more destinations to send audit findings to. If you specify destinations
-	//    such as log groups, Kinesis Data Firehose streams, and S3 buckets, they
-	//    must already exist.
+	//    such as log groups, Firehose streams, and S3 buckets, they must already
+	//    exist.
 	//
 	//    * The second block must include both a DataIdentifer array and an Operation
 	//    property with an Deidentify action. The DataIdentifer array must exactly
@@ -16312,8 +17144,14 @@ func (s *PutDeliveryDestinationPolicyOutput) SetPolicy(v *Policy) *PutDeliveryDe
 type PutDeliverySourceInput struct {
 	_ struct{} `type:"structure"`
 
-	// Defines the type of log that the source is sending. For valid values for
-	// this parameter, see the documentation for the source service.
+	// Defines the type of log that the source is sending.
+	//
+	//    * For Amazon CodeWhisperer, the valid value is EVENT_LOGS.
+	//
+	//    * For IAM Identity Centerr, the valid value is ERROR_LOGS.
+	//
+	//    * For Amazon WorkMail, the valid values are ACCESS_CONTROL_LOGS, AUTHENTICATION_LOGS,
+	//    WORKMAIL_AVAILABILITY_PROVIDER_LOGS, and WORKMAIL_MAILBOX_ACCESS_LOGS.
 	//
 	// LogType is a required field
 	LogType *string `locationName:"logType" min:"1" type:"string" required:"true"`
@@ -17747,10 +18585,10 @@ type RejectedLogEventsInfo struct {
 	// The expired log events.
 	ExpiredLogEventEndIndex *int64 `locationName:"expiredLogEventEndIndex" type:"integer"`
 
-	// The log events that are too new.
+	// The index of the first log event that is too new. This field is inclusive.
 	TooNewLogEventStartIndex *int64 `locationName:"tooNewLogEventStartIndex" type:"integer"`
 
-	// The log events that are dated too far in the past.
+	// The index of the last log event that is too old. This field is exclusive.
 	TooOldLogEventEndIndex *int64 `locationName:"tooOldLogEventEndIndex" type:"integer"`
 }
 
@@ -18182,6 +19020,522 @@ func (s *ServiceUnavailableException) StatusCode() int {
 // RequestID returns the service's response RequestID for request.
 func (s *ServiceUnavailableException) RequestID() string {
 	return s.RespMetadata.RequestID
+}
+
+// his exception is returned if an unknown error occurs during a Live Tail session.
+type SessionStreamingException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SessionStreamingException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SessionStreamingException) GoString() string {
+	return s.String()
+}
+
+// The SessionStreamingException is and event in the StartLiveTailResponseStream group of events.
+func (s *SessionStreamingException) eventStartLiveTailResponseStream() {}
+
+// UnmarshalEvent unmarshals the EventStream Message into the SessionStreamingException value.
+// This method is only used internally within the SDK's EventStream handling.
+func (s *SessionStreamingException) UnmarshalEvent(
+	payloadUnmarshaler protocol.PayloadUnmarshaler,
+	msg eventstream.Message,
+) error {
+	if err := payloadUnmarshaler.UnmarshalPayload(
+		bytes.NewReader(msg.Payload), s,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalEvent marshals the type into an stream event value. This method
+// should only used internally within the SDK's EventStream handling.
+func (s *SessionStreamingException) MarshalEvent(pm protocol.PayloadMarshaler) (msg eventstream.Message, err error) {
+	msg.Headers.Set(eventstreamapi.MessageTypeHeader, eventstream.StringValue(eventstreamapi.ExceptionMessageType))
+	var buf bytes.Buffer
+	if err = pm.MarshalPayload(&buf, s); err != nil {
+		return eventstream.Message{}, err
+	}
+	msg.Payload = buf.Bytes()
+	return msg, err
+}
+
+func newErrorSessionStreamingException(v protocol.ResponseMetadata) error {
+	return &SessionStreamingException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *SessionStreamingException) Code() string {
+	return "SessionStreamingException"
+}
+
+// Message returns the exception's message.
+func (s *SessionStreamingException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *SessionStreamingException) OrigErr() error {
+	return nil
+}
+
+func (s *SessionStreamingException) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *SessionStreamingException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *SessionStreamingException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+// This exception is returned in a Live Tail stream when the Live Tail session
+// times out. Live Tail sessions time out after three hours.
+type SessionTimeoutException struct {
+	_            struct{}                  `type:"structure"`
+	RespMetadata protocol.ResponseMetadata `json:"-" xml:"-"`
+
+	Message_ *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SessionTimeoutException) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s SessionTimeoutException) GoString() string {
+	return s.String()
+}
+
+// The SessionTimeoutException is and event in the StartLiveTailResponseStream group of events.
+func (s *SessionTimeoutException) eventStartLiveTailResponseStream() {}
+
+// UnmarshalEvent unmarshals the EventStream Message into the SessionTimeoutException value.
+// This method is only used internally within the SDK's EventStream handling.
+func (s *SessionTimeoutException) UnmarshalEvent(
+	payloadUnmarshaler protocol.PayloadUnmarshaler,
+	msg eventstream.Message,
+) error {
+	if err := payloadUnmarshaler.UnmarshalPayload(
+		bytes.NewReader(msg.Payload), s,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalEvent marshals the type into an stream event value. This method
+// should only used internally within the SDK's EventStream handling.
+func (s *SessionTimeoutException) MarshalEvent(pm protocol.PayloadMarshaler) (msg eventstream.Message, err error) {
+	msg.Headers.Set(eventstreamapi.MessageTypeHeader, eventstream.StringValue(eventstreamapi.ExceptionMessageType))
+	var buf bytes.Buffer
+	if err = pm.MarshalPayload(&buf, s); err != nil {
+		return eventstream.Message{}, err
+	}
+	msg.Payload = buf.Bytes()
+	return msg, err
+}
+
+func newErrorSessionTimeoutException(v protocol.ResponseMetadata) error {
+	return &SessionTimeoutException{
+		RespMetadata: v,
+	}
+}
+
+// Code returns the exception type name.
+func (s *SessionTimeoutException) Code() string {
+	return "SessionTimeoutException"
+}
+
+// Message returns the exception's message.
+func (s *SessionTimeoutException) Message() string {
+	if s.Message_ != nil {
+		return *s.Message_
+	}
+	return ""
+}
+
+// OrigErr always returns nil, satisfies awserr.Error interface.
+func (s *SessionTimeoutException) OrigErr() error {
+	return nil
+}
+
+func (s *SessionTimeoutException) Error() string {
+	return fmt.Sprintf("%s: %s", s.Code(), s.Message())
+}
+
+// Status code returns the HTTP status code for the request's response error.
+func (s *SessionTimeoutException) StatusCode() int {
+	return s.RespMetadata.StatusCode
+}
+
+// RequestID returns the service's response RequestID for request.
+func (s *SessionTimeoutException) RequestID() string {
+	return s.RespMetadata.RequestID
+}
+
+type StartLiveTailInput struct {
+	_ struct{} `type:"structure"`
+
+	// An optional pattern to use to filter the results to include only log events
+	// that match the pattern. For example, a filter pattern of error 404 causes
+	// only log events that include both error and 404 to be included in the Live
+	// Tail stream.
+	//
+	// Regular expression filter patterns are supported.
+	//
+	// For more information about filter pattern syntax, see Filter and Pattern
+	// Syntax (https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html).
+	LogEventFilterPattern *string `locationName:"logEventFilterPattern" type:"string"`
+
+	// An array where each item in the array is a log group to include in the Live
+	// Tail session.
+	//
+	// Specify each log group by its ARN.
+	//
+	// If you specify an ARN, the ARN can't end with an asterisk (*).
+	//
+	// You can include up to 10 log groups.
+	//
+	// LogGroupIdentifiers is a required field
+	LogGroupIdentifiers []*string `locationName:"logGroupIdentifiers" min:"1" type:"list" required:"true"`
+
+	// If you specify this parameter, then only log events in the log streams that
+	// have names that start with the prefixes that you specify here are included
+	// in the Live Tail session.
+	//
+	// If you specify this field, you can't also specify the logStreamNames field.
+	//
+	// You can specify this parameter only if you specify only one log group in
+	// logGroupIdentifiers.
+	LogStreamNamePrefixes []*string `locationName:"logStreamNamePrefixes" min:"1" type:"list"`
+
+	// If you specify this parameter, then only log events in the log streams that
+	// you specify here are included in the Live Tail session.
+	//
+	// If you specify this field, you can't also specify the logStreamNamePrefixes
+	// field.
+	//
+	// You can specify this parameter only if you specify only one log group in
+	// logGroupIdentifiers.
+	LogStreamNames []*string `locationName:"logStreamNames" min:"1" type:"list"`
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s StartLiveTailInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s StartLiveTailInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartLiveTailInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartLiveTailInput"}
+	if s.LogGroupIdentifiers == nil {
+		invalidParams.Add(request.NewErrParamRequired("LogGroupIdentifiers"))
+	}
+	if s.LogGroupIdentifiers != nil && len(s.LogGroupIdentifiers) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("LogGroupIdentifiers", 1))
+	}
+	if s.LogStreamNamePrefixes != nil && len(s.LogStreamNamePrefixes) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("LogStreamNamePrefixes", 1))
+	}
+	if s.LogStreamNames != nil && len(s.LogStreamNames) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("LogStreamNames", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetLogEventFilterPattern sets the LogEventFilterPattern field's value.
+func (s *StartLiveTailInput) SetLogEventFilterPattern(v string) *StartLiveTailInput {
+	s.LogEventFilterPattern = &v
+	return s
+}
+
+// SetLogGroupIdentifiers sets the LogGroupIdentifiers field's value.
+func (s *StartLiveTailInput) SetLogGroupIdentifiers(v []*string) *StartLiveTailInput {
+	s.LogGroupIdentifiers = v
+	return s
+}
+
+// SetLogStreamNamePrefixes sets the LogStreamNamePrefixes field's value.
+func (s *StartLiveTailInput) SetLogStreamNamePrefixes(v []*string) *StartLiveTailInput {
+	s.LogStreamNamePrefixes = v
+	return s
+}
+
+// SetLogStreamNames sets the LogStreamNames field's value.
+func (s *StartLiveTailInput) SetLogStreamNames(v []*string) *StartLiveTailInput {
+	s.LogStreamNames = v
+	return s
+}
+
+type StartLiveTailOutput struct {
+	_ struct{} `type:"structure"`
+
+	eventStream *StartLiveTailEventStream
+}
+
+// String returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s StartLiveTailOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation.
+//
+// API parameter values that are decorated as "sensitive" in the API will not
+// be included in the string output. The member name will be present, but the
+// value will be replaced with "sensitive".
+func (s StartLiveTailOutput) GoString() string {
+	return s.String()
+}
+
+// GetStream returns the type to interact with the event stream.
+func (s *StartLiveTailOutput) GetStream() *StartLiveTailEventStream {
+	return s.eventStream
+}
+
+// The StartLiveTailOutput is and event in the StartLiveTailResponseStream group of events.
+func (s *StartLiveTailOutput) eventStartLiveTailResponseStream() {}
+
+// UnmarshalEvent unmarshals the EventStream Message into the StartLiveTailOutput value.
+// This method is only used internally within the SDK's EventStream handling.
+func (s *StartLiveTailOutput) UnmarshalEvent(
+	payloadUnmarshaler protocol.PayloadUnmarshaler,
+	msg eventstream.Message,
+) error {
+	if err := payloadUnmarshaler.UnmarshalPayload(
+		bytes.NewReader(msg.Payload), s,
+	); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalEvent marshals the type into an stream event value. This method
+// should only used internally within the SDK's EventStream handling.
+func (s *StartLiveTailOutput) MarshalEvent(pm protocol.PayloadMarshaler) (msg eventstream.Message, err error) {
+	msg.Headers.Set(eventstreamapi.MessageTypeHeader, eventstream.StringValue(eventstreamapi.EventMessageType))
+	var buf bytes.Buffer
+	if err = pm.MarshalPayload(&buf, s); err != nil {
+		return eventstream.Message{}, err
+	}
+	msg.Payload = buf.Bytes()
+	return msg, err
+}
+
+// StartLiveTailResponseStreamEvent groups together all EventStream
+// events writes for StartLiveTailResponseStream.
+//
+// These events are:
+//
+//   - LiveTailSessionStart
+//   - LiveTailSessionUpdate
+type StartLiveTailResponseStreamEvent interface {
+	eventStartLiveTailResponseStream()
+	eventstreamapi.Marshaler
+	eventstreamapi.Unmarshaler
+}
+
+// StartLiveTailResponseStreamReader provides the interface for reading to the stream. The
+// default implementation for this interface will be StartLiveTailResponseStream.
+//
+// The reader's Close method must allow multiple concurrent calls.
+//
+// These events are:
+//
+//   - LiveTailSessionStart
+//   - LiveTailSessionUpdate
+//   - StartLiveTailResponseStreamUnknownEvent
+type StartLiveTailResponseStreamReader interface {
+	// Returns a channel of events as they are read from the event stream.
+	Events() <-chan StartLiveTailResponseStreamEvent
+
+	// Close will stop the reader reading events from the stream.
+	Close() error
+
+	// Returns any error that has occurred while reading from the event stream.
+	Err() error
+}
+
+type readStartLiveTailResponseStream struct {
+	eventReader *eventstreamapi.EventReader
+	stream      chan StartLiveTailResponseStreamEvent
+	err         *eventstreamapi.OnceError
+
+	done      chan struct{}
+	closeOnce sync.Once
+}
+
+func newReadStartLiveTailResponseStream(eventReader *eventstreamapi.EventReader) *readStartLiveTailResponseStream {
+	r := &readStartLiveTailResponseStream{
+		eventReader: eventReader,
+		stream:      make(chan StartLiveTailResponseStreamEvent),
+		done:        make(chan struct{}),
+		err:         eventstreamapi.NewOnceError(),
+	}
+	go r.readEventStream()
+
+	return r
+}
+
+// Close will close the underlying event stream reader.
+func (r *readStartLiveTailResponseStream) Close() error {
+	r.closeOnce.Do(r.safeClose)
+	return r.Err()
+}
+
+func (r *readStartLiveTailResponseStream) ErrorSet() <-chan struct{} {
+	return r.err.ErrorSet()
+}
+
+func (r *readStartLiveTailResponseStream) Closed() <-chan struct{} {
+	return r.done
+}
+
+func (r *readStartLiveTailResponseStream) safeClose() {
+	close(r.done)
+}
+
+func (r *readStartLiveTailResponseStream) Err() error {
+	return r.err.Err()
+}
+
+func (r *readStartLiveTailResponseStream) Events() <-chan StartLiveTailResponseStreamEvent {
+	return r.stream
+}
+
+func (r *readStartLiveTailResponseStream) readEventStream() {
+	defer r.Close()
+	defer close(r.stream)
+
+	for {
+		event, err := r.eventReader.ReadEvent()
+		if err != nil {
+			if err == io.EOF {
+				return
+			}
+			select {
+			case <-r.done:
+				// If closed already ignore the error
+				return
+			default:
+			}
+			if _, ok := err.(*eventstreamapi.UnknownMessageTypeError); ok {
+				continue
+			}
+			r.err.SetError(err)
+			return
+		}
+
+		select {
+		case r.stream <- event.(StartLiveTailResponseStreamEvent):
+		case <-r.done:
+			return
+		}
+	}
+}
+
+type unmarshalerForStartLiveTailResponseStreamEvent struct {
+	metadata protocol.ResponseMetadata
+}
+
+func (u unmarshalerForStartLiveTailResponseStreamEvent) UnmarshalerForEventName(eventType string) (eventstreamapi.Unmarshaler, error) {
+	switch eventType {
+	case "sessionStart":
+		return &LiveTailSessionStart{}, nil
+	case "sessionUpdate":
+		return &LiveTailSessionUpdate{}, nil
+	case "SessionStreamingException":
+		return newErrorSessionStreamingException(u.metadata).(eventstreamapi.Unmarshaler), nil
+	case "SessionTimeoutException":
+		return newErrorSessionTimeoutException(u.metadata).(eventstreamapi.Unmarshaler), nil
+	default:
+		return &StartLiveTailResponseStreamUnknownEvent{Type: eventType}, nil
+	}
+}
+
+// StartLiveTailResponseStreamUnknownEvent provides a failsafe event for the
+// StartLiveTailResponseStream group of events when an unknown event is received.
+type StartLiveTailResponseStreamUnknownEvent struct {
+	Type    string
+	Message eventstream.Message
+}
+
+// The StartLiveTailResponseStreamUnknownEvent is and event in the StartLiveTailResponseStream
+// group of events.
+func (s *StartLiveTailResponseStreamUnknownEvent) eventStartLiveTailResponseStream() {}
+
+// MarshalEvent marshals the type into an stream event value. This method
+// should only used internally within the SDK's EventStream handling.
+func (e *StartLiveTailResponseStreamUnknownEvent) MarshalEvent(pm protocol.PayloadMarshaler) (
+	msg eventstream.Message, err error,
+) {
+	return e.Message.Clone(), nil
+}
+
+// UnmarshalEvent unmarshals the EventStream Message into the StartLiveTailResponseStream value.
+// This method is only used internally within the SDK's EventStream handling.
+func (e *StartLiveTailResponseStreamUnknownEvent) UnmarshalEvent(
+	payloadUnmarshaler protocol.PayloadUnmarshaler,
+	msg eventstream.Message,
+) error {
+	e.Message = msg.Clone()
+	return nil
 }
 
 type StartQueryInput struct {
@@ -19764,12 +21118,16 @@ func OutputFormat_Values() []string {
 const (
 	// PolicyTypeDataProtectionPolicy is a PolicyType enum value
 	PolicyTypeDataProtectionPolicy = "DATA_PROTECTION_POLICY"
+
+	// PolicyTypeSubscriptionFilterPolicy is a PolicyType enum value
+	PolicyTypeSubscriptionFilterPolicy = "SUBSCRIPTION_FILTER_POLICY"
 )
 
 // PolicyType_Values returns all elements of the PolicyType enum
 func PolicyType_Values() []string {
 	return []string{
 		PolicyTypeDataProtectionPolicy,
+		PolicyTypeSubscriptionFilterPolicy,
 	}
 }
 

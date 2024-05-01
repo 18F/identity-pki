@@ -274,7 +274,7 @@ func GetAmazonLinuxAmi(t testing.TestingT, region string) string {
 // GetAmazonLinuxAmiE returns an Amazon Linux AMI HVM, SSD Volume Type public AMI for the given region.
 func GetAmazonLinuxAmiE(t testing.TestingT, region string) (string, error) {
 	filters := map[string][]string{
-		"name":                             {"*amzn-ami-hvm-*-x86_64*"},
+		"name":                             {"*amzn2-ami-hvm-*-x86_64*"},
 		"virtualization-type":              {"hvm"},
 		"architecture":                     {"x86_64"},
 		"root-device-type":                 {"ebs"},

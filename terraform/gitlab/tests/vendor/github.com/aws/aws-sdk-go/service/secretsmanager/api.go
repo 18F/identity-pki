@@ -873,12 +873,10 @@ func (c *SecretsManager) GetRandomPasswordRequest(input *GetRandomPasswordInput)
 //
 // Generates a random password. We recommend that you specify the maximum length
 // and include every character type that the system you are generating a password
-// for can support.
+// for can support. By default, Secrets Manager uses uppercase and lowercase
+// letters, numbers, and the following characters in passwords: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~
 //
 // Secrets Manager generates a CloudTrail log entry when you call this action.
-// Do not include sensitive information in request parameters because it might
-// be logged. For more information, see Logging Secrets Manager events with
-// CloudTrail (https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieve-ct-entries.html).
 //
 // Required permissions: secretsmanager:GetRandomPassword. For more information,
 // see IAM policy actions for Secrets Manager (https://docs.aws.amazon.com/secretsmanager/latest/userguide/reference_iam-permissions.html#reference_iam-permissions_actions)
@@ -1384,9 +1382,9 @@ func (c *SecretsManager) ListSecretsRequest(input *ListSecretsInput) (req *reque
 // account, not including secrets that are marked for deletion. To see secrets
 // marked for deletion, use the Secrets Manager console.
 //
-// ListSecrets is eventually consistent, however it might not reflect changes
-// from the last five minutes. To get the latest information for a specific
-// secret, use DescribeSecret.
+// All Secrets Manager operations are eventually consistent. ListSecrets might
+// not reflect changes from the last five minutes. You can get more recent information
+// for a specific secret by calling DescribeSecret.
 //
 // To list the versions of a secret, use ListSecretVersionIds.
 //
@@ -1940,8 +1938,12 @@ func (c *SecretsManager) ReplicateSecretToRegionsRequest(input *ReplicateSecretT
 // be logged. For more information, see Logging Secrets Manager events with
 // CloudTrail (https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieve-ct-entries.html).
 //
-// Required permissions: secretsmanager:ReplicateSecretToRegions. For more information,
-// see IAM policy actions for Secrets Manager (https://docs.aws.amazon.com/secretsmanager/latest/userguide/reference_iam-permissions.html#reference_iam-permissions_actions)
+// Required permissions: secretsmanager:ReplicateSecretToRegions. If the primary
+// secret is encrypted with a KMS key other than aws/secretsmanager, you also
+// need kms:Decrypt permission to the key. To encrypt the replicated secret
+// with a KMS key other than aws/secretsmanager, you need kms:GenerateDataKey
+// and kms:Encrypt to the key. For more information, see IAM policy actions
+// for Secrets Manager (https://docs.aws.amazon.com/secretsmanager/latest/userguide/reference_iam-permissions.html#reference_iam-permissions_actions)
 // and Authentication and access control in Secrets Manager (https://docs.aws.amazon.com/secretsmanager/latest/userguide/auth-and-access.html).
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -3065,7 +3067,8 @@ type BatchGetSecretValueInput struct {
 	//
 	// If there are more results available, in the response, Secrets Manager includes
 	// NextToken. To get the next results, call BatchGetSecretValue again with the
-	// value from NextToken.
+	// value from NextToken. To use this parameter, you must also use the Filters
+	// parameter.
 	MaxResults *int64 `min:"1" type:"integer"`
 
 	// A token that indicates where the output should continue from, if a previous
@@ -4014,14 +4017,23 @@ type DescribeSecretOutput struct {
 	LastChangedDate *time.Time `type:"timestamp"`
 
 	// The last date and time that Secrets Manager rotated the secret. If the secret
-	// isn't configured for rotation, Secrets Manager returns null.
+	// isn't configured for rotation or rotation has been disabled, Secrets Manager
+	// returns null.
 	LastRotatedDate *time.Time `type:"timestamp"`
 
 	// The name of the secret.
 	Name *string `min:"1" type:"string"`
 
 	// The next rotation is scheduled to occur on or before this date. If the secret
-	// isn't configured for rotation, Secrets Manager returns null.
+	// isn't configured for rotation or rotation has been disabled, Secrets Manager
+	// returns null. If rotation fails, Secrets Manager retries the entire rotation
+	// process multiple times. If rotation is unsuccessful, this date may be in
+	// the past.
+	//
+	// This date represents the latest date that rotation will occur, but it is
+	// not an approximate rotation date. In some cases, for example if you turn
+	// off automatic rotation and then turn it back on, the next rotation may occur
+	// much sooner than this date.
 	NextRotationDate *time.Time `type:"timestamp"`
 
 	// The ID of the service that created this secret. For more information, see
@@ -4707,9 +4719,9 @@ type GetSecretValueOutput struct {
 	Name *string `min:"1" type:"string"`
 
 	// The decrypted secret value, if the secret value was originally provided as
-	// binary data in the form of a byte array. The response parameter represents
-	// the binary data as a base64-encoded (https://tools.ietf.org/html/rfc4648#section-4)
-	// string.
+	// binary data in the form of a byte array. When you retrieve a SecretBinary
+	// using the HTTP API, the Python SDK, or the Amazon Web Services CLI, the value
+	// is Base64-encoded. Otherwise, it is not encoded.
 	//
 	// If the secret was created by using the Secrets Manager console, or if the
 	// secret value was originally provided as a string, then this field is omitted.
@@ -5631,6 +5643,21 @@ type PutResourcePolicyInput struct {
 	// Specifies whether to block resource-based policies that allow broad access
 	// to the secret, for example those that use a wildcard for the principal. By
 	// default, public policies aren't blocked.
+	//
+	// Resource policy validation and the BlockPublicPolicy parameter help protect
+	// your resources by preventing public access from being granted through the
+	// resource policies that are directly attached to your secrets. In addition
+	// to using these features, carefully inspect the following policies to confirm
+	// that they do not grant public access:
+	//
+	//    * Identity-based policies attached to associated Amazon Web Services principals
+	//    (for example, IAM roles)
+	//
+	//    * Resource-based policies attached to associated Amazon Web Services resources
+	//    (for example, Key Management Service (KMS) keys)
+	//
+	// To review permissions to your secrets, see Determine who has permissions
+	// to your secrets (https://docs.aws.amazon.com/secretsmanager/latest/userguide/determine-acccess_examine-iam-policies.html).
 	BlockPublicPolicy *bool `type:"boolean"`
 
 	// A JSON-formatted string for an Amazon Web Services resource-based policy.
@@ -6869,7 +6896,8 @@ type SecretListEntry struct {
 	Name *string `min:"1" type:"string"`
 
 	// The next rotation is scheduled to occur on or before this date. If the secret
-	// isn't configured for rotation, Secrets Manager returns null.
+	// isn't configured for rotation or rotation has been disabled, Secrets Manager
+	// returns null.
 	NextRotationDate *time.Time `type:"timestamp"`
 
 	// Returns the name of the service that created the secret.
