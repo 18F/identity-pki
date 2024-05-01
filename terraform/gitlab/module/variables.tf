@@ -188,7 +188,7 @@ variable "instance_type_gitlab" {
 }
 
 variable "instance_type_gitlab_build" {
-  default = "c6i.large"
+  default = "c6i.xlarge"
 }
 
 variable "instance_type_gitlab_runner" {
