@@ -32,11 +32,6 @@ module "vpc" {
 module "alpha" {
   source = "../module_native"
 
-  base_codebuild_name  = "login-image-base"
-  rails_codebuild_name = "login-image-rails"
-  base_pipeline_name   = "CodePipeline-ImageBaseRole-CodePipeline-1P5OOU1BIFC4R"
-  rails_pipeline_name  = "CodePipeline-ImageRailsRole-CodePipeline-86AQ9NT0FEQ5"
-
   account_name          = "alpha"
   env_name              = "alpha"
   identity_base_git_ref = "main"
