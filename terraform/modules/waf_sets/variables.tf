@@ -120,6 +120,7 @@ variable "relaxed_uri_paths" {
     "capture_password"        = "^/([a-z]{2}/)?login/password"                     # https://github.com/18F/identity-devops/issues/6389
     "reactivate"              = "^/([a-z]{2}/)?account/reactivate/verify_password" # https://github.com/18F/identity-devops/issues/6389
     "sign_up_password"        = "^/([a-z]{2}/)?sign_up/create_password"            # https://github.com/18F/identity-devops/issues/6576
+    "confirm_email"           = "^/([a-z]{2}/)?sign_up/email/confirm"              # https://github.com/18F/identity-devops/issues/6576
   }
 }
 
