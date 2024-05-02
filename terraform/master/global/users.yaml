@@ -1049,7 +1049,7 @@ groups:
     description: Gitlab automation accounts
   login-security:
     description: Security Team Project and Documentation Management
-  lg-people/lg-people-appdev/protocols:
+  protocols:
     description: Appdev protocols group
 projects:
   lg/identity-devops:
