@@ -69,7 +69,7 @@ users:
     - arowley
     gitlab_groups:
     - pm
-    - lg-people/lg-people-appdev/protocols|owner
+    - protocols|owner
   alexander.bradley:
     aws_groups:
     - apponcall
@@ -287,7 +287,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people/lg-people-appdev/protocols|owner
+    - protocols|owner
   dawei.wang:
     aws_groups:
     - apponcall
@@ -607,7 +607,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people/lg-people-appdev/protocols|maintainer
+    - protocols|maintainer
   laurie.cole:
     aws_groups:
     - analytics
@@ -996,7 +996,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people/lg-people-appdev/protocols|maintainer
+    - protocols|maintainer
   zach.margolis:
     ec2_username:
     - zmargolis
@@ -1023,7 +1023,7 @@ users:
     - pm|owner
     - antifraud|owner
     - login-security|owner
-    - lg-people/lg-people-appdev/protocols|owner
+    - protocols|owner
     can_create_group:
     - true
 groups:
