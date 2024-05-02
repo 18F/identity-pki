@@ -9,8 +9,8 @@ repolist:
   platform:
     - gitlab.login.gov:lg/identity-base-image
     - gitlab.login.gov:lg/identity-cookbooks
-    - github.com:18F/identity-devops
-    - github.com:18F/identity-devops-private
+    - gitlab.login.gov:lg/identity-devops
+    - gitlab.login.gov:lg/identity-devops-private
     - github.com:18F/identity-lambda-functions
     - gitlab.login.gov:lg/identity-terraform
   security:
