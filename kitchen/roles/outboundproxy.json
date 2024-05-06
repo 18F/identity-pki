@@ -10,8 +10,7 @@
   "run_list": [
     "role[base]",
     "recipe[login_dot_gov::static_eip]",
-    "recipe[identity-outboundproxy]",
-    "recipe[login_dot_gov::elastic_agent]"
+    "recipe[identity-outboundproxy]"
   ],
   "env_run_lists": {
   }
