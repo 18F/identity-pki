@@ -19,7 +19,7 @@ KMS Symmetric Cryptographic API request rate has exceeded 80% of limit for:
 Account: ${data.aws_caller_identity.current.account_id}
 Region: ${var.region}
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#kms-symmetric-key-api
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-AWS-Service-Limits#kms-symmetric-key-api
 EOM
 
   insufficient_data_actions = []
@@ -75,7 +75,7 @@ LimitExceeded messages found in CloudTrail - AWS API rate limiting occurring
 Account: ${data.aws_caller_identity.current.account_id}
 Region: ${var.region}
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-AWS-Service-Limits#limitexceeded-in-cloudtrail
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-AWS-Service-Limits#limitexceeded-in-cloudtrail
 EOM
   metric_name         = aws_cloudwatch_log_metric_filter.api_throttling.name
   threshold           = var.threshold
@@ -96,7 +96,7 @@ In danger of exceeding ${var.ses_email_limit} emails per 6 hours
 Account: ${data.aws_caller_identity.current.account_id}
 Region: ${var.region}
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook%3A-Email-and-SMTP#ses-send-limit
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook%3A-Email-and-SMTP#ses-send-limit
 EOM
   metric_name         = "Send"
   threshold           = var.ses_email_limit
@@ -104,7 +104,7 @@ EOM
   comparison_operator = "GreaterThanOrEqualToThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
-  period              = 21600 # 6 hours 
+  period              = 21600 # 6 hours
   namespace           = "AWS/SES"
   treat_missing_data  = "notBreaching"
   alarm_actions       = [aws_sns_topic.slack_usw2["events"].arn]
@@ -118,7 +118,7 @@ Our SES email bounce rate has exceeded ${format("%.1f", var.ses_bounce_rate_thre
 Account: ${data.aws_caller_identity.current.account_id}
 Region: ${var.region}
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook%3A-Email-and-SMTP#ses-reputation-bounce-rate
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook%3A-Email-and-SMTP#ses-reputation-bounce-rate
 EOM
   metric_name         = "Reputation.BounceRate"
   threshold           = var.ses_bounce_rate_threshold
@@ -140,7 +140,7 @@ Our SES email bounce rate has exceeded ${format("%.1f", var.ses_complaint_rate_t
 Account: ${data.aws_caller_identity.current.account_id}
 Region: ${var.region}
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook%3A-Email-and-SMTP#ses-reputation-complaint-rate
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook%3A-Email-and-SMTP#ses-reputation-complaint-rate
 EOM
   metric_name         = "Reputation.ComplaintRate"
   threshold           = var.ses_complaint_rate_threshold

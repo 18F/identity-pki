@@ -51,7 +51,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_used" {
   threshold           = var.high_mem_threshold
   statistic           = "Maximum"
   alarm_description   = <<EOM
-${var.alert_handle} An instance in ASG ${var.asg_name} has exceeded ${var.high_mem_threshold}% memory utilization for over 60 seconds. This is a critical alert. Dashboard: https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${var.asg_name}-instance-resource-use Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-High-Memory-and-Disk-Usage
+${var.alert_handle} An instance in ASG ${var.asg_name} has exceeded ${var.high_mem_threshold}% memory utilization for over 60 seconds. This is a critical alert. Dashboard: https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${var.asg_name}-instance-resource-use Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-High-Memory-and-Disk-Usage
 EOM
   alarm_actions       = var.alarm_actions
   treat_missing_data  = var.treat_missing_data
@@ -73,7 +73,7 @@ resource "aws_cloudwatch_metric_alarm" "disk_used" {
   threshold           = var.high_disk_threshold
   statistic           = "Maximum"
   alarm_description   = <<EOM
-${var.alert_handle} An instance in ASG ${var.asg_name} has exceeded ${var.high_disk_threshold}% disk space utilization for over 60 seconds. This is a critical alert. Dashboard: https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${var.asg_name}-instance-resource-use Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-High-Memory-and-Disk-Usage
+${var.alert_handle} An instance in ASG ${var.asg_name} has exceeded ${var.high_disk_threshold}% disk space utilization for over 60 seconds. This is a critical alert. Dashboard: https://${var.region}.console.aws.amazon.com/cloudwatch/home?region=${var.region}#dashboards:name=${var.asg_name}-instance-resource-use Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-High-Memory-and-Disk-Usage
 EOM
   alarm_actions       = var.alarm_actions
   treat_missing_data  = var.treat_missing_data

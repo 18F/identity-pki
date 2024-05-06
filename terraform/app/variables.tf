@@ -751,7 +751,7 @@ locals {
     "arn:aws:s3:::login-gov.s3-inventory",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
-  dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
+  dnssec_runbook_prefix = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
 }
 
 # These variables are used to toggle whether certain services are enabled.

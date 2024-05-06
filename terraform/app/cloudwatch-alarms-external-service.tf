@@ -9,7 +9,7 @@ ${aws_autoscaling_group.idp.name}: ${each.value.long_name} idv vendor
 exception rate is above 50% over a period of 15 mins.
 
 %{if each.value.runbook_url != ""~}
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-${each.value.runbook_url}
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-${each.value.runbook_url}
 %{else~}
 Runbook: https://handbook.login.gov/articles/vendor-outage-response-process.html
 %{endif~}
