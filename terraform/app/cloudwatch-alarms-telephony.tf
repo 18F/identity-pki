@@ -12,7 +12,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_send_rate_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP sent more than ${var.sms_send_rate_alert_threshold} SMS messages in 1 minute
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -32,7 +32,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_voice_send_rate_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP sent more than ${var.voice_send_rate_alert_threshold} voice messages in 1 minute which can indicate issues sending SMS
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -53,7 +53,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_error_rate_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP experienced more than ${var.sms_error_rate_alert_threshold} SMS non-throttled message failures in 1 minute
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -73,7 +73,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_throttled_rate_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP experienced more than ${var.sms_error_rate_alert_threshold} SMS throttled message failures in 1 minute
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -93,7 +93,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_voice_error_rate_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP experienced more than ${var.voice_error_rate_alert_threshold} voice non-throttled message failures in 1 minute
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -113,7 +113,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_voice_throttled_rate_high_alarm" {
   alarm_description         = <<EOM
 ${var.env_name} IdP experienced more than ${var.voice_error_rate_alert_threshold} voice throttled message failures in 1 minute
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
@@ -131,7 +131,7 @@ resource "aws_cloudwatch_metric_alarm" "idp_sms_resend_percentage_high_alarm" {
 ${var.env_name} IdP experienced more than ${var.sms_high_retry_percentage_threshold} percent of SMS retries in 5 minutes
 
 Alerting: @login-oncall-katherine
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice
 EOM
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []

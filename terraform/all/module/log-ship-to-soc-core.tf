@@ -1,6 +1,6 @@
 # For new AWS accounts you MUST contact the SOCaaS team to allow this account
 # permission to the destination ARN.
-# See: https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
+# See: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 module "log-ship-to-soc-cloudtrail-logs" {
   count = var.soc_logs_enabled ? 1 : 0
 

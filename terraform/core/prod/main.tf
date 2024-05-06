@@ -174,7 +174,7 @@ module "main" {
     }
   ]
 
-  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  # To safely rotate see https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#ksk-rotation
   dnssec_ksks = {
     # 20211005" = "old",
     "20211006" = "active"

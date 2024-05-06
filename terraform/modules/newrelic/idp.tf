@@ -22,7 +22,7 @@ resource "newrelic_alert_condition" "low_throughput" {
   count           = var.idp_enabled
   policy_id       = newrelic_alert_policy.high[count.index].id
   name            = "${var.env_name}: LOW Throughput (web)"
-  runbook_url     = "https://github.com/18F/identity-devops/wiki/Runbook:-low-throughput-in-New-Relic"
+  runbook_url     = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-low-throughput-in-New-Relic"
   enabled         = true
   type            = "apm_app_metric"
   metric          = "throughput_web"
@@ -143,7 +143,7 @@ resource "newrelic_alert_condition" "enduser_datastore_slow_queries" {
   entities                    = [data.newrelic_entity.idp[count.index].application_id]
   user_defined_metric         = "Datastore/allWeb"
   user_defined_value_function = "max"
-  runbook_url                 = "https://github.com/18F/identity-devops/wiki/Runbook%5BAlerts%5D%5BNew-Relic%5D:-ENV:-Web-datastores-slow-queries"
+  runbook_url                 = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook%5BAlerts%5D%5BNew-Relic%5D:-ENV:-Web-datastores-slow-queries"
 
   term {
     duration      = 10
@@ -198,7 +198,7 @@ resource "newrelic_nrql_alert_condition" "controller_action_errors" {
   name                         = "${var.env_name}: high rate of errors in controller action"
   enabled                      = true
   description                  = "Alerting when errors in controller action name get above 0.5% for the past 10 minutes"
-  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-controller-action-error-rate"
+  runbook_url                  = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-controller-action-error-rate"
   violation_time_limit_seconds = 43200
   aggregation_window           = 120
   aggregation_method           = "event_flow"
@@ -223,7 +223,7 @@ resource "newrelic_nrql_alert_condition" "service_provider_errors" {
   enabled     = true
   description = "Alerting when errors for individual service provider get above 0.5% for the past 10 minutes"
 
-  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-high-service-provider-error-rate"
+  runbook_url                  = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-high-service-provider-error-rate"
   violation_time_limit_seconds = 43200
   aggregation_window           = 120
   aggregation_method           = "event_flow"
@@ -277,7 +277,7 @@ resource "newrelic_nrql_alert_condition" "proofing_pageview_duration" {
   Users are experiencing slow response times from pages associated with the identity proofing process.
   EOT
 
-  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms"
+  runbook_url                  = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-In-Person-Proofing-Alarms"
   enabled                      = true
   violation_time_limit_seconds = 604800
 
@@ -307,7 +307,7 @@ resource "newrelic_nrql_alert_condition" "proofing_javascript_errors" {
   A user encountered a JavaScript error while proceeding through the identity proofing process.
   EOT
 
-  runbook_url                  = "https://github.com/18F/identity-devops/wiki/Runbook:-In-Person-Proofing-Alarms"
+  runbook_url                  = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-In-Person-Proofing-Alarms"
   enabled                      = true
   violation_time_limit_seconds = 604800
 

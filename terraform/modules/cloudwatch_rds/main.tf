@@ -9,7 +9,7 @@ locals {
       alarm_description   = <<EOM
 Average database disk queue depth is too high, performance may be negatively impacted
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-disk-queue-depth
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-disk-queue-depth
 EOM
     },
     lowFreeStorageSpace = {
@@ -19,7 +19,7 @@ EOM
       alarm_description   = <<EOM
 ${local.free_space_type} storage is too low and may fill up soon!
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General#storage-volumes
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-PostgreSQL-General#storage-volumes
 EOM
     },
     MaximumUsedTransactionIDstoohigh = {
@@ -30,7 +30,7 @@ EOM
 Usage of Transaction IDs in PostgreSQL Database is high -
 Check RDS Instance, review and cleanup the unvacuumed transactions before the autovacuum kicks in
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-Optimization#vacuum-deep-dive
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-PostgreSQL-Optimization#vacuum-deep-dive
 EOM
     },
     HighNetworkThroughput = {
@@ -41,7 +41,7 @@ EOM
 Network Utilization in PostgreSQL Database is high -
 Check RDS Instance, evalutate network usage and resize if necessary.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-PostgreSQL-General
 EOM
     },
     CriticalNetworkThroughput = {
@@ -52,7 +52,7 @@ EOM
 Network Utilization in PostgreSQL Database is Critical -
 Check RDS Instance, evalutate network usage and resize if necessary.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-PostgreSQL-General
 EOM
     },
     HighCpuUtilization = {
@@ -63,7 +63,7 @@ EOM
 CPU Utilization in PostgreSQL Database is high -
 Check RDS Instance, evalutate CPU usage and resize if necessary.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-PostgreSQL-General
 EOM
     },
     CriticalCpuUtilization = {
@@ -74,7 +74,7 @@ EOM
 CPU Utilization in PostgreSQL Database is Critical -
 Check RDS Instance, evalutate CPU usage and resize if necessary.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-RDS-PostgreSQL-General
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-RDS-PostgreSQL-General
 EOM
     },
   }

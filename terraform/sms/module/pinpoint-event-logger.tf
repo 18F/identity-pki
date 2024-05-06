@@ -146,7 +146,7 @@ resource "aws_cloudwatch_metric_alarm" "send_by_country" {
 ${var.env}: More than ${lookup(var.sms_unexpected_individual_country_alarm_thresholds, each.key, var.sms_unexpected_country_alarm_default_threshold)} SMS have been sent to phone numbers in ${each.key} in the last hour. This may a problem with delivery or malicious usage.
 
 Alerting: @login-oncall-katherine
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
 EOM
 
   comparison_operator = "GreaterThanThreshold"

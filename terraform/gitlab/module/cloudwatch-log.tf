@@ -172,7 +172,7 @@ resource "aws_cloudwatch_metric_alarm" "gitlab_ci_ping_failures" {
   period                    = 60 * var.ci_ping_alert_minutes
   statistic                 = "Sum"
   threshold                 = "1"
-  alarm_description         = "${local.gitlab_ci_ping_alert_handle}This Alarm is executed if Gitlab's CI has NOT completed successfully in the ${var.ci_ping_alert_minutes} minutes. Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Gitlab-CI-Troubleshooting"
+  alarm_description         = "${local.gitlab_ci_ping_alert_handle}This Alarm is executed if Gitlab's CI has NOT completed successfully in the ${var.ci_ping_alert_minutes} minutes. Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Gitlab-CI-Troubleshooting"
   treat_missing_data        = var.cloudwatch_treat_missing_data
   insufficient_data_actions = []
   alarm_actions = [

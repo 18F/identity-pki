@@ -123,7 +123,7 @@ resource "aws_cloudwatch_metric_alarm" "queue_depth" {
 
   actions_enabled     = true
   alarm_actions       = [var.slack_events_sns_hook_arn]
-  alarm_description   = "${local.alert_handle}Alarms when there are too many pending Gitlab CI/CD jobs. Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Gitlab-CI-Troubleshooting"
+  alarm_description   = "${local.alert_handle}Alarms when there are too many pending Gitlab CI/CD jobs. Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Gitlab-CI-Troubleshooting"
   alarm_name          = "GitLab-${var.env_name}-${each.key}-Job-Queue-Depth"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 2
