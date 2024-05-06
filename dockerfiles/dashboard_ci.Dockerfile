@@ -30,6 +30,7 @@ RUN wget --no-verbose -O /tmp/chrome.deb https://dl.google.com/linux/chrome/deb/
   && rm /tmp/chrome.deb
 # This is temporary so that we do not use the latest chromedriver due to an issue in the latest version
 # RUN curl -Ss "https://chromedriver.storage.googleapis.com/$(google-chrome --version | grep -Po '\d+\.\d+\.\d+' | tr -d '\n').16/chromedriver_linux64.zip" > /tmp/chromedriver.zip && \
+RUN google-chrome --version 
 RUN curl -Ss "https://chromedriver.storage.googleapis.com/$(curl -Ss "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$(google-chrome --version | grep -Po '\d+\.\d+\.\d+' | tr -d '\n')")/chromedriver_linux64.zip" > /tmp/chromedriver.zip && \
     unzip /tmp/chromedriver.zip -d /tmp/chromedriver && \
     mv -f /tmp/chromedriver/chromedriver /usr/local/bin/chromedriver && \
