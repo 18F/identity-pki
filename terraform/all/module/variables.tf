@@ -400,7 +400,7 @@ variable "soc_logs_enabled" {
 Enables creation of log_ship_to_soc module, allowing shipping of CloudWatch logs to
 SOC core account. Must be set to false for new accounts until the SOCaaS team has
 approved and confirmed access to the destination CloudWatch log group. More info:
-https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
+https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 EOM
 }
 
@@ -425,8 +425,8 @@ variable "ses_complaint_rate_threshold" {
 variable "permission_boundary_policy_name" {
   type        = string
   description = <<EOM
-The name of the permission boundary IAM policy (created in terraform/guardrail) to be attached to assumable roles. 
-Will not create permission boundary if left blank. 
+The name of the permission boundary IAM policy (created in terraform/guardrail) to be attached to assumable roles.
+Will not create permission boundary if left blank.
 EOM
   default     = ""
 }

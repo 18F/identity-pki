@@ -1,0 +1,105 @@
+#!/bin/bash
+
+#### A local configuration checker for common/frequent issues reported via #login-platform-support ####
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/test-common.sh"
+. "${BASEPATH}/lib/test-environment-variables.sh"
+. "${BASEPATH}/lib/test-ykman.sh"
+. "${BASEPATH}/lib/test-homebrew.sh"
+. "${BASEPATH}/lib/test-aws-vault.sh"
+. "${BASEPATH}/lib/test-local-repos.sh"
+
+opts="e1y2b3a4r5hv"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-${opts}]
+
+Flags (will run all task flags if no flags are specified):
+  -e / -1 : Check environment variables configurations
+  -y / -2 : Check ykman configurations
+  -b / -3 : Check homebrew configurations
+  -a / -4 : Check aws-vault configurations
+  -r / -5 : Check local repo configurations
+  -v 	  : Increase verbosity
+  -h 	  : Print the Help Menu
+
+EOM
+}
+
+help_me() {
+  cat >&2 << EOM
+    
+Usage: ${0} [-${opts}]
+
+Optional Flags:
+
+  -h : Prints the Help Menu
+  -v : Increase verbosity
+
+The tasks in this script can also be individually executed as follows:
+
+  -e / -1 : Runs the enviornment variable test suite
+            (Step: 1_test_environment_variables)
+  -y / -2 : Runs the ykman test suite
+            (Step: 2_test_ykman)
+  -b / -3 : Runs the homebrew test suite
+            (Step: 3_test_homebrew)
+  -a / -4 : Runs the aws-vault test suite
+            (Step: 4_test_aws_vault)
+  -r / -5 : Runs the local repo test suite
+            (Step: 5_test_local_repos)
+EOM
+  exit 0
+}
+
+1_test_environment_variables() {
+	test_environment_variables $verbose
+}
+
+2_test_ykman() {
+	test_ykman $verbose
+}
+
+3_test_homebrew() {
+	test_homebrew $verbose
+}
+
+4_test_aws_vault() {
+	test_aws_vault $verbose
+}
+
+5_test_local_repos() {
+	test_local_repos $verbose
+}
+
+TASKS=(
+  "1_test_environment_variables"
+  "2_test_ykman"
+  "3_test_homebrew"
+  "4_test_aws_vault"
+  "5_test_local_repos"
+)
+TODO=()
+verbose=1
+while getopts $opts opt
+do
+  case $opt in
+    v) verbose=0 ;;
+    e|1) TODO+=("${TASKS[0]}") ;;
+    y|2) TODO+=("${TASKS[1]}") ;;
+    b|3) TODO+=("${TASKS[2]}") ;;
+    a|4) TODO+=("${TASKS[3]}") ;;
+    r|5) TODO+=("${TASKS[4]}") ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
+  esac
+done
+shift $((OPTIND-1))
+
+run_tasks

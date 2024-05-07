@@ -6,7 +6,7 @@
 
 # For shipping GuardDuty logs to SOC, you MUST contact the SOCaaS team
 # to allow this account permission to the destination ARN. See:
-# https://github.com/18F/identity-devops/wiki/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
+# https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-GSA-SOC-as-a-Service-(SOCaaS)#cloudwatch-shipping-important-note
 
 ## us-west-2
 

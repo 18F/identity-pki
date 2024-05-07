@@ -14,7 +14,7 @@ More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_ale
 
 by the ALB WAF rules This could be a run of the mill scan, something worse, or signs of a false positive block.
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-WAF#waf-blocks-exceeded
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-WAF#waf-blocks-exceeded
 EOM
 
   alarm_actions = var.waf_alert_actions
@@ -39,9 +39,9 @@ resource "aws_cloudwatch_metric_alarm" "wafv2_blocked_alert_cloudfront" {
   alarm_description   = <<EOM
 More than ${var.waf_alert_blocked_threshold} WAF blocks occured in ${var.waf_alert_blocked_period} seconds
 
-by the Cloudfront WAF rules This could be a run of the mill scan, something worse, or signs of a false 
+by the Cloudfront WAF rules This could be a run of the mill scan, something worse, or signs of a false
 
-positive block. Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-WAF#waf-blocks-exceeded
+positive block. Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-WAF#waf-blocks-exceeded
 EOM
 
   alarm_actions = var.waf_alert_actions
@@ -76,7 +76,7 @@ Service: ${data.aws_arn.resources[each.value].service}
 Account: ${data.aws_arn.resources[each.value].account}
 Region: ${data.aws_arn.resources[each.value].region}
 
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Denial-of-Service#aws-shield
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Denial-of-Service#aws-shield
 EOM
   alarm_actions       = var.ddos_alert_actions
   dimensions = {
