@@ -581,7 +581,7 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-09d625b87929fdea1" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-01794561c6c67facd" # 2024-05-03 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
@@ -595,7 +595,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-021cc9cab0f5bac23" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-06cce797915ae82ca" # 2024-05-03 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
