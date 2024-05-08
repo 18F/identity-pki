@@ -9,76 +9,110 @@ set -eu
 usage() {
     cat >&2 << EOM
 
-Usage: ${0} [-t 'MR_TITLE'] [-r 'GITLAB_REVIEWERS'] [-p] [-x] [-b]
+Usage: ${0} -t 'MR_TITLE' [-s]|[-g 'AWS_GROUP'][-u 'USER1,USER2'] [-p]
 
 Runs \`glab mr create\` with validation and custom args.
 
 Arguments:
-  -t : Sets the title of the Merge Request
-  -r : GitLab username who will be added
-       as reviewers for the MR
+  -t : Title of the merge request (required)
+  -g : aws_group entry (from terraform/master/global/users.yaml)
+       to create a list of reviewers from
+  -u : Comma-separated list of Gitlab users to set as reviewers
+       (vs. using a group via -g)
+  -s : Skip prompting for a group/user(s) to add, and create the MR
+       with no specified reviewers
   -p : Also add all changes, commit, and push/set upstream to origin
-  -x : Instead of opening a MR, merge and delete the current branch.
-  -b : Run with -x to preserve the local branch after merging
-
-Defaults:
-  - If MR_TITLE is not declared, will use the name of the most recent
-    commit as the MR title.
 
 EOM
 }
 
-if [[ ! $(command -v glab) ]] ; then
-  brew install glab || raise "glab not installed!"
-fi
+get_glab_user() {
+  local USER_TO_CHECK=$1
+  echo ${GL_DATA} | jq -r --arg GL_USER "${USER_TO_CHECK}" \
+  '.|select(.user == $GL_USER)|.git_user // .user'
+}
 
-declare {PUSH,MR_TITLE,GL_REVS}=
-ACTION='open'
-SAVE_BRANCH=false
-while getopts r:t:pxb opt
-do
-    case "${opt}" in
-        r) GL_REVS="${OPTARG}"    ;;
-        t) MR_TITLE=("${OPTARG}") ;;
-        p) PUSH=true              ;;
-        x) ACTION='merge'         ;;
-        b) SAVE_BRANCH=true       ;;
-    esac
+get_glab_group() {
+  local GROUP_TO_CHECK=$1
+  echo ${GL_DATA} | jq -r --arg GL_GROUP "${GROUP_TO_CHECK}" \
+  '.|select(.groups[]|contains($GL_GROUP))|.git_user // .user' |
+  tr '\n' ',' | sed -E 's/,$/\n/'
+}
+
+create_reviewer_list() {
+  if [[ ! -z ${GL_REV_GROUP} ]] ; then
+    REVIEWERS+=($(get_glab_group ${GL_REV_GROUP}))
+  fi
+  
+  if [[ ! -z "${GL_REV_USERS[@]}" ]] ; then
+    for USER in $(echo "${GL_REV_USERS[@]}" | tr ',' ' ') ; do
+      GL_USERNAME=$(get_glab_user ${USER})
+      if [[ ! "${REVIEWERS[@]:-}" =~ "${GL_USERNAME}" ]] && [[ ! -z ${GL_USERNAME} ]]; then
+        REVIEWERS+=(${GL_USERNAME})
+      fi
+    done
+  fi
+}
+
+for GL_APP in 'jq' 'yq' 'glab' ; do
+  if [[ ! $(which "${GL_APP}") ]] ; then
+    brew install ${GL_APP} || raise "${GL_APP} not installed!"
+  fi
 done
 
-[[ -z ${MR_TITLE} ]] && MR_TITLE=("$(git show -s --format=%s)")
+verify_root_repo
 
-gh_revs
+declare {PUSH,MR_TITLE,GL_REV_GROUP,GL_REV_USERS,FOUND_REVIEWERS,REVIEW_FLAG}=
+FOUND_REVIEWERS=false
+REVIEWERS=()
+while getopts :t:g:u:sp opt
+do
+  case "${opt}" in
+    t) MR_TITLE=("${OPTARG}")     ;;
+    g) GL_REV_GROUP="${OPTARG}"   ;;
+    u) GL_REV_USERS=("${OPTARG}") ;;
+    s) FOUND_REVIEWERS=true       ;;
+    p) PUSH=true                  ;;
+    *) usage ; exit 1             ;;
+  esac
+done
 
-if [[ "${ACTION}" == 'open' ]] ; then
-  if [[ "${PUSH}" == true ]] ; then
-    run git add --all
-    run git commit -m "${MR_TITLE[@]}"
-    run git push --set-upstream origin $(git_current_branch)
+GL_ASSIGNEE=$(git config user.name)
+GL_DATA=$(cat ${GIT_DIR}/terraform/master/global/users.yaml | yq -o json |
+          jq -r '.users|to_entries[]|select(.value.aws_groups != null)|
+          {user: .key, git_user: .value.git_username[0], groups: .value.aws_groups}')
+
+# if no group(s)/user(s) provided, prompt accordingly
+while [[ ${FOUND_REVIEWERS} == false ]] ; do
+  if [[ -z ${GL_REV_GROUP:-} ]] && [[ -z "${GL_REV_USERS[@]:-}" ]] ; then
+    FOUND_REVIEWERS=false
+    echo && echo_yellow "No users/group specified as reviewers for this MR."
+    if prompt_yn "Would you like to add users (individually/from an AWS group) as reviewers?" ; then
+      read -r -p \
+        "AWS group (from terraform/master/users.yaml) to get users from (leave blank to skip): " GL_REV_GROUP
+      read -r -p \
+        "Users to add as reviewers (additionally/instead of from a group), comma-separated (leave blank to skip): " GL_REV_USERS
+    else
+      echo_yellow "Will not add reviewers for this MR."
+      REVIEWERS=
+      FOUND_REVIEWERS=true
+    fi
+  else
+    FOUND_REVIEWERS=true
+    create_reviewer_list
   fi
-  run glab mr create -t "$MR_TITLE" --reviewer "${GL_REVS}"
-  
-  # Check for errors during MR creation
-  if [ $? -ne 0 ]; then
-  echo "Error: Failed to create merge request."
-  exit 1
-  fi
+done
 
-else
-  OLD_BRANCH=$(git_current_branch)
-  run git checkout main
-  run git pull origin main
-  run git checkout ${OLD_BRANCH}
-  run git rebase main
+if [[ "${PUSH}" == true ]] ; then
+  run git add --all
+  run git commit -m "${MR_TITLE[@]}"
   run git push --set-upstream origin $(git_current_branch)
-  run git push --force-with-lease
-  run git merge main --no-edit
-  run git checkout main
-  run git merge --no-edit --no-ff ${OLD_BRANCH} 
-  run git push origin main
-  if [[ "${SAVE_BRANCH}" == false ]]; then
-    run git checkout main
-    run git pull origin main
-    run git branch -d ${OLD_BRANCH}
-  fi
+fi
+
+if [[ -z ${REVIEWERS[@]:-} ]] ; then
+  run glab mr create -y -a ${GL_ASSIGNEE} -t "${MR_TITLE[@]}"
+else
+  run glab mr create -y -a ${GL_ASSIGNEE} \
+    --reviewer $(echo "${REVIEWERS[@]}" | tr ' ' ',' | sed -E "s/${GL_ASSIGNEE},//") \
+    -t "${MR_TITLE[@]}"
 fi
