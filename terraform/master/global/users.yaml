@@ -408,6 +408,15 @@ users:
     - lg-all
     - lg-people
     - lg-public
+  howard.miller:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - hmiller
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   ifeoma.elekwachi:
     gitlab_groups:
     - antifraud
@@ -1185,4 +1194,3 @@ projects:
         access: maintainer
       pm:
         access: developer
-
