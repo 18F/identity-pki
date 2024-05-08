@@ -1025,7 +1025,6 @@ users:
     - antifraud|owner
     - login-security|owner
     - protocols|owner
-    - lg-people/lg-people-appdev/protocols|owner
     - lg-people-platform|owner
     can_create_group:
     - true
