@@ -113,6 +113,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform
   andrew.farkas:
     aws_groups:
     - apponcall
@@ -1024,6 +1025,8 @@ users:
     - antifraud|owner
     - login-security|owner
     - protocols|owner
+    - lg-people/lg-people-appdev/protocols|owner
+    - lg-people-platform|owner
     can_create_group:
     - true
 groups:
@@ -1045,6 +1048,9 @@ groups:
   lg-public:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
+  lg-people-platform:
+    description: Working area for Login.gov Platform teams. Tracks projects and 
+      issues related to our day-to-day and long-term work.
   bots:
     description: Gitlab automation accounts
   login-security:

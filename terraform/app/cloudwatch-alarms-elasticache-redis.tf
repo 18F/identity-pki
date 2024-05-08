@@ -52,7 +52,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_memory" {
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_memory} memory utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.moderate_priority_alarm_actions
 
@@ -84,7 +84,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_memory" {
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_memory} memory utilization for over 60 seconds. This is a crticial alert. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.high_priority_alarm_actions
 
@@ -115,7 +115,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_cpu" {
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_cpu} CPU utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.moderate_priority_alarm_actions
 
@@ -146,7 +146,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_cpu" {
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_cpu_high} CPU utilization for over 60 seconds. This is a crticial alert. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.high_priority_alarm_actions
 
@@ -177,7 +177,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_currconnections" {
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_currconnections} connections for over 120 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.moderate_priority_alarm_actions
 
@@ -208,7 +208,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_currconnectio
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_currconnections_high} connections for over 120 seconds. This is a critical alert. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.high_priority_alarm_actions
 
@@ -239,7 +239,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_replication_lag" {
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_replication_lag} replication lag for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.moderate_priority_alarm_actions
 
@@ -270,7 +270,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_replication_l
   statistic           = "Average"
   alarm_description   = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_replication_lag_high} replication lag for over 60 seconds. This is a critical alert. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions       = local.high_priority_alarm_actions
 
@@ -305,7 +305,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_cache_net
 
   alarm_description = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions     = local.high_priority_alarm_actions
 
@@ -367,7 +367,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_ratelimit
 
   alarm_description = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions     = local.high_priority_alarm_actions
 
@@ -429,7 +429,7 @@ resource "aws_cloudwatch_metric_alarm" "elasticache_alarm_critical_idp_network" 
 
   alarm_description = <<EOM
 Redis ${each.key} has exceeded ${var.elasticache_redis_alarm_threshold_network}% network utilization for over 60 seconds. Please address this to avoid session lock-up or failure.
-Runbook: https://github.com/18F/identity-devops/wiki/Runbook:-Redis-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Redis-alerts
 EOM
   alarm_actions     = local.high_priority_alarm_actions
 

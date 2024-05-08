@@ -581,28 +581,28 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
-  default     = "ami-09d625b87929fdea1" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-04b9caeab18e4ef7b" # 2024-05-08 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
 }
 
 variable "base_ami_prod_uw2" {
-  default     = "ami-0d1dacf14c8357c10" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-0773bc7fba4f6cc8e" # 2024-05-08 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
 EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
-  default     = "ami-021cc9cab0f5bac23" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-0b94bc518c1246d52" # 2024-05-08 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
 }
 
 variable "rails_ami_prod_uw2" {
-  default     = "ami-001ad3e49ba88ab7a" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-0c83d78af0080c532" # 2024-05-08 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
 EOM
@@ -624,7 +624,7 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
-  default     = "ami-0f8fd244f63cf3ee9" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-0b85ae5edb8ba9470" # 2024-05-08 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
 EOM
@@ -638,7 +638,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
-  default     = "ami-0fc3cfc7d1c02b52c" # 2024-04-30 Ubuntu 20.04
+  default     = "ami-0e305840df08cc794" # 2024-05-08 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
 EOM
@@ -751,7 +751,7 @@ locals {
     "arn:aws:s3:::login-gov.s3-inventory",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
-  dnssec_runbook_prefix = " - https://github.com/18F/identity-devops/wiki/Runbook:-DNS#dnssec"
+  dnssec_runbook_prefix = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
 }
 
 # These variables are used to toggle whether certain services are enabled.

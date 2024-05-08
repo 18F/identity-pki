@@ -25,7 +25,7 @@ variable "root_domain" {
 
 variable "dnssec_ksks" {
   description = "Map of Key Signing Keys (KSKs) to provision for each zone"
-  # To safely rotate see https://github.com/18F/identity-devops/wiki/Runbook:-DNS#ksk-rotation
+  # To safely rotate see https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#ksk-rotation
   type = map(string)
   default = {
     "20211006" = "green",

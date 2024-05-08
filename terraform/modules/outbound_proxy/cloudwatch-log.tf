@@ -28,5 +28,5 @@ module "outboundproxy_cloudwatch_filters" {
   env_name                = var.env_name
   alarm_actions           = [var.slack_events_sns_hook_arn] # notify slack on denied requests
   treat_missing_data      = var.cloudwatch_treat_missing_data
-  runbook_url             = "https://github.com/18F/identity-devops/wiki/Runbook%3A-Squid-Outbound-Proxies"
+  runbook_url             = "https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook%3A-Squid-Outbound-Proxies"
 }

@@ -9,8 +9,7 @@
   "chef_type": "role",
   "run_list": [
     "role[base]",
-    "recipe[identity-locust]",
-    "recipe[login_dot_gov::elastic_agent]"
+    "recipe[identity-locust]"
   ],
   "env_run_lists": {
   }
