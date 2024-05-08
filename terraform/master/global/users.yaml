@@ -1185,7 +1185,7 @@ projects:
         access: maintainer
       pm:
         access: developer
-  lg-people/platform/interrupts:
+  lg-people/lg-people-platform/Interrupts:
     groups:
       devops:
         access: maintainer
