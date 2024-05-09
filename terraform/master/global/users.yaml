@@ -997,7 +997,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - protocols|maintainer
+    - protocols|developer
   zach.margolis:
     ec2_username:
     - zmargolis
