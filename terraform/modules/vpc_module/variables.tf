@@ -121,3 +121,8 @@ Leave blank if worker hosts are not being created in this region.
 EOM
   default     = ""
 }
+
+variable "cloudwatch_retention_days" {
+  type        = number
+  description = "Number of days to keep CloudWatch logs for"
+}
