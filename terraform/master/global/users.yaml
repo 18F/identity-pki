@@ -1185,4 +1185,11 @@ projects:
         access: maintainer
       pm:
         access: developer
-
+  lg-people/platform/interrupts:
+    groups:
+      devops:
+        access: maintainer
+      appdev: 
+        access: developer
+      pm:
+        access: reporter
