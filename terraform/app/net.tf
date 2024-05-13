@@ -859,6 +859,7 @@ module "network_use1" {
   region                    = "us-east-1"
   secondary_cidr_block      = local.network_layout["us-east-1"][var.env_type]._network
   vpc_cidr_block            = var.us_east_1_vpc_cidr_block
+  cloudwatch_retention_days = local.retention_days
 }
 
 ### Calling vpc module for us-west-2 ###
@@ -884,6 +885,7 @@ module "network_uw2" {
   security_group_pivcac_id  = aws_security_group.pivcac.id
   security_group_worker_id  = aws_security_group.worker.id
   vpc_cidr_block            = var.vpc_cidr_block
+  cloudwatch_retention_days = local.retention_days
 }
 
 
