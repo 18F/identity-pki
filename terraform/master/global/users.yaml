@@ -869,8 +869,8 @@ users:
     - lg-public
   samatha.dondeti:
     aws_groups:
-    - appdev
-    - devopsnonprod
+    - apponcall
+    - devops
     gitlab_groups:
     - appdev
     - lg-all
@@ -1048,8 +1048,8 @@ groups:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
   lg-people-platform:
-    description: Working area for Login.gov Platform teams. Tracks projects and 
-      issues related to our day-to-day and long-term work.
+    description: Working area for Login.gov Platform teams. Tracks projects and issues
+      related to our day-to-day and long-term work.
   bots:
     description: Gitlab automation accounts
   login-security:
