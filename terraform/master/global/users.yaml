@@ -435,6 +435,7 @@ users:
     gitlab_groups:
     - appdev
     - lg-all
+    - lg-people|developer
     - lg-public
   jeff.bordogna:
     aws_groups:
