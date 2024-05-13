@@ -281,9 +281,12 @@ GEM
     rdoc (6.7.0)
       psych (>= 4.0.0)
     redacted_struct (2.0.0)
-    redis (4.2.4)
-    regexp_parser (2.7.0)
-    reline (0.5.10)
+    redis (5.2.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.22.1)
+      connection_pool
+    regexp_parser (2.9.2)
+    reline (0.5.7)
       io-console (~> 0.5)
     request_store (1.5.1)
       rack (>= 1.4)
@@ -393,6 +396,7 @@ DEPENDENCIES
   rails (~> 7.1.0)
   rails-controller-testing (>= 1.0.4)
   redacted_struct (~> 2.0)
+  redis
   rgl
   rspec-rails (~> 6.0)
   rspec_junit_formatter
