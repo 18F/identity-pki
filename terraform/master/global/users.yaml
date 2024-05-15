@@ -688,7 +688,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-  matthew.wagner:
+  matt.wagner:
     aws_groups:
     - apponcall
     ec2_username:
