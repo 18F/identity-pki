@@ -1547,6 +1547,7 @@ GEM
     connection_pool (2.4.1)
     cookstyle (7.32.8)
       rubocop (= 1.25.1)
+    diff-lcs (1.5.1)
     diffy (3.4.2)
     domain_name (0.6.20240107)
     drb (2.2.1)
@@ -1620,6 +1621,19 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     rexml (3.2.6)
+    rspec (3.13.0)
+      rspec-core (~> 3.13.0)
+      rspec-expectations (~> 3.13.0)
+      rspec-mocks (~> 3.13.0)
+    rspec-core (3.13.0)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-support (3.13.1)
     rubocop (1.25.1)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
@@ -1687,6 +1701,7 @@ DEPENDENCIES
   rake
   rest-client (~> 2.0)
   restforce
+  rspec (~> 3.0)
   ruby-keychain
   ruby-progressbar
   semantic

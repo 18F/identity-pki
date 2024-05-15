@@ -34,5 +34,6 @@ gem 'terraform_landscape', '~> 0.1'
 gem 'erubis', '~> 2'
 
 group :test do
+  gem 'rspec', '~> 3.0'
   gem 'cookstyle', '~> 7.32.1'
 end
