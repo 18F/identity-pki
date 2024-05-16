@@ -465,36 +465,48 @@ ecr-scan:
     - if: $CI_COMMIT_BRANCH =~ /^cmccarthy\/rc-.+/
     - when: never
 
-.eks_deploy:
+.eks_push_image_to_environment:
   image:
     name: dtzar/helm-kubectl:latest
   before_script:
     - apk add git yq
-    - curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && chmod +x /usr/local/bin/argocd
     - git config --global user.email "login-team-mary@login.gov"
     - git config --global user.name "GitLab"
   script:
+    - |-
+      gitCmdAutoMerge=''
+      if [ "${autoMerge}" == "true" ]; then
+        gitCmdAutoMerge=' -o merge_request.merge_when_pipeline_succeeds'
+      fi
+      rcTag=$(echo $CI_COMMIT_BRANCH | sed -E 's/^.*\/(.*)/\1/')
+      git clone -b cmccarthy/lifecycle-checks --single-branch https://${HELM_CHART_REPO_ACCESS_USER}:${HELM_CHART_REPO_ACCESS_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
+      cd $CI_PROJECT_DIR/identity-idp-helm-chart && git checkout -b ${gitBranch}
+      yqFilter=".pivcac.image.repository=\"${rcRepoName}\""; yq -i ${yqFilter} ./environments/${environment}.yaml
+      yqFilter=".pivcac.image.tag=\"${rcTag}\""; yq -i ${yqFilter} ./environments/${environment}.yaml
+      filter=".[] | select(.name==\"verify-${environment}-deployment\")"; verifyJobId=$(curl --header "PRIVATE-TOKEN: ${GITLAB_API_PAT}" "https://gitlab.login.gov/api/v4/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/jobs" | jq "${filter}" | jq '.id')
+      git add ./environments/${environment}.yaml && git commit -m "Deploy PIVCAC ${rcTag} image to ${environment}. Verify Project-JobID:${CI_PROJECT_ID}-${verifyJobId}"
+      git push -o merge_request.create -o merge_request.target="${gitMRTarget}" -o merge_request.remove_source_branch origin "${gitBranch}"${gitCmdAutoMerge}
+
+.eks_verify_deployment:
+  image:
+    name: dtzar/helm-kubectl:latest
+  before_script:
+    - apk add yq
+    - curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64 && chmod +x /usr/local/bin/argocd
+  script:
     - rcTag=$(echo $CI_COMMIT_BRANCH | sed -E 's/^.*\/(.*)/\1/')
-    - git clone -b cmccarthy/lifecycle-checks --single-branch https://${HELM_CHART_REPO_ACCESS_USER}:${HELM_CHART_REPO_ACCESS_TOKEN}@gitlab.login.gov/lg-public/identity-idp-helm-chart.git
-    - cd $CI_PROJECT_DIR/identity-idp-helm-chart && git checkout -b ${gitBranch}
-    - yqFilter=".pivcac.image.repository=\"${rcRepoName}\""
-    - yq -i ${yqFilter} ./environments/${testEnvironment}.yaml
-    - yqFilter=".pivcac.image.tag=\"${rcTag}\""
-    - yq -i ${yqFilter} ./environments/${testEnvironment}.yaml
-    - git add ./environments/${testEnvironment}.yaml && git commit -m "Deploy PIVCAC ${rcTag} image to ${testEnvironment}"
-    - git push -o merge_request.create -o merge_request.target="${gitMRTarget}" -o merge_request.merge_when_pipeline_succeeds -o merge_request.remove_source_branch -o merge_request.title="${gitMRTitle}" -o merge_request.description="${gitMRDescription}" origin "${gitBranch}"
     - kubectl config get-contexts
     - export CONTEXT=$(kubectl config get-contexts | grep -v CURRENT | grep "${eksClusterName}" | awk '{print $1}' | head -1)
-    - kubectl config use-context "$CONTEXT"
-    - kubectl port-forward svc/argo-cd-argocd-server -n argocd 8080:443 &
+    - kubectl config use-context "$CONTEXT"; kubectl port-forward svc/argo-cd-argocd-server -n argocd 8080:443 &
     - sleep 5
-    - argocd login localhost:8080 --insecure --username admin --password $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+    - passwordVariable=`echo "ARGOCD_${eksClusterName}_PASSWORD" | tr '[:lower:]' '[:upper:]'`
+    - argocd login localhost:8080 --insecure --username gitlabReadOnly --password ${!passwordVariable}
     - |-
       updateComplete=0
       timeoutCounter=0
       while [ "$updateComplete" -lt 1 ] && [ "$timeoutCounter" -lt 60 ]; do
         sleep 10
-        imageArray=$(argocd app manifests "${testEnvironment}"-logingov | yq -NM '.spec.template.spec.containers.[].image' | grep identity-pivcac || true)
+        imageArray=$(argocd app manifests "${environment}"-logingov | yq -NM '.spec.template.spec.containers.[].image' | grep identity-pivcac || true)
         if [ "${imageArray}" == "${rcRepoName}:${rcTag}" ]; then
           updateComplete=1
           echo "Image updated in manifest"
@@ -503,7 +515,7 @@ ecr-scan:
           echo "Awaiting image to update in manifest. Timeout Counter: ${timeoutCounter}"
         fi
       done
-    - argocd app wait "${testEnvironment}"-logingov --timeout 600
+    - argocd app wait "${environment}"-logingov --timeout 600
     - argocd logout localhost:8080
 
 # Build the RC container on RC Branch creation
@@ -521,9 +533,6 @@ build-rc-container:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: ['']
-  artifacts:
-    paths:
-      - imageDigest.tmp
   script:
     - mkdir -p /kaniko/.docker
     - rcTag=$(echo $CI_COMMIT_BRANCH | sed -E 's/^.*\/(.*)/\1/')
@@ -540,7 +549,6 @@ build-rc-container:
       --dockerfile "${CI_PROJECT_DIR}/k8.Dockerfile"
       --destination "${ECR_REGISTRY}/identity-pivcac/rc:${rcTag}"
       --cache-repo="${ECR_REGISTRY}/identity-pivcac/rc/cache"
-      --digest-file=imageDigest.tmp
       --cache-ttl=168h
       --cache=true
       --compressed-caching=false
@@ -552,22 +560,38 @@ build-rc-container:
       --build-arg "ARG_CI_COMMIT_SHA=${CI_COMMIT_SHA}"
 
 # Deploy RC Container to testing environment. Requires updating identity-idp-helm-chart, creating and merging an MR.
-test-deployment:
+ekstest-deployment:
   extends:
     - .eks_trigger_rules
-    - .eks_deploy
+    - .eks_push_image_to_environment
   stage: eks_release
   needs:
     - job: build-rc-container
   environment:
+    name: ekstest
+  variables:
+    environment: 'ekstest'
+    gitBranch: 'cmccarthy/deploy-pivcac-${CI_COMMIT_BRANCH}-to-${environment}'
+    gitMRTarget: 'cmccarthy/lifecycle-checks'
+    rcRepoName: "${ECR_REGISTRY}/identity-pivcac/rc"
+    autoMerge: 'true'
+  interruptible: true
+  tags:
+    - build-pool
+
+verify-ekstest-deployment:
+  extends:
+    - .eks_trigger_rules
+    - .eks_verify_deployment
+  stage: eks_release
+  needs:
+    - job: ekstest-deployment
+  when: manual
+  environment:
     name: $CI_COMMIT_BRANCH
   variables:
     eksClusterName: 'sandbox'
-    testEnvironment: 'ekstest'
-    gitBranch: 'cmccarthy/deploy-pivcac-${CI_COMMIT_BRANCH}-to-${testEnvironment}'
-    gitMRTarget: 'cmccarthy/lifecycle-checks'
-    gitMRTitle: "Deploy PIVCAC ${CI_COMMIT_BRANCH} to ${testEnvironment}"
-    gitMRDescription: "Updates the PIVCAC container image tag to ${CI_COMMIT_BRANCH} for the ${testEnvironment} environment"
+    environment: 'ekstest'
     rcRepoName: "${ECR_REGISTRY}/identity-pivcac/rc"
   interruptible: true
   tags:
@@ -578,7 +602,7 @@ integration-tests:
     - .eks_trigger_rules
   stage: eks_release
   needs:
-    - job: test-deployment
+    - job: verify-ekstest-deployment
   environment:
     name: $CI_COMMIT_BRANCH
   interruptible: true
@@ -587,30 +611,39 @@ integration-tests:
   script:
     - echo "This is where integrations tests should execute on the test environment if/when they exist"
 
-sign-image:
+eksstaging-deployment:
   extends:
     - .eks_trigger_rules
+    - .eks_push_image_to_environment
   stage: eks_release
   needs:
-    - job: integration-tests
     - job: build-rc-container
   environment:
-    name: $CI_COMMIT_BRANCH
+    name: eksstaging
+  variables:
+    environment: 'eksstaging'
+    gitBranch: 'cmccarthy/deploy-pivcac-${CI_COMMIT_BRANCH}-to-${environment}'
+    gitMRTarget: 'cmccarthy/lifecycle-checks'
+    rcRepoName: "${ECR_REGISTRY}/identity-pivcac/rc"
+    autoMerge: 'true'
   interruptible: true
   tags:
     - build-pool
-  image:
-    name: bitnami/aws-cli:latest
-    entrypoint: ['']
-    docker:
-      user: root
-  before_script:
-    - |-
-      apt-get update && apt-get install -y curl docker.io
-      LATEST_VERSION=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | grep tag_name | cut -d : -f2 | tr -d "v\", ")
-      curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_VERSION}_amd64.deb"
-      dpkg -i cosign_${LATEST_VERSION}_amd64.deb
-  script:
-    - rcDigest=$(cat ${CI_PROJECT_DIR}/imageDigest.tmp)
-    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-    - cosign sign --tlog-upload=false -y --key awskms:///${KMS_SIGNING_KEY} ${ECR_REGISTRY}/identity-pivcac/rc@${rcDigest}
+
+verify-eksstaging-deployment:
+  extends:
+    - .eks_trigger_rules
+    - .eks_verify_deployment
+  stage: eks_release
+  needs:
+    - job: eksstaging-deployment
+  when: manual
+  environment:
+    name: $CI_COMMIT_BRANCH
+  variables:
+    eksClusterName: 'cmccarthytest'
+    environment: 'eksstaging'
+    rcRepoName: "${ECR_REGISTRY}/identity-pivcac/rc"
+  interruptible: true
+  tags:
+    - build-pool
