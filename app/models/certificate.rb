@@ -193,6 +193,7 @@ class Certificate
         subject: subject_s,
         issuer: issuer.to_s,
         uuid: piv.uuid,
+        key_id: key_id,
       )
     )
   end

@@ -135,7 +135,7 @@ RSpec.describe IdentifyController, type: :controller do
             allow(OcspService).to receive(:new).and_return(ocsp_responder)
           end
 
-          it 'returns a token with a uuid and subject and logs certificate metadata' do
+          it 'returns a token with a uuid, subject, key id, and logs certificate metadata' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(true)
 
             cert = Certificate.new(client_cert)
@@ -169,6 +169,7 @@ RSpec.describe IdentifyController, type: :controller do
             expect(token).to be_truthy
 
             expect(token_contents['nonce']).to eq '123'
+            expect(token_contents['key_id']).to eq(cert.key_id)
 
             # N.B.: we do this split/sort because DNs match without respect to
             # ordering of components. OpenSSL::X509::Name doesn't match correctly.
