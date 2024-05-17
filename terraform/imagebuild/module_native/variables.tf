@@ -183,6 +183,18 @@ variable "ami_copy_region" {
   default     = "us-east-1"
 }
 
+variable "slack_events_sns_hook_name" {
+  description = "Name of SNS topic that send notifications to Slack"
+  type        = string
+  default     = "slack-events"
+}
+
+variable "build_alarms_enable" {
+  description = "Enable build alarms"
+  type        = bool
+  default     = false
+}
+
 variable "codebuild_build_timeout" {
   description = "the time codebuild allows a build to run before failing the build"
   type        = string

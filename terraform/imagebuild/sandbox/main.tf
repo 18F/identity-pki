@@ -36,6 +36,7 @@ module "sandbox" {
   rails_pipeline_name  = "CodePipeline-ImageRailsRole-CodePipeline-1KO0M68848JXH"
 
   account_name          = "sandbox"
+  build_alarms_enable   = true
   env_name              = "sandbox"
   identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id
