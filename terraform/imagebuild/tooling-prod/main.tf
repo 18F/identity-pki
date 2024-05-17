@@ -37,6 +37,7 @@ module "tooling-prod" {
   rails_pipeline_name  = "CodePipeline-ImageRailsRole-CodePipeline-5KBZJ4N4QY7X"
 
   account_name          = "tooling-prod"
+  build_alarms_enable   = true
   env_name              = "tooling-prod"
   identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id

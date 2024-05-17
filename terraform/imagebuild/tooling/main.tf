@@ -37,6 +37,7 @@ module "tooling-sandbox" {
   rails_pipeline_name  = "CodePipeline-ImageRailsRole-CodePipeline-STV0QQNWHM27"
 
   account_name          = "tooling-sandbox"
+  build_alarms_enable   = true
   env_name              = "tooling-sandbox"
   identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id

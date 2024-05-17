@@ -40,6 +40,7 @@ module "prod" {
   rails_pipeline_name  = "CodePipeline-ImageRailsRole-CodePipeline-179TVA5T5VYTP"
 
   account_name          = "prod"
+  build_alarms_enable   = true
   env_name              = "prod"
   identity_base_git_ref = "main"
   private_subnet_id     = module.vpc.private_subnet_id
