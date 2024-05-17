@@ -14,10 +14,7 @@ Bundler.require(*Rails.groups)
 module IdentityPki
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.1
-    config.autoloader = :zeitwerk
-    # Remove once 7.0 has been deployed
-    config.active_support.cache_format_version = 6.1
+    config.load_defaults 7.0
 
     Identity::Hostdata.load_config!(
       app_root: Rails.root,
@@ -25,6 +22,9 @@ module IdentityPki
       write_copy_to: Rails.root.join('tmp/application.yml'),
       &IdentityConfig::CONFIG_BUILDER
     )
+
+    # Don't generate system test files.
+    config.generators.system_tests = nil
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
