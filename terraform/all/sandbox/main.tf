@@ -42,6 +42,11 @@ module "main" {
     iam_fraudops_enabled   = true
   }
 
+  ses_bounce_rate_threshold             = 0.05
+  ses_bounce_rate_threshold_critical    = 0.1
+  ses_complaint_rate_threshold          = 0.001
+  ses_complaint_rate_threshold_critical = 0.005
+
   # TODO: Remove this as soon as service provider logos no longer
   # require a public bucket
   s3_block_all_public_access = false
