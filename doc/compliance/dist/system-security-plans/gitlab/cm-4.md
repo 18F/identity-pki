@@ -28,6 +28,6 @@ The GitLab component aligns with CM-4 from the main Login.gov SSP.
 
 In addition, our Container Development<sup>1</sup> wiki page has instructions on how to establish trust for a specific image.
 
-<sup>1</sup> https://github.com/18F/identity-devops/wiki/Container-Development
+<sup>1</sup> https://gitlab.login.gov/lg/identity-devops/-/wikis/Container-Development
 
 ______________________________________________________________________

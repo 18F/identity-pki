@@ -325,7 +325,7 @@ failure() {
   STATUS="FAILED"
 
   if [ ${ENVIRONMENT} = "production" ]; then
-    echo "gitlab backup ${STATUS} for ${ENVIRONMENT}:${DATE} - $1 ${SLACK_HANDLE} https://github.com/18F/identity-devops/wiki/Disaster-Recovery:-Gitlab-Backup-and-Restore" > .message
+    echo "gitlab backup ${STATUS} for ${ENVIRONMENT}:${DATE} - $1 ${SLACK_HANDLE} https://gitlab.login.gov/lg/identity-devops/-/wikis/Disaster-Recovery:-Gitlab-Backup-and-Restore" > .message
   else
     echo "gitlab backup ${STATUS} for ${ENVIRONMENT}:${DATE} - $1" > .message
   fi
