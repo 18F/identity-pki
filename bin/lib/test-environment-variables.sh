@@ -5,7 +5,7 @@ test_aws_vault_prompt_exists() {
 	result=0
 	description="Environment Variable AWS_VAULT_PROMPT Exists"
 	explanation="AWS_VAULT_PROMPT controls the prompt driver aws-vault should use. In our case, ykman"
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	if [[ -z "${AWS_VAULT_PROMPT-}" ]]; then
@@ -15,7 +15,7 @@ test_aws_vault_prompt_exists() {
 
 	error_message "$result" "$description" "$explanation" $wiki_reference
 
-	
+
 }
 
 test_aws_vault_keychain_name_exists() {
@@ -23,7 +23,7 @@ test_aws_vault_keychain_name_exists() {
 	result=0
 	description="Environment Variable AWS_VAULT_KEYCHAIN_NAME Exists"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	if [[ -z "${AWS_VAULT_KEYCHAIN_NAME-}" ]]; then
@@ -40,7 +40,7 @@ test_ykman_oath_credentials_exists() {
 	result=0
 	description="Environment Variable YKMAN_OATH_CREDENTIAL Exists"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	if [[ -z "${YKMAN_OATH_CREDENTIAL-}" ]]; then
@@ -58,7 +58,7 @@ test_ykman_oath_credentials_expected_format() {
 	result=0
 	description="Environment Variable YKMAN_OATH_CREDENTIAL in the expected format"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	re="^arn:aws:iam::340731855345:mfa/[a-zA-Z]*\.[a-zA-Z]*$"
@@ -76,7 +76,7 @@ test_login_iam_profile_exists() {
 	result=0
 	description="Environment Variable LOGIN_IAM_PROFILE Exists"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	if [[ -z "${LOGIN_IAM_PROFILE-}" ]]; then
@@ -86,7 +86,7 @@ test_login_iam_profile_exists() {
 
 	error_message "$result" "$description" "$explanation" $wiki_reference
 
-	
+
 }
 
 test_aws_iam_user_exists() {
@@ -94,7 +94,7 @@ test_aws_iam_user_exists() {
 	result=0
 	description="Environment Variable AWS_IAM_USER Exists"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	if [[ -z "${AWS_IAM_USER-}" ]]; then
@@ -104,7 +104,7 @@ test_aws_iam_user_exists() {
 
 	error_message "$result" "$description" "$explanation" $wiki_reference
 
-	
+
 }
 
 test_gsa_username() {
@@ -112,7 +112,7 @@ test_gsa_username() {
 	result=0
 	description="Environment Variable GSA_USERNAME Exists"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#set-shell-variables-for-ykman-and-aws-vault"
 
 	checking_message "$verbose" "$description"
 	if [[ -z "${GSA_USERNAME-}" ]]; then

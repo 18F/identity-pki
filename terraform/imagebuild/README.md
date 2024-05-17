@@ -2,8 +2,8 @@
 
 Terraform moduleset that creates the architecture for building AMIs from the `identity-base-image` repo. Detailed information about the architecture, and building AMIs, can be found within the wiki:
 
-- https://github.com/18F/identity-devops/wiki/EC2-AMIs-via-Imagebuild-Pipeline
-- https://github.com/18F/identity-devops/wiki/Baking-New-AWS-AMI-Images
+- https://gitlab.login.gov/lg/identity-devops/-/wikis/EC2-AMIs-via-Imagebuild-Pipeline
+- https://gitlab.login.gov/lg/identity-devops/-/wikis/Baking-New-AWS-AMI-Images
 
 # Updating/Changing Resources
 

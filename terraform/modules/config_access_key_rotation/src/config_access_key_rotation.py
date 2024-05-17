@@ -331,8 +331,8 @@ def handle_oldest_key(
                     <div><code>aws-vault rotate master</code></div>
                 </p>
                 <p>
-                    See <a href="https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault#rotating-aws-keys">Rotating AWS Keys</a> for details
-                    and <a href="https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault#resetting-vault-generated-credentials">Resetting Vault-Generated Credentials</a> if you encounter problems.
+                    See <a href="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-AWS-Vault#rotating-aws-keys">Rotating AWS Keys</a> for details
+                    and <a href="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-AWS-Vault#resetting-vault-generated-credentials">Resetting Vault-Generated Credentials</a> if you encounter problems.
                 </p>
                 <p>Thank you!</p><br>
                 <p>Support: Ask @login-platform-help for help in the #login-platform-support Slack channel<br></p>
@@ -371,7 +371,7 @@ def handle_oldest_key(
                     <p>Your IAM Access key ending in "{masked_access_key}" is older than {old_key_inactivation_period} and has been deactivated.</p>
                     <p>
                         You can create a new access key in AWS Console then follow
-                        <a href="https://github.com/18F/identity-devops/wiki/Setting-Up-AWS-Vault#resetting-vault-generated-credentials">Resetting Vault-Generated Credentials</a>
+                        <a href="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-AWS-Vault#resetting-vault-generated-credentials">Resetting Vault-Generated Credentials</a>
                         to use it.
                     </p>
                     <p>Ask @login-platform-help for help in the #login-platform-support for help if needed.</p>

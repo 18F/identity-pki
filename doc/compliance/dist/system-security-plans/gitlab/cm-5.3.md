@@ -28,7 +28,7 @@ ______________________________________________________________________
 
 ## What is the solution and how is it implemented?
 
-The GitLab component aligns with CM-5(3) – Infrastructure Components, from the main Login.gov SSP. 
+The GitLab component aligns with CM-5(3) – Infrastructure Components, from the main Login.gov SSP.
 
 GitLab packages are signed by GitLab, and verified with a public key.
 
@@ -36,6 +36,6 @@ Our Container Development<sup>1</sup> wiki page tells us to use Docker Content T
 and runners empowered to do terraform additionally verify the signature of the image using a KMS key and
 [Cosign](https://docs.sigstore.dev/cosign/overview/).
 
-<sup>1</sup> https://github.com/18F/identity-devops/wiki/Container-Development
+<sup>1</sup> https://gitlab.login.gov/lg/identity-devops/-/wikis/Container-Development
 
 ______________________________________________________________________

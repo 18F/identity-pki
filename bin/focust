@@ -50,7 +50,7 @@ fi
 if [ -z "${DESTINATION}" ] || [ -z "${TF_ENV}" ] ; then
     echo "ERROR: Environment Variable GSA_USERNAME has not been defined."
     echo "Have you setup your local environment?"
-    echo "https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration"
+    echo "https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration"
     exit 1
 fi
 

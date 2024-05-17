@@ -73,7 +73,7 @@ The GitLab component aligns with CM-6, part A from the main Login.gov SSP.
 
 Also, our Container Development<sup>1</sup> wiki page gives us recommendations from the docker CIS benchmark for us to follow to create secure and minimal images.
 
-<sup>1</sup> https://github.com/18F/identity-devops/wiki/Container-Development
+<sup>1</sup> https://gitlab.login.gov/lg/identity-devops/-/wikis/Container-Development
 
 ______________________________________________________________________
 

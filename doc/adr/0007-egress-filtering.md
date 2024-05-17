@@ -27,7 +27,7 @@ stance we must:
 We will:
 * Implement NAT Gateways for IPv4 address translation
 * Bind NAT Gateways to our static EIP pools to maintain the expected source IPs
-  as defined in [Runbook: External public static IP addresses](https://github.com/18F/identity-devops/wiki/Runbook:-External-public-static-IP-addresses#egress-ipv4-addresses)
+  as defined in [Runbook: External public static IP addresses](https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-External-public-static-IP-addresses#egress-ipv4-addresses)
 * Modify all subnets with compute instances (EC2 or otherwise) attached to be
   `private` instead of `public`
 * Leave Squid proxies in place for now
