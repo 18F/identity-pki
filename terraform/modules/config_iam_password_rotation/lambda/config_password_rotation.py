@@ -134,7 +134,7 @@ def compare_time(
             SUBJECT = (
                 " Your expiring AWS console password is going to be deactivated in "
                 + str(expire_in)
-                + "day(s)"
+                + " day(s)"
             )
             BODY_HTML = """<html>
                 <head>Dear {user_name},</head>
