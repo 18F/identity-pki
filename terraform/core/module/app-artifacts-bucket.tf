@@ -56,11 +56,6 @@ output "app_artifacts_bucket_uw2" {
   value = module.app_artifacts_bucket_uw2.bucket_name
 }
 
-moved {
-  from = module.app_artifacts_bucket
-  to   = module.app_artifacts_bucket_uw2
-}
-
 module "app_artifacts_bucket_ue1" {
   source = "../../modules/secrets_bucket"
   providers = {

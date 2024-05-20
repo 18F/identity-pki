@@ -12,13 +12,6 @@ module "idp_static_bucket_uw2" {
   cloudfront_oai_iam_arn                 = aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn
 }
 
-##### moved blocks, remove once state moves are complete
-
-moved {
-  from = module.idp_static_bucket_uw2[0]
-  to   = module.idp_static_bucket_uw2
-}
-
 module "idp_static_bucket_use1" {
   count  = var.enable_us_east_1_infra ? 1 : 0
   source = "../modules/idp_static_bucket"

@@ -36,8 +36,3 @@ module "outbound_proxy" {
   ssm_access_policy                = var.ssm_access_policy
   cloudwatch_treat_missing_data    = var.cloudwatch_treat_missing_data
 }
-
-moved {
-  from = module.outbound_proxy.aws_security_group.obproxy
-  to   = module.outbound_proxy_net.aws_security_group.obproxy
-}
