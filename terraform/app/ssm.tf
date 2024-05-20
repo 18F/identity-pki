@@ -191,11 +191,6 @@ module "ssm_uw2" {
   )
 }
 
-moved {
-  from = module.ssm
-  to   = module.ssm_uw2
-}
-
 module "ssm_ue1" {
   count  = var.enable_us_east_1_infra ? 1 : 0
   source = "github.com/18F/identity-terraform//ssm?ref=0e5e7c62b940abc34b9661e1af8cbfda8f3f359e"
@@ -227,11 +222,6 @@ resource "aws_iam_role_policy" "ssm_access_uw2" {
   role   = aws_iam_role.ssm-access.id
   policy = module.ssm_uw2.ssm_access_role_policy
   lifecycle { create_before_destroy = true }
-}
-
-moved {
-  from = aws_iam_role_policy.ssm-access
-  to   = aws_iam_role_policy.ssm_access_uw2
 }
 
 # for us-east-1 as well

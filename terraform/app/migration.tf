@@ -45,43 +45,6 @@ module "migration_uw2" {
   slack_events_sns_hook_arn        = var.slack_alarms_sns_hook_arn
 }
 
-##### moved blocks, remove once state moves are complete
-
-moved {
-  from = module.migration_usw2.aws_security_group.migration
-  to   = module.network_uw2.aws_security_group.migration
-}
-
-moved {
-  from = aws_autoscaling_group.migration
-  to   = module.migration_uw2.aws_autoscaling_group.migration
-}
-
-moved {
-  from = module.migration_lifecycle_hooks
-  to   = module.migration_uw2.module.migration_lifecycle_hooks
-}
-
-moved {
-  from = module.migration_user_data
-  to   = module.migration_uw2.module.migration_user_data
-}
-
-moved {
-  from = module.migration_launch_template
-  to   = module.migration_uw2.module.migration_launch_template
-}
-
-moved {
-  from = module.migration_recycle
-  to   = module.migration_uw2.module.migration_recycle
-}
-
-moved {
-  from = module.migration_usw2
-  to   = module.migration_uw2
-}
-
 ### Migration Host in us-east-1 ###
 
 module "migration_use1" {

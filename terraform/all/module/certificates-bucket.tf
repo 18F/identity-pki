@@ -11,11 +11,6 @@ module "internal_certificates_bucket_uw2" {
   region              = "us-west-2"
 }
 
-moved {
-  from = module.internal_certificates_bucket
-  to   = module.internal_certificates_bucket_uw2
-}
-
 module "internal_certificates_bucket_ue1" {
   source = "../../modules/secrets_bucket"
   providers = {

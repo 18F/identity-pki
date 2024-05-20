@@ -168,8 +168,3 @@ module "kms_keymaker_multiregion_replica_ue1" {
   primary_key_arn = module.kms_keymaker_multiregion_primary_uw2.multi_region_primary_key_arn
   # alarm_sns_topic_arn = var.slack_alarms_sns_hook_arn
 }
-
-moved {
-  from = module.kms_keymaker_multiregion_replica_ue1
-  to   = module.kms_keymaker_multiregion_replica_ue1[0]
-}

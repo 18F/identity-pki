@@ -44,11 +44,6 @@ module "acm-cert-idp-static-cdn" {
   validation_zone_id        = var.route53_id
 }
 
-moved {
-  from = module.acm-cert-idp-static-cdn[0]
-  to   = module.acm-cert-idp-static-cdn
-}
-
 resource "aws_cloudfront_distribution" "idp_static_cdn" {
   depends_on = [
     module.acm-cert-idp.finished_id,
@@ -173,11 +168,6 @@ resource "aws_cloudfront_distribution" "idp_static_cdn" {
 
   # Serve from US/Canada/Europe CloudFront instances
   price_class = "PriceClass_100"
-}
-
-moved {
-  from = aws_cloudfront_distribution.idp_static_cdn[0]
-  to   = aws_cloudfront_distribution.idp_static_cdn
 }
 
 # non-prod envs are currently configured to both idp.<env>.identitysandbox.gov
