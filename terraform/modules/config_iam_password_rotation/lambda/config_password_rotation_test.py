@@ -3,7 +3,7 @@ import unittest
 import boto3
 from moto import mock_aws
 from unittest import mock
-from .config_password_rotation import lambda_handler
+from config_password_rotation import lambda_handler
 
 
 class TestConfigPasswordRotation(unittest.TestCase):
