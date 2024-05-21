@@ -52,7 +52,7 @@ def parse_single_day(line)
   regex = Regexp.new(
     <<~REGEXP.gsub(/\s+/m, " ").strip,
       AAMVA Operations has been informed that (?<state>.+)
-      will not be available to process DLDV transactions on (?<date>.+)
+      will not be available to process DLDV transactions (tonight,|on) (?<date>.+)
       from (?<start>.+) (to|until) (?<end>.+)
       due to scheduled maintenance
     REGEXP
@@ -77,7 +77,7 @@ def parse_multiple_days(line)
       due to scheduled maintenance.
     REGEXP
   )
-  m = regex.match(line)
+  m = regex.match(line.gsub(/\s+/, ' ').strip)
   return unless m
 
   state = m[:state]
