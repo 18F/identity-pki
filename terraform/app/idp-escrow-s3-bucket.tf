@@ -22,7 +22,8 @@ resource "aws_kms_alias" "escrow_kms" {
 
 # Escrow S3 Bucket Setup
 resource "aws_s3_bucket" "escrow" {
-  bucket = "login-gov-escrow-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  bucket        = "login-gov-escrow-${var.env_name}.${data.aws_caller_identity.current.account_id}-${var.region}"
+  force_destroy = true
   tags = {
     Environment = var.env_name
   }
