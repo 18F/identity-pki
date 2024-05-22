@@ -1026,6 +1026,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
   root:
     # Note: Gitlab Machine User - don't specify aws_groups for these
     email:
