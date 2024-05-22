@@ -444,6 +444,13 @@ users:
     - pm
     - lg-all
     - lg-public
+  jeffrey.golden:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   jeffrey.holden:
     aws_groups:
     - analytics
