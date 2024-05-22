@@ -506,6 +506,13 @@ users:
     - appdev
     - lg-all
     - lg-public
+  john.saile:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   jonathan.hooper:
     aws_groups:
     - apponcall
