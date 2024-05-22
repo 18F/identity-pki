@@ -849,15 +849,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  russel.ngamboassongmo:
-    aws_groups:
-    - supporteng
-    ec2_username:
-    - nassongmo
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   ryan.d.brown:
     aws_groups:
     - devops
