@@ -74,12 +74,25 @@ variable "mta_sts_report_mailboxes" {
   type        = list(string)
 }
 
-variable "sandbox_ses_inbound_enabled" {
-  description = "Whether to enable identitysandbox.gov style SES inbound processing"
-  default     = 0
+variable "ses_inbound_enabled" {
+  description = "Whether to enable any SES inbound processing"
+  default     = false
+  type        = bool
 }
 
-variable "sandbox_ses_email_users" {
+variable "ses_inbound_sandbox_features_enabled" {
+  description = "Whether to enable identitysandbox.gov style SES inbound processing"
+  default     = false
+  type        = bool
+}
+
+variable "ses_inbound_usps_features_enabled" {
+  description = "Whether to enable USPS Status Update inbound processing"
+  default     = false
+  type        = bool
+}
+
+variable "sandbox_email_users" {
   description = "List of additional users (besides admin) to accept - user@domain will be allowed and delivers to inbox/user/"
   type        = list(string)
   default     = []
@@ -135,8 +148,8 @@ variable "cross_account_archive_bucket_access" {
   default     = {}
 }
 
-variable "sandbox_ses_usps_enabled_envs" {
-  description = "List of usps status update enabled environments"
+variable "ses_inbound_usps_enabled_envs" {
+  description = "List of USPS status update enabled environments"
   type        = list(string)
   default     = []
 }
