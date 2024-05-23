@@ -19,6 +19,10 @@ module "main" {
   sns_topic_alert_critical = "splunk-oncall-login-platform"
   sns_topic_alert_warning  = "slack-events"
 
+  ses_inbound_enabled               = true
+  ses_inbound_usps_features_enabled = true
+  ses_inbound_usps_enabled_envs     = ["staging"]
+
   #logarchive_acct_id          = "429506220995" # uncomment once access is approved
   #logarchive_secondary_region = "us-east-1" # disable for now
 
