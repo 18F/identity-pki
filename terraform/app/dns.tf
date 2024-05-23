@@ -17,18 +17,6 @@ module "internal_dns_uw2" {
 
 }
 
-##### moved blocks, remove once state moves are complete
-
-moved {
-  from = aws_route53_zone.internal
-  to   = module.internal_dns_uw2.aws_route53_zone.internal
-}
-
-moved {
-  from = aws_route53_record.internal-ns
-  to   = module.internal_dns_uw2.aws_route53_record.internal_ns
-}
-
 ### Internal DNS for us-east-1 vpc ###
 module "internal_dns_use1" {
   count = var.enable_us_east_1_infra ? 1 : 0

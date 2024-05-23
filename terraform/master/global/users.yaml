@@ -69,7 +69,7 @@ users:
     - arowley
     gitlab_groups:
     - pm
-    - lg-people/lg-people-appdev/protocols|owner
+    - protocols|owner
   alexander.bradley:
     aws_groups:
     - apponcall
@@ -288,7 +288,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people/lg-people-appdev/protocols|owner
+    - protocols|owner
   dawei.wang:
     aws_groups:
     - apponcall
@@ -444,12 +444,20 @@ users:
     gitlab_groups:
     - appdev
     - lg-all
+    - lg-people|developer
     - lg-public
   jeff.bordogna:
     aws_groups:
     - analytics
     gitlab_groups:
     - pm
+    - lg-all
+    - lg-public
+  jeffrey.golden:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
     - lg-all
     - lg-public
   jeffrey.holden:
@@ -512,6 +520,13 @@ users:
     - jmax
     gitlab_groups:
     - appdev
+    - lg-all
+    - lg-public
+  john.saile:
+    aws_groups:
+    - fraudopsnonprod
+    gitlab_groups:
+    - antifraud
     - lg-all
     - lg-public
   jonathan.hooper:
@@ -617,7 +632,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people/lg-people-appdev/protocols|maintainer
+    - protocols|maintainer
   laurie.cole:
     aws_groups:
     - analytics
@@ -696,7 +711,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-  matthew.wagner:
+  matt.wagner:
     aws_groups:
     - apponcall
     ec2_username:
@@ -760,6 +775,15 @@ users:
     - devops
     - lg-all
     - lg-people
+    - lg-public
+  moncef.belyamani:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - mbelyamani
+    gitlab_groups:
+    - appdev
+    - lg-all
     - lg-public
   mostyn.griffith:
     aws_groups:
@@ -848,15 +872,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  russel.ngamboassongmo:
-    aws_groups:
-    - supporteng
-    ec2_username:
-    - nassongmo
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   ryan.d.brown:
     aws_groups:
     - devops
@@ -878,8 +893,8 @@ users:
     - lg-public
   samatha.dondeti:
     aws_groups:
-    - appdev
-    - devopsnonprod
+    - apponcall
+    - devops
     gitlab_groups:
     - appdev
     - lg-all
@@ -1006,7 +1021,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people/lg-people-appdev/protocols|maintainer
+    - protocols|developer
   zach.margolis:
     ec2_username:
     - zmargolis
@@ -1033,7 +1048,7 @@ users:
     - pm|owner
     - antifraud|owner
     - login-security|owner
-    - lg-people/lg-people-appdev/protocols|owner
+    - protocols|owner
     - lg-people-platform|owner
     can_create_group:
     - true
@@ -1057,13 +1072,13 @@ groups:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
   lg-people-platform:
-    description: Working area for Login.gov Platform teams. Tracks projects and 
-      issues related to our day-to-day and long-term work.
+    description: Working area for Login.gov Platform teams. Tracks projects and issues
+      related to our day-to-day and long-term work.
   bots:
     description: Gitlab automation accounts
   login-security:
     description: Security Team Project and Documentation Management
-  lg-people/lg-people-appdev/protocols:
+  protocols:
     description: Appdev protocols group
 projects:
   lg/identity-devops:
@@ -1194,3 +1209,11 @@ projects:
         access: maintainer
       pm:
         access: developer
+  lg-people/platform/interrupts:
+    groups:
+      devops:
+        access: maintainer
+      appdev:
+        access: developer
+      pm:
+        access: reporter

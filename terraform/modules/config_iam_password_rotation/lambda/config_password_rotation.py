@@ -134,7 +134,7 @@ def compare_time(
             SUBJECT = (
                 " Your expiring AWS console password is going to be deactivated in "
                 + str(expire_in)
-                + "day(s)"
+                + " day(s)"
             )
             BODY_HTML = """<html>
                 <head>Dear {user_name},</head>
@@ -146,7 +146,7 @@ def compare_time(
                         not rotated in every {old_password_inactivation_period} days with active login activity.
                     </p>
                     <p>
-                        Please see <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
+                        Please see <a href='https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
                         for directions on rotating the password.
                     </p>
                     <p>
@@ -190,7 +190,7 @@ def compare_time(
                         </p>
                         <p>
                             Please see
-                            <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
+                            <a href='https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>Updating Your Console Password</a>
                             for directions on rotating the password.
                         </p>
                         <p>Thank you!</p>
@@ -219,13 +219,13 @@ def compare_time(
 
                 <p><p>**If you do not need access to the AWS Console, feel free to ignore this email.**</p>
 
-                <p> We recommend rotating (updating) AWS Console password in every {old_password_inactivation_period} days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than {old_password_deletion_period} days or if password is not rotated in every {old_password_inactivation_period} days with active login activity. Please refer <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
+                <p> We recommend rotating (updating) AWS Console password in every {old_password_inactivation_period} days in order to be able to continue to log into the AWS console. Console access is disabled, if there is missing login activity for more than {old_password_deletion_period} days or if password is not rotated in every {old_password_inactivation_period} days with active login activity. Please refer <a href='https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
                  Runbook</a> for directions on rotating the password or reach out to @login-platform-help oncall in Slack for any additional information. </p>
 
                 <p>Thank you for your understanding!</p><br>
 
                 <p> Helpful links: <br>
-                <a href='https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
+                <a href='https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#settingupdating-your-console-password'>
                  Runbook</a><br>
                  Slack : #login-platform-support channel and @login-platform-help<br></p>
                 </body>

@@ -5,7 +5,7 @@ test_homebrew_installed() {
 	result=0
 	description="homebrew is installed"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
 
 	checking_message "$verbose" "$description"
 	if ! command -v brew &> /dev/null
@@ -22,7 +22,7 @@ test_hombrew_prefix_in_path() {
 	result=0
 	description="homebrew prefix is in PATH"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
 
 	checking_message "$verbose" "$description"
 	prefix=$(brew config | grep PREFIX | awk '{print $2}')

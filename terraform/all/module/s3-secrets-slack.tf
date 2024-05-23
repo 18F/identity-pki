@@ -87,35 +87,3 @@ resource "aws_s3_object" "tfslackchannel_ue1" {
 output "main_secrets_bucket_ue1" {
   value = module.main_secrets_bucket_ue1.bucket_name
 }
-
-#### moved blocks for modules above, remove after release is complete! ####
-
-moved {
-  from = module.tf-state
-  to   = module.tf_state_uw2
-}
-
-moved {
-  from = module.main_secrets_bucket
-  to   = module.main_secrets_bucket_uw2
-}
-
-moved {
-  from = aws_s3_object.tfslackchannel
-  to   = aws_s3_object.tfslackchannel_uw2
-}
-
-moved {
-  from = module.tf-state-use1
-  to   = module.tf_state_ue1
-}
-
-moved {
-  from = module.main_secrets_bucket_use1
-  to   = module.main_secrets_bucket_ue1
-}
-
-moved {
-  from = aws_s3_object.tfslackchannel_use1
-  to   = aws_s3_object.tfslackchannel_ue1
-}

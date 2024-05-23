@@ -5,7 +5,7 @@ test_identity_base_image_exists() {
 	result=0
 	description="identity-base-image is locally available"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
 
 	checking_message "$verbose" "$description"
 	GIT_TOPLEVEL=$(git rev-parse --show-toplevel | sed -E 's/\/[^/]*$/\//')
@@ -23,7 +23,7 @@ test_identity_cookbooks_exists() {
 	result=0
 	description="identity-cookbooks is locally available"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
 
 	checking_message "$verbose" "$description"
 	GIT_TOPLEVEL=$(git rev-parse --show-toplevel | sed -E 's/\/[^/]*$/\//')
@@ -41,7 +41,7 @@ test_identity_devops_private_exists() {
 	result=0
 	description="identity-devops-private is locally available"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
 
 	checking_message "$verbose" "$description"
 	GIT_TOPLEVEL=$(git rev-parse --show-toplevel | sed -E 's/\/[^/]*$/\//')
@@ -59,7 +59,7 @@ test_identity_terraform_exists() {
 	result=0
 	description="identity-terraform is locally available"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#clone-git-repos"
 
 	checking_message "$verbose" "$description"
 	GIT_TOPLEVEL=$(git rev-parse --show-toplevel | sed -E 's/\/[^/]*$/\//')

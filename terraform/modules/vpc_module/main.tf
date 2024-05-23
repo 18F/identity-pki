@@ -125,4 +125,6 @@ resource "aws_flow_log" "flow_log" {
 
 resource "aws_cloudwatch_log_group" "flow_log_group" {
   name = "${var.env_name}_flow_log_group"
+
+  retention_in_days = var.cloudwatch_retention_days
 }

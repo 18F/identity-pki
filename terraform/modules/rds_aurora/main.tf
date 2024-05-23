@@ -13,11 +13,6 @@ data "aws_kms_key" "rds_alias" {
   key_id = "alias/aws/rds"
 }
 
-moved {
-  from = data.aws_kms_key.insights
-  to   = data.aws_kms_key.rds_alias
-}
-
 ##### Resources
 
 # Monitoring

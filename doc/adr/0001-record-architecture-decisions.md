@@ -7,7 +7,7 @@ __Status__: Implemented in [][impl]
 
 ## Context
 
-We want to have records of architectural decisions, especially on Team Mary as we build out a new release pipeline. 
+We want to have records of architectural decisions, especially on Team Mary as we build out a new release pipeline.
 
 ## Decision
 
@@ -19,6 +19,6 @@ For any architectural decision made, there is now a new acception criteria that 
 
 ## Alternatives Considered
 
-We considered using the [wiki](https://github.com/18F/identity-devops/wiki) but opted for `doc/adr` instead for two reasons: 1. So a review is required by the team for acceptance into the record and 2. We can keep record in individual markdown files for easy reference.
+We considered using the [wiki](https://gitlab.login.gov/lg/identity-devops/-/wikis) but opted for `doc/adr` instead for two reasons: 1. So a review is required by the team for acceptance into the record and 2. We can keep record in individual markdown files for easy reference.
 
-[impl]: 
+[impl]:

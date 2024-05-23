@@ -416,7 +416,19 @@ variable "ses_bounce_rate_threshold" {
   description = "This is the threshold for the rate of emails we send that bounce"
 }
 
+variable "ses_bounce_rate_threshold_critical" {
+  type        = number
+  default     = 0
+  description = "This is the threshold for the rate of emails we send that bounce"
+}
+
 variable "ses_complaint_rate_threshold" {
+  type        = number
+  default     = 0
+  description = "This is the threshold for the rate of emails we send that receive complaints"
+}
+
+variable "ses_complaint_rate_threshold_critical" {
   type        = number
   default     = 0
   description = "This is the threshold for the rate of emails we send that receive complaints"

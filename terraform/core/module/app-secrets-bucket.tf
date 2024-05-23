@@ -15,11 +15,6 @@ output "app_secrets_bucket_uw2" {
   value = module.app_secrets_bucket_uw2.bucket_name
 }
 
-moved {
-  from = module.app_secrets_bucket
-  to   = module.app_secrets_bucket_uw2
-}
-
 module "app_secrets_bucket_ue1" {
   source = "../../modules/secrets_bucket"
   providers = {

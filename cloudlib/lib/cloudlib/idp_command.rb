@@ -170,6 +170,7 @@ class IDPCommand
     response = run(command: command)
 
     if response.status == 'Success'
+      raise 'Output is too large for SSM Command' if response.standard_output_content.include?('--output truncated--')
       output = JSON.parse(Zlib::Inflate.inflate(Base64.decode64(response.standard_output_content)))
 
       formatted_output = if output.kind_of?(Hash) || config.subcommand == 'ig-request'

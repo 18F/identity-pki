@@ -51,10 +51,10 @@ if $coverage; then
   runner="coverage run"
 fi
 
-unittest="unittest"
+unittest="pytest"
 if $xml; then
-  mkdir -p tmp/junit
-  unittest="xmlrunner --output-file tmp/unittest.xml"
+  mkdir -p tmp
+  unittest="$unittest --junitxml=tmp/unittest.xml"
 fi
 
 $runner -m $unittest $(

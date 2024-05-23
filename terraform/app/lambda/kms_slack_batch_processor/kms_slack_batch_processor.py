@@ -14,7 +14,7 @@ def lambda_handler(event, context):
     environment = str(os.environ.get("env"))
     region = event["Records"][0]["awsRegion"]
 
-    runbook = "\n\nRunbook: https://github.com/18F/identity-devops/wiki/KMS-Unmatched-Events-Runbook\n"
+    runbook = "\n\nRunbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/KMS-Unmatched-Events-Runbook"
 
     description = "*" + str(count) + "* unmatched events have been detected"
 

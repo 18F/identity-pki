@@ -5,7 +5,7 @@ test_ykman_installed() {
 	result=0
 	description="ykman is installed"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
 
 	checking_message "$verbose" "$description"
 	if ! command -v ykman &> /dev/null
@@ -60,7 +60,7 @@ test_ykman_oath_account_total() {
 	result=0
 	description="ykman oath account total"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#install-homebrew-and-required-packages"
 
 	checking_message "$verbose" "$description"
 	if [[ $(ykman oath accounts list | wc -l) == 1 ]]
@@ -77,7 +77,7 @@ test_ykman_oath_account_name() {
 	result=0
 	description="ykman oath account in the expected format"
 	explanation=""
-	wiki_reference="https://github.com/18F/identity-devops/wiki/Setting-Up-your-Login.gov-Infrastructure-Configuration#configuring-a-mfa-authenticator"
+	wiki_reference="https://gitlab.login.gov/lg/identity-devops/-/wikis/Setting-Up-your-Login.gov-Infrastructure-Configuration#configuring-a-mfa-authenticator"
 
 	checking_message "$verbose" "$description"
 	re="arn:aws:iam::340731855345:mfa/[a-zA-Z]*\.[a-zA-Z]*$"

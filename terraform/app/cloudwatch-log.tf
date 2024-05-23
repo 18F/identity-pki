@@ -1,5 +1,5 @@
 locals {
-  retention_days = (local.acct_type == "prod" ? "3653" : "30")
+  retention_days = (local.acct_type == "prod" ? "2192" : "30")
 
   cloudwatch_log_groups = merge(
     {

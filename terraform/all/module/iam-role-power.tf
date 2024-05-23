@@ -795,6 +795,42 @@ module "poweruser-assumerole" {
           ]
         }
       ]
+    },
+    {
+      policy_name        = "Power4"
+      policy_description = "Power User EKS Permissions"
+      policy_document = [
+        {
+          sid    = "EKS"
+          effect = "Allow"
+          actions = [
+            "eks:DescribeAccessEntry",
+            "eks:DescribeAddon",
+            "eks:DescribeAddonConfiguration",
+            "eks:DescribeAddonVersions",
+            "eks:DescribeCluster",
+            "eks:DescribeIdentityProviderConfig",
+            "eks:DescribeInsight",
+            "eks:DescribeNodegroup",
+            "eks:DescribePodIdentityAssociation",
+            "eks:DescribeUpdate",
+            "eks:ListAccessEntries",
+            "eks:ListAccessPolicies",
+            "eks:ListAddons",
+            "eks:ListAssociatedAccessPolicies",
+            "eks:ListClusters",
+            "eks:ListIdentityProviderConfigs",
+            "eks:ListInsights",
+            "eks:ListNodegroups",
+            "eks:ListPodIdentityAssociations",
+            "eks:ListTagsForResource",
+            "eks:ListUpdates"
+          ]
+          resources = [
+            "*",
+          ]
+        }
+      ]
     }
   ]
 }
