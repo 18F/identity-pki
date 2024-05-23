@@ -28,13 +28,24 @@ resource "aws_route53_record" "primary_verification_record" {
   ]
 }
 
-# Inbound email delivery to S3 - Only for non-prod use
-module "sandbox_ses" {
-  source = "../../modules/sandbox_ses/"
+module "incoming_ses" {
+  source = "../../modules/incoming_ses/"
+  count  = var.ses_inbound_enabled ? 1 : 0
+  # Be default this module will create a drop-no-reply, bounce-unknown, and filter rules for SES.
+  # Even if all other features (usps_features_enabled,sandbox_features_enabled) are set to false.
 
-  domain       = var.root_domain
-  enabled      = var.sandbox_ses_inbound_enabled
-  email_users  = var.sandbox_ses_email_users
-  email_bucket = aws_s3_bucket.email.id
-  usps_envs    = var.sandbox_ses_usps_enabled_envs
+  domain = var.root_domain
+  # sandbox_features_enabled creates resources to receive inbound messages on a per account basis.
+  sandbox_features_enabled = var.ses_inbound_sandbox_features_enabled
+  # usps_features_enabled creates the necessary resources to ingest notifications
+  # from USPS on a per environment basis.
+  usps_features_enabled = var.ses_inbound_usps_features_enabled
+  email_users           = var.sandbox_email_users
+  email_bucket          = aws_s3_bucket.email.id
+  usps_envs             = var.ses_inbound_usps_enabled_envs
+}
+
+moved {
+  from = module.sandbox_ses
+  to   = module.incoming_ses[0]
 }
