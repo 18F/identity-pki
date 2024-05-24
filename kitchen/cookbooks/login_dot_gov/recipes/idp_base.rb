@@ -310,12 +310,11 @@ if node['login_dot_gov']['use_idp_puma'] == true && primary_role == 'idp'
     group web_system_user
   end
 
-  puma_path = "#{release_path}/bin/puma"
+  bundle_path = "#{release_path}/bin/bundle"
 
   node.default[:puma] = {}
   node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
-  node.default[:puma][:bin_path] = puma_path
-  node.default[:puma][:ctl_path] = "#{release_path}/bin/pumactl"
+  node.default[:puma][:bin_path] = bundle_path
   node.default[:puma][:config_path] = "#{release_path}/config/puma.rb"
   node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
   node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
@@ -353,7 +352,7 @@ SyslogIdentifier=idp-puma
 # SystemD will not run puma even if it is in your path. You must specify
 # an absolute URL to puma. For example /usr/local/bin/puma
 # Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
-ExecStart=#{puma_path} -C #{release_path}/config/puma.rb -b tcp://127.0.0.1:9292 -b ssl://127.0.0.1:9293?key=#{release_path}/idp-server.key&cert=#{release_path}/idp-server.crt --control-url tcp://127.0.0.1:9294 --control-token none
+ExecStart=#{bundle_path} exec puma -C #{release_path}/config/puma.rb -b tcp://127.0.0.1:9292 -b ssl://127.0.0.1:9293?key=#{release_path}/idp-server.key&cert=#{release_path}/idp-server.crt --control-url tcp://127.0.0.1:9294 --control-token none
 
 Restart=always
 

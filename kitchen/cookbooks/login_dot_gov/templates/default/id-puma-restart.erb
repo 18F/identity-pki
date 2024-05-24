@@ -8,7 +8,7 @@ restart_puma() {
   PASS_ATTEMPT=1
   while [ ${PASS_ATTEMPT} -le 3 ]  ; do
     echo "Attempting to restart puma"
-    /srv/idp/current/bin/pumactl phased-restart -F /srv/idp/current/config/puma.rb -P /srv/idp/current/tmp/pids/server.pid
+    /srv/idp/current/bin/bundle exec pumactl phased-restart -F /srv/idp/current/config/puma.rb -P /srv/idp/current/tmp/pids/server.pid
     [[ $? == 0 ]] && break
     sleep 1
     ((PASS_ATTEMPT++))
