@@ -34,7 +34,7 @@ if primary_role != 'worker'
   template '/etc/apparmor.d/puma' do
     source 'puma_apparmor.erb'
     variables({
-      puma_path: node.fetch(:puma).fetch(:bin_path),
+      bundle_path: node.fetch(:puma).fetch(:bin_path),
     })
     owner 'root'
     group 'root'

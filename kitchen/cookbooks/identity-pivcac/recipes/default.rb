@@ -101,9 +101,9 @@ execute 'tag instance from git repo sha' do
 end
 
 if node['login_dot_gov']['use_pivcac_puma'] == true
-  puma_path = "#{deploy_dir}/bin/puma"
+  bundle_path = "#{deploy_dir}/bin/bundle"
   node.default[:puma] = {}
-  node.default[:puma][:bin_path] = puma_path
+  node.default[:puma][:bin_path] = bundle_path
   node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
   node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
 
@@ -142,7 +142,7 @@ SyslogIdentifier=pki-puma
 # SystemD will not run puma even if it is in your path. You must specify
 # an absolute URL to puma. For example /usr/local/bin/puma
 # Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
-ExecStart=#{puma_path} -C #{deploy_dir}/config/puma.rb -b tcp://127.0.0.1:9292 --control-url tcp://127.0.0.1:9294 --control-token none
+ExecStart=#{bundle_path} exec puma -C #{deploy_dir}/config/puma.rb -b tcp://127.0.0.1:9292 --control-url tcp://127.0.0.1:9294 --control-token none
 
 Restart=always
 

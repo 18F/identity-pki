@@ -171,13 +171,13 @@ if node['login_dot_gov']['use_dashboard_puma'] == true
     group web_system_user
   end
 
-  puma_path = "#{deploy_path}/bin/puma"
+  bundle_path = "#{deploy_path}/bin/bundle"
 
   node.default[:puma] = {}
   node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
   node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
   node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
-  node.default[:puma][:bin_path] = puma_path
+  node.default[:puma][:bin_path] = bundle_path
 
   include_recipe 'login_dot_gov::puma_service'
 
@@ -212,7 +212,7 @@ if node['login_dot_gov']['use_dashboard_puma'] == true
   # SystemD will not run puma even if it is in your path. You must specify
   # an absolute URL to puma. For example /usr/local/bin/puma
   # Alternatively, create a binstub with `bundle binstubs puma --path ./sbin` in the WorkingDirectory
-  ExecStart=#{deploy_path}/bin/puma -C #{deploy_path}/config/puma.rb -b tcp://127.0.0.1:9292 -b ssl://127.0.0.1:9293?key=#{deploy_path}/dashboard-server.key&cert=#{deploy_path}/dashboard-server.crt --control-url tcp://127.0.0.1:9294 --control-token none
+  ExecStart=#{deploy_path}/bin/bundle exec puma -C #{deploy_path}/config/puma.rb -b tcp://127.0.0.1:9292 -b ssl://127.0.0.1:9293?key=#{deploy_path}/dashboard-server.key&cert=#{deploy_path}/dashboard-server.crt --control-url tcp://127.0.0.1:9294 --control-token none
 
   Restart=always
 
