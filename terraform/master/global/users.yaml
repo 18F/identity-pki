@@ -236,6 +236,7 @@ users:
   colter.nattrass:
     aws_groups:
     - apponcall
+    - devopsnonprod
     ec2_username:
     - cnattrass
     gitlab_groups:
