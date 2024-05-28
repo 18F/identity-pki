@@ -178,11 +178,6 @@ output "worker_iam_role_name" {
   value       = aws_iam_role.worker.name
 }
 
-output "escrow_kms_policy_document_json" {
-  description = "JSON content of the escrow_kms IAM policy document"
-  value       = data.aws_iam_policy_document.escrow_kms.json
-}
-
 output "assume_role_from_vpc_json" {
   description = "JSON content of the assume_role_from_vpc IAM policy document"
   value       = data.aws_iam_policy_document.assume_role_from_vpc.json
