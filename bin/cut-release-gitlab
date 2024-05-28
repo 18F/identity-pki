@@ -129,7 +129,6 @@ if [[ ! -z ${TODO-} ]] ; then
   fi
 fi
 
-exit
 # get MR of previous release; exit if there isn't one in the last 100 MRs
 echo_cyan "Finding MR for previous release 'v${OLD_RELEASE}'..."
 MR_NUM=25
@@ -182,7 +181,7 @@ EOF
 
 ${GIT_DIR}/bin/gitlab-mr -t "Release v${NEW_RELEASE}" -g devops
 
-echo run glab release create v${NEW_RELEASE} -N "$(cat <<EOF
+run glab release create v${NEW_RELEASE} -N "$(cat <<EOF
 ${BREAKING_MRS}
 ${REGULAR_MRS}
 EOF
