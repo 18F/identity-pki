@@ -3,11 +3,6 @@ variable "env_name" {
   type        = string
 }
 
-variable "escrow_bucket_arn" {
-  description = "The ARN of the escrow bucket"
-  type        = string
-}
-
 variable "region" {
   description = "AWS region"
   type        = string
@@ -95,11 +90,6 @@ variable "identity_sms_iam_role_name_idp" {
 
 variable "ipv4_secondary_cidr" {
   description = "The IPv4 secondary CIDR block associated with the VPC"
-  type        = string
-}
-
-variable "escrow_bucket_id" {
-  description = "The ID of the escrow S3 bucket"
   type        = string
 }
 
