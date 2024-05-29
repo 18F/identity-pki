@@ -178,4 +178,10 @@ module "main" {
     "Terraform"         = [{ "*" = ["*"] }],
     "FraudOps"          = [{ "*" = ["data-pull", "action-account"] }],
   }
+
+  ##### uncomment below ONLY when approved by security #####
+
+  logarchive_acct_id      = "221972985980" # login-logarchive-sandbox account ID
+  logarchive_use1_enabled = true           # archive log groups in us-east-1
+
 }

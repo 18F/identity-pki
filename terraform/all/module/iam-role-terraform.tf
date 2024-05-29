@@ -342,14 +342,19 @@ locals {
           "kinesis:CreateStream",
           "kinesis:DecreaseStreamRetentionPeriod",
           "kinesis:DeleteStream",
+          "kinesis:DeregisterStreamConsumer",
           "kinesis:DescribeStream",
+          "kinesis:DescribeStreamConsumer",
           "kinesis:DescribeStreamSummary",
+          "kinesis:DisableEnhancedMonitoring",
           "kinesis:EnableEnhancedMonitoring",
           "kinesis:IncreaseStreamRetentionPeriod",
           "kinesis:ListTagsForStream",
+          "kinesis:RegisterStreamConsumer",
           "kinesis:RemoveTagsFromStream",
           "kinesis:StartStreamEncryption",
-          "kinesis:UpdateShardCount"
+          "kinesis:UpdateShardCount",
+          "kinesis:UpdateStreamMode"
         ]
         resources = [
           "*",
@@ -405,6 +410,7 @@ locals {
           "lambda:GetPolicy",
           "lambda:ListVersionsByFunction*",
           "lambda:PublishVersion",
+          "lambda:PutFunctionConcurrency",
           "lambda:RemovePermission",
           "lambda:TagResource",
           "lambda:UntagResource",

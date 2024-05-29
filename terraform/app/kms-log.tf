@@ -9,7 +9,7 @@ locals {
 }
 
 module "kms_logging" {
-  source = "github.com/18F/identity-terraform//kms_log?ref=e4d7e415e0a5185b1c86ebd7093b471403536815"
+  source = "github.com/18F/identity-terraform//kms_log?ref=b519780784fcd2ad3d3d303c7b71d8241e6be6ce"
   #source = "../../../identity-terraform/kms_log"
 
   sqs_alarm_actions                       = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []

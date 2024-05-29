@@ -17,8 +17,8 @@ module "main" {
   sns_topic_alert_critical = "slack-events"
   sns_topic_alert_warning  = "slack-events"
 
-  logarchive_acct_id = "221972985980" # provide access to login-logarchive-sandbox
-  #logarchive_secondary_region = "us-east-1" # disable for now
+  logarchive_acct_id          = "221972985980" # provide access to login-logarchive-sandbox
+  logarchive_secondary_region = "us-east-1"    # disable for now
 
   root_domain = "identitysandbox.gov"
 

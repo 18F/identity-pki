@@ -1671,3 +1671,18 @@ Whether or not to allow Terraform to ACTUALLY destroy the CloudWatch Log Groups
 defined in terraform/app/cloudwatch-log.tf (vs. simply removing them from state).
 EOM
 }
+
+variable "logarchive_acct_id" {
+  type        = string
+  description = <<EOM
+ID of the 'logarchive' AWS account containing CloudWatch Log Destinations and
+Kinesis Data/Firehose Streams, which CloudWatch Subscription Filters
+created via the logarchive_subscription_filters module(s) will send to.
+LEAVE BLANK to prevent the creation of said Subscription Filters.
+EOM
+  default     = ""
+  validation {
+    condition     = length(var.logarchive_acct_id) == 0 || length(var.logarchive_acct_id) == 12
+    error_message = "The logarchive_acct_id must be a valid AWS account id."
+  }
+}

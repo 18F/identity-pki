@@ -146,4 +146,9 @@ module "main" {
     "/var/log/mail.log",
     "/var/log/syslog",
   ]
+
+  ##### uncomment below ONLY when approved by security #####
+
+  #logarchive_acct_id = "429506220995" # login-logarchive-prod account ID
+  #logarchive_use1_enabled = true      # archive log groups in us-east-1
 }

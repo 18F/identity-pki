@@ -59,3 +59,7 @@ output "migration_sg_id" {
 output "cloudfront_prefix_list_id" {
   value = data.aws_ec2_managed_prefix_list.cloudfront.id
 }
+
+output "flow_log_group" {
+  value = aws_cloudwatch_log_group.flow_log_group.name
+}
