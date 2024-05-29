@@ -158,7 +158,7 @@ RSpec.describe IdentifyController, type: :controller do
               openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
               ficam_openssl_valid: false,
               ficam_openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
-              matched_policy_oids: { '2.16.840.1.101.3.2.1.3.13' => true },
+              matched_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
             }.to_json).once
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
@@ -370,9 +370,9 @@ RSpec.describe IdentifyController, type: :controller do
               valid: false,
               error: 'self-signed cert',
               openssl_valid: false,
-              openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
+              openssl_errors: 'error 26 at 0 depth lookup: unsuitable certificate purpose',
               ficam_openssl_valid: false,
-              ficam_openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
+              ficam_openssl_errors: 'error 26 at 0 depth lookup: unsuitable certificate purpose',
             }.to_json).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
