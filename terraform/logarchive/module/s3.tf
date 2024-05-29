@@ -8,6 +8,7 @@ module "logarchive_bucket_primary" {
 }
 
 module "logarchive_bucket_replica" {
+  count  = var.enable_s3_replication ? 1 : 0
   source = "../../modules/logarchive_bucket"
   providers = {
     aws = aws.use1
@@ -30,15 +31,13 @@ data "aws_iam_policy_document" "s3_replication_assume_role" {
 }
 
 resource "aws_iam_role" "s3_replication" {
-  depends_on = [
-    module.logarchive_bucket_primary,
-    module.logarchive_bucket_replica
-  ]
+  count              = var.enable_s3_replication ? 1 : 0
   name               = "s3_replication_logarchive"
   assume_role_policy = data.aws_iam_policy_document.s3_replication_assume_role.json
 }
 
 data "aws_iam_policy_document" "s3_replication" {
+  count = var.enable_s3_replication ? 1 : 0
   statement {
     sid    = "AllowGettingBucketInformation"
     effect = "Allow"
@@ -69,7 +68,7 @@ data "aws_iam_policy_document" "s3_replication" {
       "s3:ReplicateDelete",
       "s3:ReplicateTags",
     ]
-    resources = ["${module.logarchive_bucket_replica.bucket_arn}/*"]
+    resources = ["${module.logarchive_bucket_replica[count.index].bucket_arn}/*"]
   }
 
   statement {
@@ -83,7 +82,7 @@ data "aws_iam_policy_document" "s3_replication" {
       aws_kms_key.logarchive.arn
     ]
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "kms:ViaService"
       values = [
         "s3.${module.logarchive_bucket_primary.bucket_region}.amazonaws.com"
@@ -93,7 +92,7 @@ data "aws_iam_policy_document" "s3_replication" {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:s3:arn"
       values = [
-        module.logarchive_bucket_primary.bucket_arn
+        "${module.logarchive_bucket_primary.bucket_arn}/*"
       ]
     }
   }
@@ -103,53 +102,44 @@ data "aws_iam_policy_document" "s3_replication" {
     effect = "Allow"
     actions = [
       "kms:Encrypt",
+      "kms:GenerateDataKey",
     ]
     resources = [
       aws_kms_replica_key.logarchive.arn
     ]
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "kms:ViaService"
       values = [
-        "s3.${module.logarchive_bucket_replica.bucket_region}.amazonaws.com"
+        "s3.${module.logarchive_bucket_replica[count.index].bucket_region}.amazonaws.com"
       ]
     }
     condition {
       test     = "StringLike"
       variable = "kms:EncryptionContext:aws:s3:arn"
       values = [
-        module.logarchive_bucket_replica.bucket_arn
+        "${module.logarchive_bucket_replica[count.index].bucket_arn}/*"
       ]
     }
   }
 }
 
 resource "aws_iam_policy" "s3_replication" {
-  depends_on = [
-    module.logarchive_bucket_primary.bucket_arn,
-    module.logarchive_bucket_replica.bucket_arn
-  ]
+  count  = var.enable_s3_replication ? 1 : 0
   name   = "s3_replication"
-  policy = data.aws_iam_policy_document.s3_replication.json
+  policy = data.aws_iam_policy_document.s3_replication[count.index].json
 }
 
 resource "aws_iam_role_policy_attachment" "s3_replication" {
-  depends_on = [
-    module.logarchive_bucket_primary.bucket_arn,
-    module.logarchive_bucket_replica.bucket_arn
-  ]
-  role       = aws_iam_role.s3_replication.name
-  policy_arn = aws_iam_policy.s3_replication.arn
+  count      = var.enable_s3_replication ? 1 : 0
+  role       = aws_iam_role.s3_replication[count.index].name
+  policy_arn = aws_iam_policy.s3_replication[count.index].arn
 }
 
 resource "aws_s3_bucket_replication_configuration" "logarchive" {
-  depends_on = [
-    module.logarchive_bucket_primary.bucket_arn,
-    module.logarchive_bucket_replica.bucket_arn
-  ]
-
-  role   = aws_iam_role.s3_replication.arn
-  bucket = module.logarchive_bucket_primary.bucket_name
+  count  = var.enable_s3_replication ? 1 : 0
+  role   = aws_iam_role.s3_replication[count.index].arn
+  bucket = module.logarchive_bucket_primary[count.index].bucket_name
 
   rule {
     id     = "1"
@@ -162,7 +152,7 @@ resource "aws_s3_bucket_replication_configuration" "logarchive" {
     }
 
     destination {
-      bucket        = module.logarchive_bucket_replica.bucket_arn
+      bucket        = module.logarchive_bucket_replica[count.index].bucket_arn
       storage_class = "STANDARD"
       encryption_configuration {
         replica_kms_key_id = aws_kms_replica_key.logarchive.arn

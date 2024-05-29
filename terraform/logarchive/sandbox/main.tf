@@ -12,5 +12,5 @@ terraform {
 module "main" {
   source            = "../module"
   source_account_id = "894947205914" # login-sandbox
-  #secondary_region = "us-east-1" # disable for now
+  secondary_region  = "us-east-1"    # disable for now
 }

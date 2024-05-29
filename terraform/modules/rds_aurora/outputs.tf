@@ -49,3 +49,7 @@ output "writer_instance_az" {
 output "reader_endpoint" {
   value = aws_rds_cluster.aurora.reader_endpoint
 }
+
+output "log_groups" {
+  value = [for group in aws_cloudwatch_log_group.aurora : group.name]
+}
