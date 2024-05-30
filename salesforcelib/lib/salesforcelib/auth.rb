@@ -62,7 +62,7 @@ module Salesforcelib
         restforce.query('SELECT Id FROM Case LIMIT 1')
       end
     rescue Restforce::AuthenticationError => err
-      if err.message.include?('expired access/refresh token')
+      if err.message.include?('expired access/refresh token') || err.message.include?('token validity expired')
         keychain_config.clear!
         retry
       else
