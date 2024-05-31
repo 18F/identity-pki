@@ -1,9 +1,17 @@
 # This terraform module contains inbound SES email configuration used
+resource "aws_ses_receipt_rule_set" "main" {
+  rule_set_name = var.rule_set_name
+}
+
+resource "aws_ses_active_receipt_rule_set" "main" {
+  rule_set_name = aws_ses_receipt_rule_set.main.id
+}
+
 resource "aws_ses_receipt_rule" "admin-at" {
   count = var.sandbox_features_enabled ? 1 : 0
 
   name          = "admin-at-store"
-  rule_set_name = var.rule_set_name
+  rule_set_name = aws_ses_active_receipt_rule_set.main.id
   recipients    = ["admin@${var.domain}"]
   enabled       = true
   scan_enabled  = true
@@ -36,7 +44,7 @@ resource "aws_sns_topic" "admin-at" {
 
 resource "aws_ses_receipt_rule" "drop-no-reply" {
   name          = "drop-no-reply"
-  rule_set_name = var.rule_set_name
+  rule_set_name = aws_ses_active_receipt_rule_set.main.id
   after         = var.sandbox_features_enabled ? aws_ses_receipt_rule.admin-at[0].name : ""
   recipients    = ["no-reply@${var.domain}"]
   enabled       = true
@@ -56,6 +64,8 @@ module "receive_usps_status_updates" {
   rule_set_name     = var.rule_set_name
   domain            = var.domain
   usps_ip_addresses = var.usps_ip_addresses
+
+  depends_on = [aws_ses_active_receipt_rule_set.main]
 }
 
 resource "aws_ses_receipt_rule" "email_users" {
@@ -64,7 +74,7 @@ resource "aws_ses_receipt_rule" "email_users" {
   } : {}
 
   name          = "${each.key}-at-store"
-  rule_set_name = var.rule_set_name
+  rule_set_name = aws_ses_active_receipt_rule_set.main.id
   recipients    = [each.value]
   enabled       = true
   scan_enabled  = true
@@ -83,7 +93,7 @@ resource "aws_ses_receipt_rule" "email_users" {
 
 resource "aws_ses_receipt_rule" "bounce-unknown" {
   name          = "bounce-unknown_mailboxes"
-  rule_set_name = var.rule_set_name
+  rule_set_name = aws_ses_active_receipt_rule_set.main.id
   after         = length(var.usps_envs) > 0 && var.usps_features_enabled ? module.receive_usps_status_updates[0].last_receipt_rule : aws_ses_receipt_rule.drop-no-reply.name
 
   # no recipients, so this is a catchall

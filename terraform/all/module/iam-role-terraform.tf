@@ -733,9 +733,7 @@ locals {
         resources = [
           "*",
         ]
-      }
-    ],
-    [
+      },
       {
         sid    = "S3"
         effect = "Allow"
@@ -799,32 +797,38 @@ locals {
         resources = [
           "*",
         ]
-      },
+      }
+    ],
+    [
       {
         sid    = "SES"
         effect = "Allow"
         actions = [
           "ses:CreateConfigurationSet",
           "ses:CreateConfigurationSetEventDestination",
-          "ses:CreateReceiptRule",
           "ses:CreateReceiptFilter",
+          "ses:CreateReceiptRule",
+          "ses:CreateReceiptRuleSet",
           "ses:DeleteConfigurationSet",
           "ses:DeleteConfigurationSetEventDestination",
           "ses:DeleteIdentity",
           "ses:DeleteReceiptRule",
+          "ses:DeleteReceiptRuleSet",
+          "ses:DescribeActiveReceiptRuleSet",
           "ses:DescribeConfigurationSet",
           "ses:DescribeReceiptRule",
-          "ses:DescribeReceiptRule",
+          "ses:DescribeReceiptRuleSet",
           "ses:GetIdentityDkimAttributes",
-          "ses:GetIdentityVerificationAttributes",
           "ses:GetIdentityNotificationAttributes",
+          "ses:GetIdentityVerificationAttributes",
           "ses:ListReceiptFilters",
           "ses:PutConfigurationSetDeliveryOptions",
+          "ses:SetActiveReceiptRuleSet",
           "ses:SetIdentityHeadersInNotificationsEnabled",
           "ses:SetIdentityNotificationTopic",
+          "ses:UpdateReceiptRule",
           "ses:VerifyDomainDkim",
           "ses:VerifyDomainIdentity",
-          "ses:UpdateReceiptRule",
         ]
         resources = [
           "*",
