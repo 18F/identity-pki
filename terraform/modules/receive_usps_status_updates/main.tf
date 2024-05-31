@@ -17,11 +17,13 @@ data "aws_sns_topic" "usps_topics" {
   name = "usps-${var.usps_envs[count.index]}-topic"
 }
 
+data "aws_ses_active_receipt_rule_set" "main" {}
+
 resource "aws_ses_receipt_rule" "usps_per_env" {
   count = length(var.usps_envs)
 
   name          = "usps-${var.usps_envs[count.index]}-rule"
-  rule_set_name = var.rule_set_name
+  rule_set_name = data.aws_ses_active_receipt_rule_set.main.rule_set_name
   recipients    = ["registration@usps.${var.usps_envs[count.index]}.${var.domain}"]
   enabled       = true
   scan_enabled  = true

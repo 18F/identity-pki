@@ -14,8 +14,9 @@ variable "email_bucket_prefix" {
 }
 
 variable "rule_set_name" {
-  default = "default-rule-set"
-  type    = string
+  default     = "default-rule-set"
+  description = "Name of the Active Rule Set used with SES email receiving."
+  type        = string
 }
 
 variable "email_users" {
