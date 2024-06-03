@@ -370,9 +370,9 @@ RSpec.describe IdentifyController, type: :controller do
               valid: false,
               error: 'self-signed cert',
               openssl_valid: false,
-              openssl_errors: 'error 26 at 0 depth lookup: unsuitable certificate purpose',
+              openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
               ficam_openssl_valid: false,
-              ficam_openssl_errors: 'error 26 at 0 depth lookup: unsuitable certificate purpose',
+              ficam_openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
             }.to_json).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
