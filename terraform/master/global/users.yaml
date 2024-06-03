@@ -16,6 +16,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
   ajay.guru:
     aws_groups:
     - fraudopsnonprod
@@ -176,6 +177,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
     ec2_username:
     - biraneseck
   brittany.greaner:
@@ -243,6 +245,7 @@ users:
     - appdev
     - lg-public
     - lg-all
+    - lg-people-platform|reporter
   connor.mccarthy:
     aws_groups:
     - devops
@@ -681,6 +684,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
   malick.diarra:
     aws_groups:
     - apponcall
@@ -838,6 +842,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
   philip.burke:
     gitlab_groups:
     - antifraud
@@ -900,6 +905,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
     ec2_username:
     - sdondeti
   samy.orellana:
