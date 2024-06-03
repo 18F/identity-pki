@@ -70,7 +70,7 @@ users:
     - arowley
     gitlab_groups:
     - pm
-    - protocols|owner
+    - melba|owner
   alexander.bradley:
     aws_groups:
     - apponcall
@@ -292,7 +292,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - protocols|owner
+    - melba|owner
   dawei.wang:
     aws_groups:
     - apponcall
@@ -636,7 +636,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - protocols|maintainer
+    - melba|maintainer
   laurie.cole:
     aws_groups:
     - analytics
@@ -1028,7 +1028,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - protocols|developer
+    - melba|developer
   zach.margolis:
     ec2_username:
     - zmargolis
@@ -1056,7 +1056,7 @@ users:
     - pm|owner
     - antifraud|owner
     - login-security|owner
-    - protocols|owner
+    - melba|owner
     - lg-people-platform|owner
     can_create_group:
     - true
@@ -1086,8 +1086,8 @@ groups:
     description: Gitlab automation accounts
   login-security:
     description: Security Team Project and Documentation Management
-  protocols:
-    description: Appdev protocols group
+  melba:
+    description: Appdev melba group
 projects:
   lg/identity-devops:
     groups:
