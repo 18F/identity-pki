@@ -751,6 +751,7 @@ users:
     - lg-all
     - lg-public
     - lg-people
+    - dashboard-admins
   michael.fay:
     aws_groups:
     - finops
@@ -808,6 +809,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - dashboard-admins
   nicholas.willey:
     aws_groups:
     - secops
