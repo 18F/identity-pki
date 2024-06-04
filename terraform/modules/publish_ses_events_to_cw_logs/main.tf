@@ -61,6 +61,7 @@ resource "aws_lambda_function" "SESEventsEvalLambda" {
 
 module "ses_feedback_evaluation_function" {
   source = "github.com/18F/identity-terraform//null_archive?ref=main"
+  #source = "../../../../identity-terraform/null_archive"
 
   source_code_filename = "lambda_function.py"
   source_dir           = "${path.module}/python/"

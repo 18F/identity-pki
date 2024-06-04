@@ -1,5 +1,109 @@
-# prevent deletion of int/staging/prod RDS; used by all roles
-data "aws_iam_policy_document" "rds_delete_prevent" {
+data "aws_iam_policy_document" "permissions_boundary" {
+
+  # allow all services as used by all roles
+
+  statement {
+    sid    = "AllowedServices"
+    effect = "Allow"
+    actions = var.limit_allowed_services ? [
+      "access-analyzer:*",
+      "account:*",
+      "acm:*",
+      "acm-pca:*",
+      "apigateway:*",
+      "application-autoscaling:*",
+      "aps:*",
+      "athena:*",
+      "autoscaling:*",
+      "batch:*",
+      "billing:*",
+      "budget:*",
+      "ce:*",
+      "cloud9:*",
+      "cloudformation:*",
+      "cloudfront:*",
+      "cloudhsm:*",
+      "cloudtrail:*",
+      "cloudwatch:*",
+      "codebuild:*",
+      "codecommit:*",
+      "codedeploy:*",
+      "codepipeline:*",
+      "codestar-notifications:*",
+      "config:*",
+      "consolidatedbilling:*",
+      "cur:*",
+      "dax:*",
+      "detective:*",
+      "dlm:*",
+      "dms:*",
+      "dynamodb:*",
+      "ec2:*",
+      "ec2messages:*",
+      "ecr:*",
+      "ecs:*",
+      "eks:*",
+      "elasticache:*",
+      "elasticloadbalancing:*",
+      "events:*",
+      "firehose:*",
+      "freetier:*",
+      "glacier:*",
+      "glue:*",
+      "guardduty:*",
+      "health:*",
+      "iam:*",
+      "inspector:*",
+      "inspector2:*",
+      "invoicing:*",
+      "kinesis:*",
+      "kinesisanalytics:*",
+      "kms:*",
+      "lambda:*",
+      "logs:*",
+      "macie:*",
+      "macie2:*",
+      "mobiletargeting:*",
+      "network-firewall:*",
+      "organizations:*",
+      "payments:*",
+      "pi:*",
+      "pinpoint:*",
+      "quicksight:*",
+      "ram:*",
+      "rds:*",
+      "readonly:*",
+      "redshift:*",
+      "resource-groups:*",
+      "route53:*",
+      "route53domains:*",
+      "route53resolver:*",
+      "s3:*",
+      "secretsmanager:*",
+      "securityhub:*",
+      "serverlessrepo:*",
+      "ses:*",
+      "shield:*",
+      "sms-voice:*",
+      "sns:*",
+      "sqs:*",
+      "ssm:*",
+      "states:*",
+      "sts:*",
+      "support:*",
+      "tag:*",
+      "tax:*",
+      "trustedadvisor:*",
+      "waf:*",
+      "waf-regional:*",
+      "wafv2:*",
+      "xray:*",
+    ] : ["*"]
+    resources = [
+      "*"
+    ]
+  }
+  # prevent deletion of int/staging/prod RDS; used by all roles
   statement {
     sid    = "RDSDeletionPrevent"
     effect = "Deny"
@@ -52,6 +156,8 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
       "arn:aws:rds:*:*:*:*prod*",
     ]
   }
+
+  # prevent deletion of main Route 53 Hosted Zones
   statement {
     sid    = "DeleteDNSHostedZonePrevent"
     effect = "Deny"
@@ -69,6 +175,8 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
       "arn:aws:route53:::hostedzone/Z32KM8TXXW3ATV", # 16.172.in-addr.arpa (prod)
     ]
   }
+
+  # prevent disabling of CloudTrail
   statement {
     sid    = "CloudTrailPrevent"
     effect = "Deny"
@@ -80,6 +188,8 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
       "arn:aws:cloudtrail:*:*:trail/login-gov-cloudtrail",
     ]
   }
+
+  # deny removal/disabling of keymaker keys (single + multi-region)
   statement {
     sid    = "LogGroupDeletePrevent"
     effect = "Deny"
@@ -124,8 +234,7 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
       "kms:UpdateAlias",
     ]
     resources = [
-      # "arn:aws:kms:*:*:key/*"       # use once replica keys are re-removed
-      "arn:aws:kms:us-west-2:*:key/*"
+      "arn:aws:kms:*:*:key/*"
     ]
     condition {
       test     = "ForAnyValue:StringLike"
@@ -152,19 +261,75 @@ data "aws_iam_policy_document" "rds_delete_prevent" {
       "arn:aws:kms:us-west-2:*:alias/int-login-dot-gov-keymaker",
       "arn:aws:kms:us-west-2:*:alias/staging-login-dot-gov-keymaker",
       "arn:aws:kms:us-west-2:*:alias/prod-login-dot-gov-keymaker",
-      #"arn:aws:kms:*:*:alias/int-login-dot-gov-keymaker-multi-region",
-      #"arn:aws:kms:*:*:alias/staging-login-dot-gov-keymaker-multi-region",
-      #"arn:aws:kms:*:*:alias/prod-login-dot-gov-keymaker-multi-region",
-      "arn:aws:kms:us-west-2:*:alias/int-login-dot-gov-keymaker-multi-region",
-      "arn:aws:kms:us-west-2:*:alias/staging-login-dot-gov-keymaker-multi-region",
-      "arn:aws:kms:us-west-2:*:alias/prod-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/int-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/staging-login-dot-gov-keymaker-multi-region",
+      "arn:aws:kms:*:*:alias/prod-login-dot-gov-keymaker-multi-region",
+    ]
+  }
+
+  # restrict to specified regions
+  statement {
+    sid    = "RegionRestriction"
+    effect = "Deny"
+    actions = [
+      "*",
+    ]
+    resources = [
+      "*",
+    ]
+    condition {
+      test     = "StringNotEquals"
+      variable = "aws:RequestedRegion"
+      values = [
+        "us-west-2",
+        "us-east-1",
+        "us-east-2",
+      ]
+    }
+  }
+
+  # deny all actions from AI-centered AWS services
+  statement {
+    sid    = "AIServiceRestriction"
+    effect = "Deny"
+    actions = [
+      "bedrock:*",
+      "codeguru-profiler:*",
+      "codeguru-reviewer:*",
+      "codewhisperer:*",
+      "titan:*",
+      "comprehend:*",
+      "comprehendmedical:*",
+      "devops-guru:*",
+      "forecast:*",
+      "healthlake:*",
+      "kendra:*",
+      "lex:*",
+      "lookoutmetrics:*",
+      "personalize:*",
+      "polly:*",
+      "q:*",
+      "rekognition:*",
+      "textract:*",
+      "transcribe:*",
+      "transcribemedical:*",
+      "translate:*",
+      "health-omics:*",
+      "health-imaging:*",
+      "healthscribe:*",
+    ]
+    resources = [
+      "*",
     ]
   }
 }
 
-resource "aws_iam_policy" "rds_delete_prevent" {
-  name        = "RDSDeletePrevent"
-  path        = "/"
-  description = "Prevent deletion of int, staging and prod rds instances"
-  policy      = data.aws_iam_policy_document.rds_delete_prevent.json
+resource "aws_iam_policy" "permissions_boundary" {
+  name = "PermissionsBoundary"
+  path = "/"
+  description = join(" ", [
+    "Permissions Boundary policy attached to Assumable IAM roles. Includes full",
+    "list of accessible services, plus region/service restrictions as necessary."
+  ])
+  policy = data.aws_iam_policy_document.permissions_boundary.json
 }

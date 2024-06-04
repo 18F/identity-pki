@@ -26,6 +26,8 @@ module "main" {
 
   smtp_user_ready = true
 
+  #limit_allowed_services = true  # uncomment to limit allowed services for all Roles
+
   cloudtrail_event_selectors = [
     {
       include_management_events = false
