@@ -67,6 +67,37 @@ locals {
         ]
       },
       {
+        sid    = "Athena"
+        effect = "Allow"
+        actions = [
+          "athena:CreateDataCatalog",
+          "athena:CreateNamedQuery",
+          "athena:CreatePreparedStatement",
+          "athena:CreateWorkGroup",
+          "athena:DeleteDataCatalog",
+          "athena:DeleteNamedQuery",
+          "athena:DeletePreparedStatement",
+          "athena:DeleteWorkGroup",
+          "athena:GetDatabase",
+          "athena:GetNamedQuery",
+          "athena:GetQueryExecution",
+          "athena:GetQueryResults",
+          "athena:GetWorkGroup",
+          "athena:ListTagsForResource",
+          "athena:StartQueryExecution",
+          "athena:StopQueryExecution",
+          "athena:TagResource",
+          "athena:UntagResource",
+          "athena:UpdateDataCatalog",
+          "athena:UpdateNamedQuery",
+          "athena:UpdatePreparedStatement",
+          "athena:UpdateWorkGroup",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
         sid    = "Autoscaling"
         effect = "Allow"
         actions = [
@@ -177,6 +208,54 @@ locals {
           "*",
         ]
       },
+      {
+        sid    = "DLM"
+        effect = "Allow"
+        actions = [
+          "dlm:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "DMS"
+        effect = "Allow"
+        actions = [
+          "dms:AddTagsToResource",
+          "dms:ApplyPendingMaintenanceAction",
+          "dms:CreateEndpoint",
+          "dms:CreateReplicationConfig",
+          "dms:CreateReplicationInstance",
+          "dms:CreateReplicationSubnetGroup",
+          "dms:CreateReplicationTask",
+          "dms:DeleteCertificate",
+          "dms:DeleteConnection",
+          "dms:DeleteEndpoint",
+          "dms:DeleteReplicationInstance",
+          "dms:DeleteReplicationSubnetGroup",
+          "dms:DeleteReplicationTask",
+          "dms:DescribeAccountAttributes",
+          "dms:DescribeCertificates",
+          "dms:DescribeEndpoints",
+          "dms:DescribeEventSubscriptions",
+          "dms:DescribeReplicationInstances",
+          "dms:DescribeReplicationSubnetGroups",
+          "dms:DescribeReplicationTasks",
+          "dms:ImportCertificate",
+          "dms:ListTagsForResource",
+          "dms:ModifyEndpoint",
+          "dms:ModifyReplicationInstance",
+          "dms:ModifyReplicationSubnetGroup",
+          "dms:ModifyReplicationTask",
+          "dms:RemoveTagsFromResource"
+        ]
+        resources = [
+          "*",
+        ]
+      }
+    ],
+    [
       {
         sid    = "Dynamodb"
         effect = "Allow"
@@ -298,6 +377,41 @@ locals {
         ]
       },
       {
+        sid    = "ECR"
+        effect = "Allow"
+        actions = [
+          "ecr:CreateRepository",
+          "ecr:DeleteRepository",
+          "ecr:DeleteRepositoryPolicy",
+          "ecr:Describe*",
+          "ecr:GetLifecyclePolicy",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:GetRegistryPolicy",
+          "ecr:GetRegistryScanningConfiguration",
+          "ecr:GetRepositoryPolicy",
+          "ecr:List*",
+          "ecr:PutImageScanningConfiguration",
+          "ecr:PutImageTagMutability",
+          "ecr:PutLifecyclePolicy",
+          "ecr:PutRegistryPolicy",
+          "ecr:PutReplicationConfiguration",
+          "ecr:SetRepositoryPolicy",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "EKS"
+        effect = "Allow"
+        actions = [
+          "eks:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
         sid    = "Elasticache"
         effect = "Allow"
         actions = [
@@ -325,6 +439,215 @@ locals {
       }
     ],
     [
+      {
+        sid    = "Elasticloadbalancing"
+        effect = "Allow"
+        actions = [
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
+          "elasticloadbalancing:AttachLoadBalancerToSubnets",
+          "elasticloadbalancing:ConfigureHealthCheck",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:CreateLoadBalancerListeners",
+          "elasticloadbalancing:CreateRule",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DeleteRule",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DescribeLoadBalancerAttributes",
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeRules",
+          "elasticloadbalancing:DescribeTags",
+          "elasticloadbalancing:DescribeTargetGroupAttributes",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeTargetHealth",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
+          "elasticloadbalancing:ModifyRule",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:RemoveTags",
+          "elasticloadbalancing:SetRulePriorities",
+          "elasticloadbalancing:SetSecurityGroups",
+          "elasticloadbalancing:SetWebACL",
+          "elasticloadbalancing:SetSubnets",
+          "elasticloadbalancing:DetachLoadBalancerFromSubnets",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Events"
+        effect = "Allow"
+        actions = [
+          "events:CreateArchive",
+          "events:CreateConnection",
+          "events:CreateEventBus",
+          "events:DeleteEventBus",
+          "events:DeleteRule",
+          "events:DescribeEventBus",
+          "events:DescribeRule",
+          "events:EnableRule",
+          "events:ListTagsForResource",
+          "events:ListTargetsByRule",
+          "events:PutRule",
+          "events:PutTargets",
+          "events:RemoveTargets",
+          "events:TagResource",
+          "events:UntagResource"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Firehose"
+        effect = "Allow"
+        actions = [
+          "firehose:CreateDeliveryStream",
+          "firehose:DeleteDeliveryStream",
+          "firehose:DescribeDeliveryStream",
+          "firehose:ListTagsForDeliveryStream",
+          "firehose:DeleteDeliveryStream",
+          "firehose:List*",
+          "firehose:TagDeliveryStream",
+          "firehose:UntagDeliveryStream",
+          "firehose:UpdateDestination"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Glue"
+        effect = "Allow"
+        actions = [
+          "glue:BatchCreatePartition",
+          "glue:BatchDeletePartition",
+          "glue:BatchDeleteTable",
+          "glue:CreateCrawler",
+          "glue:CreateDatabase",
+          "glue:CreatePartition",
+          "glue:CreateTable",
+          "glue:DeleteCrawler",
+          "glue:DeleteDatabase",
+          "glue:DeletePartition",
+          "glue:DeleteTable",
+          "glue:GetCrawler",
+          "glue:GetDatabase",
+          "glue:GetTable",
+          "glue:GetTables",
+          "glue:GetTags",
+          "glue:StartCrawlerSchedule",
+          "glue:StopCrawlerSchedule",
+          "glue:UpdateCrawler",
+          "glue:UpdateCrawlerSchedule",
+          "glue:UpdateDatabase",
+          "glue:UpdatePartition",
+          "glue:UpdateTable",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "GuardDuty"
+        effect = "Allow"
+        actions = [
+          "guardduty:CreateDetector",
+          "guardduty:CreatePublishingDestination",
+          "guardduty:DeleteDetector",
+          "guardduty:DeletePublishingDestination",
+          "guardduty:DescribePublishingDestination",
+          "guardduty:GetDetector",
+          "guardduty:ListDetectors",
+          "guardduty:ListPublishingDestinations",
+          "guardduty:TagResource",
+          "guardduty:UpdateDetector",
+          "guardduty:UpdatePublishingDestination",
+        ]
+        resources = [
+          "*",
+        ]
+      }
+    ],
+    [
+      {
+        sid    = "Iam"
+        effect = "Allow"
+        actions = [
+          "iam:AddRoleToInstanceProfile",
+          "iam:AddUserToGroup",
+          "iam:AttachGroupPolicy",
+          "iam:AttachRolePolicy",
+          "iam:AttachUserPolicy",
+          "iam:CreateAccountAlias",
+          "iam:CreateGroup",
+          "iam:CreateInstanceProfile",
+          "iam:CreatePolicy",
+          "iam:CreatePolicyVersion",
+          "iam:CreateRole",
+          "iam:CreateServiceLinkedRole",
+          "iam:CreateUser",
+          "iam:DeleteAccountAlias",
+          "iam:DeleteAccessKey",
+          "iam:DeleteAccountPasswordPolicy",
+          "iam:DeleteGroup",
+          "iam:DeleteInstanceProfile",
+          "iam:DeleteLoginProfile",
+          "iam:DeletePolicy",
+          "iam:DeletePolicyVersion",
+          "iam:DeleteRole",
+          "iam:DeleteRolePolicy",
+          "iam:DeleteUser",
+          "iam:DetachGroupPolicy",
+          "iam:DetachRolePolicy",
+          "iam:DetachUserPolicy",
+          "iam:GetAccountPasswordPolicy",
+          "iam:GetGroup",
+          "iam:GetInstanceProfile",
+          "iam:GetPolicy",
+          "iam:GetPolicyVersion",
+          "iam:GetRole",
+          "iam:GetRolePolicy",
+          "iam:GetUser",
+          "iam:GetUserPolicy",
+          "iam:GetOpenIDConnectProvider",
+          "iam:ListAccessKeys",
+          "iam:ListAccountAliases",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListAttachedUserPolicies",
+          "iam:ListEntitiesForPolicy",
+          "iam:ListGroupsForUser",
+          "iam:ListInstanceProfilesForRole",
+          "iam:ListMFADevices",
+          "iam:ListPolicies",
+          "iam:ListPolicyVersions",
+          "iam:ListRolePolicies",
+          "iam:ListSigningCertificates",
+          "iam:ListSSHPublicKeys",
+          "iam:ListVirtualMFADevices",
+          "iam:PassRole",
+          "iam:PutRolePolicy",
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:RemoveUserFromGroup",
+          "iam:TagInstanceProfile",
+          "iam:TagPolicy",
+          "iam:TagRole",
+          "iam:UntagInstanceProfile",
+          "iam:UntagRole",
+          "iam:UpdateAccountPasswordPolicy",
+          "iam:UpdateAssumeRolePolicy",
+        ]
+        resources = [
+          "*",
+        ]
+      },
       {
         sid    = "Kinesis"
         effect = "Allow"
@@ -461,12 +784,34 @@ locals {
         resources = [
           "*",
         ]
+      }
+    ],
+    [
+      {
+        sid    = "Macie"
+        effect = "Allow"
+        actions = [
+          "macie2:*",
+        ]
+        resources = [
+          "*",
+        ]
       },
       {
-        sid    = "Pinpoint"
+        sid    = "MobileTargetingPinpoint"
         effect = "Allow"
         actions = [
           "mobiletargeting:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "NetworkFirewall"
+        effect = "Allow"
+        actions = [
+          "network-firewall:*",
         ]
         resources = [
           "*",
@@ -520,16 +865,6 @@ locals {
         ]
       },
       {
-        sid    = "Secrets"
-        effect = "Allow"
-        actions = [
-          "secretsmanager:GetSecretValue"
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
         sid    = "Route53"
         effect = "Allow"
         actions = [
@@ -568,168 +903,69 @@ locals {
           "*",
         ]
       },
-    ],
-    [
-      {
-        sid    = "Elasticloadbalancing"
-        effect = "Allow"
-        actions = [
-          "elasticloadbalancing:AddTags",
-          "elasticloadbalancing:ApplySecurityGroupsToLoadBalancer",
-          "elasticloadbalancing:AttachLoadBalancerToSubnets",
-          "elasticloadbalancing:ConfigureHealthCheck",
-          "elasticloadbalancing:CreateListener",
-          "elasticloadbalancing:CreateLoadBalancer",
-          "elasticloadbalancing:CreateLoadBalancerListeners",
-          "elasticloadbalancing:CreateRule",
-          "elasticloadbalancing:CreateTargetGroup",
-          "elasticloadbalancing:DeleteListener",
-          "elasticloadbalancing:DeleteLoadBalancer",
-          "elasticloadbalancing:DeleteRule",
-          "elasticloadbalancing:DeleteTargetGroup",
-          "elasticloadbalancing:DescribeListeners",
-          "elasticloadbalancing:DescribeLoadBalancerAttributes",
-          "elasticloadbalancing:DescribeLoadBalancers",
-          "elasticloadbalancing:DescribeRules",
-          "elasticloadbalancing:DescribeTags",
-          "elasticloadbalancing:DescribeTargetGroupAttributes",
-          "elasticloadbalancing:DescribeTargetGroups",
-          "elasticloadbalancing:DescribeTargetHealth",
-          "elasticloadbalancing:ModifyListener",
-          "elasticloadbalancing:ModifyLoadBalancerAttributes",
-          "elasticloadbalancing:ModifyRule",
-          "elasticloadbalancing:ModifyTargetGroup",
-          "elasticloadbalancing:ModifyTargetGroupAttributes",
-          "elasticloadbalancing:RegisterTargets",
-          "elasticloadbalancing:RemoveTags",
-          "elasticloadbalancing:SetRulePriorities",
-          "elasticloadbalancing:SetSecurityGroups",
-          "elasticloadbalancing:SetWebACL",
-          "elasticloadbalancing:SetSubnets",
-          "elasticloadbalancing:DetachLoadBalancerFromSubnets",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "Events"
-        effect = "Allow"
-        actions = [
-          "events:CreateArchive",
-          "events:CreateConnection",
-          "events:CreateEventBus",
-          "events:DeleteEventBus",
-          "events:DeleteRule",
-          "events:DescribeEventBus",
-          "events:DescribeRule",
-          "events:EnableRule",
-          "events:ListTagsForResource",
-          "events:ListTargetsByRule",
-          "events:PutRule",
-          "events:PutTargets",
-          "events:RemoveTargets",
-          "events:TagResource",
-          "events:UntagResource"
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "Firehose"
-        effect = "Allow"
-        actions = [
-          "firehose:CreateDeliveryStream",
-          "firehose:DeleteDeliveryStream",
-          "firehose:DescribeDeliveryStream",
-          "firehose:ListTagsForDeliveryStream",
-          "firehose:DeleteDeliveryStream",
-          "firehose:List*",
-          "firehose:TagDeliveryStream",
-          "firehose:UntagDeliveryStream",
-          "firehose:UpdateDestination"
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "Iam"
-        effect = "Allow"
-        actions = [
-          "iam:AddRoleToInstanceProfile",
-          "iam:AddUserToGroup",
-          "iam:AttachGroupPolicy",
-          "iam:AttachRolePolicy",
-          "iam:AttachUserPolicy",
-          "iam:CreateAccountAlias",
-          "iam:CreateGroup",
-          "iam:CreateInstanceProfile",
-          "iam:CreatePolicy",
-          "iam:CreatePolicyVersion",
-          "iam:CreateRole",
-          "iam:CreateServiceLinkedRole",
-          "iam:CreateUser",
-          "iam:DeleteAccountAlias",
-          "iam:DeleteAccessKey",
-          "iam:DeleteAccountPasswordPolicy",
-          "iam:DeleteGroup",
-          "iam:DeleteInstanceProfile",
-          "iam:DeleteLoginProfile",
-          "iam:DeletePolicy",
-          "iam:DeletePolicyVersion",
-          "iam:DeleteRole",
-          "iam:DeleteRolePolicy",
-          "iam:DeleteUser",
-          "iam:DetachGroupPolicy",
-          "iam:DetachRolePolicy",
-          "iam:DetachUserPolicy",
-          "iam:GetAccountPasswordPolicy",
-          "iam:GetGroup",
-          "iam:GetInstanceProfile",
-          "iam:GetPolicy",
-          "iam:GetPolicyVersion",
-          "iam:GetRole",
-          "iam:GetRolePolicy",
-          "iam:GetUser",
-          "iam:GetUserPolicy",
-          "iam:GetOpenIDConnectProvider",
-          "iam:ListAccessKeys",
-          "iam:ListAccountAliases",
-          "iam:ListAttachedRolePolicies",
-          "iam:ListAttachedUserPolicies",
-          "iam:ListEntitiesForPolicy",
-          "iam:ListGroupsForUser",
-          "iam:ListInstanceProfilesForRole",
-          "iam:ListMFADevices",
-          "iam:ListPolicies",
-          "iam:ListPolicyVersions",
-          "iam:ListRolePolicies",
-          "iam:ListSigningCertificates",
-          "iam:ListSSHPublicKeys",
-          "iam:ListVirtualMFADevices",
-          "iam:PassRole",
-          "iam:PutRolePolicy",
-          "iam:RemoveRoleFromInstanceProfile",
-          "iam:RemoveUserFromGroup",
-          "iam:TagInstanceProfile",
-          "iam:TagPolicy",
-          "iam:TagRole",
-          "iam:UntagInstanceProfile",
-          "iam:UntagRole",
-          "iam:UpdateAccountPasswordPolicy",
-          "iam:UpdateAssumeRolePolicy",
-        ]
-        resources = [
-          "*",
-        ]
-      },
       {
         sid    = "S3"
         effect = "Allow"
         actions = [
           "s3:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "SecretsManager"
+        effect = "Allow"
+        actions = [
+          "secretsmanager:GetSecretValue"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "SecurityHub"
+        effect = "Allow"
+        actions = [
+          "securityhub:DescribeHub",
+          "securityhub:DisableSecurityHub",
+          "securityhub:EnableSecurityHub",
+          "securityhub:GetEnabledStandards",
+          "securityhub:UpdateSecurityHubConfiguration",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "SES"
+        effect = "Allow"
+        actions = [
+          "ses:CreateConfigurationSet",
+          "ses:CreateConfigurationSetEventDestination",
+          "ses:CreateReceiptRule",
+          "ses:CreateReceiptRuleSet",
+          "ses:CreateReceiptFilter",
+          "ses:DeleteConfigurationSet",
+          "ses:DeleteConfigurationSetEventDestination",
+          "ses:DeleteIdentity",
+          "ses:DeleteReceiptRule",
+          "ses:DeleteReceiptRuleSet",
+          "ses:DescribeActiveReceiptRuleSet",
+          "ses:DescribeConfigurationSet",
+          "ses:DescribeReceiptRule",
+          "ses:DescribeReceiptRuleSet",
+          "ses:GetIdentityDkimAttributes",
+          "ses:GetIdentityVerificationAttributes",
+          "ses:GetIdentityNotificationAttributes",
+          "ses:ListReceiptFilters",
+          "ses:PutConfigurationSetDeliveryOptions",
+          "ses:SetActiveReceiptRuleSet",
+          "ses:SetIdentityHeadersInNotificationsEnabled",
+          "ses:SetIdentityNotificationTopic",
+          "ses:VerifyDomainDkim",
+          "ses:VerifyDomainIdentity",
+          "ses:UpdateReceiptRule",
         ]
         resources = [
           "*",
@@ -752,7 +988,9 @@ locals {
         resources = [
           "*",
         ]
-      },
+      }
+    ],
+    [
       {
         sid    = "Sns"
         effect = "Allow"
@@ -770,56 +1008,6 @@ locals {
           "sns:TagResource",
           "sns:UntagResource",
           "sns:Unsubscribe",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "SecurityHub"
-        effect = "Allow"
-        actions = [
-          "securityhub:DescribeHub",
-          "securityhub:DisableSecurityHub",
-          "securityhub:EnableSecurityHub",
-          "securityhub:GetEnabledStandards",
-          "securityhub:UpdateSecurityHubConfiguration",
-        ]
-        resources = [
-          "*",
-        ]
-      }
-    ],
-    [
-      {
-        sid    = "SES"
-        effect = "Allow"
-        actions = [
-          "ses:CreateConfigurationSet",
-          "ses:CreateConfigurationSetEventDestination",
-          "ses:CreateReceiptFilter",
-          "ses:CreateReceiptRule",
-          "ses:CreateReceiptRuleSet",
-          "ses:DeleteConfigurationSet",
-          "ses:DeleteConfigurationSetEventDestination",
-          "ses:DeleteIdentity",
-          "ses:DeleteReceiptRule",
-          "ses:DeleteReceiptRuleSet",
-          "ses:DescribeActiveReceiptRuleSet",
-          "ses:DescribeConfigurationSet",
-          "ses:DescribeReceiptRule",
-          "ses:DescribeReceiptRuleSet",
-          "ses:GetIdentityDkimAttributes",
-          "ses:GetIdentityNotificationAttributes",
-          "ses:GetIdentityVerificationAttributes",
-          "ses:ListReceiptFilters",
-          "ses:PutConfigurationSetDeliveryOptions",
-          "ses:SetActiveReceiptRuleSet",
-          "ses:SetIdentityHeadersInNotificationsEnabled",
-          "ses:SetIdentityNotificationTopic",
-          "ses:UpdateReceiptRule",
-          "ses:VerifyDomainDkim",
-          "ses:VerifyDomainIdentity",
         ]
         resources = [
           "*",
@@ -904,190 +1092,6 @@ locals {
           "wafv2:UpdateIPSet",
           "wafv2:UpdateRegexPatternSet",
           "wafv2:UpdateWebACL",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "NetworkFirewall"
-        effect = "Allow"
-        actions = [
-          "network-firewall:*",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "EKS"
-        effect = "Allow"
-        actions = [
-          "eks:*",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "ECR"
-        effect = "Allow"
-        actions = [
-          "ecr:CreateRepository",
-          "ecr:DeleteRepository",
-          "ecr:DeleteRepositoryPolicy",
-          "ecr:Describe*",
-          "ecr:GetLifecyclePolicy",
-          "ecr:GetLifecyclePolicyPreview",
-          "ecr:GetRegistryPolicy",
-          "ecr:GetRegistryScanningConfiguration",
-          "ecr:GetRepositoryPolicy",
-          "ecr:List*",
-          "ecr:PutImageScanningConfiguration",
-          "ecr:PutImageTagMutability",
-          "ecr:PutLifecyclePolicy",
-          "ecr:PutRegistryPolicy",
-          "ecr:PutReplicationConfiguration",
-          "ecr:SetRepositoryPolicy",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "Macie"
-        effect = "Allow"
-        actions = [
-          "macie2:*",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "DLM"
-        effect = "Allow"
-        actions = [
-          "dlm:*",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "Athena"
-        effect = "Allow"
-        actions = [
-          "athena:CreateDataCatalog",
-          "athena:CreateNamedQuery",
-          "athena:CreatePreparedStatement",
-          "athena:CreateWorkGroup",
-          "athena:DeleteDataCatalog",
-          "athena:DeleteNamedQuery",
-          "athena:DeletePreparedStatement",
-          "athena:DeleteWorkGroup",
-          "athena:GetDatabase",
-          "athena:GetNamedQuery",
-          "athena:GetQueryExecution",
-          "athena:GetQueryResults",
-          "athena:GetWorkGroup",
-          "athena:ListTagsForResource",
-          "athena:StartQueryExecution",
-          "athena:StopQueryExecution",
-          "athena:TagResource",
-          "athena:UntagResource",
-          "athena:UpdateDataCatalog",
-          "athena:UpdateNamedQuery",
-          "athena:UpdatePreparedStatement",
-          "athena:UpdateWorkGroup",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "Glue"
-        effect = "Allow"
-        actions = [
-          "glue:BatchCreatePartition",
-          "glue:BatchDeletePartition",
-          "glue:BatchDeleteTable",
-          "glue:CreateCrawler",
-          "glue:CreateDatabase",
-          "glue:CreatePartition",
-          "glue:CreateTable",
-          "glue:DeleteCrawler",
-          "glue:DeleteDatabase",
-          "glue:DeletePartition",
-          "glue:DeleteTable",
-          "glue:GetCrawler",
-          "glue:GetDatabase",
-          "glue:GetTable",
-          "glue:GetTables",
-          "glue:GetTags",
-          "glue:StartCrawlerSchedule",
-          "glue:StopCrawlerSchedule",
-          "glue:UpdateCrawler",
-          "glue:UpdateCrawlerSchedule",
-          "glue:UpdateDatabase",
-          "glue:UpdatePartition",
-          "glue:UpdateTable",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "GuardDuty"
-        effect = "Allow"
-        actions = [
-          "guardduty:CreateDetector",
-          "guardduty:CreatePublishingDestination",
-          "guardduty:DeleteDetector",
-          "guardduty:DeletePublishingDestination",
-          "guardduty:DescribePublishingDestination",
-          "guardduty:GetDetector",
-          "guardduty:ListDetectors",
-          "guardduty:ListPublishingDestinations",
-          "guardduty:TagResource",
-          "guardduty:UpdateDetector",
-          "guardduty:UpdatePublishingDestination",
-        ]
-        resources = [
-          "*",
-        ]
-      },
-      {
-        sid    = "DMS"
-        effect = "Allow"
-        actions = [
-          "dms:AddTagsToResource",
-          "dms:ApplyPendingMaintenanceAction",
-          "dms:CreateEndpoint",
-          "dms:CreateReplicationConfig",
-          "dms:CreateReplicationInstance",
-          "dms:CreateReplicationSubnetGroup",
-          "dms:CreateReplicationTask",
-          "dms:DeleteCertificate",
-          "dms:DeleteConnection",
-          "dms:DeleteEndpoint",
-          "dms:DeleteReplicationInstance",
-          "dms:DeleteReplicationSubnetGroup",
-          "dms:DeleteReplicationTask",
-          "dms:DescribeAccountAttributes",
-          "dms:DescribeCertificates",
-          "dms:DescribeEndpoints",
-          "dms:DescribeEventSubscriptions",
-          "dms:DescribeReplicationInstances",
-          "dms:DescribeReplicationSubnetGroups",
-          "dms:DescribeReplicationTasks",
-          "dms:ImportCertificate",
-          "dms:ListTagsForResource",
-          "dms:ModifyEndpoint",
-          "dms:ModifyReplicationInstance",
-          "dms:ModifyReplicationSubnetGroup",
-          "dms:ModifyReplicationTask",
-          "dms:RemoveTagsFromResource"
         ]
         resources = [
           "*",
