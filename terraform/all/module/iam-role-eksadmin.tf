@@ -1,10 +1,12 @@
 module "eks_admin_assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=5aa7231e4a3a91a9f4869311fbbaada99a72062b"
+  #source = "../../../../identity-terraform/iam_assumerole"
 
   role_name                       = "EKSAdmin"
-  enabled                         = var.iam_account_alias == "login-prod" || var.iam_account_alias == "login-sandbox" ? true : false
+  enabled                         = contains(local.enabled_roles, "iam_eksadmin_enabled")
   master_assumerole_policy        = data.aws_iam_policy_document.master_account_assumerole.json
-  permissions_boundary_policy_arn = var.permission_boundary_policy_name != "" ? data.aws_iam_policy.permission_boundary_policy[0].arn : ""
+  custom_iam_policies             = var.dnssec_zone_exists ? [data.aws_iam_policy.dnssec_disable_prevent[0].name] : []
+  permissions_boundary_policy_arn = aws_iam_policy.permissions_boundary.arn
 
   iam_policies = [
     {

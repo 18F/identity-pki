@@ -39,6 +39,8 @@ module "main" {
   ses_complaint_rate_threshold          = 0.003
   ses_complaint_rate_threshold_critical = 0.005
 
+  #limit_allowed_services = true  # uncomment to limit allowed services for all Roles
+
   account_roles_map = {
     iam_reports_enabled        = true
     iam_kmsadmin_enabled       = true
@@ -46,6 +48,8 @@ module "main" {
     iam_auto_terraform_enabled = false
     iam_supporteng_enabled     = true
     iam_fraudops_enabled       = true
+    iam_eksadmin_enabled       = true
+    iam_escrowread_enabled     = true
   }
 
   legacy_bucket_list = [

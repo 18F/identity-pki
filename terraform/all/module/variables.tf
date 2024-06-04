@@ -1,19 +1,26 @@
 locals {
   common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
 
-  role_enabled_defaults = {
-    iam_analytics_enabled      = false
-    iam_power_enabled          = true
-    iam_readonly_enabled       = true
-    iam_socadmin_enabled       = true
-    iam_terraform_enabled      = true
-    iam_auto_terraform_enabled = true
-    iam_billing_enabled        = true
-    iam_reports_enabled        = false
-    iam_kmsadmin_enabled       = false
-    iam_supporteng_enabled     = false
-    iam_fraudops_enabled       = false
-  }
+  enabled_roles = [
+    for role, status in merge(
+      {
+        iam_analytics_enabled      = false
+        iam_power_enabled          = true
+        iam_readonly_enabled       = true
+        iam_socadmin_enabled       = true
+        iam_terraform_enabled      = true
+        iam_auto_terraform_enabled = true
+        iam_billing_enabled        = true
+        iam_reports_enabled        = false
+        iam_kmsadmin_enabled       = false
+        iam_supporteng_enabled     = false
+        iam_fraudops_enabled       = false
+        iam_eksadmin_enabled       = false
+        iam_escrowread_enabled     = false
+      },
+      var.account_roles_map
+    ) : role if status == true
+  ]
 
   ssm_cmd_map = {
     "default"           = ["*"]
@@ -434,13 +441,14 @@ variable "ses_complaint_rate_threshold_critical" {
   description = "This is the threshold for the rate of emails we send that receive complaints"
 }
 
-variable "permission_boundary_policy_name" {
-  type        = string
+variable "limit_allowed_services" {
+  type        = bool
   description = <<EOM
-The name of the permission boundary IAM policy (created in terraform/guardrail) to be attached to assumable roles.
-Will not create permission boundary if left blank.
+If set to 'true', will update the AllowedServices statement in the PermissionsBoundary
+policy to ONLY include the services manually specified in iam-permissions-boundary.tf
+(will use a blanket '[*]' if set to 'false').
 EOM
-  default     = ""
+  default     = false
 }
 
 variable "guardduty_log_group_id" {

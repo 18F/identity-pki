@@ -24,6 +24,8 @@ module "main" {
   splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
   splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
 
+  #limit_allowed_services = true  # uncomment to limit allowed services for all Roles
+
   # Restricted access - TODO: Add a role for historical search of data with
   # possible spilled PII
   account_roles_map = {

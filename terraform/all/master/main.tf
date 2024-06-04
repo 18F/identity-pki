@@ -20,6 +20,8 @@ module "main" {
   slack_events_sns_topic            = "slack-events"
   splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
 
+  #limit_allowed_services = true  # uncomment to limit allowed services for all Roles
+
   account_roles_map = {
     iam_power_enabled          = false
     iam_readonly_enabled       = false
