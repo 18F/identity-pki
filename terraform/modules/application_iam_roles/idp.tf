@@ -40,20 +40,6 @@ resource "aws_iam_role_policy" "idp_doc_capture" {
   policy = data.aws_iam_policy_document.idp_doc_capture.json
 }
 
-resource "aws_iam_role_policy_attachment" "escrow_write" {
-  for_each = toset([
-    aws_iam_role.idp.name,
-    aws_iam_role.worker.name
-  ])
-  role       = each.key
-  policy_arn = aws_iam_policy.escrow_write.arn
-}
-
-resource "aws_iam_policy" "escrow_write" {
-  name   = "${var.env_name}-escrow-s3-policy"
-  policy = data.aws_iam_policy_document.escrow_write.json
-}
-
 # Allow listing CloudHSM clusters
 resource "aws_iam_role_policy" "idp-cloudhsm-client" {
   name   = "${var.env_name}-idp-cloudhsm-client"

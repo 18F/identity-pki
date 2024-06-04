@@ -6,8 +6,6 @@ module "application_iam_roles" {
   apps_enabled                   = var.apps_enabled
   identity_sms_aws_account_id    = var.identity_sms_aws_account_id
   app_secrets_bucket_name_prefix = var.app_secrets_bucket_name_prefix
-  escrow_bucket_arn              = aws_s3_bucket.escrow.arn
-  escrow_bucket_id               = aws_s3_bucket.escrow.id
   cloudfront_oai_iam_arn         = aws_cloudfront_origin_access_identity.cloudfront_oai.iam_arn
   idp_doc_capture_arn            = aws_s3_bucket.idp_doc_capture.arn
   gitlab_env_runner_role_arn     = try(module.env-runner[0].runner_role_arn, null)

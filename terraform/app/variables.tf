@@ -1508,12 +1508,6 @@ variable "sli_uninteresting_uris" {
   ]
 }
 
-variable "escrow_content_expiration" {
-  description = "Expiration of documents that are pushed to the escrow s3 bucket in days"
-  type        = string
-  default     = 730
-}
-
 variable "worker_sg_ingress_permitted_ips" {
   description = "IP addresses permitted access to HTTP(s) health checks for worker instances"
   type        = list(string)
