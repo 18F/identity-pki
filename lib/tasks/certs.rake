@@ -207,7 +207,7 @@ namespace :certs do
     end
   end
 
-  desc 'Check that LG certificate bundle matches certificates in certificate path'
+  desc 'Validate certificate bundle as matching certificate path and inclusion in FICAM'
   task check_certificate_bundle: :environment do |t, args|
     CertificateStore.instance.load_certs!(dir: 'config/certs')
 
