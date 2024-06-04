@@ -30,9 +30,11 @@ server {
     proxy_buffers              8 32k;
     proxy_busy_buffers_size    64k;
 
-    location / {
-        root           /usr/local/var/www;
+    location ~ \.json$ {
+        root "/srv/pki-rails/current/public";
+    }
 
+    location / {
         proxy_pass http://localhost:9292;
 
         proxy_set_header X-Real-Host $host;
