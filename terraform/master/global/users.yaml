@@ -1058,6 +1058,7 @@ users:
     - login-security|owner
     - melba|owner
     - lg-people-platform|owner
+    - dashboard-admins|owner
     can_create_group:
     - true
 groups:
