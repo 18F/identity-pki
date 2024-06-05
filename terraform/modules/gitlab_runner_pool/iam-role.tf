@@ -500,7 +500,9 @@ locals {
     "AutoTerraform1",
     "AutoTerraform2",
     "AutoTerraform3",
-    "AutoTerraform4"
+    "AutoTerraform4",
+    "AutoTerraform5",
+    "AutoTerraform6"
   ]) : []
 }
 resource "aws_iam_role_policy_attachment" "AutoTerraform" {
