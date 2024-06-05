@@ -8,8 +8,8 @@ variables:
   IDP_WORKER_IMAGE_TAG: 'main'
   PIVCAC_CI_SHA: 'sha256:247e38ad3e4abdaed3609ec752985cf308ae56d86eaf70159461bbbeddcadd81'
   CI: 'true'
-  LG_PROJECT_NAME: 'pivcac'
-  EKS_DOCKERFILE: "${CI_PROJECT_DIR}/k8.Dockerfile"
+  LG_PROJECT_NAME: 'pivcac'                         #Used for EKS Pipeline from identity-eks-pipeline
+  EKS_DOCKERFILE: "${CI_PROJECT_DIR}/k8.Dockerfile" #Used for EKS Pipeline from identity-eks-pipeline
 
 default:
   image: '${ECR_REGISTRY}/pivcac/ci@${PIVCAC_CI_SHA}'
@@ -39,13 +39,13 @@ workflow:
       when: never
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event" || $CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "stages/prod" || $CI_COMMIT_BRANCH =~ /^cmccarthy\/rc-.+/'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "stages/prod" || $CI_COMMIT_BRANCH =~ /^stages\/rc-.+/'
     - if: '$CI_MERGE_REQUEST_IID || $CI_EXTERNAL_PULL_REQUEST_IID'
 
 # Include the EKS Release Pipeline
 include:
   - project: 'lg-public/identity-eks-pipeline'
-    ref: 'cmccarthy/initial'
+    ref: 'main'
     file: '.eks_release_pipeline.yml'
 
 install:
