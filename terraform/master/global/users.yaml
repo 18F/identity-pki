@@ -1232,3 +1232,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/gitlab-access-test:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
