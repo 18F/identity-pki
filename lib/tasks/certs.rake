@@ -207,22 +207,40 @@ namespace :certs do
     end
   end
 
-
-
-  desc 'Check that LG certificate bundle matches certificates in certificate path'
+  desc 'Validate certificate bundle as matching certificate path and inclusion in FICAM'
   task check_certificate_bundle: :environment do |t, args|
     CertificateStore.instance.load_certs!(dir: 'config/certs')
-    bundled_certs = []
-    cert_bundle_file = File.read(IdentityConfig.store.login_certificate_bundle_file)
-    cert_bundle = cert_bundle_file.split(CertificateStore::END_CERTIFICATE).map do |cert|
-      cert += CertificateStore::END_CERTIFICATE
-      cert = Certificate.new(OpenSSL::X509::Certificate.new(cert))
-    end
 
-    if cert_bundle.map(&:sha1_fingerprint).sort != CertificateStore.instance.certificates.map(&:sha1_fingerprint).sort
-      puts <<-ERROR
+    login_certificates = File.read(IdentityConfig.store.login_certificate_bundle_file).
+      split(CertificateStore::END_CERTIFICATE).
+      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) }
+
+    ficam_certificates = File.read(IdentityConfig.store.ficam_certificate_bundle_file).
+      split(CertificateStore::END_CERTIFICATE).
+      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) }
+
+    store_certificates = CertificateStore.instance.certificates
+
+    login_certificates_in_load_path = Set.new(login_certificates.map(&:sha1_fingerprint)) ==
+                                      Set.new(store_certificates.map(&:sha1_fingerprint))
+    if !login_certificates_in_load_path
+      puts <<~ERROR
         #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
         Please run:
+        rake certs:generate_certificate_bundles
+      ERROR
+      exit 1
+    end
+
+    login_certificates_missing_in_ficam = login_certificates.map(&:subject) -
+                                          ficam_certificates.map(&:subject)
+    if !login_certificates_missing_in_ficam.empty?
+      puts <<~ERROR
+        Unexpected certificates in #{IdentityConfig.store.login_certificate_bundle_file} not present in #{IdentityConfig.store.ficam_certificate_bundle_file}
+
+        Remove these certificates from #{IdentityConfig.store.certificate_store_directory}:
+        #{login_certificates_missing_in_ficam.map(&:to_s).to_yaml[4...]}
+        Then run:
         rake certs:generate_certificate_bundles
       ERROR
       exit 1
