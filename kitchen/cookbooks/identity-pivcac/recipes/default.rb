@@ -165,7 +165,8 @@ if node['login_dot_gov']['use_pivcac_puma'] == true
     variables({
       log_path: '/var/log/nginx',
       server_name: node.fetch('pivcac').fetch('wildcard'),
-      ssl_domain: node.fetch('pivcac').fetch('domain')
+      ssl_domain: node.fetch('pivcac').fetch('domain'),
+      use_client_certificate: node.fetch('login_dot_gov').fetch('use_client_certificate')
     })
   end
 else
@@ -176,7 +177,8 @@ else
       log_path: '/var/log/nginx',
       passenger_ruby: lazy { Dir.chdir(public_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
       server_name: node.fetch('pivcac').fetch('wildcard'),
-      ssl_domain: node.fetch('pivcac').fetch('domain')
+      ssl_domain: node.fetch('pivcac').fetch('domain'),
+      use_client_certificate: node.fetch('login_dot_gov').fetch('use_client_certificate')
     })
   end
 end
