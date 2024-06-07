@@ -405,7 +405,7 @@ def handle_oldest_key(
         print("Current Implementation does not delete the access keys")
 
 
-def classify_date(akm, rotation_date, inactivation_date):
+def classify_date(akm, rotation_date, inactivation_date, deletion_date):
     creation_date = akm["CreateDate"].date()
     if creation_date >= rotation_date:
         # print("key is status New", akm['AccessKeyId'])
