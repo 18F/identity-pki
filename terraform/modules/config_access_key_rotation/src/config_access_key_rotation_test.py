@@ -3,7 +3,9 @@ import unittest
 import boto3
 from moto import mock_aws
 from unittest import mock
-from config_access_key_rotation import lambda_handler
+from config_access_key_rotation import lambda_handler, classify_date
+import pytest
+import datetime
 
 
 class TestConfigAccessKeyRotation(unittest.TestCase):
@@ -78,3 +80,24 @@ class TestConfigAccessKeyRotation(unittest.TestCase):
 
         for user in users:
             iam.create_user(**user)
+
+
+@pytest.mark.parametrize(
+    "akm,classification",
+    [
+        ({"CreateDate": datetime.datetime(2024, 3, 11, 1, 2, 3)}, "New"),
+        ({"CreateDate": datetime.datetime(2024, 3, 5, 1, 2, 3)}, "Notify"),
+        ({"CreateDate": datetime.datetime(2024, 2, 24, 1, 2, 3)}, "Inactivate"),
+        ({"CreateDate": datetime.datetime(2024, 2, 15, 1, 2, 3)}, "Inactivate"),
+        ({"CreateDate": datetime.datetime(2024, 2, 14, 1, 2, 3)}, "Delete"),
+    ],
+)
+def test_classify_date(akm, classification):
+    start = datetime.datetime(2024, 5, 25, 0, 0, 0, 0).date()
+    rotation_class = classify_date(
+        akm,
+        start - datetime.timedelta(days=80),
+        start - datetime.timedelta(days=90),
+        start - datetime.timedelta(days=100),
+    )
+    assert rotation_class == classification
