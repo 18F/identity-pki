@@ -718,15 +718,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  micah.neveu:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
-    ec2_username:
-    - mneveu
   micah.saul:
     aws_groups:
     - appdev
