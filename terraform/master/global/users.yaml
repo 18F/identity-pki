@@ -180,15 +180,6 @@ users:
     - lg-people-platform|reporter
     ec2_username:
     - biraneseck
-  brittany.greaner:
-    aws_groups:
-    - apponcall
-    gitlab_groups:
-    - lg-all
-    - lg-public
-    - appdev
-    ec2_username:
-    - bgreaner
   bruce.blackman:
     aws_groups:
     - fraudops
