@@ -15,7 +15,7 @@ There are many ways to do this.  Two of the ways that we have used successfully 
 __Helm Strengths__:
 
 * Helm is a familiar tool for many people.  It was sort of the first tool used to package things for other people to use to deploy kubernetes applications, so many people have done work with it.
-* The templating language allows conditional cleverness.  You can hide a lot of logic behind a simple helm install.
+* The templating language allows conditional cleverness.  You can hide a lot of logic behind a single helm install.
 * Helm’s templating capabilities may better support large applications with many configuration options, though it is not clear whether this is required for us.
 
 __Kustomize Strengths__:
