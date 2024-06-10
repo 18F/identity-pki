@@ -20,7 +20,7 @@ __Helm Strengths__:
 
 __Kustomize Strengths__:
 
-* Kustomize is a very simple tool.  It generally does not allow much cleverness, which means that it is hard to obfuscate what is going on.  For example, it doesn’t allow you to use conditional logic anywhere.  This means that there are less chances to be confused by logic or templating artifacts.  Our infrastructure has suffered from an abundance of "clever" homegrown stuff and confusing/hidden logic, so this should be considered a feature.
+* Kustomize has a very small interface.  It generally does not allow much cleverness, which means that it is hard to obfuscate what is going on.  For example, it doesn’t allow you to use conditional logic anywhere.  This means that there are less chances to be confused by logic or templating artifacts.  Our infrastructure has suffered from an abundance of "clever" homegrown stuff and confusing/hidden logic, so this should be considered a feature.
 * The yaml which you are working with is real yaml, and thus is generally more readable and accessible to people working with the deployment.  The yaml is not hidden away inside a chart behind templating blocks.
 * You can add cluster or env-specific yaml very easily in a single, consistent way.  For example, if you want to get jaeger going in dev, you can just slurp it down and add it in the dev kustomization.yaml file and not have to be clever with feature flags in the helm chart or leave potentially dangerous/confusing code where it could accidentally be activated in other environments.  If it is something that you do want to be globally available, you can plug it into the base layer.
 
