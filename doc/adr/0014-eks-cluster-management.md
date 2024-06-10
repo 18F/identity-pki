@@ -43,7 +43,7 @@ We will be minimizing our use of helm to manage our login.gov application.  Vend
 
 If our app gets too big and complex, we may come to find that we will be wanting helm's flexible templating language.  We don't believe that we will run into that, but if we do, it shouldn't be too hard to throw the plain yaml into a helm chart and layer the required values and conditionals on with the templating language.  If we do that, then we will still retain the valuable property of managing all cluster resources in one place, though.  The helm chart would just be another application we would install using kustomize, rather than a helm of helm charts bootstrap thing as it is now.
 
-Ultimately, we believe that the clean simplicity of Kustomize will keep us from being overly clever, and thus will keep our code simple, centralized, and easy to comprehend/manage, which is one of the most important goals that we hope to achieve with our containerization initiative.
+Ultimately, we believe that the restrictions Kustomize presents will keep us from being overly clever, and thus will keep our code centralized and easy to comprehend/manage, which is one of the most important goals that we hope to achieve with our containerization initiative.
 
 ## Alternatives Considered
 
