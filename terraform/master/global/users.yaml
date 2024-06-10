@@ -912,15 +912,6 @@ users:
     - devops
     - lg-people
     - login-security
-  shannon.alexander-navarro:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - svalexander
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
