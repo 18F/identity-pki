@@ -1181,3 +1181,11 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-loadtest:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
