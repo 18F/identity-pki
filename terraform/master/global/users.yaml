@@ -415,16 +415,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  jack.ryan:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - jryan
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-people|developer
-    - lg-public
   jeff.bordogna:
     aws_groups:
     - analytics
