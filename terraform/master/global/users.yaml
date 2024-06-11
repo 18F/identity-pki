@@ -247,13 +247,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  daphne.gold:
-    aws_groups:
-    - appdev
-    gitlab_groups:
-    - appdev
-    ec2_username:
-    - dgold
   david.dsilva:
     aws_groups:
     - analytics
