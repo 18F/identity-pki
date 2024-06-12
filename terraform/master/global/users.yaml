@@ -841,15 +841,6 @@ users:
     - lg-all
     - lg-people
     - lg-public
-  ryan.orear:
-    aws_groups:
-    - fraudops
-    ec2_username:
-    - rorear
-    gitlab_groups:
-    - antifraud
-    - lg-all
-    - lg-public
   samatha.dondeti:
     aws_groups:
     - apponcall
