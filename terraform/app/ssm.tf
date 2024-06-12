@@ -39,7 +39,7 @@ locals {
         "echo \\*AWS_USER@Box\\*: \\`{{ awsusername }}\\` @ \\`$(hostname)\\` >> $audit_message_path",
         "echo \\*Investigator\\*: {{ investigator }} >> $audit_message_path",
         "echo \\*Reason\\*: {{ reason }} >> $audit_message_path",
-        "cd /srv/idp/current; ./bin/action-account {{ subcommand }} 2>> $audit_message_path > $command_output_path",
+        "cd /srv/idp/current; bundle exec ./bin/action-account {{ subcommand }} 2>> $audit_message_path > $command_output_path",
         "cat $audit_message_path | notify-slack --username action-account --text - --icon terminal --channel \"$(cat /etc/login.gov/keys/slackchannel)\" --webhook \"$(cat /etc/login.gov/keys/slackwebhook)\" --raise 1>&2 || exit 1",
         "cat $command_output_path",
       ]
@@ -103,7 +103,7 @@ locals {
         "echo \\*AWS_USER@Box\\*: \\`{{ awsusername }}\\` @ \\`$(hostname)\\` >> $audit_message_path",
         "echo \\*Investigator\\*: {{ investigator }} >> $audit_message_path",
         "echo \\*Reason\\*: {{ reason }} >> $audit_message_path",
-        "cd /srv/idp/current; ./bin/data-pull {{ subcommand }} 2>> $audit_message_path > $command_output_path",
+        "cd /srv/idp/current; bundle exec ./bin/data-pull {{ subcommand }} 2>> $audit_message_path > $command_output_path",
         "cat $audit_message_path | notify-slack --username data-pull --text - --icon terminal --channel \"$(cat /etc/login.gov/keys/slackchannel)\" --webhook \"$(cat /etc/login.gov/keys/slackwebhook)\" --raise 1>&2 || exit 1",
         "cat $command_output_path",
       ]
