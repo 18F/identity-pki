@@ -587,7 +587,7 @@ users:
     - lg-public
   lily.rappaport:
     aws_groups:
-    - devopsnonprod
+    - devops
     ec2_username:
     - lrappaport
     gitlab_groups:
