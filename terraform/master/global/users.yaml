@@ -267,15 +267,6 @@ users:
     - lg-all
     - lg-public
     - melba|owner
-  dawei.wang:
-    aws_groups:
-    - apponcall
-    ec2_username:
-    - daweiwang
-    gitlab_groups:
-    - appdev
-    - lg-all
-    - lg-public
   devin.cassidy:
     aws_groups:
     - secops
