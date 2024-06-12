@@ -318,17 +318,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  elizabeth.manning:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
-    git_username:
-    - lizzieamanning
-    email:
-    - elizabeth.manning@gsa.gov
   eric.evans:
     gitlab_groups:
     - devops
