@@ -6,6 +6,9 @@ ruby '~> 3.2'
 gem 'rails', '~> 7.0.8.3'
 
 gem 'activerecord-import', '>= 1.0.2'
+# pod identity requires 3.188.0
+# https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html
+gem 'aws-sdk-core', '>= 3.188.0'
 gem 'aws-sdk-s3'
 gem 'bloomfilter-rb'
 gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v4.0.0'
