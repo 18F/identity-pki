@@ -87,6 +87,7 @@ users:
     - arosenberg
     gitlab_groups:
     - pm
+    - lg-people-platform|reporter
   amir.reavis-bey:
     aws_groups:
     - apponcall
@@ -204,6 +205,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
   charles.hazen:
     aws_groups:
     - analytics
