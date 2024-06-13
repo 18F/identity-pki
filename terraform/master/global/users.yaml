@@ -851,6 +851,15 @@ users:
     - devops
     - lg-people
     - login-security
+  shane.chesnutt:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - schesnutt
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
