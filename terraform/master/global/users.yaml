@@ -666,7 +666,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-  mercedes.palmer:
+  mercedez.palmer:
     aws_groups:
     - fraudopsnonprod
     ec2_username:
