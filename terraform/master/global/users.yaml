@@ -1175,7 +1175,7 @@ projects:
         access: developer
       pm:
         access: reporter
-  lg-people/lg-people-appdev/user-experience
+  lg-people/lg-people-appdev/user-experience:
   groups:
       devops:
         access: developer
