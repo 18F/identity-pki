@@ -181,6 +181,15 @@ users:
     - lg-people-platform|reporter
     ec2_username:
     - biraneseck
+  blaine.duncanson:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - bduncanson
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   bruce.blackman:
     aws_groups:
     - fraudops
