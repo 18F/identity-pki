@@ -900,9 +900,6 @@ users:
     - pm
     - lg-all
     - lg-public
-  thomas.emerick:
-    aws_groups:
-    - analytics
   tiffanyj.andrews:
     gitlab_groups:
     - pm
