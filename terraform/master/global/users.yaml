@@ -511,7 +511,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
-  julia.elman:
+  julia.solorzano-gsa:
     gitlab_groups:
     - appdev
     - lg-all
