@@ -964,6 +964,15 @@ users:
     - lg-all
     - lg-public
     - melba|developer
+  william.birdsall:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - william.birdsall
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   zach.margolis:
     ec2_username:
     - zmargolis
