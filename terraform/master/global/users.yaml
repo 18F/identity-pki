@@ -97,15 +97,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-  amy.walraven:
-    aws_groups:
-    - fraudops
-    ec2_username:
-    - awalraven
-    gitlab_groups:
-    - antifraud
-    - lg-all
-    - lg-public
   andrew.duthie:
     aws_groups:
     - apponcall
