@@ -134,6 +134,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - user-experience-admins|maintainer
   andrew.mcdaniel:
     aws_groups:
     - fraudops
@@ -148,6 +149,8 @@ users:
     - analytics
     ec2_username:
     - ahirshman
+    gitlab_groups:
+    - user-experience-admins|maintainer
   anthony.barbara:
     aws_groups:
     - secops
@@ -453,6 +456,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - user-experience-admins|maintainer
   jillian.harrigan:
     gitlab_groups:
     - antifraud
@@ -796,6 +800,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - user-experience-admins|maintainer
   project_21_bot:
     name:
     - Github CI
