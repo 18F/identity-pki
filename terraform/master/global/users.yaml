@@ -80,6 +80,15 @@ users:
     - lg-public
     ec2_username:
     - theabrad
+  alexander.lai:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - alai
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   allison.rosenberg:
     aws_groups:
     - analytics
