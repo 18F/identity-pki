@@ -942,6 +942,16 @@ users:
     - lg-all
     - lg-public
     - login-security|developer
+  vishal.parekh:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - vparekh
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-people
+    - lg-public
   vraj.mohan:
     aws_groups:
     - apponcall
