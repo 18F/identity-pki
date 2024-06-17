@@ -677,6 +677,15 @@ users:
     - appdev
     - lg-all
     - lg-public
+  mercedez.palmer:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - mpalmer
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   micah.saul:
     aws_groups:
     - appdev
