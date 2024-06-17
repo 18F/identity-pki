@@ -41,7 +41,6 @@ module "main" {
     iam_supporteng_enabled = true
     iam_fraudops_enabled   = true
     iam_eksadmin_enabled   = true
-    iam_escrowread_enabled = true
   }
 
   ses_bounce_rate_threshold             = 0.05
