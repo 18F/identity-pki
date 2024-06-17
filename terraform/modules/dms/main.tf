@@ -1,3 +1,7 @@
+locals {
+  replication_instance_id = "${var.env_name}-dms-replication-instance"
+}
+
 data "aws_s3_object" "ca_certificate_file" {
   bucket = var.cert_bucket
   key    = "ca_certificate_file"
@@ -30,6 +34,21 @@ data "aws_iam_policy_document" "dms_kms" {
   }
 }
 
+# This policy document overrides the default behavior of AmazonDMSCloudWatchLogsRole which permits creating LogGroups.
+# The Allow permission can result in Terraform conflicts when the Service creates the log group prior to Terraform.
+data "aws_iam_policy_document" "dms_deny_create_log_group" {
+  statement {
+    sid    = "DenyCreateLogGroups"
+    effect = "Deny"
+    actions = [
+      "logs:CreateLogGroup",
+    ]
+    resources = [
+      aws_cloudwatch_log_group.dms.arn
+    ]
+  }
+}
+
 resource "aws_iam_role" "dms" {
   name               = "${var.env_name}-dms"
   assume_role_policy = data.aws_iam_policy_document.dms_assume_role.json
@@ -39,6 +58,12 @@ resource "aws_iam_role_policy" "dms_kms" {
   name   = "${var.env_name}-dms-kms"
   role   = aws_iam_role.dms.id
   policy = data.aws_iam_policy_document.dms_kms.json
+}
+
+resource "aws_iam_role_policy" "dms_deny_create_log_group" {
+  name   = "${var.env_name}-dms-deny-create-log-group"
+  role   = aws_iam_role.dms.id
+  policy = data.aws_iam_policy_document.dms_deny_create_log_group.json
 }
 
 resource "aws_iam_role_policy_attachment" "dms_redshift_s3" {
@@ -57,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "dms_vpc_management" {
 }
 
 resource "aws_cloudwatch_log_group" "dms" {
-  name              = "dms-tasks-${aws_dms_replication_instance.dms.id}"
+  name              = "dms-tasks-${local.replication_instance_id}"
   retention_in_days = var.log_retention_days
 }
 
@@ -120,7 +145,7 @@ resource "aws_dms_replication_instance" "dms" {
   preferred_maintenance_window = "sun:10:30-sun:14:30"
   publicly_accessible          = false
   replication_instance_class   = replace(var.source_db_instance_class, "db", "dms")
-  replication_instance_id      = "${var.env_name}-dms-replication-instance"
+  replication_instance_id      = local.replication_instance_id
   replication_subnet_group_id  = aws_dms_replication_subnet_group.dms.id
 
   vpc_security_group_ids = var.vpc_security_group_ids
