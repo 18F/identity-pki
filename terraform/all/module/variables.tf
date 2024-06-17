@@ -16,7 +16,6 @@ locals {
         iam_supporteng_enabled     = false
         iam_fraudops_enabled       = false
         iam_eksadmin_enabled       = false
-        iam_escrowread_enabled     = false
       },
       var.account_roles_map
     ) : role if status == true
