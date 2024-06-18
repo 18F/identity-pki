@@ -61,6 +61,8 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - Mary
+    - Radia
   alex.rowley:
     aws_groups:
     - analytics
@@ -68,7 +70,7 @@ users:
     - arowley
     gitlab_groups:
     - pm
-    - melba|owner
+    - Melba|owner
   alexander.bradley:
     aws_groups:
     - apponcall
@@ -242,6 +244,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Mary
     git_username:
     - ConnorPMcCarthy
     ec2_username:
@@ -273,7 +276,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - melba|owner
+    - Melba|owner
   devin.cassidy:
     aws_groups:
     - secops
@@ -358,6 +361,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Radia
   howard.miller:
     aws_groups:
     - appdev
@@ -500,6 +504,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Radia
     git_username:
     - bleachbyte
   jude.uwazie:
@@ -522,6 +527,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Radia
   keith.e.williams:
     aws_groups:
     - apponcall
@@ -579,7 +585,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - melba|maintainer
+    - Melba|maintainer
   laurie.cole:
     aws_groups:
     - analytics
@@ -596,6 +602,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Mary
   louise.hoffman:
     aws_groups:
     - fraudops
@@ -614,6 +621,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Radia
     email:
     - lucas.kouongadze@gsa.gov
   luis.matos:
@@ -704,6 +712,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Radia
     git_username:
     - mww59
     email:
@@ -765,6 +774,8 @@ users:
     - devops|owner
     - lg-all
     - lg-public
+    - Mary
+    - Radia
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
@@ -825,6 +836,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Radia
   samatha.dondeti:
     aws_groups:
     - apponcall
@@ -881,6 +893,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Mary
   stesha.marcon:
     aws_groups:
     - analytics
@@ -893,6 +906,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Mary
   sujana.gurung:
     aws_groups:
     - devopsnonprod
@@ -927,6 +941,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - Mary
   trevor.cornpropst:
     aws_groups:
     - secopsnonprod
@@ -947,6 +962,7 @@ users:
     - lg-all
     - lg-people
     - lg-public
+    - Radia
   vraj.mohan:
     aws_groups:
     - apponcall
@@ -958,7 +974,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - melba|developer
+    - Melba|developer
   william.birdsall:
     aws_groups:
     - appdev
@@ -995,10 +1011,20 @@ users:
     - pm|owner
     - antifraud|owner
     - login-security|owner
-    - melba|owner
     - lg-people-platform|owner
+    - lg-people-appdev|owner
     - dashboard-admins|owner
     - user-experience-admins|owner
+    - Ada|owner
+    - Agnes|owner
+    - Joy|owner
+    - Katherine|owner
+    - Melba|owner
+    - Ross|owner
+    - Timnit|owner
+    - Ursula|owner
+    - Mary|owner
+    - Radia|owner
     can_create_group:
     - true
 groups:
@@ -1023,6 +1049,8 @@ groups:
   lg-people-platform:
     description: Working area for Login.gov Platform teams. Tracks projects and issues
       related to our day-to-day and long-term work.
+  lg-people-appdev:
+    description: Working area for Login.gov Appdev teams.
   dashboard-admins:
     description: users who need to be added as maintainers to the identity-dashboard
       repo.
@@ -1032,8 +1060,26 @@ groups:
     description: Gitlab automation accounts
   login-security:
     description: Security Team Project and Documentation Management
-  melba:
+  Ada:
+    description: Appdev ada group
+  Agnes:
+    description: Appdev agnes group
+  Joy:
+    description: Appdev joy group
+  Katherine:
+    description: Appdev katherine group
+  Melba:
     description: Appdev melba group
+  Ross:
+    description: Appdev ross group
+  Timnit:
+    description: Appdev timnit group
+  Ursula:
+    description: Appdev ursula group
+  Mary:
+    description: Platform mary group
+  Radia: 
+    description: Platform radia group
 projects:
   lg/identity-devops:
     groups:
@@ -1189,22 +1235,3 @@ projects:
         access: developer
       pm:
         access: reporter
-  lg-people/lg-people-appdev/user-experience:
-    groups:
-      devops:
-        access: developer
-      appdev:
-        access: developer
-      pm:
-        access: reporter
-      user-experience-admins:
-        access: maintainer
-  lg-people/lg-people-platform:
-    groups:
-      devops:
-        access: maintainer
-      appdev: 
-        access: reporter
-        pm: 
-          access: reporter
-          
