@@ -42,7 +42,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
     - login-security
   alex.kritikos:
@@ -61,7 +60,6 @@ users:
     - devops
     - appdev
     - lg-all
-    - lg-people
     - lg-public
   alex.rowley:
     aws_groups:
@@ -115,7 +113,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people-platform
   andrew.farkas:
     aws_groups:
     - apponcall
@@ -167,7 +164,6 @@ users:
     gitlab_groups:
     - pm
     - lg-all
-    - lg-people
     - lg-public
     git_username:
     - benjaminchait
@@ -245,7 +241,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
     git_username:
     - ConnorPMcCarthy
@@ -310,7 +305,7 @@ users:
     aws_groups:
     - finops
     gitlab_groups:
-    - lg-people
+    - lg-public
   eileen.mcfarland:
     aws_groups:
     - apponcall
@@ -362,7 +357,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   howard.miller:
     aws_groups:
@@ -381,7 +375,6 @@ users:
   isaac.arasato:
     gitlab_groups:
     - lg-all
-    - lg-people|developer
     - lg-public
   jack.cody:
     aws_groups:
@@ -506,7 +499,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
     git_username:
     - bleachbyte
@@ -529,7 +521,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   keith.e.williams:
     aws_groups:
@@ -604,7 +595,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   louise.hoffman:
     aws_groups:
@@ -623,7 +613,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
     email:
     - lucas.kouongadze@gsa.gov
@@ -654,7 +643,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all|developer
-    - lg-people|developer
     - lg-public|developer
     - login-security|developer
     email:
@@ -702,7 +690,6 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - lg-people
     - dashboard-admins|maintainer
   michael.fay:
     aws_groups:
@@ -716,7 +703,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
     git_username:
     - mww59
@@ -732,7 +718,6 @@ users:
     - appdev
     - devops
     - lg-all
-    - lg-people
     - lg-public
   moncef.belyamani:
     aws_groups:
@@ -770,7 +755,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
     - login-security|owner
   nick.soutouras:
@@ -780,7 +764,6 @@ users:
     - pm
     - devops|owner
     - lg-all
-    - lg-people|owner
     - lg-public
   olayemisi.ogunshina:
     gitlab_groups:
@@ -841,7 +824,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   samatha.dondeti:
     aws_groups:
@@ -861,7 +843,6 @@ users:
     - sorellana
     gitlab_groups:
     - devops
-    - lg-people
     - login-security
   shane.chesnutt:
     aws_groups:
@@ -899,7 +880,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   stesha.marcon:
     aws_groups:
@@ -912,7 +892,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   sujana.gurung:
     aws_groups:
@@ -923,7 +902,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   tahinee.felixmarin:
     aws_groups:
@@ -948,7 +926,6 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
     - lg-public
   trevor.cornpropst:
     aws_groups:
