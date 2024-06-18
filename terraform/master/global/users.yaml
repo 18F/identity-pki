@@ -1199,3 +1199,12 @@ projects:
         access: reporter
       user-experience-admins:
         access: maintainer
+  lg-people/lg-people-platform:
+    groups:
+      devops:
+        access: maintainer
+      appdev: 
+        access: reporter
+        pm: 
+          access: reporter
+          
