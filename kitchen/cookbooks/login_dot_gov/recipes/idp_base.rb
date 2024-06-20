@@ -278,53 +278,52 @@ execute 'Fix pid directory permissions' do
   command "chmod -c 777 /srv/idp/releases/chef/tmp/pids"
 end
 
-if node['login_dot_gov']['use_idp_puma'] == true && primary_role == 'idp'
-  # Generate certificate for Puma
-  key_path = "#{release_path}/idp-server.key"
-  cert_path = "#{release_path}/idp-server.crt"
-  web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
+# Generate certificate for Puma
+key_path = "#{release_path}/idp-server.key"
+cert_path = "#{release_path}/idp-server.crt"
+web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
 
-  key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(
-    "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}",
-    365,
-  )
-  key_content = key.to_pem
-  cert_content = cert.to_pem
+key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(
+  "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}",
+  365,
+)
+key_content = key.to_pem
+cert_content = cert.to_pem
 
-  file key_path do
-    action :create
+file key_path do
+  action :create
 
-    mode '0644'
-    content key_content
-    sensitive true
-    owner web_system_user
-    group web_system_user
-  end
+  mode '0644'
+  content key_content
+  sensitive true
+  owner web_system_user
+  group web_system_user
+end
 
-  file cert_path do
-    action :create
+file cert_path do
+  action :create
 
-    mode '0644'
-    content cert_content
-    owner web_system_user
-    group web_system_user
-  end
+  mode '0644'
+  content cert_content
+  owner web_system_user
+  group web_system_user
+end
 
-  bundle_path = "#{release_path}/bin/bundle"
+bundle_path = "#{release_path}/bin/bundle"
 
-  node.default[:puma] = {}
-  node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
-  node.default[:puma][:bin_path] = bundle_path
-  node.default[:puma][:config_path] = "#{release_path}/config/puma.rb"
-  node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
-  node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
+node.default[:puma] = {}
+node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
+node.default[:puma][:bin_path] = bundle_path
+node.default[:puma][:config_path] = "#{release_path}/config/puma.rb"
+node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
+node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
 
-  include_recipe 'login_dot_gov::puma_service'
+include_recipe 'login_dot_gov::puma_service'
 
-  systemd_unit 'puma.service' do
-    action [:create]
+systemd_unit 'puma.service' do
+  action [:create]
 
-    content <<-EOM
+  content <<-EOM
 [Unit]
 Description=Puma HTTP Server
 After=network.target
@@ -358,10 +357,9 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-    EOM
-  end
+  EOM
+end
 
-  execute 'reload daemon to pickup the target file' do
-    command 'systemctl daemon-reload'
-  end
+execute 'reload daemon to pickup the target file' do
+  command 'systemctl daemon-reload'
 end

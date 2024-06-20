@@ -10,10 +10,7 @@
       "auto_eip_enabled_roles": ["outboundproxy"],
       "idp_artifacts": true,
       "lockdown": "true",
-      "idp_sync_static": true,
-      "use_dashboard_puma": false,
-      "use_pivcac_puma": true,
-      "use_idp_puma": true
+      "idp_sync_static": true
     },
     "ssh_keys": {
     }

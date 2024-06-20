@@ -38,10 +38,6 @@ default['login_dot_gov']['run_apt_update']                            = false
 default['login_dot_gov']['nginx_limit_connections']                   = true
 default['login_dot_gov']['nginx_worker_processes']                    = node.fetch('cpu').fetch('total')
 default['login_dot_gov']['nginx_worker_connections']                  = 1024
-default['login_dot_gov']['passenger_log_level']                       = 3
-default['login_dot_gov']['use_dashboard_puma']                        = true
-default['login_dot_gov']['use_pivcac_puma']                           = true
-default['login_dot_gov']['use_idp_puma']                              = true
 
 # User for installing various application data
 default['login_dot_gov']['system_user']                               = 'appinstall'

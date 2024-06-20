@@ -1,10 +1,5 @@
 primary_role = File.read('/etc/login.gov/info/role').chomp
 
-# Only enable passenger for IDP, Dashboard and PIVCAC when not configured for Puma
-passenger_enabled = primary_role != 'worker' && ((primary_role == 'idp' && node['login_dot_gov']['use_idp_puma'] != true) ||
-  (primary_role == 'app' && node['login_dot_gov']['use_dashboard_puma'] != true) ||
-  (primary_role == 'pivcac' && node['login_dot_gov']['use_pivcac_puma'] != true))
-
 template "/opt/nginx/aws_v4_cidrs.txt" do
   source 'aws_ipv4_cidrs.txt'
   mode '644'
@@ -27,17 +22,6 @@ template "/opt/nginx/conf/nginx.conf" do
     log_client_ssl: false,
     ruby_path: node.fetch(:identity_shared_attributes).fetch(:rbenv_root) + '/shims/ruby',
     pidfile: "/var/run/nginx.pid",
-    passenger_user: node.fetch(:identity_shared_attributes).fetch(:production_user),
-    passenger_enabled: passenger_enabled,
-    passenger_log_level: node['login_dot_gov']['passenger_log_level'],
-    passenger_pool_idle_time: 0,
-    passenger_max_request_queue_size: 512,
-    passenger_max_instances_per_app: 0,
-    passenger_pool_size: node.fetch('cpu').fetch('total') * 2,
-    passenger_root: passenger_enabled && lazy do
-                     # dynamically compute passenger root at converge using rbenv
-                     shell_out!(%w{rbenv exec passenger-config --root}).stdout.chomp
-    end,
     cloudfront_cidrs_v4: lazy {
       # Grab Cloudfront IPv4 CIDR list from the CLOUDFRONT_ORIGIN_FACING subset
       # of Amazon IPv4 ranges

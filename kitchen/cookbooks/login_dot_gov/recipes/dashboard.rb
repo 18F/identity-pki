@@ -15,22 +15,20 @@ idp_sp_url    = "https://idp.#{node.chef_environment}.#{node['login_dot_gov']['d
 dashboard_url = "https://dashboard.#{node.chef_environment}.#{node.fetch('login_dot_gov').fetch('domain_name')}"
 
 
-if node['login_dot_gov']['use_dashboard_puma'] == true
-  shared_dirs = [
-    'tmp/cache',
-    'tmp/pids',
-  ]
+shared_dirs = [
+  'tmp/cache',
+  'tmp/pids',
+]
 
-  shared_dirs.each do |dir|
-    directory "#{shared_path}/#{dir}" do
-      owner node.fetch('login_dot_gov').fetch('system_user')
-      recursive true # TODO: remove?
+shared_dirs.each do |dir|
+  directory "#{shared_path}/#{dir}" do
+    owner node.fetch('login_dot_gov').fetch('system_user')
+    recursive true # TODO: remove?
 
-      # Make log and pids directories group writeable by web user
-      if ['tmp/pids'].include?(dir)
-        group node.fetch('login_dot_gov').fetch('web_system_user')
-        mode '0775'
-      end
+    # Make log and pids directories group writeable by web user
+    if ['tmp/pids'].include?(dir)
+      group node.fetch('login_dot_gov').fetch('web_system_user')
+      mode '0775'
     end
   end
 end
@@ -119,10 +117,8 @@ execute "rbenv exec bundle exec rake db:create db:migrate db:seed --trace" do
   user node['login_dot_gov']['system_user']
 end
 
-if node['login_dot_gov']['use_dashboard_puma'] == true
-  (shared_dirs-['bin', 'certs', 'config', 'keys']).each do |dir|
-    execute "ln -fns /srv/dashboard/shared/#{dir} /srv/dashboard/current/#{dir}" unless node['login_dot_gov']['setup_only']
-  end
+(shared_dirs-['bin', 'certs', 'config', 'keys']).each do |dir|
+  execute "ln -fns /srv/dashboard/shared/#{dir} /srv/dashboard/current/#{dir}" unless node['login_dot_gov']['setup_only']
 end
 
 # Create a self-signed certificate for ALB to talk to. ALB does not verify
@@ -139,53 +135,52 @@ link cert_path do
   to node.fetch('instance_certificate').fetch('cert_path')
 end
 
-if node['login_dot_gov']['use_dashboard_puma'] == true
-  # Generate certificate for Puma
-  key_path = "#{deploy_path}/dashboard-server.key"
-  cert_path = "#{deploy_path}/dashboard-server.crt"
-  web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
+# Generate certificate for Puma
+key_path = "#{deploy_path}/dashboard-server.key"
+cert_path = "#{deploy_path}/dashboard-server.crt"
+web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
 
-  key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(
-    "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}",
-    365,
-  )
-  key_content = key.to_pem
-  cert_content = cert.to_pem
+key, cert = ::Chef::Recipe::CertificateGenerator.generate_selfsigned_keypair(
+  "CN=#{::Chef::Recipe::CanonicalHostname.get_hostname}, OU=#{node.chef_environment}",
+  365,
+)
+key_content = key.to_pem
+cert_content = cert.to_pem
 
-  file key_path do
-    action :create
+file key_path do
+  action :create
 
-    mode '0644'
-    content key_content
-    sensitive true
-    owner web_system_user
-    group web_system_user
-  end
+  mode '0644'
+  content key_content
+  sensitive true
+  owner web_system_user
+  group web_system_user
+end
 
-  file cert_path do
-    action :create
+file cert_path do
+  action :create
 
-    mode '0644'
-    content cert_content
-    owner web_system_user
-    group web_system_user
-  end
+  mode '0644'
+  content cert_content
+  owner web_system_user
+  group web_system_user
+end
 
-  bundle_path = "#{deploy_path}/bin/bundle"
+bundle_path = "#{deploy_path}/bin/bundle"
 
-  node.default[:puma] = {}
-  node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
-  node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
-  node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
-  node.default[:puma][:bin_path] = bundle_path
+node.default[:puma] = {}
+node.default[:puma][:remote_address_header] = 'X-Forwarded-For'
+node.default[:puma][:log_path] = "#{shared_path}/log/puma.log"
+node.default[:puma][:log_err_path] = "#{shared_path}/log/puma_err.log"
+node.default[:puma][:bin_path] = bundle_path
 
-  include_recipe 'login_dot_gov::puma_service'
+include_recipe 'login_dot_gov::puma_service'
 
-  systemd_unit 'puma.service' do
-    action [:create]
-    ignore_failure true
+systemd_unit 'puma.service' do
+  action [:create]
+  ignore_failure true
 
-    content <<-EOM
+  content <<-EOM
   [Unit]
   Description=Puma HTTP Server
   After=network.target
@@ -218,12 +213,11 @@ if node['login_dot_gov']['use_dashboard_puma'] == true
 
   [Install]
   WantedBy=multi-user.target
-    EOM
-  end
+  EOM
+end
 
-  execute 'reload daemon to pickup the target file' do
-    command 'systemctl daemon-reload'
-  end
+execute 'reload daemon to pickup the target file' do
+  command 'systemctl daemon-reload'
 end
 
 # nginx conf for app server
@@ -237,33 +231,17 @@ nginx_redirects = [
   }
 ]
 
-if node['login_dot_gov']['use_dashboard_puma'] == true
-  template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
-    owner node['login_dot_gov']['system_user']
-    notifies :restart, "service[passenger]"
-    source 'nginx_server_puma.conf.erb'
+template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
+  owner node['login_dot_gov']['system_user']
+  notifies :restart, "service[passenger]"
+  source 'nginx_server.conf.erb'
 
-    variables({
-      app: app_name,
-      domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-      server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-      nginx_redirects: nginx_redirects
-    })
-  end
-else
-  template "/opt/nginx/conf/sites.d/dashboard.login.gov.conf" do
-    owner node['login_dot_gov']['system_user']
-    notifies :restart, "service[passenger]"
-    source 'nginx_server.conf.erb'
-
-    variables({
-      app: app_name,
-      domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-      passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-      server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
-      nginx_redirects: nginx_redirects
-    })
-  end
+  variables({
+    app: app_name,
+    domain: "#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+    server_name: "#{app_name}.#{node.chef_environment}.#{node['login_dot_gov']['domain_name']}",
+    nginx_redirects: nginx_redirects
+  })
 end
 
 directory "#{deploy_dir}/api" do
@@ -288,14 +266,12 @@ end
 # Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
 include_recipe 'login_dot_gov::fix_permissions'
 
-if node['login_dot_gov']['use_dashboard_puma'] == true
-  execute 'enable puma target' do
-    command 'systemctl enable puma.service'
-  end
+execute 'enable puma target' do
+  command 'systemctl enable puma.service'
+end
 
-  execute 'start puma target' do
-    command 'systemctl start puma.service'
-  end
+execute 'start puma target' do
+  command 'systemctl start puma.service'
 end
 
 # After doing the full deploy, we want to ensure that passenger is up and

@@ -41,31 +41,16 @@ link cert_path do
   to node.fetch('instance_certificate').fetch('cert_path')
 end
 
-if node['login_dot_gov']['use_idp_puma'] == true
-  template '/opt/nginx/conf/sites.d/idp_web.conf' do
-    notifies :restart, "service[passenger]"
-    source 'nginx_server_puma.conf.erb'
-    variables({
-      app: app_name,
-      idp_web: true,
-      server_aliases: nil,
-      server_name: server_name,
-      nginx_redirects: nginx_redirects
-    })
-  end
-else
-  template '/opt/nginx/conf/sites.d/idp_web.conf' do
-    notifies :restart, "service[passenger]"
-    source 'nginx_server.conf.erb'
-    variables({
-      app: app_name,
-      idp_web: true,
-      passenger_ruby: lazy { Dir.chdir(deploy_dir) { shell_out!(%w{rbenv which ruby}).stdout.chomp } },
-      server_aliases: nil,
-      server_name: server_name,
-      nginx_redirects: nginx_redirects
-    })
-  end
+template '/opt/nginx/conf/sites.d/idp_web.conf' do
+  notifies :restart, "service[passenger]"
+  source 'nginx_server.conf.erb'
+  variables({
+    app: app_name,
+    idp_web: true,
+    server_aliases: nil,
+    server_name: server_name,
+    nginx_redirects: nginx_redirects
+  })
 end
 
 file '/opt/nginx/conf/sites.d/login.gov.conf' do
@@ -112,23 +97,13 @@ else
   Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
 end
 
-if node['login_dot_gov']['use_idp_puma'] != true
-  file '/etc/init.d/passenger' do
-    action :nothing
-    notifies(:restart, "service[passenger]")
-    only_if { ::File.exist?('/etc/init.d/passenger') && !node['login_dot_gov']['setup_only'] }
-  end
-end
-
 # Fixes permissions and groups needed for passenger to actually run the application on the new hardened images
 include_recipe 'login_dot_gov::fix_permissions'
 
-if node['login_dot_gov']['use_idp_puma'] == true
-  execute 'enable puma target' do
-    command 'systemctl enable puma.service'
-  end
+execute 'enable puma target' do
+  command 'systemctl enable puma.service'
+end
 
-  execute 'start puma target' do
-    command 'systemctl start puma.service'
-  end
+execute 'start puma target' do
+  command 'systemctl start puma.service'
 end
