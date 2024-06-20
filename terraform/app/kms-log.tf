@@ -9,7 +9,7 @@ locals {
 }
 
 module "kms_logging" {
-  source = "github.com/18F/identity-terraform//kms_log?ref=b519780784fcd2ad3d3d303c7b71d8241e6be6ce"
+  source = "github.com/18F/identity-terraform//kms_log?ref=0cb56606de47507e5748ab55bfa51fa72424313f"
   #source = "../../../identity-terraform/kms_log"
 
   sqs_alarm_actions                       = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []
@@ -19,6 +19,7 @@ module "kms_logging" {
   kinesis_shard_count                     = var.kms_log_kinesis_shards
   ec2_kms_arns                            = local.kms_arns
   alarm_sns_topic_arns                    = var.kms_log_alerts_enabled ? [var.slack_alarms_sns_hook_arn] : []
+  kinesis_source_log_group                = aws_cloudwatch_log_group.log["idp_kms"].name
   kinesis_retention_hours                 = var.kms_log_kinesis_retention_hours
   ct_queue_message_retention_seconds      = var.kms_log_ct_queue_message_retention_seconds
   dynamodb_retention_days                 = var.kms_log_dynamodb_retention_days
