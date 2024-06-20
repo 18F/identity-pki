@@ -517,6 +517,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - user-experience-admins|maintainer
   justin.grevich:
     aws_groups:
     - devops
