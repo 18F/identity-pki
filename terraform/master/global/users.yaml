@@ -774,6 +774,7 @@ users:
     - pm
     - devops|owner
     - lg-all
+    - lg-people|maintainer
     - lg-public
     - Mary
     - Radia
