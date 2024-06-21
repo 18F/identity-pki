@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This script will sign an image using a specified key.
+# This script will verify a cosign image signature.
 # It is meant to be run by devsecops people to approve an image.
 #
 # Keys are created using terraform
@@ -28,4 +28,4 @@ fi
 AWS_CMK_ID="alias/image_signing_cosign_signature_key"
 
 # Sign the image
-cosign sign --tlog-upload=false --key "awskms:///${AWS_CMK_ID}" "$1"
+cosign verify --insecure-ignore-tlog=true --key "awskms:///${AWS_CMK_ID}" "$1"

@@ -80,9 +80,8 @@ fi
 
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com
 
-${dir}/bin/sign_image.sh image_signing ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed@sha256:${deploy_image_digest}
-${dir}/bin/sign_image.sh image_signing ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_test/blessed@sha256:${test_image_digest}
-${dir}/bin/sign_image.sh image_signing ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy/blessed@sha256:${gitdeploy_image_digest}
-${dir}/bin/sign_image.sh image_signing ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test/blessed@sha256:${gittest_image_digest}
-${dir}/bin/sign_image.sh image_signing ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop/blessed@sha256:${stop_image_digest}
-
+${dir}/bin/sign_image.sh ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed@sha256:${deploy_image_digest}
+${dir}/bin/sign_image.sh ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_test/blessed@sha256:${test_image_digest}
+${dir}/bin/sign_image.sh ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy/blessed@sha256:${gitdeploy_image_digest}
+${dir}/bin/sign_image.sh ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test/blessed@sha256:${gittest_image_digest}
+${dir}/bin/sign_image.sh ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop/blessed@sha256:${stop_image_digest}

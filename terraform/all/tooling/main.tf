@@ -41,3 +41,47 @@ module "main" {
     "Terraform"         = [{ "*" = ["*"] }],
   }
 }
+
+module "image_signing" {
+  source = "../../modules/image_signing"
+
+  additional_policy_statements = [
+    {
+      Sid    = "Allow everybody to get pubkey for verification"
+      Effect = "Allow"
+      Principal = {
+        AWS = "*"
+      }
+      Action = [
+        "kms:GetPublicKey",
+        "kms:DescribeKey"
+      ]
+      Resource = "*"
+    }
+  ]
+}
+
+import {
+  to = module.image_signing.aws_kms_key.this
+  id = "d8cfd742-5039-4074-add6-f053edafdaa3"
+}
+
+import {
+  to = module.image_signing.aws_kms_alias.this
+  id = "alias/image_signing_cosign_signature_key"
+}
+
+import {
+  to = module.image_signing.aws_kms_key_policy.this
+  id = "d8cfd742-5039-4074-add6-f053edafdaa3"
+}
+
+import {
+  to = module.image_signing.aws_s3_object.keyid
+  id = "s3://login-gov.secrets.034795980528-us-west-2/common/image_signing.keyid"
+}
+
+import {
+  to = module.image_signing.aws_s3_object.pubkey
+  id = "s3://login-gov.secrets.034795980528-us-west-2/common/image_signing.pub"
+}
