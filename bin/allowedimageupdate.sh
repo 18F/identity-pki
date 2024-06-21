@@ -23,6 +23,6 @@ for i in $IMAGES ; do
 	crane copy "$i" "$BLESSED"
 
 	BLESSEDIMG=$(echo "$i" | sed 's/@sha256/\/blessed@sha256/')
-	bin/sign_image.sh image_signing "$BLESSEDIMG"
+	bin/sign_image.sh "$BLESSEDIMG"
 done
 

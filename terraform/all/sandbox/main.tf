@@ -186,3 +186,32 @@ module "main" {
   logarchive_use1_enabled = true           # archive log groups in us-east-1
 
 }
+
+module "image_signing" {
+  source = "../../modules/image_signing"
+}
+
+import {
+  to = module.image_signing.aws_kms_key.this
+  id = "98d4b5bd-8a5d-42be-9cd2-777e1af0a6f2"
+}
+
+import {
+  to = module.image_signing.aws_kms_alias.this
+  id = "alias/image_signing_cosign_signature_key"
+}
+
+import {
+  to = module.image_signing.aws_kms_key_policy.this
+  id = "98d4b5bd-8a5d-42be-9cd2-777e1af0a6f2"
+}
+
+import {
+  to = module.image_signing.aws_s3_object.keyid
+  id = "s3://login-gov.secrets.894947205914-us-west-2/common/image_signing.keyid"
+}
+
+import {
+  to = module.image_signing.aws_s3_object.pubkey
+  id = "s3://login-gov.secrets.894947205914-us-west-2/common/image_signing.pub"
+}
