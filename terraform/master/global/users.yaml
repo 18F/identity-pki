@@ -133,7 +133,7 @@ users:
     - pm
     - lg-all
     - lg-public
-    - user-experience-admins|maintainer
+    - User Experience|maintainer
   andrew.mcdaniel:
     aws_groups:
     - fraudops
@@ -149,7 +149,7 @@ users:
     ec2_username:
     - ahirshman
     gitlab_groups:
-    - user-experience-admins|maintainer
+    - User Experience|maintainer
   anthony.barbara:
     aws_groups:
     - secops
@@ -453,7 +453,7 @@ users:
     - pm
     - lg-all
     - lg-public
-    - user-experience-admins|maintainer
+    - User Experience|maintainer
   jillian.harrigan:
     gitlab_groups:
     - antifraud
@@ -517,7 +517,7 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - user-experience-admins|maintainer
+    - User Experience|maintainer
   justin.grevich:
     aws_groups:
     - devops
@@ -805,7 +805,7 @@ users:
     - pm
     - lg-all
     - lg-public
-    - user-experience-admins|maintainer
+    - User Experience|maintainer
   project_21_bot:
     name:
     - Github CI
@@ -1027,6 +1027,7 @@ users:
     - Ursula|owner
     - Mary|owner
     - Radia|owner
+    - User Experience|owner
     can_create_group:
     - true
 groups:
@@ -1082,6 +1083,8 @@ groups:
     description: Platform mary group
   Radia: 
     description: Platform radia group
+  User Experience:
+    description: UX Team working space
 projects:
   lg/identity-devops:
     groups:
