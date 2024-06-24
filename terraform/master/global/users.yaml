@@ -249,13 +249,6 @@ users:
     - ConnorPMcCarthy
     ec2_username:
     - cmccarthy
-  daniel.g.lopez:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
   david.dsilva:
     aws_groups:
     - analytics
@@ -1089,7 +1082,7 @@ groups:
     description: Appdev ursula group
   Mary:
     description: Platform mary group
-  Radia: 
+  Radia:
     description: Platform radia group
   User Experience:
     description: UX Team working space
