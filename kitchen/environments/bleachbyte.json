@@ -16,8 +16,7 @@
       "idp_artifacts": true,
       "idp_sync_static": true,
       "auto_eip_enabled_roles": ["outboundproxy"],
-      "allow_migration_console_access": true,
-      "passenger_log_level": 3
+      "allow_migration_console_access": true
     },
     "ssh_keys": {
     }
