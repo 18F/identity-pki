@@ -401,6 +401,8 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    ec2_username:
+    - jgolden
   jeffrey.holden:
     aws_groups:
     - analytics
