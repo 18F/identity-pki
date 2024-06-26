@@ -1,5 +1,14 @@
 ---
 users:
+  abir.shukla:
+    aws_groups:
+    - devopsnonprod
+    ec2_username:
+    - ashukla
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-public
   adalis.morales:
     aws_groups:
     - analytics
