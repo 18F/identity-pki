@@ -975,8 +975,6 @@ users:
   vraj.mohan:
     aws_groups:
     - apponcall
-    - devops
-    - secops
     ec2_username:
     - vmohan
     gitlab_groups:
