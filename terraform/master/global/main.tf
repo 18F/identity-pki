@@ -104,7 +104,6 @@ module "main" {
     "secops" = [
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox", "Prod", "Master"] },
-      { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox", "Prod"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
@@ -130,6 +129,9 @@ module "main" {
     ],
     "keymasters" = [
       { "KMSAdministrator" = ["Sandbox", "Prod"] }
+    ],
+    "secops2" = [
+      { "ReadOnly" = ["Sandbox", "Prod", "Master"] },
     ]
   }
 

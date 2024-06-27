@@ -51,6 +51,7 @@ users:
   alex.herrick:
     aws_groups:
     - secops
+    - secops2
     ec2_username:
     - aherrick
     gitlab_groups:
@@ -167,6 +168,7 @@ users:
   anthony.barbara:
     aws_groups:
     - secops
+    - secops2
     ec2_username:
     - abarbara
     gitlab_groups:
@@ -287,6 +289,7 @@ users:
   devin.cassidy:
     aws_groups:
     - secops
+    - secops2
     ec2_username:
     - dcassidy
     gitlab_groups:
@@ -656,6 +659,7 @@ users:
   marc.kananda:
     aws_groups:
     - secops
+    - secops2
     ec2_username:
     - mkananda
     gitlab_groups:
@@ -769,6 +773,7 @@ users:
   nicholas.willey:
     aws_groups:
     - secops
+    - secops2
     ec2_username:
     - nwilley
     gitlab_groups:
@@ -869,6 +874,7 @@ users:
   samy.orellana:
     aws_groups:
     - secops
+    - secops2
     ec2_username:
     - sorellana
     gitlab_groups:
@@ -953,6 +959,7 @@ users:
     aws_groups:
     - devops
     - secops
+    - secops2
     ec2_username:
     - tspencer
     gitlab_groups:
