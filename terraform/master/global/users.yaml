@@ -234,6 +234,15 @@ users:
     - chazen
     gitlab_groups:
     - pm
+  chatema.hilliard:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - chilliard
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   chris.manger:
     aws_groups:
     - finops
