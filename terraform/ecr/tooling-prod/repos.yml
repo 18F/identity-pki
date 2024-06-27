@@ -108,3 +108,9 @@ repos:
   dashboard_ci:
     name: "dashboard/ci"
     <<: *all_write_template
+  terraform_plan:
+    name: "cd/terraform_plan"
+    <<: *all_write_template
+  terraform_apply:
+    name: "cd/terraform_apply"
+    <<: *all_write_template
