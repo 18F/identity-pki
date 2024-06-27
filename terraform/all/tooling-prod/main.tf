@@ -9,6 +9,8 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 variable "splunk_oncall_cloudwatch_endpoint" {
   default = "UNSET"
 }
@@ -92,7 +94,21 @@ module "image_signing" {
         "kms:Verify"
       ]
       Resource = "*"
+    },
+    {
+      Sid    = "Allow read only access for terraform"
+      Effect = "Allow"
+      Principal = {
+        AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
+      }
+      Action = [
+        "kms:Describe*",
+        "kms:List*",
+        "kms:Get*",
+      ]
+      Resource = "*"
     }
+
   ]
 }
 
