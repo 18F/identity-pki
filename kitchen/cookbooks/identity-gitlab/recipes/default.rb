@@ -713,14 +713,6 @@ execute 'add_ci_skeleton' do
       "#{local_url}/api/v4/application/settings?admin_mode=true"
     curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPUT \
       "#{local_url}/api/v4/application/settings?plantuml_enabled=true&plantuml_url=#{external_url}/-/plantuml/"
-    pipeline=$(curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XGET \
-      "#{local_url}/api/v4/projects/$PROJECT_NUMBER/pipeline_schedules" | jq -r .[0])
-    if [ "$pipeline" = "null" ]; then
-      curl --noproxy '*' --insecure --header "PRIVATE-TOKEN: #{gitlab_root_api_token}" -XPOST \
-        "#{local_url}/api/v4/projects/$PROJECT_NUMBER/pipeline_schedules" \
-        --form description="Every 10 minutes" --form ref="main" --form cron="*/10 * * * *" --form cron_timezone="UTC" \
-        --form active="true"
-    fi
   EOF
   ignore_failure false
   action :run
