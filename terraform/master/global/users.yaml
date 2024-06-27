@@ -792,6 +792,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - user-experience-admins|maintainer
   nick.soutouras:
     aws_groups:
     - analytics
@@ -1081,8 +1082,7 @@ groups:
     description: users who need to be added as maintainers to the identity-dashboard
       repo.
   user-experience-admins:
-    description: Login.gov UX team.  Grants maintainer access to the user-experience
-      repo
+    description: Login.gov UX team.  Grants maintainer access to the user-experience repo
   bots:
     description: Gitlab automation accounts
   login-security:
