@@ -797,7 +797,7 @@ users:
     - pm
     - lg-all
     - lg-public
-    - user-experience-admins|maintainer
+    - User Experience|maintainer
   nick.soutouras:
     aws_groups:
     - analytics
