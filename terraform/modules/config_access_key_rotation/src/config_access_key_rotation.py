@@ -148,11 +148,13 @@ def process_user(
             akm=active_keys[0],
             rotation_date=rotation_date,
             inactivation_date=inactivation_date,
+            deletion_date=deletion_date,
         )
         classification_2 = classify_date(
             akm=active_keys[1],
             rotation_date=rotation_date,
             inactivation_date=inactivation_date,
+            deletion_date=deletion_date,
         )
 
         logger.info("Classification 1: {}".format(classification_1))
@@ -168,6 +170,7 @@ def process_user(
                 oldest_key,
                 rotation_date=rotation_date,
                 inactivation_date=inactivation_date,
+                deletion_date=deletion_date,
                 old_key_inactivation_period=old_key_inactivation_period,
                 ses=ses,
             )
@@ -181,6 +184,7 @@ def process_user(
                 oldest_key,
                 rotation_date=rotation_date,
                 inactivation_date=inactivation_date,
+                deletion_date=deletion_date,
                 old_key_inactivation_period=old_key_inactivation_period,
                 ses=ses,
             )
@@ -194,6 +198,7 @@ def process_user(
                 oldest_key,
                 rotation_date=rotation_date,
                 inactivation_date=inactivation_date,
+                deletion_date=deletion_date,
                 old_key_inactivation_period=old_key_inactivation_period,
                 ses=ses,
             )
@@ -210,6 +215,7 @@ def process_user(
                 oldest_key,
                 rotation_date=rotation_date,
                 inactivation_date=inactivation_date,
+                deletion_date=deletion_date,
                 old_key_inactivation_period=old_key_inactivation_period,
                 ses=ses,
             )
@@ -226,6 +232,7 @@ def process_user(
             active_keys[0],
             rotation_date=rotation_date,
             inactivation_date=inactivation_date,
+            deletion_date=deletion_date,
             old_key_inactivation_period=old_key_inactivation_period,
             ses=ses,
         )
@@ -237,6 +244,7 @@ def process_user(
             akm=active_keys[0],
             rotation_date=rotation_date,
             inactivation_date=inactivation_date,
+            deletion_date=deletion_date,
         )
         print("Here is the key classification", classification)
         if classification == "New":
@@ -250,6 +258,7 @@ def process_user(
                 active_keys[0],
                 rotation_date=rotation_date,
                 inactivation_date=inactivation_date,
+                deletion_date=deletion_date,
                 old_key_inactivation_period=old_key_inactivation_period,
                 ses=ses,
             )
@@ -270,6 +279,7 @@ def handle_oldest_key(
     oldest_key,
     rotation_date,
     inactivation_date,
+    deletion_date,
     old_key_inactivation_period,
     ses,
 ):
@@ -277,6 +287,7 @@ def handle_oldest_key(
         akm=oldest_key,
         rotation_date=rotation_date,
         inactivation_date=inactivation_date,
+        deletion_date=deletion_date,
     )
     key_to_inactivate = oldest_key["AccessKeyId"]
     masked_access_key = mask_access_key(key_to_inactivate)
