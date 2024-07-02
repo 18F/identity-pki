@@ -1,4 +1,9 @@
-data "aws_iam_policy_document" "config_access_key_rotation_lambda_policy" {
+moved {
+  from = aws_iam_policy_document.config_access_key_rotation_lambda_policy
+  to   = aws_iam_policy_document.assume_lambda_service
+}
+
+data "aws_iam_policy_document" "assume_lambda_service" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -9,18 +14,22 @@ data "aws_iam_policy_document" "config_access_key_rotation_lambda_policy" {
   }
 }
 
-resource "aws_iam_role" "config_access_key_rotation_lambda_role" {
+moved {
+  from = aws_iam_role.config_access_key_rotation_lambda_role
+  to   = aws_iam_role.config_access_key_rotation
+}
+
+resource "aws_iam_role" "config_access_key_rotation" {
   name               = "${var.config_access_key_rotation_name}-lambda-role"
   path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.config_access_key_rotation_lambda_policy.json
+  assume_role_policy = data.aws_iam_policy_document.assume_lambda_service.json
 }
 
 data "aws_iam_policy_document" "lambda_iam_access" {
   statement {
-    sid    = "CreateLogGroupAndEvents"
+    sid    = "CreateLogStreamsAndEvents"
     effect = "Allow"
     actions = [
-      "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
     ]
@@ -68,9 +77,23 @@ data "aws_iam_policy_document" "lambda_iam_access" {
   }
 }
 
-resource "aws_iam_role_policy" "config_access_key_rotation_lambda_iam_access" {
-  role   = aws_iam_role.config_access_key_rotation_lambda_role.name
+moved {
+  from = aws_iam_role_policy.config_access_key_rotation_lambda_iam_access
+  to   = aws_iam_role_policy.config_access_key_rotation_iam_access
+}
+
+resource "aws_iam_role_policy" "config_access_key_rotation_iam_access" {
+  role   = aws_iam_role.config_access_key_rotation.name
   policy = data.aws_iam_policy_document.lambda_iam_access.json
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "config_access_key_rotation_lambda_insights" {
+  role       = aws_iam_role.config_access_key_rotation.name
+  policy_arn = module.lambda_insights.iam_policy_arn
 
   lifecycle {
     create_before_destroy = true
@@ -91,7 +114,7 @@ data "aws_iam_policy_document" "trust_policy_allowing_lambda_assumeRole" {
     ]
     principals {
       type        = "AWS"
-      identifiers = [aws_iam_role.config_access_key_rotation_lambda_role.arn]
+      identifiers = [aws_iam_role.config_access_key_rotation.arn]
     }
   }
 }
