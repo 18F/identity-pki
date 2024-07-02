@@ -1044,6 +1044,12 @@ variable "idv_high_proofing_resolution_result_missing_threshold" {
   default     = 3
 }
 
+variable "idv_unexpected_face_match_errors_threshold" {
+  type        = number
+  description = "Threshold of how many events need to occur within the period to trigger the alert"
+  default     = 1
+}
+
 variable "doc_auth_vendors" {
   type = map(object({
     long_name            = string
@@ -1139,6 +1145,17 @@ of a CloudWatch alert in order to ping said handle(s) via the SNSToSlackNotifier
 EOM
   default = [
     "login-oncall-ada"
+  ]
+}
+
+variable "slack_doc_auth_groups" {
+  type        = list(string)
+  description = <<EOM
+Slack group handle(s) for doc auth specific alerts. Add to the Description
+of a CloudWatch alert in order to ping said handle(s) via the SNSToSlackNotifier.
+EOM
+  default = [
+    "login-timnit-engineers"
   ]
 }
 

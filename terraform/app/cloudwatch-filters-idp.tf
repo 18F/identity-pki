@@ -265,6 +265,19 @@ locals {
         }
       EOT
     },
+    idv_unexpected_face_match_errors = {
+      name         = "idv-unexpected-face-match-errors"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" &&
+          $.properties.event_properties.vendor = "TrueID" &&
+          $.properties.event_properties.portrait_match_results.FaceMatchResult = "Fail" &&
+          $.properties.event_properties.portrait_match_results.FaceErrorMessage != "Liveness: Error"
+        }
+      EOT
+    },
     idv_proofing_resolution_result_missing = {
       name         = "idv-proofing-resolution-result-missing"
       metric_value = 1
