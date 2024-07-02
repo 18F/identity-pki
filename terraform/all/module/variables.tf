@@ -191,8 +191,8 @@ variable "config_access_key_rotation_name" {
 
 variable "config_access_key_rotation_code" {
   type        = string
-  description = "Path of the compressed lambda source code."
-  default     = "src/config-access-key-rotation.zip"
+  description = "Path of the compressed lambda source code. Relative to child module path."
+  default     = "config-access-key-rotation.zip"
 }
 
 variable "slack_events_sns_topic" {

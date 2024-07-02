@@ -4,18 +4,15 @@ variable "config_access_key_rotation_name" {
   default     = "cfg-access-key-rotation"
 }
 
-variable "region" {
-  default = "us-west-2"
-}
-
-variable "fisma_tag" {
-  default = "Q-LG"
-}
-
 variable "config_access_key_rotation_code" {
   type        = string
-  description = "Path of the compressed lambda source code."
-  default     = "src/config-access-key-rotation.zip"
+  description = "Path of the compressed lambda source code. Relative to module path."
+  default     = "config-access-key-rotation.zip"
+}
+
+variable "alarm_sns_topics" {
+  type        = set(string)
+  description = "List of SNS topics to alert to when alarms trigger"
 }
 
 variable "lambda_timeout" {
