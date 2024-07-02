@@ -11,11 +11,11 @@ usage: #{BASENAME} [OPTIONS]
 Copy an expiremental dashboard source into a terraform file
 
 For example:
-  #{BASENAME} -in jmhooper-sample-dashbaord
+  #{BASENAME} --in jmhooper-sample-dashbaord
 
-  #{BASENAME} -in jmhooper-sample-dashbaord -out sample-dashboard.tf
+  #{BASENAME} --in jmhooper-sample-dashbaord --out sample-dashboard.tf
 
-  #{BASENAME} -in jmhooper-sample-dashbaord -out sample-dashboard.tf -name sample-dashboard
+  #{BASENAME} --in jmhooper-sample-dashbaord --out sample-dashboard.tf --name sample-dashboard
 
 EOM
 

@@ -76,6 +76,29 @@ EOM
   evaluation_periods  = 1
 }
 
+resource "aws_cloudwatch_metric_alarm" "idv_unexpected_face_match_errors" {
+  alarm_name        = "${aws_autoscaling_group.idp.name}-idv-unexpected-face-match-error-rate"
+  alarm_description = <<EOM
+${aws_autoscaling_group.idp.name}: IdV: unexpected TrueID FaceMatch error
+rate is above ${var.idv_unexpected_face_match_errors_threshold} occurrences over a period of 15 mins.
+
+Dashboard: https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#dashboards/dashboard/${var.env_name}-idv-trueid-overview
+%{if var.env_name == "prod"}
+Notifying:%{for handle in var.slack_doc_auth_groups} @${handle}%{endfor}
+%{endif}
+EOM
+
+  metric_name = "idv-unexpected-face-match-errors"
+  namespace   = "${var.env_name}/idp-ialx"
+  period      = 900
+  statistic   = "Sum"
+
+  alarm_actions       = local.moderate_priority_alarm_actions
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = var.idv_unexpected_face_match_errors_threshold
+  evaluation_periods  = 1
+}
+
 resource "aws_cloudwatch_metric_alarm" "idp_high_tps" {
   for_each = var.idp_external_service_alarms_enabled == 1 ? {
     for service, config in var.external_service_alarms : service => config
