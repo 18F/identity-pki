@@ -31,6 +31,19 @@ COPY Gemfile* ./
 RUN gem install bundler --conservative && \
     bundle install --without deploy production
 
+# Generate and place SSL certificates for puma
+RUN mkdir -p /pivcac/keys
+RUN openssl req -x509 -sha256 -nodes -newkey rsa:2048 -days 1825 \
+    -keyout /pivcac/keys/localhost.key \
+    -out /pivcac/keys/localhost.crt \
+    -subj "/C=US/ST=Fake/L=Fakerton/O=Dis/CN=localhost" && \
+    chmod 644 /pivcac/keys/localhost.key /pivcac/keys/localhost.crt
+
+# Download RDS Combined CA Bundle
+RUN mkdir -p /usr/local/share/aws \
+  && curl https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem > /usr/local/share/aws/rds-combined-ca-bundle.pem \
+  && chmod 644 /usr/local/share/aws/rds-combined-ca-bundle.pem
+
 
 # Switch to base image
 FROM ruby:3.3.1-slim
@@ -75,4 +88,4 @@ RUN find / -perm /2000 -type f | xargs chmod g-s
 USER app
 
 EXPOSE 8443
-CMD ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://localhost:8443?key=config/local-certs/server.key&cert=config/local-certs/server.crt"]
+CMD ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://0.0.0.0:3000?key=/pivcac/keys/localhost.key&cert=/pivcac/keys/localhost.crt"]
