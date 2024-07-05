@@ -687,6 +687,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - login-security|guest
   matt.wagner:
     aws_groups:
     - apponcall
