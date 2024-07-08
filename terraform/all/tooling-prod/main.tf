@@ -99,7 +99,9 @@ module "image_signing" {
       Sid    = "Allow read only access for terraform"
       Effect = "Allow"
       Principal = {
-        AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
+        AWS = [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Terraform"
+        ]
       }
       Action = [
         "kms:Describe*",
