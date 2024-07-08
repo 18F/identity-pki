@@ -1,5 +1,5 @@
 DEPENDENCIES
-  apt (>= 7.0.0)
+  apt
   aws_metadata
     git: https://github.com/18F/identity-cookbooks
     revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
@@ -18,9 +18,9 @@ DEPENDENCIES
     revision: 85cee92535ddd5c0aae691f361a0b6de56a1e679
     ref: 85cee92
     rel: config_loader
-  deploy_resource (>= 1.0.0)
-  docker (>= 11.3.2)
-  filesystem (>= 3.0.5)
+  deploy_resource
+  docker
+  filesystem
   git
   identity-gitlab
     path: kitchen/cookbooks/identity-gitlab
@@ -46,7 +46,7 @@ DEPENDENCIES
     rel: identity_shared_attributes
   instance_certificate
     path: kitchen/cookbooks/instance_certificate
-  letsencrypt (>= 1.0.0)
+  letsencrypt
   login_dot_gov
     path: kitchen/cookbooks/login_dot_gov
   motd
@@ -78,7 +78,7 @@ GRAPH
   config_loader (0.3.0)
     aws_metadata (>= 0.0.0)
   deploy_resource (1.0.3)
-  docker (11.3.4)
+  docker (11.3.6)
   filesystem (4.0.14)
     lvm (>= 1.1)
   git (12.1.5)

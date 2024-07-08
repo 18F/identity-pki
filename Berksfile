@@ -1,19 +1,19 @@
 source 'https://api.berkshelf.com'
 
-cookbook 'apt', '>= 7.0'
+cookbook 'apt'
 cookbook 'bash-completion'
 cookbook 'cacert'
-cookbook 'deploy_resource', '>= 1.0'
+cookbook 'deploy_resource'
 cookbook 'git'
-cookbook 'letsencrypt', '>= 1.0.0'
+cookbook 'letsencrypt'
 cookbook 'motd'
 cookbook 'openssl'
 cookbook 'ssh-keys'
 cookbook 'sudo'
 cookbook 'users'
 cookbook 'seven_zip'
-cookbook 'filesystem', '>= 3.0.5'
-cookbook 'docker', '>= 11.3.2'
+cookbook 'filesystem'
+cookbook 'docker'
 
 # This is a super wacky hack to allow us to symlink this Berksfile into the
 # various nodes/*/ directories. It feels like there ought to be a better way to
