@@ -11,7 +11,7 @@ cookbook 'openssl'
 cookbook 'ssh-keys'
 cookbook 'sudo'
 cookbook 'users'
-cookbook 'seven_zip', '~3.2.0' #can remove version constraint after upgrading chef to v16
+cookbook 'seven_zip'
 cookbook 'filesystem', '>= 3.0.5'
 cookbook 'docker', '>= 11.3.2'
 
