@@ -53,7 +53,7 @@ DEPENDENCIES
   openssl
   service_discovery
     path: kitchen/cookbooks/service_discovery
-  seven_zip (~ 3.2.0)
+  seven_zip
   ssh-keys
   static_eip
     git: https://github.com/18F/identity-cookbooks
@@ -64,8 +64,8 @@ DEPENDENCIES
   users
 
 GRAPH
-  apt (7.5.17)
-  ark (6.0.27)
+  apt (7.5.22)
+  ark (6.0.29)
     seven_zip (>= 3.1)
   aws_metadata (0.3.0)
   aws_s3 (0.2.0)
@@ -78,10 +78,10 @@ GRAPH
   config_loader (0.3.0)
     aws_metadata (>= 0.0.0)
   deploy_resource (1.0.3)
-  docker (11.3.2)
-  filesystem (4.0.11)
+  docker (11.3.4)
+  filesystem (4.0.14)
     lvm (>= 1.1)
-  git (12.1.3)
+  git (12.1.5)
     ark (>= 0.0.0)
   identity-gitlab (0.0.5)
     config_loader (>= 0.0.0)
@@ -120,20 +120,18 @@ GRAPH
     static_eip (>= 0.2.0)
     sudo (>= 0.0.1)
     users (>= 0.0.1)
-  lvm (6.1.17)
+  lvm (6.1.22)
   motd (1.0.1)
   newrelic-infra (0.12.3)
   openssl (8.5.5)
-  packagecloud (2.0.6)
+  packagecloud (2.0.8)
   passenger (0.0.1)
   service_discovery (0.2.1)
     aws_metadata (>= 0.0.0)
     aws_s3 (>= 0.0.0)
     canonical_hostname (>= 0.0.0)
-  seven_zip (3.2.0)
-    windows (>= 0.0.0)
+  seven_zip (4.2.10)
   ssh-keys (1.2.7)
   static_eip (0.2.1)
   sudo (5.4.7)
-  users (8.1.18)
-  windows (7.0.2)
+  users (8.1.20)
