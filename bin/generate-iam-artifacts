@@ -1,0 +1,120 @@
+#!/bin/bash
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+basename="$(basename "$0")"
+
+
+usage() {
+  cat >&2 << EOM
+usage: $basename TARGET_ENV
+
+Generate IAM role permissions artifacts for a specific aws account with the 
+exclusion of environment specific roles that are not specified as the target
+environment argument.
+
+Arguments:
+
+    TARGET_ENV:
+        The environment to keep for environment specific roles, e.g. "dev", "prod", or "int".
+		This argument is optional and defaults to the 'int' environment.
+
+Options:
+
+    -h, --help              Display this message
+
+This script must be run conjunction with an AWS Vault command to assume the appropriate role
+for the account you wish to generate IAM role permissions artifacts for. For example if running
+from the root directory of this reposititory:
+
+	aws-vault exec sandbox-power -- bin/generate-iam-artifacts dev
+
+EOM
+}
+
+##### main script
+
+# Print usage if help flag is passed
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+	usage
+	exit 0
+fi
+
+# Get list of all roles in account
+unfiltered_list_of_roles=$(aws iam list-roles)
+
+# Select environment to keep for environment specific roles
+target_env="${1:-int}"
+
+# Create json query to filter out env specific roles that are not in the target environment
+while IFS= read -r line; do envs+=("$line")
+done < <(aws ec2 describe-vpcs \
+    --filters 'Name=tag:Name,Values=login-vpc-*' |
+    jq -r '[.Vpcs[].Tags[] | select(.Key=="Name") | .Value | split("-")[2]]' | 
+    jq --arg env_to_include "$target_env" 'map(select(. != $env_to_include))')
+envs_filter=$(echo "${envs[*]}" | jq -r 'join("\") or contains(\"")')
+json_query="[ .Roles[] | del(.AssumeRolePolicyDocument, .Path, .CreateDate, .MaxSessionDuration) | select(.RoleName | select(contains(\"${envs_filter[*]}\") | not)) ]"
+
+# Filter out roles listed in list_of_envs that are not in the target environment
+filtered_to_environment=$(echo "$unfiltered_list_of_roles" | jq "${json_query[@]}")
+
+echo "${filtered_to_environment}" > "/tmp/$target_env-env-iam-roles.txt"
+
+# shellcheck disable=SC2207
+roles_to_check=($(jq -r '.[].RoleName' "/tmp/$target_env-env-iam-roles.txt"))
+
+# Create directory to store iam role artifacts
+rm -rf ./role-permissions
+mkdir ./role-permissions
+
+for role in "${roles_to_check[@]}" ;
+do
+	echo_yellow "Checking ${role}"
+	# shellcheck disable=SC2207
+	inline_policies=($(aws iam list-role-policies --role-name "$role" | jq -r .PolicyNames[]))
+	if [ ${#inline_policies[@]} -ne 0 ]; then
+    	echo_green "${inline_policies[@]:-}"
+	fi
+	# shellcheck disable=SC2207
+	attached_policies=($(aws iam list-attached-role-policies --role-name "$role" | jq -r '.AttachedPolicies[] | .PolicyArn'))
+	if [ ${#attached_policies[@]} -ne 0 ]; then
+    	echo_green "${attached_policies[@]:-}"
+	fi
+
+	inline_statements=()
+	attached_statements=()
+
+	for inline in "${inline_policies[@]:-}" ;
+	do
+		if [ -n "${inline}" ]  ; then
+			echo_blue "Checking inline policy $inline"
+			# shellcheck disable=SC2207
+			inline_statements+=($(aws iam get-role-policy --role-name "$role" --policy-name "$inline" | jq .PolicyDocument.Statement))
+		fi
+	done
+
+	echo_blue "Finished Inline Policies"
+
+	for attached in "${attached_policies[@]:-}";
+	do
+		if [ -n "${attached}" ]  ; then
+			echo_red "Checking attached policy $attached"
+			version_id=$(aws iam get-policy --policy-arn "$attached" | jq -r .Policy.DefaultVersionId)
+			# shellcheck disable=SC2207
+			attached_statements+=($(aws iam get-policy-version --policy-arn "$attached" --version-id "$version_id" | jq .PolicyVersion.Document.Statement))
+		fi
+	done
+
+	echo_red "Finished Attached Policies"
+
+	# Merge results
+	all_statements=( "${inline_statements[@]:-}" "${attached_statements[@]:-}" )
+
+	# Produce document
+
+	echo_yellow "Producing document for $role"
+	pretty_document=$(echo "${all_statements[@]}" | jq .)
+	echo "$pretty_document" > "./role-permissions/$role.json"
+	echo
+done
