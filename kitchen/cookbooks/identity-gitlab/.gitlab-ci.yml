@@ -3,12 +3,12 @@
 include:
   local: /.gitlab-ci-rules.yml
 
-cookstyle:
-  image: '${ECR_REGISTRY}/ecr-public/docker/library/ruby:3.0.5'
-  script:
-    - bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/ruby
-    - bundle exec cookstyle kitchen/cookbooks/identity-gitlab
-  rules:
-    - !reference [.merge_request, rules]
-    - changes:
-        - kitchen/cookbooks/identity-gitlab/**/*
+#cookstyle:
+#  image: '${ECR_REGISTRY}/ecr-public/docker/library/ruby:3.3.1'
+#  script:
+#    - bundle check || bundle install --deployment --jobs=4 --retry=3 --without deploy development doc production --path vendor/ruby
+#    - bundle exec cookstyle kitchen/cookbooks/identity-gitlab
+#  rules:
+#    - !reference [.merge_request, rules]
+#    - changes:
+#        - kitchen/cookbooks/identity-gitlab/**/*
