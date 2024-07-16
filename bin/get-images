@@ -5,9 +5,10 @@
 set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/lib/gitlab.sh"
 
 usage() {
-  cat >&2 << EOM
+  cat >&2 <<EOM
 
 Usage: ${0} [-luogh]
 Requires access to FullAdministrator role for account(s) polled for image changes!
@@ -27,7 +28,7 @@ EOM
 }
 
 help_me() {
-  cat >&2 << EOM
+  cat >&2 <<EOM
 
 Looks up the most recent base / rails AMIs built from the 'main' branch, in each
 account and each region where Terraform variables are used to set AMI IDs
@@ -45,7 +46,7 @@ a specific account, region, and/or AMI type.
 The script will error out if:
 - there is an active \$AWS_VAULT session running
 - the person running the script does not have FullAdministrator access
-- the \`hub\` cask is not installed (for creating a PR)
+- the \`glab\` cask is not installed (for creating a PR)
 - when attempting to create a PR, there are other local changes besides the updates
   to terraform/app/variables.tf and terraform/gitlab/*/main.tf
 
@@ -67,16 +68,16 @@ EOM
 }
 
 get_ami_info() {
-  for TF_ACCT in "${TF_ACCTS[@]}" ; do
+  for TF_ACCT in "${TF_ACCTS[@]}"; do
     echo "Getting login-${TF_ACCT} AMI data..."
     get_iam 'imagebuild' "${TF_ACCT}" 'FullAdministrator'
 
-    if [[ "${TF_ACCT}" == "tooling-prod" ]] ; then
+    if [[ "${TF_ACCT}" == "tooling-prod" ]]; then
       AV_REGIONS=('us-west-2')
       AMI_TYPES=('base')
     fi
 
-    for AV_REGION in "${AV_REGIONS[@]}" ; do
+    for AV_REGION in "${AV_REGIONS[@]}"; do
 
       AMI_DATA=$(ave -r aws ec2 describe-images --region ${AV_REGION} \
         --filters "Name=tag:Branch_Name,Values=main" --owners self |
@@ -86,16 +87,16 @@ get_ami_info() {
         Version:.Tags[]|select(.Key == "OS_Version").Value|
         sub(" ";"-"),Region:$REGION}]|sort_by(.Date)')
 
-      for AMI_TYPE in "${AMI_TYPES[@]}" ; do
-        if [[ $(echo $AMI_DATA | jq '.[]') != "" ]] ; then
+      for AMI_TYPE in "${AMI_TYPES[@]}"; do
+        if [[ $(echo $AMI_DATA | jq '.[]') != "" ]]; then
           AMI_INFO=$(echo ${AMI_DATA} | jq -r --arg ROLE "${AMI_TYPE}" \
-          '[.[]|select(.Role == $ROLE)]|.[-1:][]|[.Account,.ID,.Date,.Role,.Version,.Region]|@tsv' |
-          sed -E 's/^/\|/g;s/$/\|/g')
+            '[.[]|select(.Role == $ROLE)]|.[-1:][]|[.Account,.ID,.Date,.Role,.Version,.Region]|@tsv' |
+            sed -E 's/^/\|/g;s/$/\|/g')
           DATA+=$(echo -e "\n${AMI_INFO}\n" | sed -E 's/T[0-9]+//g')
-          
+
           AMI_CREATE_DATE=$(date -jf "%Y%m%d%H%M%S" $(echo "${AMI_INFO}" | awk '{print $3}' | tr -d 'T-') "+%s")
-          DATE_DIFF=$(( ($(date -jf "%Y%m%d%H%M%S" ${TODAY_DATE} "+%s") - ${AMI_CREATE_DATE}) / 86400))
-          if [[ ${DATE_DIFF} -gt 0 ]] ; then
+          DATE_DIFF=$((($(date -jf "%Y%m%d%H%M%S" ${TODAY_DATE} "+%s") - ${AMI_CREATE_DATE}) / 86400))
+          if [[ ${DATE_DIFF} -gt 0 ]]; then
             BAD_IMAGE_DATA+=("${TF_ACCT}/${AMI_TYPE}/${AV_REGION}/${DATE_DIFF}")
           fi
         fi
@@ -109,14 +110,14 @@ data_table() {
   HEADERS="|ACCOUNT ID DATE ROLE VERSION REGION|"
   echo
   echo_cyan "$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
-           sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
-      sed -E 's/(Ubuntu)-/\1 /g')"
+    sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
+    sed -E 's/(Ubuntu)-/\1 /g')"
   echo
-  
-  if [[ ${#BAD_IMAGE_DATA[@]} -gt 0 ]] ; then
+
+  if [[ ${#BAD_IMAGE_DATA[@]} -gt 0 ]]; then
     echo_yellow "One or more AMIs built from 'main' is >1 day old:"
     echo
-    for BAD_ACCT in "${BAD_IMAGE_DATA[@]}" ; do
+    for BAD_ACCT in "${BAD_IMAGE_DATA[@]}"; do
       ACCT_INFO=($(echo ${BAD_ACCT} | tr '/' ' '))
       echo "login-${ACCT_INFO[0]} : ${ACCT_INFO[1]} : ${ACCT_INFO[2]} : ${ACCT_INFO[3]} day(s)"
     done
@@ -124,7 +125,7 @@ data_table() {
     echo_yellow "This suggests that one or more pipelines may be failing to build correctly."
     echo_yellow "Verify status of the associated pipeline(s) before creating an AMI PR!"
     echo
-    if [[ "${TASK_LIST[@]}" =~ 'open' ]] ; then exit 0 ; fi
+    if [[ "${TASK_LIST[@]}" =~ 'open' ]]; then exit 0; fi
   fi
 }
 
@@ -132,7 +133,7 @@ update_vars() {
   echo -e "\nUpdating values in .tf file(s)...\n"
   local UPDATES=('FILE:TERRAFORM@VAR:NEW@VALUE' '-----:-----:-----')
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
-  for LINE in $(echo "${DATA[@]}" | tr -d '|' | sed -E 's/\t+/\+/g') ; do
+  for LINE in $(echo "${DATA[@]}" | tr -d '|' | sed -E 's/\t+/\+/g'); do
     AMI_ACCT=$(echo ${LINE} | awk -F+ '{print $1}')
     AMI_ID=$(echo ${LINE} | awk -F+ '{print $2}')
     AMI_DATE=$(echo ${LINE} | awk -F+ '{print $3}' | sed -E 's/T.+$//g')
@@ -148,29 +149,29 @@ update_vars() {
     AMI_STRING="${AMI_ID}\" # ${AMI_DATE} ${UBUNTU_VERSION}"
 
     TF_VARS_PATHS=()
-    if [[ "${AMI_ACCT}" == "tooling-prod" ]] ; then
+    if [[ "${AMI_ACCT}" == "tooling-prod" ]]; then
       TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
     else
       TF_VARS_PATHS+=('terraform/app/variables.tf')
     fi
 
-    for VAR_PATH in "${TF_VARS_PATHS[@]:-}" ; do
-      if [[ "${VAR_PATH}" =~ 'app' ]] ; then
+    for VAR_PATH in "${TF_VARS_PATHS[@]:-}"; do
+      if [[ "${VAR_PATH}" =~ 'app' ]]; then
         sed -i '' -E "/\"${AMI_VAR}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
-        "${GIT_DIR}/${VAR_PATH}"
+          "${GIT_DIR}/${VAR_PATH}"
       else
         sed -i '' -E "s/ami-.+/${AMI_STRING}/" "${GIT_DIR}/${VAR_PATH}"
       fi
-      if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}" ) ]]; then
+      if [[ $(git diff -U0 | grep ${AMI_ID}) ]] && [[ $(git diff --name-only | grep "${VAR_PATH}") ]]; then
         UPDATES+=("${VAR_PATH}:${AMI_VAR%-*}:${AMI_ID}")
         ((UPDATED_VARS++))
       fi
-      if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]] ; then
+      if [[ ! "${AMI_FILES[@]:-}" =~ ${VAR_PATH} ]]; then
         AMI_FILES+=(${VAR_PATH})
       fi
     done
   done
-  if [[ ${UPDATED_VARS} == 0 ]] ; then
+  if [[ ${UPDATED_VARS} == 0 ]]; then
     echo_yellow "All values in file(s) are up to date; no changes necessary."
   else
     echo_green "$(echo ${UPDATES[@]} | tr ' ' '\n' | column -t -s ':' | tr '@' ' ')"
@@ -181,44 +182,38 @@ update_vars() {
 open_pr() {
   local DIFF=($(git diff --name-only))
   local UNSCOPED=$(echo "${DIFF[@]}" "${AMI_FILES[@]:-}" | tr ' ' '\n' | sort | uniq -u)
-  if [[ ! -z "${UNSCOPED}" ]] ; then
+  if [[ ! -z "${UNSCOPED}" ]]; then
     echo_red "Additional files found in diff:"
-    for FILE in "${UNSCOPED}" ; do
+    for FILE in "${UNSCOPED}"; do
       echo_red "- ${FILE}"
     done
     echo
     raise "Verify changed files and try again."
   fi
-  
+
   [[ ${#DATA[@]} -eq 0 ]] && get_ami_info
-  if [[ ! $(brew list --formula | grep hub) ]] ; then
-    brew install hub || raise "hub not installed!"
-  fi
   AMI_BRANCH="ami/$(date -j '+%Y%m%d')"
   echo -e "\nCreating ${AMI_BRANCH} branch + opening pull request..."
+
+  GL_REV_GROUP="devops"
   PR_TITLE="AMI update, $(date -j '+%Y-%m-%d')"
-  gh_revs
+  PR_BODY="$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
+    sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
+    sed -E 's/(Ubuntu)-/\1 /g')"
+
   run git checkout main
   run git pull origin main
-  run git checkout -b ${AMI_BRANCH}
+  run git checkout -b "${AMI_BRANCH}"
   run git add --all
-  run git commit -m "${PR_TITLE}"
-  run git push --set-upstream origin ${AMI_BRANCH}
-  run hub pull-request -p -r "${GH_REVS}" -e -m "$(cat <<EOF
-${PR_TITLE}
-
-$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
-           sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
-      sed -E 's/(Ubuntu)-/\1 /g')
-
-
-EOF
-)"
+  run git commit -m "${PR_TITLE}" -m "${PR_BODY}"
+  run glab mr create --yes --fill --push \
+    --assignee "$(get_glab_assignee)" \
+    --reviewer "$(get_reviewer_list_without_assignee)"
 }
 
 verify_day() {
   local DATE_MATH="-v-0d"
-  if [[ $(date -uj '+%Y%m%d') -gt $(date -j '+%Y%m%d') ]] ; then
+  if [[ $(date -uj '+%Y%m%d') -gt $(date -j '+%Y%m%d') ]]; then
     DATE_MATH="-v-1d"
   fi
   TODAY_DATE=$(date -uj "${DATE_MATH}" '+%Y%m%d%H%M%S')
@@ -226,7 +221,7 @@ verify_day() {
 
 ##### main script
 
-if [[ $(env | grep 'AWS_VAULT=') ]] ; then
+if [[ $(env | grep 'AWS_VAULT=') ]]; then
   raise "Cannot run with an active AWS_VAULT session; clear the session and try again!"
 fi
 
@@ -244,29 +239,29 @@ TF_ACCTS=('sandbox' 'prod' 'tooling-prod')
 AV_REGIONS=('us-west-2' 'us-east-1')
 AMI_TYPES=('base' 'rails')
 
-while getopts t:r:a:luoh OPT ; do
+while getopts t:r:a:luoh OPT; do
   case "$OPT" in
-    t) AMI_TYPES=("${OPTARG}")     ;;
-    r) AV_REGIONS=("${OPTARG}")    ;;
-    a) TF_ACCTS=("${OPTARG}")      ;;
-    l) TASK_LIST=('list')          ;;
-    u) TASK_LIST=('list' 'update') ;;
-    o) TASK_LIST=('list' 'open')   ;;
-    h) help_me                     ;;
-    *) usage && exit 1 ;;
+  t) AMI_TYPES=("${OPTARG}") ;;
+  r) AV_REGIONS=("${OPTARG}") ;;
+  a) TF_ACCTS=("${OPTARG}") ;;
+  l) TASK_LIST=('list') ;;
+  u) TASK_LIST=('list' 'update') ;;
+  o) TASK_LIST=('list' 'open') ;;
+  h) help_me ;;
+  *) usage && exit 1 ;;
   esac
 done
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 
 echo
 verify_day
 get_ami_info
 
-for TASK in "${TASK_LIST[@]}" ; do
+for TASK in "${TASK_LIST[@]}"; do
   case "${TASK}" in
-    list)   data_table  ;;
-    update) update_vars ;;
-    open)   open_pr     ;;
+  list) data_table ;;
+  update) update_vars ;;
+  open) open_pr ;;
   esac
 done
 echo

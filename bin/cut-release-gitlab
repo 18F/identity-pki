@@ -5,9 +5,10 @@
 set -euo pipefail
 
 . "$(dirname "$0")/lib/common.sh"
+. "$(dirname "$0")/lib/gitlab.sh"
 
 usage() {
-    cat >&2 << EOM
+  cat >&2 <<EOM
 
 Usage: ${0}
 
@@ -48,29 +49,26 @@ EOM
 
 update_version() {
   local RELEASE_VERSION=${1}
-  echo "${RELEASE_VERSION}" > VERSION.txt
+  echo "${RELEASE_VERSION}" >VERSION.txt
   git add VERSION.txt
 
   case "${RELEASE_VERSION}" in
-    ${NEW_RELEASE})
-      git commit -m "Release version ${NEW_RELEASE}"
-      git tag "v${NEW_RELEASE}"
+  ${NEW_RELEASE})
+    git commit -m "Release version ${NEW_RELEASE}"
+    git tag "v${NEW_RELEASE}"
     ;;
-    ${POST_RELEASE})
-      git commit -m "Post release version ${POST_RELEASE}"
-      git push origin release/v${NEW_RELEASE}
-      git push origin v${NEW_RELEASE} # push w/remote tags
+  ${POST_RELEASE})
+    git commit -m "Post release version ${POST_RELEASE}"
+    git push origin release/v${NEW_RELEASE}
+    git push origin v${NEW_RELEASE} # push w/remote tags
     ;;
-  esac  
+  esac
 }
 
 echo
 [ $# -gt 0 ] && raise 'Must run without arguments!'
-verify_root_repo
 
-if [[ ! $(command -v glab) ]] ; then
-  brew install glab || raise "glab not installed!"
-fi
+verify_root_repo
 
 declare {OLD_VERSION_MR,NEW_VERSION_MR,BREAKING_MRS,REGULAR_MRS}=
 TODO=()
@@ -83,18 +81,18 @@ TASKS=(
 
 # always start from main
 run git checkout main
-if [[ ! -z $(git log origin/main..main) ]] ; then
+if [[ ! -z $(git log origin/main..main) ]]; then
   echo_red "Local 'main' branch not up to date with remote 'origin/main' branch."
   raise "Bring local branch up to date and try again!"
 fi
 
 NEW_RELEASE=$(cat VERSION.txt | sed -E 's/pre\-//')
-OLD_RELEASE=$((${NEW_RELEASE}-1))
-POST_RELEASE="pre-$((${NEW_RELEASE}+1))"
+OLD_RELEASE=$((${NEW_RELEASE} - 1))
+POST_RELEASE="pre-$((${NEW_RELEASE} + 1))"
 
 # make sure an MR for NEW_RELEASE doesn't already exist (merged or not)
 NEW_VERSION_MR=$(glab mr ls -A --search "Release v${NEW_RELEASE}" -F json | jq -r '.[].state')
-if [[ ! -z ${NEW_VERSION_MR} ]] && [[ ${NEW_VERSION_MR} != 'closed' ]] ; then
+if [[ ! -z ${NEW_VERSION_MR} ]] && [[ ${NEW_VERSION_MR} != 'closed' ]]; then
   echo_red "Existing MR for Release v${NEW_RELEASE} found with status '${NEW_VERSION_MR}'."
   raise "Verify release number in VERSION.txt and try again!"
 fi
@@ -102,25 +100,25 @@ fi
 # in case this script was interrupted, and the branch/tag already exists (locally
 # and/or remotely), delete them and then start over
 echo_cyan "Verifying existing git branches/tags..."
-if [[ $(git branch | grep "release/v${NEW_RELEASE}") ]] ; then
+if [[ $(git branch | grep "release/v${NEW_RELEASE}") ]]; then
   echo_yellow "Local branch 'release/v${NEW_RELEASE}' already exists."
   TODO+=("${TASKS[3]}")
 fi
-if [[ $(git branch -r | grep "v${NEW_RELEASE}") ]] ; then
+if [[ $(git branch -r | grep "v${NEW_RELEASE}") ]]; then
   echo_yellow "Remote branch 'release/v${NEW_RELEASE}' already exists."
   TODO+=("${TASKS[2]}")
 fi
-if [[ $(git tag | grep "v${NEW_RELEASE}") ]] ; then
+if [[ $(git tag | grep "v${NEW_RELEASE}") ]]; then
   echo_yellow "Local tag 'v${NEW_RELEASE}' already exists."
   TODO+=("${TASKS[1]}")
 fi
-if [[ $(git ls-remote --tags origin | grep "v${NEW_RELEASE}") ]] ; then
+if [[ $(git ls-remote --tags origin | grep "v${NEW_RELEASE}") ]]; then
   echo_yellow "Remote tag 'v${NEW_RELEASE}' already exists."
   TODO+=("${TASKS[0]}")
 fi
 
-if [[ ! -z ${TODO-} ]] ; then
-  if prompt_yn "Remove unmerged/unpushed branch/tag and restart release?" ; then
+if [[ ! -z ${TODO-} ]]; then
+  if prompt_yn "Remove unmerged/unpushed branch/tag and restart release?"; then
     run_tasks
   else
     raise "Remove/fix branch(es)/tag(s) before re-running script!"
@@ -130,13 +128,13 @@ fi
 # get MR of previous release; exit if there isn't one in the last 100 MRs
 echo_cyan "Finding MR for previous release 'v${OLD_RELEASE}'..."
 MR_NUM=25
-while [[ -z ${OLD_VERSION_MR} ]] ; do
+while [[ -z ${OLD_VERSION_MR} ]]; do
   MR_LIST=$(glab mr list --merged --target-branch=main --per-page ${MR_NUM} |
     sed -E 's/^\!/\- \!/;s/\(main\).+//' | awk '{$3=""; print $0}' | tail -n +2)
-  
+
   OLD_VERSION_MR=$(echo "${MR_LIST}" | grep "Release v${OLD_RELEASE}" | tr -d '\n')
-  if [[ ${MR_NUM} -lt 100 ]] ; then
-    ((MR_NUM+=25))
+  if [[ ${MR_NUM} -lt 100 ]]; then
+    ((MR_NUM += 25))
   else
     echo_red "Previous release 'v${OLD_RELEASE}' was not found in the last ${MR_NUM} MRs."
     raise "Verify release number in VERSION.txt and try again"
@@ -145,14 +143,14 @@ done
 
 # get all MRs since last release; separate out anything marked '(BREAKING)'
 RELEASE_MRS=$(echo "${MR_LIST}" |
-    sed "/${OLD_VERSION_MR}/q" | sed '$d')
+  sed "/${OLD_VERSION_MR}/q" | sed '$d')
 REGULAR_MRS=$(echo "${RELEASE_MRS}" | grep -v BREAKING) || true
-if [[ $(echo "${RELEASE_MRS}" | grep BREAKING) ]] ; then
+if [[ $(echo "${RELEASE_MRS}" | grep BREAKING) ]]; then
   BREAKING_MRS="
 BREAKING CHANGES:
 $(echo "${RELEASE_MRS}" | grep BREAKING | sed -E 's/\(BREAKING\)| \| BREAKING//g')"
-  if [[ ! -z ${REGULAR_MRS:-} ]] ; then
-  REGULAR_MRS="
+  if [[ ! -z ${REGULAR_MRS:-} ]]; then
+    REGULAR_MRS="
 
 REGULAR CHANGES:
 $(echo "${REGULAR_MRS}")"
@@ -167,19 +165,23 @@ echo && echo_cyan "Setting version to ${POST_RELEASE} post-release."
 update_version ${POST_RELEASE}
 echo
 
-# print out the MRs since 'glab mr create' can't take a multiline description
-echo_green "The following is the list of MRs for this week's release;"
-echo_green "copy/paste them into your editor when prompted by 'glab mr create':"
-
-echo "$(cat <<EOF
+RAW_DESCRIPTION="$(
+  cat <<EOF
 $(echo "${BREAKING_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
 $(echo "${REGULAR_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
 EOF
 )"
 
-${GIT_DIR}/bin/gitlab-mr -t "Release v${NEW_RELEASE}" -g devops
+GLAB_DESCRIPTION="$(sanitize_glab_mr_description "${RAW_DESCRIPTION}")"
 
-run glab release create v${NEW_RELEASE} -N "$(cat <<EOF
+GL_REV_GROUP="devops"
+run glab mr create --title "Release v${NEW_RELEASE}" \
+  --description "${GLAB_DESCRIPTION}" \
+  --assignee "$(get_glab_assignee)" \
+  --reviewer "$(get_reviewer_list_without_assignee)"
+
+run glab release create v${NEW_RELEASE} -N "$(
+  cat <<EOF
 ${BREAKING_MRS}
 ${REGULAR_MRS}
 EOF
