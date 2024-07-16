@@ -178,8 +178,8 @@ variable "splunk_enabled" {
 
 variable "incident_manager_teams" {
   description = "List of on-call teams from the users.yml file"
-  # Consider pulling these up to the stack level instead of having defaults here.
-  type = list(string)
+  type        = list(string)
+  default     = []
 }
 
 variable "incident_manager_enabled" {
