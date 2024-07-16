@@ -18,6 +18,8 @@ provider "newrelic" {
   api_key    = data.aws_s3_object.newrelic_apikey.body
 }
 
+data "newrelic_account" "current" {}
+
 module "newrelic" {
   source = "../modules/newrelic/"
 
@@ -42,4 +44,70 @@ module "newrelic" {
   proofing_pageview_duration_alert_threshold = var.proofing_pageview_duration_alert_threshold
   low_memory_alert_enabled                   = var.low_memory_alert_enabled
   waf_alerts_enabled                         = var.waf_alerts_enabled
+  incident_manager_teams                     = local.incident_manager_teams
+  incident_manager_enabled                   = var.incident_manager_enabled
+  splunk_enabled                             = var.splunk_enabled
+}
+
+
+data "aws_iam_policy_document" "new_relic_event_bridge" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "new_relic" {
+  statement {
+    effect    = "Allow"
+    actions   = ["lambda:InvokeFunction"]
+    resources = [for val in local.incident_manager_teams : "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function/${val}-incident-manager-actions"]
+  }
+}
+
+resource "aws_iam_role" "new_relic" {
+  name               = "NewRelicEventBus"
+  assume_role_policy = data.aws_iam_policy_document.new_relic_event_bridge.json
+}
+
+resource "aws_iam_policy" "new_relic" {
+  name   = "NewRelicEventBus"
+  policy = data.aws_iam_policy_document.new_relic.json
+}
+
+resource "aws_iam_role_policy_attachment" "new_relic" {
+  policy_arn = aws_iam_policy.new_relic.arn
+  role       = aws_iam_role.new_relic.name
+}
+
+
+resource "aws_cloudwatch_event_bus" "new_relic" {
+  for_each          = toset((var.new_relic_pager_alerts_enabled + var.newrelic_alerts_enabled + var.incident_manager_enabled >= 3) ? local.incident_manager_teams : [])
+  name              = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
+  event_source_name = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
+}
+
+resource "aws_cloudwatch_event_rule" "new_relic" {
+  for_each       = toset((var.new_relic_pager_alerts_enabled + var.newrelic_alerts_enabled + var.incident_manager_enabled >= 3) ? local.incident_manager_teams : [])
+  name           = "new-relic-incident-manager-${each.value}-${var.env_name}"
+  event_bus_name = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
+  description    = "Send New Relic alerts to Incident Manager"
+
+  event_pattern = jsonencode({
+    "source" : [{
+      "prefix" : "aws.partner/newrelic.com"
+    }]
+  })
+}
+
+resource "aws_cloudwatch_event_target" "new_relic" {
+  for_each       = toset((var.new_relic_pager_alerts_enabled + var.newrelic_alerts_enabled + var.incident_manager_enabled >= 3) ? local.incident_manager_teams : [])
+  rule           = aws_cloudwatch_event_rule.new_relic[each.value].name
+  event_bus_name = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
+  target_id      = "new-relic-incident-manager-${each.value}-${var.env_name}"
+  arn            = "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${each.value}-incident-manager-actions"
 }

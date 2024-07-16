@@ -740,18 +740,22 @@ locals {
   low_priority_alarm_actions_use1      = [var.slack_events_sns_hook_arn_use1]
   moderate_priority_alarm_actions      = [var.slack_alarms_sns_hook_arn]
   moderate_priority_alarm_actions_use1 = [var.slack_alarms_sns_hook_arn_use1]
-  high_priority_alarm_actions = var.page_devops == 1 ? [
-    var.high_priority_sns_hook, var.slack_alarms_sns_hook_arn
-  ] : [var.slack_alarms_sns_hook_arn]
-  high_priority_alarm_actions_use1 = var.page_devops == 1 ? [
-    var.high_priority_sns_hook_use1, var.slack_alarms_sns_hook_arn_use1
-  ] : [var.slack_alarms_sns_hook_arn_use1]
+
+  high_priority_alarm_actions = var.page_devops == 1 ? flatten([
+    var.high_priority_sns_hook,
+    var.slack_alarms_sns_hook_arn
+  ]) : [var.slack_alarms_sns_hook_arn]
+  high_priority_alarm_actions_use1 = var.page_devops == 1 ? flatten([
+    var.high_priority_sns_hook_use1,
+    var.slack_alarms_sns_hook_arn_use1
+  ]) : [var.slack_alarms_sns_hook_arn_use1]
 
   inventory_bucket_arn = join(".", [
     "arn:aws:s3:::login-gov.s3-inventory",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
-  dnssec_runbook_prefix = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
+  incident_manager_teams = [for k, v in yamldecode(file("../master/global/users.yaml"))["oncall_teams"] : k]
+  dnssec_runbook_prefix  = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
 }
 
 # These variables are used to toggle whether certain services are enabled.
@@ -1696,4 +1700,15 @@ EOM
     condition     = length(var.logarchive_acct_id) == 0 || length(var.logarchive_acct_id) == 12
     error_message = "The logarchive_acct_id must be a valid AWS account id."
   }
+}
+variable "splunk_enabled" {
+  description = "Set this to true to enable Splunk for an environment."
+  type        = number
+  default     = 0
+}
+
+variable "incident_manager_enabled" {
+  description = "Set this to true to enable AWS Incident Manager for an environment."
+  type        = number
+  default     = 0
 }

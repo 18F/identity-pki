@@ -1097,6 +1097,66 @@ locals {
           "*",
         ]
       }
+    ],
+    [
+      {
+        sid    = "SSMContacts"
+        effect = "Allow"
+        actions = [
+          "ssm-contacts:ListContactChannels",
+          "ssm-contacts:ListContacts",
+          "ssm-contacts:ListEngagements",
+          "ssm-contacts:ListRotations",
+          "ssm-contacts:GetContact",
+          "ssm-contacts:GetContactChannel",
+          "ssm-contacts:GetContactPolicy",
+          "ssm-contacts:GetRotation",
+          "ssm-contacts:ListTagsForResource",
+          "ssm-contacts:CreateContact",
+          "ssm-contacts:CreateContactChannel",
+          "ssm-contacts:CreateRotation",
+          "ssm-contacts:DeleteContact",
+          "ssm-contacts:DeleteContactChannel",
+          "ssm-contacts:DeleteRotation",
+          "ssm-contacts:PutContactPolicy",
+          "ssm-contacts:UpdateContact",
+          "ssm-contacts:UpdateContactChannel",
+          "ssm-contacts:UpdateRotation",
+          "ssm-contacts:AssociateContact",
+          "ssm-contacts:TagResource",
+          "ssm-contacts:UntagResource"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "SSMIncidents"
+        effect = "Allow"
+        actions = [
+          "ssm-incidents:UntagResource",
+          "ssm-incidents:TagResource",
+          "ssm-incidents:PutResourcePolicy",
+          "ssm-incidents:DeleteResourcePolicy",
+          "ssm-incidents:UpdateResponsePlan",
+          "ssm-incidents:UpdateReplicationSet",
+          "ssm-incidents:UpdateDeletionProtection",
+          "ssm-incidents:DeleteResponsePlan",
+          "ssm-incidents:DeleteReplicationSet",
+          "ssm-incidents:CreateResponsePlan",
+          "ssm-incidents:CreateReplicationSet",
+          "ssm-incidents:ListTagsForResource",
+          "ssm-incidents:GetReplicationSet",
+          "ssm-incidents:GetResponsePlan",
+          "ssm-incidents:GetResourcePolicies",
+          "ssm-incidents:ListResponsePlans",
+          "ssm-incidents:ListReplicationSets"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+
     ]
   ]
 }

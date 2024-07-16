@@ -32,7 +32,7 @@ pip install -r requirements.txt > /dev/null
 
 files_to_format=$(
   git ls-files "$ROOT_DIR" --full-name |
-     grep 'terraform/\(app\|data-warehouse\|modules/config_.*\).*\.py')
+     grep 'terraform/\(app\|data-warehouse\|incident-manager\|modules/config_.*\).*\.py')
 
 cd "$ROOT_DIR"
 if [[ ${1:-''} == "--fix" ]]; then

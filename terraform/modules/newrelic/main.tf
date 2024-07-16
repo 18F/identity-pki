@@ -66,9 +66,35 @@ EOF
     "event_type": "INCIDENT"
 }
 EOF
+
+  incident_manager_payload_template = <<-EOF
+{
+  "alarmName": {{ json annotations.title.[0] }},
+  "state":{
+    "reason": {{ json annotations.title.[0] }},
+    "reasonData": {
+      "IssueID": {{json issueId}},
+      "IssueURL": {{json issuePageUrl}},
+      "NewRelic priority": {{json priority}},
+      "Runbook": "{{#each accumulations.runbookUrl}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}",
+      "Description": "{{#each annotations.description}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}",
+      "Alert Policy Names": "{{#each accumulations.policyName}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}",
+      "Alert Condition Names": "{{#each accumulations.conditionName}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}",
+      "Workflow Name": {{json workflowName}}
+      },
+    "timestamp": {{ createdAt }},
+    "value":"ALARM"
+  },
+  "configuration":{
+    "description":"Test"
+  }
+}
+EOF
+
 }
 
 data "aws_caller_identity" "current" {}
+data "newrelic_account" "current" {}
 
 # These Slack URLs need to be uploaded to S3 with --content-type text/plain
 data "aws_s3_object" "slack_low_webhook_url" {
@@ -179,13 +205,29 @@ resource "newrelic_notification_destination" "slack_doc_auth" {
 }
 
 resource "newrelic_notification_destination" "splunk_oncall" {
-  for_each = (var.enabled + var.pager_alerts_enabled) >= 2 ? var.splunk_oncall_routing_keys : {}
+  for_each = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled >= 3) ? var.splunk_oncall_routing_keys : {}
   name     = "splunk-oncall-${each.key}-${var.env_name}"
   type     = "WEBHOOK"
 
   property {
     key   = "url"
     value = "${data.aws_ssm_parameter.splunk_oncall_newrelic_endpoint.value}/${each.key}"
+  }
+}
+
+resource "newrelic_notification_destination" "incident_manager" {
+  for_each = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled >= 3) ? var.incident_manager_teams : [])
+  name     = "incident-manager-oncall-${each.value}-${var.env_name}"
+  type     = "EVENT_BRIDGE"
+
+  property {
+    key   = "AWSAccountId"
+    value = data.aws_caller_identity.current.account_id
+  }
+
+  property {
+    key   = "AWSRegion"
+    value = "us-west-2"
   }
 }
 
@@ -265,7 +307,7 @@ resource "newrelic_notification_channel" "slack_enduser" {
 }
 
 resource "newrelic_notification_channel" "splunk_oncall" {
-  for_each       = (var.enabled + var.pager_alerts_enabled) >= 2 ? var.splunk_oncall_routing_keys : {}
+  for_each       = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled >= 3) ? var.splunk_oncall_routing_keys : {}
   name           = "splunk-oncall-${each.key}-${var.env_name}"
   type           = "WEBHOOK"
   destination_id = newrelic_notification_destination.splunk_oncall[each.key].id
@@ -276,6 +318,25 @@ resource "newrelic_notification_channel" "splunk_oncall" {
     value = local.splunk_oncall_payload_template
     label = "Payload Template"
   }
+}
+
+resource "newrelic_notification_channel" "incident_manager" {
+  for_each       = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled >= 3) ? var.incident_manager_teams : [])
+  name           = "incident-manager-oncall-${each.key}-${var.env_name}"
+  type           = "EVENT_BRIDGE"
+  destination_id = newrelic_notification_destination.incident_manager[each.value].id
+  product        = "IINT"
+
+  property {
+    key   = "eventSource"
+    value = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
+  }
+
+  property {
+    key   = "eventContent"
+    value = local.incident_manager_payload_template
+  }
+
 }
 
 # Workflows
@@ -322,10 +383,19 @@ resource "newrelic_workflow" "high" {
 
   dynamic "destination" {
     # Targets both login-application and login-platform Splunk On-Call routing keys
-    for_each = (var.enabled + var.pager_alerts_enabled) >= 2 ? ["login-application", "login-platform"] : []
+    for_each = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled >= 3) ? ["login-application", "login-platform"] : []
 
     content {
       channel_id = newrelic_notification_channel.splunk_oncall[destination.value].id
+    }
+  }
+
+  dynamic "destination" {
+    # Targets all incident manager teams
+    for_each = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled >= 3) ? var.incident_manager_teams : [])
+
+    content {
+      channel_id = newrelic_notification_channel.incident_manager[destination.value].id
     }
   }
 }

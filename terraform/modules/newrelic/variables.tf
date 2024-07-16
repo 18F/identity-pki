@@ -143,7 +143,7 @@ variable "staticsite_fixed_string" {
 
 variable "memory_free_threshold_byte" {
   description = "Low memory threshold in bytes for New Relic"
-  default     = "524288000" #500 MB 
+  default     = "524288000" #500 MB
 }
 
 variable "low_memory_alert_enabled" {
@@ -168,4 +168,22 @@ EOM
     "login-platform"    = "Platform On-Call alerts",
     "login-application" = "AppDev/product engineer alerts"
   }
+}
+
+variable "splunk_enabled" {
+  description = "Set this to true to enable Splunk for an environment."
+  type        = number
+  default     = 0
+}
+
+variable "incident_manager_teams" {
+  description = "List of on-call teams from the users.yml file"
+  # Consider pulling these up to the stack level instead of having defaults here.
+  type = list(string)
+}
+
+variable "incident_manager_enabled" {
+  description = "Set this to true to enable AWS Incident Manager for an environment."
+  type        = number
+  default     = 0
 }
