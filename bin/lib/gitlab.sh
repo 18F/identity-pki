@@ -6,8 +6,7 @@ set -eu
 . "$(dirname "$0")/lib/common.sh"
 
 REVIEWERS=()
-declare -a GL_REV_USERS
-declare GL_REV_GROUP GL_DATA
+declare GL_REV_GROUP GL_DATA GL_REV_USERS
 
 verify_gitlab_apps() {
   for GL_APP in 'jq' 'yq' 'glab'; do
