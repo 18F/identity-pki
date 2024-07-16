@@ -70,12 +70,12 @@ data "aws_iam_policy_document" "new_relic" {
 }
 
 resource "aws_iam_role" "new_relic" {
-  name               = "NewRelicEventBus"
+  name               = "NewRelicEventBus-${var.env_name}"
   assume_role_policy = data.aws_iam_policy_document.new_relic_event_bridge.json
 }
 
 resource "aws_iam_policy" "new_relic" {
-  name   = "NewRelicEventBus"
+  name   = "NewRelicEventBus-${var.env_name}"
   policy = data.aws_iam_policy_document.new_relic.json
 }
 
