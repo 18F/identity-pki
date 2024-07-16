@@ -721,6 +721,12 @@ env-timnit:
     ENV_NAME: timnit
     branch: "stages/timnit"
 
+env-melba:
+  extends: .include_idp_jobs_template
+  variables:
+    ENV_NAME: melba
+    branch: "stages/stable"
+
 # deploy job template for gitlab envs
 .deploy_gitlab_template:
   timeout: 2h
