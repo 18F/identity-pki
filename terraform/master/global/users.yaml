@@ -1293,6 +1293,30 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-logging:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-hostdata:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-fake-server:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
   lg-people/data-analytics:
     groups:
       Data Analytics:
