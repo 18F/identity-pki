@@ -759,6 +759,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - lg-people-platform|reporter
     oncaller: true
   moncef.belyamani:
     aws_groups:
