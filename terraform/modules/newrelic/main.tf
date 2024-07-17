@@ -339,6 +339,26 @@ resource "newrelic_notification_channel" "incident_manager" {
 
 }
 
+resource "newrelic_notification_channel" "incident_manager_enduser" {
+  for_each       = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled >= 3) ? ["appdev_enduser"] : [])
+  name           = "incident-manager-oncall-appdev-${var.env_name}"
+  type           = "EVENT_BRIDGE"
+  destination_id = newrelic_notification_destination.incident_manager["appdev"].id
+  product        = "IINT"
+
+  property {
+    key   = "eventSource"
+    value = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
+  }
+
+  property {
+    key   = "eventContent"
+    value = local.incident_manager_payload_template
+  }
+
+}
+
+
 # Workflows
 resource "newrelic_workflow" "low" {
   count                 = var.enabled
@@ -463,10 +483,19 @@ resource "newrelic_workflow" "enduser" {
   }
 
   dynamic "destination" {
-    for_each = (var.enabled + var.pager_alerts_enabled) >= 2 ? ["login-application"] : []
+    for_each = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled) >= 3 ? ["login-application"] : []
 
     content {
       channel_id = newrelic_notification_channel.splunk_oncall[destination.value].id
     }
   }
+
+  dynamic "destination" {
+    for_each = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled) >= 3 ? ["appdev_enduser"] : [])
+
+    content {
+      channel_id = newrelic_notification_channel.incident_manager_enduser[destination.value].id
+    }
+  }
+
 }
