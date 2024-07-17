@@ -197,10 +197,23 @@ saml/endpoint-year-by-referrer:
   query: |
     ## Count SAML endpoint request year by referrer, sorted by oldest year
     filter uri_path =~ /^\/api\/saml\/auth/
-    | parse uri_path /auth(?<year>\d+)$/
+    | parse uri_path /auth(post)*(?<year>\d+)$/
     | filter http_referer not like /\.(login|identitysandbox)\.gov/
     | stats count() as count by http_referer,year
     | sort year asc
+
+saml/valid-endpoint-years-by-service-provider:
+  logs:
+    - ${env}_/srv/idp/shared/log/events.log
+  query: |
+    ## Count SAML endpoint request year by issuer, sorted by count. Will not return invalid years.
+    fields @timestamp, properties.event_properties.service_provider
+    | filter name like /SAML Auth Request/
+    | parse properties.path /\/api\/saml\/auth(post)*(?<year>\d+)$/
+    # | filter year = 2024
+    | stats count(*) as c by properties.event_properties.service_provider, year
+    | sort c desc
+
 
 telephony/otp-setup-by-ip:
   logs:
