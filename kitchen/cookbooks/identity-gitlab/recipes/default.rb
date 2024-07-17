@@ -620,6 +620,12 @@ execute 'gitlab_rails_commands' do
     rescue; \
       puts 'XXX could not create QA token'; \
     end; \
+    begin; \
+      puts 'Enable pages_multiple_versions_setting feature flag'; \
+      Feature.enable(:pages_multiple_versions_setting)
+    rescue; \
+      puts 'XXX could not enable pages_multiple_versions_setting feature flag'; \
+    end; \
     \
     true"
   EOF
