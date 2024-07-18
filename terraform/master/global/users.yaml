@@ -78,7 +78,8 @@ users:
     - lg-public
     - Mary
     - Radia
-    oncaller: true
+    oncaller:
+    - true
   alex.rowley:
     aws_groups:
     - analytics
@@ -122,7 +123,8 @@ users:
     - appdev
     - lg-all
     - lg-public
-    oncaller: true
+    oncaller:
+    - true
   andrew.duthie:
     aws_groups:
     - apponcall
@@ -517,7 +519,8 @@ users:
     - devops
     - lg-all
     - lg-public
-    oncaller: true
+    oncaller:
+    - true
   jonathan.pirro:
     aws_groups:
     - devops
@@ -531,7 +534,8 @@ users:
     - Radia
     git_username:
     - bleachbyte
-    oncaller: true
+    oncaller:
+    - true
   jude.uwazie:
     gitlab_groups:
     - antifraud
@@ -554,7 +558,8 @@ users:
     - lg-all
     - lg-public
     - Radia
-    oncaller: true
+    oncaller:
+    - true
   keith.e.williams:
     aws_groups:
     - apponcall
@@ -693,7 +698,8 @@ users:
     - lg-all
     - lg-public
     - login-security|guest
-    oncaller: true
+    oncaller:
+    - true
   matt.wagner:
     aws_groups:
     - apponcall
@@ -745,7 +751,8 @@ users:
     - Radia
     git_username:
     - mww59
-    oncaller: true
+    oncaller:
+    - true
     email:
     - michael.w.ward@gsa.gov
   mitchell.henke:
@@ -760,7 +767,8 @@ users:
     - lg-all
     - lg-public
     - lg-people-platform|reporter
-    oncaller: true
+    oncaller:
+    - true
   moncef.belyamani:
     aws_groups:
     - appdev
@@ -1048,7 +1056,8 @@ users:
     - lg-all
     - lg-public
     - lg-people-platform|reporter
-    oncaller: true
+    oncaller:
+    - true
   root:
     # Note: Gitlab Machine User - don't specify aws_groups for these
     email:

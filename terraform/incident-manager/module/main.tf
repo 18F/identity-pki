@@ -1,7 +1,7 @@
 locals {
   non_human_accounts = ["root", "project_21_bot"]
   users              = yamldecode(file("../../master/global/users.yaml"))
-  contacts           = { for key, value in local.users["users"] : key => value if !contains(local.non_human_accounts, key) && lookup(value, "oncaller", false) }
+  contacts           = { for key, value in local.users["users"] : key => value if !contains(local.non_human_accounts, key) && contains(keys(value), "oncaller") }
   teams              = local.users["oncall_teams"]
   rotations          = merge([for k, v in local.users["oncall_teams"] : v["rotations"]]...)
 }
