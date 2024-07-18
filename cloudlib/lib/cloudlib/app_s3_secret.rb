@@ -5,6 +5,7 @@ require 'fileutils'
 require 'tempfile'
 require 'terminal-table'
 require 'yaml'
+require 'open3'
 
 module Cloudlib
   class AppS3Secret
@@ -254,7 +255,7 @@ module Cloudlib
         case extension.downcase
         when '.yml', '.yaml'
           require 'yaml'
-          parsed = YAML.load(content)
+          parsed = YAML.safe_load(content)
 
           has_smart_quotes = parsed['production'].any? do |key, value|
             value.kind_of?(String) && (
@@ -362,7 +363,8 @@ module Cloudlib
             out.puts "Comparing: #{newer.last_modified} (#{newer.version_id}), Updated by: #{version_updated_by(newer.version_id)}"
             out.puts "       to: #{older.last_modified} (#{older.version_id}), Updated by: #{version_updated_by(older.version_id)}"
 
-            success = system(differ, older_file.path, newer_file.path, out: out)
+            stdout, _stderr, success = Open3.capture3(differ, older_file.path, newer_file.path)
+            out.puts stdout
 
             out.puts "(no diff)" if no_diff
 
@@ -411,7 +413,7 @@ module Cloudlib
       # @return [String]
       def table(envs:, keys:)
         contents = envs.zip(keys).map do |env, key|
-          YAML.load(
+          YAML.safe_load(
             s3_client.get_object(bucket: bucket, key: key).body.read
           )['production']
         end

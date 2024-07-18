@@ -1,4 +1,5 @@
 require 'terminal-table'
+require 'open3'
 
 module Cloudlib
   # A Deploy represents a single version of a deploy
@@ -313,7 +314,12 @@ module Cloudlib
     end
 
     def get_most_recent_github_git_sha
-      `git ls-remote https://github.com/18F/identity-idp.git #{branch} | awk '{print $1}'`.chomp
+      log, _status = Open3.capture2(
+        'git', 'ls-remote', 'https://github.com/18F/identity-idp.git', branch,
+      )
+
+      sha = log.split(' ').first
+      sha
     end
 
     def has_run_migrations?(sha:)
