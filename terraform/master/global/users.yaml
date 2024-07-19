@@ -292,6 +292,13 @@ users:
     - ConnorPMcCarthy
     ec2_username:
     - cmccarthy
+  david.a.zimmerman:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    - lg-all
+    - lg-public
   david.dsilva:
     aws_groups:
     - analytics
