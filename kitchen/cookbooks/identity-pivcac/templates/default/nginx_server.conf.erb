@@ -16,7 +16,7 @@ server {
     ssl_certificate      /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/fullchain.pem;
     ssl_certificate_key  /etc/letsencrypt/live/<%= @ssl_domain or raise 'no @ssl_domain' %>/privkey.pem;
     <% if @use_client_certificate %>
-      ssl_client_certificate /srv/pki-rails/current/config/cert_bundles/ficam_bundle.pem;
+    ssl_client_certificate /srv/pki-rails/current/config/cert_bundles/ficam_bundle.pem;
     <% end %>
     ssl_verify_client optional_no_ca; # on;
     ssl_verify_depth 10;
@@ -33,11 +33,26 @@ server {
     proxy_buffers              8 32k;
     proxy_busy_buffers_size    64k;
 
-    location ~ \.json$ {
+    location ~* \.(html|txt|ico|png|json)$ {
         root "/srv/pki-rails/current/public";
+        try_files $uri @backend;
     }
 
     location / {
+        proxy_pass http://localhost:9292;
+
+        proxy_set_header X-Real-Host $host;
+        proxy_set_header X-Real-Ip $remote_addr;
+        proxy_set_header X-Real-Proto https;
+        proxy_set_header X-Client-Verify $ssl_client_verify;
+        proxy_set_header X-Client-S-Dn $ssl_client_s_dn;
+        proxy_set_header X-Client-I-Dn $ssl_client_i_dn;
+        proxy_set_header X-Client-Serial $ssl_client_serial;
+        proxy_set_header X-Client-Fingerprint $ssl_client_fingerprint;
+        proxy_set_header X-Client-Cert $ssl_client_escaped_cert;
+    }
+
+    location @backend {
         proxy_pass http://localhost:9292;
 
         proxy_set_header X-Real-Host $host;
