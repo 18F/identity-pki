@@ -1151,9 +1151,11 @@ groups:
 projects:
   lg/identity-devops:
     groups:
-      devops:
-        access: developer
+      antifraud:
+        access: reporter
       appdev:
+        access: developer
+      devops:
         access: developer
       pm:
         access: reporter
