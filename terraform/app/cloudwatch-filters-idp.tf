@@ -265,6 +265,18 @@ locals {
         }
       EOT
     },
+    idv_gpo_confirmation_upload_count = {
+      name         = "idv-gpo-confirmation-upload-count"
+      pattern      = "{ ($.name = \"gpo_confirmation_upload\") && $.properties.event_properties.success is true }"
+      metric_value = "$.properties.event_properties.gpo_confirmation_count"
+      dimensions   = {}
+    },
+    idv_gpo_confirmation_upload_job_failures = {
+      name         = "idv-gpo-confirmation-upload-job-failures"
+      pattern      = "{ ($.name = \"gpo_confirmation_upload\") && $.properties.event_properties.success is false }"
+      metric_value = 1
+      dimensions   = {}
+    },
     idv_unexpected_face_match_errors = {
       name         = "idv-unexpected-face-match-errors"
       metric_value = 1
