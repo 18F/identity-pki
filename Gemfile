@@ -25,6 +25,7 @@ gem 'rgl'
 group :development, :test do
   gem 'bullet', '~> 7.0'
   gem 'brakeman', require: false
+  gem 'listen'
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
   gem 'rubocop', require: false

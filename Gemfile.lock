@@ -152,6 +152,7 @@ GEM
       factory_bot (~> 6.1.0)
       railties (>= 5.0.0)
     fakefs (2.5.0)
+    ffi (1.17.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashdiff (1.0.1)
@@ -161,6 +162,9 @@ GEM
     jmespath (1.6.2)
     json (2.6.3)
     lazy_priority_queue (0.1.1)
+    listen (3.9.0)
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
     lograge (0.11.2)
       actionpack (>= 4)
       activesupport (>= 4)
@@ -248,6 +252,9 @@ GEM
       zeitwerk (~> 2.5)
     rainbow (3.1.1)
     rake (13.0.6)
+    rb-fsevent (0.11.2)
+    rb-inotify (0.11.1)
+      ffi (~> 1.0)
     redacted_struct (2.0.0)
     redis (4.2.4)
     regexp_parser (2.7.0)
@@ -349,6 +356,7 @@ DEPENDENCIES
   fakefs
   identity-hostdata!
   identity-logging!
+  listen
   mini_cache
   newrelic_rpm (~> 8.0)
   pg
