@@ -93,7 +93,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_usps" {
           "x" : 7,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields name, @timestamp, @message\n| filter name in ['USPS IPPaaS enrollment failed', 'GetUspsProofingResultsJob: Exception raised']\n| count(*) as errors by name\n| sort errors desc",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields name, @timestamp, @message\n| filter name in ['USPS IPPaaS enrollment failed', 'GetUspsProofingResultsJob: Exception raised']\n| stats count(*) as errors by name\n| sort errors desc",
             "region" : "${var.region}",
             "stacked" : false,
             "title" : "USPS Polling Job Errors",

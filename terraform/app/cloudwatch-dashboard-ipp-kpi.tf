@@ -59,7 +59,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_kpi" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | | filter name = 'GetUspsProofingResultsJob: Enrollment status updated'\n|  stats count(*) by properties.event_properties.fraud_suspected  as `Fraud Suspected`",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'GetUspsProofingResultsJob: Enrollment status updated'\n| stats count(*) by properties.event_properties.fraud_suspected  as `Fraud Suspected`\n| sort `Fraud Suspected` desc",
             "region" : "${var.region}",
             "stacked" : false,
             "title" : "Fraud Suspected (1 = Fraud)",

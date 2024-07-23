@@ -21,7 +21,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_analytics" {
           "x" : 11,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields\n  name,\n  @timestamp,\n  properties.event_properties.proofing_results.context.stages.threatmetrix.review_status\n| filter ispresent(properties.event_properties.proofing_results.context.stages.threatmetrix.review_status)\n|stats\n  count(properties.event_properties.proofing_results.context.stages.threatmetrix.review_status)\n  by\n  properties.event_properties.proofing_results.context.stages.threatmetrix.review_status,\n  properties.event_properties.analytics_id\n| sort properties.event_properties.analytics_id, properties.event_properties.proofing_results.context.stages.threatmetrix.review_status",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields\n  name,\n  @timestamp,\n  properties.event_properties.proofing_results.context.stages.threatmetrix.review_status as review_status,\n  properties.event_properties.analytics_id as analytics_id\n| filter ispresent(review_status)\n|stats\n  count(review_status) by review_status, analytics_id\n| sort analytics_id, review_status",
             "region" : "${var.region}",
             "stacked" : false,
             "view" : "table",
@@ -35,7 +35,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_analytics" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter properties.service_provider in [\n                                         'https://eauth.va.gov/isam/sps/saml20sp/saml20',\n                                         'urn:gov:gsa:SAML:2.0.profiles:sp:sso:va_lighthouse:saml_proxy_prod',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:va_gov:internal_tools',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:RRB:myRRB']\n                                     or \n          properties.event_properties.issuer in [\n                                         'https://eauth.va.gov/isam/sps/saml20sp/saml20',\n                                         'urn:gov:gsa:SAML:2.0.profiles:sp:sso:va_lighthouse:saml_proxy_prod',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:va_gov:internal_tools',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:RRB:myRRB'] \n                                     or\n          properties.event_properties.service_provider in [\n                                         'https://eauth.va.gov/isam/sps/saml20sp/saml20',\n                                         'urn:gov:gsa:SAML:2.0.profiles:sp:sso:va_lighthouse:saml_proxy_prod',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:va_gov:internal_tools',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:RRB:myRRB']                                  \n| filter name in [\n                \n                'IdV: in person proofing address submitted']\n| stats count(*) by properties.event_properties.same_address_as_id as `Same Address as ID(1) vs Different Address(0)`",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter properties.service_provider in [\n                                         'https://eauth.va.gov/isam/sps/saml20sp/saml20',\n                                         'urn:gov:gsa:SAML:2.0.profiles:sp:sso:va_lighthouse:saml_proxy_prod',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:va_gov:internal_tools',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:RRB:myRRB']\n                                     or \n          properties.event_properties.issuer in [\n                                         'https://eauth.va.gov/isam/sps/saml20sp/saml20',\n                                         'urn:gov:gsa:SAML:2.0.profiles:sp:sso:va_lighthouse:saml_proxy_prod',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:va_gov:internal_tools',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:RRB:myRRB'] \n                                     or\n          properties.event_properties.service_provider in [\n                                         'https://eauth.va.gov/isam/sps/saml20sp/saml20',\n                                         'urn:gov:gsa:SAML:2.0.profiles:sp:sso:va_lighthouse:saml_proxy_prod',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:va_gov:internal_tools',\n                                         'urn:gov:gsa:openidconnect.profiles:sp:sso:RRB:myRRB']                                  \n| filter name in [\n                \n                'IdV: in person proofing residential address submitted']\n| stats count(*) by properties.event_properties.same_address_as_id as `Same Address as ID(1) vs Different Address(0)`",
             "region" : "${var.region}",
             "stacked" : false,
             "title" : "Count of same address vs different address",
@@ -72,7 +72,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_analytics" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields name, @timestamp, @message\n| filter name in ['IdV: doc auth verify proofing results',\n                  'IdV: doc auth verify submitted',\n                  'IdV: doc auth verify_wait visited'] \n              and ispresent(properties.event_properties.proofing_results.context.stages.resolution.vendor_name)\n              and properties.event_properties.analytics_id = 'In Person Proofing'\n| count(*) as submits by properties.user_id\n| sort submits desc",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields name, @timestamp, @message\n| filter name in ['IdV: doc auth verify proofing results',\n                  'IdV: doc auth verify submitted',\n                  'IdV: doc auth verify_wait visited'] \n              and ispresent(properties.event_properties.proofing_results.context.stages.resolution.vendor_name)\n              and properties.event_properties.analytics_id = 'In Person Proofing'\n| stats count(*) as submits by properties.user_id\n| sort submits desc",
             "region" : "${var.region}",
             "stacked" : false,
             "title" : "Lexis Nexis / AAMVA Results",
@@ -96,7 +96,7 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_analytics" {
           "x" : 0,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name = 'IdV: in person proofing location submitted'\n| count(*) by properties.browser_mobile as `Desktop(0) vs Mobile(1)`",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name = 'IdV: in person proofing location submitted'\n| stats count(*) by properties.browser_mobile as `Desktop(0) vs Mobile(1)`",
             "region" : "${var.region}",
             "stacked" : false,
             "view" : "table",
@@ -110,10 +110,24 @@ resource "aws_cloudwatch_dashboard" "ipp_dashboard_analytics" {
           "x" : 6,
           "type" : "log",
           "properties" : {
-            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name = 'IdV: in person ready to verify visited'\n| count(*) by properties.browser_mobile as `Desktop(0) vs Mobile(1)`",
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, @message\n| filter name = 'IdV: in person ready to verify visited'\n| stats count(*) by properties.browser_mobile as `Desktop(0) vs Mobile(1)`",
             "region" : "${var.region}",
             "stacked" : false,
             "title" : "Device Type @ Ready to Verify",
+            "view" : "table"
+          }
+        },
+        {
+          "height" : 5,
+          "width" : 11,
+          "y" : 19,
+          "x" : 13,
+          "type" : "log",
+          "properties" : {
+            "query" : "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | fields @timestamp, properties.event_properties.in_person_proofing_status as in_person_proofing_status, properties.event_properties.doc_auth_result as doc_auth_result, @message, @logStream, @log\n| filter name = 'User registration: complete'\n  and ispresent(in_person_proofing_status)\n| stats count(*) by in_person_proofing_status, doc_auth_result\n| sort in_person_proofing_status, doc_auth_result",
+            "region" : "${var.region}",
+            "stacked" : false,
+            "title" : "DocAuthResult of completed In-Person Proofing",
             "view" : "table"
           }
         }
