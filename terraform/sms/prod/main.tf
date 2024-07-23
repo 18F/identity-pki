@@ -29,7 +29,7 @@ module "main" {
   region                   = "us-west-2"
   pinpoint_app_name        = "login.gov"
   state_lock_table         = "terraform_locks"
-  sns_topic_alert_critical = "splunk-oncall-login-platform"
+  sns_topic_alert_critical = "slack-alarms" # page
   sns_topic_alert_warning  = "slack-events"
   pinpoint_spend_limit     = 210000 # USD monthly
   sms_support_api_endpoint = "https://secure.login.gov/api/country-support.json"

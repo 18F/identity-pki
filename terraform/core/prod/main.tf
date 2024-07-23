@@ -21,7 +21,7 @@ module "main" {
   lambda_audit_aws_enabled    = 0
   state_lock_table            = "terraform_locks"
 
-  sns_topic_alert_critical = "splunk-oncall-login-platform"
+  sns_topic_alert_critical = "slack-alarms" # page
   sns_topic_alert_warning  = "slack-events"
 
   ses_inbound_enabled               = true

@@ -156,26 +156,6 @@ variable "proofing_pageview_duration_alert_threshold" {
   default     = 10
 }
 
-variable "splunk_oncall_routing_keys" {
-  description = <<EOM
-A map of Splunk On-Call routing keys (key) to description entries.
-These will often match the values in all/module/variables.tf and
-each key must be defined in Splunk OnCall.
-EOM
-  # Consider pulling these up to the stack level instead of having defaults here.
-  type = map(string)
-  default = {
-    "login-platform"    = "Platform On-Call alerts",
-    "login-application" = "AppDev/product engineer alerts"
-  }
-}
-
-variable "splunk_enabled" {
-  description = "Set this to true to enable Splunk for an environment."
-  type        = number
-  default     = 0
-}
-
 variable "incident_manager_teams" {
   description = "List of on-call teams from the users.yml file"
   type        = list(string)

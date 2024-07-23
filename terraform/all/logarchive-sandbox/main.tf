@@ -14,20 +14,9 @@ terraform {
   }
 }
 
-variable "splunk_oncall_cloudwatch_endpoint" {
-  default = "UNSET"
-}
-
-variable "splunk_oncall_newrelic_endpoint" {
-  default = "UNSET"
-}
-
 module "main" {
   source            = "../module"
   iam_account_alias = "login-logarchive-sandbox"
-
-  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
-  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
 
   # Restricted access - TODO: Add a role for historical search of data with
   # possible spilled PII

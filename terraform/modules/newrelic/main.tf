@@ -45,28 +45,6 @@ locals {
 }
 EOF
 
-  splunk_oncall_payload_template = <<-EOF
-{
-    "impactedEntities": {{json entitiesData.names}},
-    "totalIncidents": {{json totalIncidents}},
-    "trigger": {{ json triggerEvent }},
-    "isCorrelated": {{ json isCorrelated }},
-    "createdAt": {{ createdAt }},
-    "updatedAt": {{ updatedAt }},
-    "sources": ["newrelic"],
-    "alertPolicyNames":{{ json accumulations.policyName }},
-    "alertConditionNames": {{ json accumulations.conditionName }},
-    "workflowName": {{ json workflowName }},
-    "monitoring_tool":"New Relic",
-    "incident_id":{{ json issueId }},
-    "condition_name" : {{ json accumulations.conditionName }},
-    "details" : {{ json annotations.title.[0] }},
-    "severity" : "CRITICAL",
-    "current_state" : {{#if issueClosedAtUtc}} "CLOSED" {{else if issueAcknowledgedAt}} "ACKNOWLEDGED" {{else}} "OPEN"{{/if}},
-    "event_type": "INCIDENT"
-}
-EOF
-
   incident_manager_payload_template = <<-EOF
 {
   "alarmName": {{ json annotations.title.[0] }},
@@ -115,12 +93,6 @@ data "aws_s3_object" "slack_in_person_webhook_url" {
 data "aws_s3_object" "slack_doc_auth_webhook_url" {
   bucket = "login-gov.secrets.${data.aws_caller_identity.current.account_id}-${var.region}"
   key    = "common/slack/doc_auth_webhook_url"
-}
-
-# See ../splunk_oncall_sns/README.md for information on how this is set.
-# The state lives in all/ACCOUNT.
-data "aws_ssm_parameter" "splunk_oncall_newrelic_endpoint" {
-  name = "/account/splunk_oncall/newrelic_endpoint"
 }
 
 # Logic for notification channels/destinations is as follows:
@@ -201,17 +173,6 @@ resource "newrelic_notification_destination" "slack_doc_auth" {
   property {
     key   = "url"
     value = data.aws_s3_object.slack_doc_auth_webhook_url.body
-  }
-}
-
-resource "newrelic_notification_destination" "splunk_oncall" {
-  for_each = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled >= 3) ? var.splunk_oncall_routing_keys : {}
-  name     = "splunk-oncall-${each.key}-${var.env_name}"
-  type     = "WEBHOOK"
-
-  property {
-    key   = "url"
-    value = "${data.aws_ssm_parameter.splunk_oncall_newrelic_endpoint.value}/${each.key}"
   }
 }
 
@@ -306,20 +267,6 @@ resource "newrelic_notification_channel" "slack_enduser" {
   }
 }
 
-resource "newrelic_notification_channel" "splunk_oncall" {
-  for_each       = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled >= 3) ? var.splunk_oncall_routing_keys : {}
-  name           = "splunk-oncall-${each.key}-${var.env_name}"
-  type           = "WEBHOOK"
-  destination_id = newrelic_notification_destination.splunk_oncall[each.key].id
-  product        = "IINT"
-
-  property {
-    key   = "payload"
-    value = local.splunk_oncall_payload_template
-    label = "Payload Template"
-  }
-}
-
 resource "newrelic_notification_channel" "incident_manager" {
   for_each       = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled >= 3) ? var.incident_manager_teams : [])
   name           = "incident-manager-oncall-${each.key}-${var.env_name}"
@@ -402,15 +349,6 @@ resource "newrelic_workflow" "high" {
   }
 
   dynamic "destination" {
-    # Targets both login-application and login-platform Splunk On-Call routing keys
-    for_each = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled >= 3) ? ["login-application", "login-platform"] : []
-
-    content {
-      channel_id = newrelic_notification_channel.splunk_oncall[destination.value].id
-    }
-  }
-
-  dynamic "destination" {
     # Targets all incident manager teams
     for_each = toset((var.enabled + var.pager_alerts_enabled + var.incident_manager_enabled >= 3) ? var.incident_manager_teams : [])
 
@@ -480,14 +418,6 @@ resource "newrelic_workflow" "enduser" {
 
   destination {
     channel_id = newrelic_notification_channel.slack_enduser[count.index].id
-  }
-
-  dynamic "destination" {
-    for_each = (var.enabled + var.pager_alerts_enabled + var.splunk_enabled) >= 3 ? ["login-application"] : []
-
-    content {
-      channel_id = newrelic_notification_channel.splunk_oncall[destination.value].id
-    }
   }
 
   dynamic "destination" {

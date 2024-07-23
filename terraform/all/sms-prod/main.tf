@@ -14,16 +14,11 @@ terraform {
   }
 }
 
-variable "splunk_oncall_cloudwatch_endpoint" {
-  default = "UNSET"
-}
-
 module "main" {
   source            = "../module"
   iam_account_alias = "login-sms-prod"
 
-  slack_events_sns_topic            = "slack-events"
-  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
+  slack_events_sns_topic = "slack-events"
 
   #limit_allowed_services = true  # uncomment to limit allowed services for all Roles
 

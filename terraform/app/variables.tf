@@ -1701,12 +1701,6 @@ EOM
     error_message = "The logarchive_acct_id must be a valid AWS account id."
   }
 }
-variable "splunk_enabled" {
-  description = "Set this to true to enable Splunk for an environment."
-  type        = number
-  default     = 0
-}
-
 variable "incident_manager_enabled" {
   description = "Set this to true to enable AWS Incident Manager for an environment."
   type        = number

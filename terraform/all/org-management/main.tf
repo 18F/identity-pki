@@ -14,15 +14,9 @@ terraform {
   }
 }
 
-variable "splunk_oncall_cloudwatch_endpoint" {
-  default = "UNSET"
-}
-
 module "main" {
   source            = "../module"
   iam_account_alias = "login-org-management"
-
-  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
 
   account_roles_map = {
     iam_analytics_enabled      = true

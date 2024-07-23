@@ -168,15 +168,6 @@ module "slack_lambda_usw2" {
   depends_on = [aws_sns_topic.slack_usw2]
 }
 
-module "splunk_oncall_sns_usw2" {
-  source                            = "../../modules/splunk_oncall_sns"
-  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
-  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
-  splunk_oncall_routing_keys        = var.splunk_oncall_routing_keys
-  providers = {
-    aws = aws.usw2
-  }
-}
 
 ## us-east-1
 
@@ -262,12 +253,3 @@ module "slack_lambda_use1" {
   depends_on = [aws_sns_topic.slack_use1]
 }
 
-module "splunk_oncall_sns_use1" {
-  source                            = "../../modules/splunk_oncall_sns"
-  splunk_oncall_routing_keys        = var.splunk_oncall_routing_keys
-  splunk_oncall_cloudwatch_endpoint = var.splunk_oncall_cloudwatch_endpoint
-  splunk_oncall_newrelic_endpoint   = var.splunk_oncall_newrelic_endpoint
-  providers = {
-    aws = aws.use1
-  }
-}

@@ -46,7 +46,6 @@ module "newrelic" {
   waf_alerts_enabled                         = var.waf_alerts_enabled
   incident_manager_teams                     = local.incident_manager_teams
   incident_manager_enabled                   = var.incident_manager_enabled
-  splunk_enabled                             = var.splunk_enabled
 }
 
 

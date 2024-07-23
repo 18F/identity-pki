@@ -73,9 +73,7 @@ EOM
 # build the rest of terraform/all infra
 3_build_acct() {
   export AWS_PROFILE=${ADMIN_IAM_ROLE}
-  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve \
-    -var "splunk_oncall_cloudwatch_endpoint=${SPLUNK_CLOUDWATCH_ENDPOINT}" \
-    -var "splunk_oncall_newrelic_endpoint=${SPLUNK_NEWRELIC_ENDPOINT}"
+  ${BASEPATH}/tf-deploy -t "all/${TF_ACCT}" apply -auto-approve
 }
 
 # update the SSM slackwebhook parameters
@@ -97,19 +95,7 @@ EOM
   done
 }
 
-# get SSM parameters from $SRC_ACCT and hold for later use
-get_ssm_parameters_from_src_account() {
-  SPLUNK_CLOUDWATCH_ENDPOINT=$(${BASEPATH}/awsv -x ${AV_PROFILE} \
-      aws ssm get-parameter --with-decryption \
-      --name /account/splunk_oncall/cloudwatch_endpoint | jq -r '.Parameter.Value'
-  )
-  SPLUNK_NEWRELIC_ENDPOINT=$(${BASEPATH}/awsv -x ${AV_PROFILE} \
-      aws ssm get-parameter --with-decryption \
-      --name /account/splunk_oncall/newrelic_endpoint | jq -r '.Parameter.Value'
-  )
-}
-
-declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ADMIN_IAM_ROLE,SPLUNK_NEWRELIC_ENDPOINT,SPLUNK_CLOUDWATCH_ENDPOINT}=
+declare {TF_ACCT,ACCT_ID,SECRETS_BUCKET,ADMIN_IAM_ROLE}=
 SRC_ACCT='sandbox'
 verify_root_repo
 
@@ -144,9 +130,5 @@ if [[ ! -z "${ACCOUNT_ALIAS}" ]] && [[ -z "${TODO-}" ]] ; then
   echo_red "Account alias '${ACCOUNT_ALIAS}' already exists for '${TF_ACCT}'."
   raise "Account may already exist; use bin/td for Terraform commands instead!"
 fi
-
-switch_creds source
-get_ssm_parameters_from_src_account
-switch_creds dest
 
 run_tasks
