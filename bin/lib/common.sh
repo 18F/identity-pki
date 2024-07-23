@@ -78,8 +78,8 @@ get_iam() {
 
   verify_root_repo
   [[ ${ID_TOP} == "app" ]] && ID_TOP="all"
-  ACCT_NUM=$(grep 'allowed_account_ids' \
-    "${GIT_DIR}/terraform/${ID_TOP}/${ID_ACCT}/main.tf" |
+  ACCT_NUM=$(grep 'aws_account_id=' \
+    "${GIT_DIR}/terraform/${ID_TOP}/${ID_ACCT}/env-vars.sh" |
     awk -F'"' '{print $2}')
   if [[ -z ${ID_ROLE} ]] ; then
     AV_PROFILE=$(awk '{a[i++]=$0} END {for (j=i-1; j>=0;) print a[j--] }' \

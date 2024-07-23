@@ -1,6 +1,11 @@
+locals {
+  region     = "us-west-2"
+  account_id = "487317109730"
+}
+
 provider "aws" {
-  region              = "us-west-2"
-  allowed_account_ids = ["487317109730"] # require login-analytics-sandbox
+  region              = local.region
+  allowed_account_ids = [local.account_id] # require login-analytics-sandbox
 }
 
 # Stub remote config

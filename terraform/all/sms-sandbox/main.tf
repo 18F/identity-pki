@@ -1,6 +1,11 @@
+locals {
+  region     = "us-west-2"
+  account_id = "035466892286"
+}
+
 provider "aws" {
-  region              = "us-west-2"
-  allowed_account_ids = ["035466892286"] # require login-sandbox
+  region              = local.region
+  allowed_account_ids = [local.account_id] # require login-sms-sandbox
 }
 
 # Stub remote config

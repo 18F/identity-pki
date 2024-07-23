@@ -1,6 +1,11 @@
+locals {
+  region     = "us-west-2"
+  account_id = "034795980528"
+}
+
 provider "aws" {
-  region              = "us-west-2"
-  allowed_account_ids = ["034795980528"] # require login-tooling-sandbox
+  region              = local.region
+  allowed_account_ids = [local.account_id] # require login-tooling-sandbox
 }
 
 # Stub remote config

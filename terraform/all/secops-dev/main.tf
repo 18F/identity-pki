@@ -1,6 +1,11 @@
+locals {
+  region     = "us-west-2"
+  account_id = "138431511372"
+}
+
 provider "aws" {
-  region              = "us-west-2"
-  allowed_account_ids = ["138431511372"] # require login-secops-dev
+  region              = local.region
+  allowed_account_ids = [local.account_id] # require login-secops-dev
 }
 
 # Stub remote config
