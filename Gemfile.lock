@@ -1547,6 +1547,7 @@ GEM
     connection_pool (2.4.1)
     cookstyle (7.32.8)
       rubocop (= 1.25.1)
+    csv (3.3.0)
     diff-lcs (1.5.1)
     diffy (3.4.2)
     domain_name (0.6.20240107)
@@ -1701,6 +1702,7 @@ DEPENDENCIES
   aws-sdk-secretsmanager (>= 1.20)
   colorize
   cookstyle (>= 7.32.1)
+  csv
   erubis (>= 2)
   pry
   pry-byebug (>= 3.9)

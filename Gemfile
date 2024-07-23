@@ -20,6 +20,7 @@ gem 'aws-sdk', '>= 3.0'
 gem 'aws-sdk-secretsmanager', '>=1.20'
 
 gem 'rake'
+gem 'csv'
 
 gem 'rest-client', '>= 2.0'
 gem 'ruby-progressbar'
