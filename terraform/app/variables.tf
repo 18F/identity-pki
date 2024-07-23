@@ -1671,10 +1671,10 @@ EOM
 
 variable "sms_mfa_setup_success_threshold" {
   type        = number
-  default     = 80
+  default     = 50
   description = <<EOM
 Threshold for percentage of successful confirmations OTPs relative to the number of confirmation/setup OTPs sent.
-If less than X% of OTPs sent for confirming new phone numbers are converted successfully, it may indicate abuse or telephony problems.
+If less than 50% of OTPs sent for confirming new phone numbers are converted successfully, it may indicate abuse or telephony problems.
 EOM
 }
 

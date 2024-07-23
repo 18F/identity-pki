@@ -392,7 +392,7 @@ EOM
 
   metric_query {
     id          = "success_rate"
-    expression  = "(successes / (successes + otp_send)) * 100"
+    expression  = "IF(otp_send > 20, (successes / otp_send) * 100"
     label       = "Success Rate"
     return_data = "true"
   }
