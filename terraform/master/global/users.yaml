@@ -1378,6 +1378,30 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg/identity-validations:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-acuant-test:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/identity-handbook-private:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
   lg-people/data-analytics:
     groups:
       Data Analytics:
