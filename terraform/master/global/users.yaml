@@ -582,6 +582,8 @@ users:
     - orgadmin
     ec2_username:
     - jgrevich
+    email:
+    - justin.grevich@gsa.gov
     gitlab_groups:
     - devops
     - lg-all
