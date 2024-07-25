@@ -32,16 +32,9 @@ else
 fi
 
 # Set variables used to configure NGINX, SSL Certs, and Puma configuration
-
-if [[ "${ENV}" = "reviewapps" ]]; then
-  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="${CERT_ENV}.pivcac.identitysandbox.gov"
-  export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-  CERT_DOMAIN="-d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-else
-  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.${CERT_ENV}.identitysandbox.gov"
-  export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-  CERT_DOMAIN="-d ${ENV_CONFIG_PIVCAC_SSL_DOMAIN} -d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-fi 
+export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.${CERT_ENV}.identitysandbox.gov"
+export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+CERT_DOMAIN="-d ${ENV_CONFIG_PIVCAC_SSL_DOMAIN} -d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
 
 if [[ -z "${CERT_DOMAIN:-}" ]]; then
   echo "Certificate Domain did not get set properly. This error should not happen. Troubleshoot script"
