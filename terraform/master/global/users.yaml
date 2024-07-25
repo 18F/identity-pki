@@ -376,6 +376,8 @@ users:
   fred.agyepongyeboah:
     aws_groups:
     - soc
+    gitlab_groups:
+    - login-security|developer
   gina.yamada:
     aws_groups:
     - apponcall
