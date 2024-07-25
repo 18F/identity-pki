@@ -386,7 +386,6 @@ users:
     - lg-all
     - lg-public
     - Joy
-    - login-security|developer
   harlan.weber:
     aws_groups:
     - analytics
@@ -734,7 +733,6 @@ users:
     - lg-all
     - lg-public
     - Ada
-    - login-security|guest
     oncaller:
     - true
   matt.wagner:
