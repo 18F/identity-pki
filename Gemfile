@@ -25,6 +25,7 @@ gem 'rgl'
 group :development, :test do
   gem 'bullet', '~> 7.0'
   gem 'brakeman', require: false
+  gem 'listen'
   gem 'pry-byebug'
   gem 'rspec-rails', '>= 3.8.3'
   gem 'rubocop', require: false
@@ -34,11 +35,6 @@ end
 
 group :development do
   gem 'better_errors', '>= 2.5.1'
-  gem 'bummr', require: false
-  gem 'guard-rspec', require: false
-  gem 'overcommit', require: false
-  gem 'rack-mini-profiler', '>= 1.0.2', require: false
-  gem 'rails-erd', '>= 1.6.0'
 end
 
 group :test do
