@@ -555,6 +555,7 @@ users:
     aws_groups:
     - devops
     - apponcall
+    - orgadmin
     ec2_username:
     - bleachbyte
     gitlab_groups:
