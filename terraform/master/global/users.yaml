@@ -60,7 +60,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security
+    - login-security|owner
   alex.kritikos:
     ec2_username:
     - akrito
