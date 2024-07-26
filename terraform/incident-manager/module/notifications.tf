@@ -3,7 +3,10 @@ resource "aws_cloudwatch_event_rule" "incident_opened" {
   description   = "An incident has been opened"
   event_pattern = <<EOF
 {
-  "source": ["aws.ssm-incidents"]
+  "source": ["aws.ssm-incidents"],
+  "detail": {
+    "eventName": ["StartIncident"]
+  }
 }
 EOF
 }
@@ -14,15 +17,9 @@ resource "aws_cloudwatch_event_target" "incident_opened" {
 
   input_transformer {
     input_paths = {
-      request_details = "$.detail.requestParameters",
-      event_name      = "$.detail.eventName"
+      title = "$.detail.requestParameters.title",
     }
-    input_template = <<EOF
-{
-  "IncidentManagerEvent" : "IncidentOpened",
-  "Details" : <request_details>
-}
-EOF
+    input_template = "{\"IncidentManagerEvent\" : \"IncidentOpened\",\"Details\" : {\"title\": <title>}}"
   }
 }
 
@@ -48,14 +45,9 @@ resource "aws_cloudwatch_event_target" "incident_closed" {
 
   input_transformer {
     input_paths = {
-      request_details = "$.detail.requestParameters",
+      title = "$.detail.requestParameters.title",
     }
-    input_template = <<EOF
-{
-  "IncidentManagerEvent" : "IncidentClosed",
-  "Details" : <request_details>
-}
-EOF
+    input_template = "{\"IncidentManagerEvent\" : \"IncidentClosed\",\"Details\" : {\"title\": <title>}}"
   }
 }
 
@@ -81,14 +73,9 @@ resource "aws_cloudwatch_event_target" "responder_paged" {
 
   input_transformer {
     input_paths = {
-      request_details = "$.detail.requestParameters",
+      event_data = "$.detail.requestParameters.eventData",
     }
-    input_template = <<EOF
-{
-  "IncidentManagerEvent" : "ResponderPaged",
-  "Details" : <request_details>
-}
-EOF
+    input_template = "{\"IncidentManagerEvent\": \"ResponderPaged\",\"Details\": {\"eventData\": <event_data>}}"
   }
 }
 
@@ -114,13 +101,8 @@ resource "aws_cloudwatch_event_target" "responder_acknowledged" {
 
   input_transformer {
     input_paths = {
-      request_details = "$.detail.requestParameters",
+      event_data = "$.detail.requestParameters.eventData",
     }
-    input_template = <<EOF
-{
-  "IncidentManagerEvent" : "ResponderAcknowledged",
-  "Details" : <request_details>
-}
-EOF
+    input_template = "{\"IncidentManagerEvent\": \"ResponderAcknowledged\",\"Details\":  {\"eventData\": <event_data>}}"
   }
 }
