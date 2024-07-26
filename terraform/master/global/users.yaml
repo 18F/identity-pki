@@ -7,11 +7,11 @@
 users:
   abir.shukla:
     aws_groups:
-    - devopsnonprod
+    - appdev
     ec2_username:
     - ashukla
     gitlab_groups:
-    - devops
+    - appdev
     - lg-all
     - lg-public
     - Timnit
