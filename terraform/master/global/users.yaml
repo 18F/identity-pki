@@ -900,7 +900,7 @@ users:
     - pm
     - devops|owner
     - lg-all
-    - lg-people|developer
+    - lg-people|owner
     - lg-public
     - Mary
     - Radia
