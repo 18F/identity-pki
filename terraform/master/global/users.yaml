@@ -812,15 +812,6 @@ users:
     - true
     email:
     - michael.w.ward@gsa.gov
-  michele.wabo:
-    aws_groups:
-    - fraudopsnonprod
-    ec2_username:
-    - michele.wabo
-    gitlab_groups:
-    - antifraud
-    - lg-all
-    - lg-public
   mitchell.henke:
     aws_groups:
     - apponcall
