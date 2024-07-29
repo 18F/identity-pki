@@ -58,7 +58,7 @@ resource "aws_lambda_function" "config_access_key_rotation" {
 }
 
 module "config_access_key_rotation_alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=0cb56606de47507e5748ab55bfa51fa72424313f"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=e0e39adea82243d66c3c1218c7a4316b81f64560"
   #source = "../../../../identity-terraform/lambda_alerts"
 
   function_name = aws_lambda_function.config_access_key_rotation.function_name
