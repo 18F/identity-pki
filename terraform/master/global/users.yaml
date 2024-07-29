@@ -330,6 +330,8 @@ users:
     - lg-all
     - lg-public
     - Melba|owner
+    oncaller:
+    - true
   devin.cassidy:
     aws_groups:
     - secops
