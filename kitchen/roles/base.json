@@ -25,6 +25,7 @@
   },
   "chef_type": "role",
   "run_list": [
+    "recipe[login_dot_gov::tag_instance]",
     "recipe[login_dot_gov::apt_update]",
     "recipe[login_dot_gov::configure_awsagent]",
     "recipe[chef_proxy_env]",
