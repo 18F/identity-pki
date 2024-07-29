@@ -139,15 +139,6 @@ users:
     - Timnit
     oncaller:
     - true
-  andrea.benitez:
-    aws_groups:
-    - fraudopsnonprod
-    ec2_username:
-    - andrea.benitez
-    gitlab_groups:
-    - antifraud
-    - lg-all
-    - lg-public
   andrew.duthie:
     aws_groups:
     - apponcall
