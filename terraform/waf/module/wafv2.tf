@@ -577,64 +577,69 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
-  rule {
-    name     = "IdpOtpSendRateLimited"
-    priority = 700
 
-    action {
-      dynamic "block" {
-        for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
-        content {}
+  dynamic "rule" {
+    for_each = var.wafv2_web_acl_scope == "CLOUDFRONT" && var.enforce_rate_limit ? [1] : []
+    content {
+      name     = "IdpOtpSendRateLimited"
+      priority = 700
+
+
+      action {
+        dynamic "block" {
+          for_each = length(lookup(local.rule_settings, "override_action", {})) == 0 || lookup(local.rule_settings, "override_action", {}) == "none" ? [1] : []
+          content {}
+        }
+
+        dynamic "count" {
+          for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
+          content {}
+        }
       }
 
-      dynamic "count" {
-        for_each = lookup(local.rule_settings, "override_action", {}) == "count" ? [1] : []
-        content {}
-      }
-    }
+      statement {
+        rate_based_statement {
+          limit              = var.otp_send_rate_limit_per_ip
+          aggregate_key_type = "IP"
 
-    statement {
-      rate_based_statement {
-        limit              = var.otp_send_rate_limit_per_ip
-        aggregate_key_type = "IP"
-
-        scope_down_statement {
-          or_statement {
-            statement {
-              byte_match_statement {
-                field_to_match {
-                  uri_path {}
-                }
-                positional_constraint = "CONTAINS"
-                search_string         = "/otp/send"
-                text_transformation {
-                  priority = 0
-                  type     = "LOWERCASE"
+          scope_down_statement {
+            or_statement {
+              statement {
+                byte_match_statement {
+                  field_to_match {
+                    uri_path {}
+                  }
+                  positional_constraint = "CONTAINS"
+                  search_string         = "/otp/send"
+                  text_transformation {
+                    priority = 0
+                    type     = "LOWERCASE"
+                  }
                 }
               }
-            }
-            statement {
-              byte_match_statement {
-                field_to_match {
-                  uri_path {}
-                }
-                positional_constraint = "CONTAINS"
-                search_string         = "/sign_up/verify_email"
-                text_transformation {
-                  priority = 0
-                  type     = "LOWERCASE"
+              statement {
+                byte_match_statement {
+                  field_to_match {
+                    uri_path {}
+                  }
+                  positional_constraint = "CONTAINS"
+                  search_string         = "/sign_up/verify_email"
+                  text_transformation {
+                    priority = 0
+                    type     = "LOWERCASE"
+                  }
                 }
               }
             }
           }
         }
       }
-    }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "${local.web_acl_name}-IdpOtpSendRateLimited-metric"
-      sampled_requests_enabled   = true
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-IdpOtpSendRateLimited-metric"
+        sampled_requests_enabled   = true
+      }
     }
   }
 
