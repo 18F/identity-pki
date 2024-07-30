@@ -181,3 +181,28 @@ EOM
     create_before_destroy = true
   }
 }
+
+# https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-GPO-File-Upload-Failure
+resource "aws_cloudwatch_metric_alarm" "gpo_confirmation_upload_failure" {
+  alarm_name        = "${aws_autoscaling_group.idp.name}-gpo-confirmation-upload-failure"
+  alarm_description = <<EOM
+${aws_autoscaling_group.idp.name}: IdV: GPO confirmation upload failure
+
+A GPO confirmation uplaod failure was detected.
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-GPO-File-Upload-Failure
+%{if var.env_name == "prod"}
+Notifying:%{for handle in var.slack_proofing_groups} @${handle}%{endfor}
+%{endif}
+EOM
+
+  metric_name = "idv-gpo-confirmation-upload-job-failures"
+  namespace   = "${var.env_name}/idp-ialx"
+  period      = 14400
+  statistic   = "Sum"
+
+  alarm_actions       = local.moderate_priority_alarm_actions
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = 1
+  evaluation_periods  = 1
+}
