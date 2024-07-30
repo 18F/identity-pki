@@ -70,7 +70,7 @@ echo
 
 verify_root_repo
 
-declare {OLD_VERSION_MR,NEW_VERSION_MR,BREAKING_MRS,REGULAR_MRS}=
+declare {OLD_RELEASE_DATE,NEW_VERSION_MR,BREAKING_MRS,REGULAR_MRS}=
 TODO=()
 TASKS=(
   "1_remote_tag"
@@ -125,16 +125,20 @@ if [[ ! -z ${TODO-} ]]; then
   fi
 fi
 
-# get MR of previous release; exit if there isn't one in the last 100 MRs
+# get data on last 100 MRs: id, title, and date merged. from there,
+# find the MR of the last release. keep incrementing the number of MRs
+# to check if not found, and bail out at 500 MRs
 echo_cyan "Finding MR for previous release 'v${OLD_RELEASE}'..."
-MR_NUM=25
-while [[ -z ${OLD_VERSION_MR} ]]; do
-  MR_LIST=$(glab mr list --merged --target-branch=main --per-page ${MR_NUM} |
-    sed -E 's/^\!/\- \!/;s/\(main\).+//' | awk '{$3=""; print $0}' | tail -n +2)
+MR_NUM=100
+while [[ -z ${OLD_RELEASE_DATE} ]]; do
+  MR_LIST=$(glab mr list -t main -M -P 100 -F json |
+    jq '.[]|{id:.iid,title:.title,date:.merged_at}')
 
-  OLD_VERSION_MR=$(echo "${MR_LIST}" | grep "Release v${OLD_RELEASE}" | tr -d '\n')
-  if [[ ${MR_NUM} -lt 100 ]]; then
-    ((MR_NUM += 25))
+  OLD_RELEASE_DATE=$(echo "${MR_LIST}" |
+    jq -r --arg OLD_RELEASE "Release v${OLD_RELEASE}" \
+    '.|select(.title == $OLD_RELEASE).date')
+  if [[ ${MR_NUM} -lt 500 ]]; then
+    ((MR_NUM += 100))
   else
     echo_red "Previous release 'v${OLD_RELEASE}' was not found in the last ${MR_NUM} MRs."
     raise "Verify release number in VERSION.txt and try again"
@@ -143,7 +147,8 @@ done
 
 # get all MRs since last release; separate out anything marked '(BREAKING)'
 RELEASE_MRS=$(echo "${MR_LIST}" |
-  sed "/${OLD_VERSION_MR}/q" | sed '$d')
+  jq -r --arg RELEASE_DATE "$OLD_RELEASE_DATE" \
+  '.|select(.date > $RELEASE_DATE)|"- !" + (.id|tostring) + "  " + .title')
 REGULAR_MRS=$(echo "${RELEASE_MRS}" | grep -v BREAKING) || true
 if [[ $(echo "${RELEASE_MRS}" | grep BREAKING) ]]; then
   BREAKING_MRS="
@@ -151,11 +156,22 @@ BREAKING CHANGES:
 $(echo "${RELEASE_MRS}" | grep BREAKING | sed -E 's/\(BREAKING\)| \| BREAKING//g')"
   if [[ ! -z ${REGULAR_MRS:-} ]]; then
     REGULAR_MRS="
-
 REGULAR CHANGES:
 $(echo "${REGULAR_MRS}")"
   fi
 fi
+
+RAW_DESCRIPTION="$(
+  cat <<EOF
+$(echo "${BREAKING_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
+$(echo "${REGULAR_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
+EOF
+)"
+GLAB_DESCRIPTION="$(sanitize_glab_mr_description "${RAW_DESCRIPTION}")"
+GL_REV_GROUP="devops"
+
+# print out the MR list to the console, just for a final sanity check
+echo "${RAW_DESCRIPTION}"
 
 # with MR_LIST figured out, and branch clear to create, do the thing
 git checkout -b "release/v${NEW_RELEASE}"
@@ -165,16 +181,6 @@ echo && echo_cyan "Setting version to ${POST_RELEASE} post-release."
 update_version ${POST_RELEASE}
 echo
 
-RAW_DESCRIPTION="$(
-  cat <<EOF
-$(echo "${BREAKING_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
-$(echo "${REGULAR_MRS}" | sed -E 's/^(- \#[0-9]+) .+$/\1/g')
-EOF
-)"
-
-GLAB_DESCRIPTION="$(sanitize_glab_mr_description "${RAW_DESCRIPTION}")"
-
-GL_REV_GROUP="devops"
 run glab mr create --title "Release v${NEW_RELEASE}" \
   --description "${GLAB_DESCRIPTION}" \
   --assignee "$(get_glab_assignee)" \
