@@ -1425,6 +1425,22 @@ projects:
         access: developer
       pm:
         access: reporter
+  lg-public/gitlab-template-group/gitlab-lg-project-template:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
+  lg/gitlab-template-group/gitlab-lg-project-template:
+    groups:
+      devops:
+        access: developer
+      appdev:
+        access: developer
+      pm:
+        access: reporter
   lg-people/data-analytics:
     groups:
       Data Analytics:
