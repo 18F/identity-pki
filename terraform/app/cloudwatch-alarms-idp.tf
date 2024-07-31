@@ -118,6 +118,8 @@ resource "aws_cloudwatch_metric_alarm" "low_sms_mfa_success" {
   alarm_name        = "${var.env_name}-low_sms_mfa_success"
   alarm_description = <<EOM
 ${var.env_name}: SMS MFA confirmation success rate less than ${var.sms_mfa_low_success_alert_threshold}% in 10 minutes
+
+Alerting: @login-oncall-katherine
 Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
 EOM
 
@@ -173,6 +175,8 @@ resource "aws_cloudwatch_metric_alarm" "critical_low_sms_mfa_success" {
   alarm_name        = "${var.env_name}-critical_low_sms_mfa_success"
   alarm_description = <<EOM
 ${var.env_name}: SMS MFA confirmation success rate less than ${var.sms_mfa_low_success_alert_critical_threshold}% in 10 minutes
+
+Alerting: @login-oncall-katherine
 Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Pinpoint-SMS-and-Voice#sms-delivery
 EOM
 
