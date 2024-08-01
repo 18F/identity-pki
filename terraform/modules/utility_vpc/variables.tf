@@ -1,15 +1,20 @@
 variable "region" {
+  type    = string
   default = "us-west-2"
 }
 
 variable "name" {
+  type    = string
   default = "login"
 }
 
 variable "account_name" {
+  type        = string
+  description = "The login.gov alias associated with the account. Primarily used for identifying resources."
 }
 
 variable "fisma_tag" {
+  type    = string
   default = "Q-LG"
 }
 
@@ -39,14 +44,9 @@ variable "image_build_vpc_cidr" {
   default     = "10.0.0.0/19"
 }
 
-variable "associate_public_ip" {
-  description = "associate a public IP"
-  type        = bool
-  default     = "false"
-}
-
 variable "assign_generated_ipv6_cidr_block" {
   description = "enable ipv6"
   type        = bool
   default     = "false"
 }
+
