@@ -699,18 +699,6 @@ users:
     - antifraud
     - lg-all
     - lg-public
-  lucas.dze:
-    aws_groups:
-    - devopsnonprod
-    ec2_username:
-    - lucasdze
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
-    - Radia
-    email:
-    - lucas.kouongadze@gsa.gov
   luis.matos:
     aws_groups:
     - apponcall
@@ -1026,16 +1014,6 @@ users:
     - lg-all
     - lg-public
     - Mary
-  sujana.gurung:
-    aws_groups:
-    - devopsnonprod
-    - finops
-    ec2_username:
-    - sujana09
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
   tahinee.felixmarin:
     aws_groups:
     - analytics
