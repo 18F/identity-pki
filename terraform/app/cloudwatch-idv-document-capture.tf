@@ -215,7 +215,7 @@ resource "aws_cloudwatch_dashboard" "idv_document_capture" {
       "x": 0,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @timestamp, @message, properties.event_properties.success as @success, !properties.event_properties.success as @failure\n| stats sum(@success) as successful_transactions, sum(@failure) as failed_transactions by properties.event_properties.attempts as attempts\n| sort attempts asc",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth image upload vendor submitted'\n| fields @timestamp, @message, properties.event_properties.success as @success, !properties.event_properties.success as @failure\n| stats sum(@success) as successful_transactions, sum(@failure) as failed_transactions by properties.event_properties.submit_attempts as attempts\n| sort attempts asc",
         "region": "${var.region}",
         "stacked": false,
         "title": "Transaction status by attempt count",
