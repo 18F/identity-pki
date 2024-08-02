@@ -5,6 +5,7 @@ require 'open3'
 class IdentifyController < ApplicationController
   TOKEN_LIFESPAN = 5.minutes
   CERT_HEADER = 'X-Client-Cert'.freeze
+  AWS_ALB_CERT_HEADER = 'X-Amzn-Mtls-Clientcert'.freeze
   REFERER_HEADER = 'Referer'.freeze
 
   delegate :logger, to: Rails
@@ -55,8 +56,20 @@ class IdentifyController < ApplicationController
   end
 
   def client_cert
-    cert_pem = request.headers[CERT_HEADER] || request.headers.env['rack.peer_cert']
-    return unless cert_pem
+    nginx_cert = request.headers[CERT_HEADER]
+    aws_alb_cert = request.headers[AWS_ALB_CERT_HEADER]
+    return unless nginx_cert || aws_alb_cert
+    if nginx_cert
+      process_nginx_cert(nginx_cert)
+    else
+      # The ALB header returns an unexpected format where it is URL encoded, but it includes "+"
+      # which becomes an invalid space character in base64 when unescaping the URI format.
+      # This replaces all non-begin/end line spaces with a + after the unescaping.
+      CGI.unescape(aws_alb_cert).split("\n").map { |x| (!x.include?("BEGIN CERTIFICATE") && !x.include?("END CERTIFICATE") && x.gsub(" ", "+")) || x }.join("\n")
+    end
+  end
+
+  def process_nginx_cert(cert_pem)
     if IdentityConfig.store.client_cert_escaped
       CGI.unescape(cert_pem)
     else
