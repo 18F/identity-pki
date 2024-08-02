@@ -308,6 +308,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - Agnes|owner
   david.dsilva:
     aws_groups:
     - analytics
