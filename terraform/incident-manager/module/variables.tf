@@ -6,6 +6,11 @@ variable "fisma_tag" {
   default = "Q-LG"
 }
 
+variable "account_name" {
+  type        = string
+  description = "Name of the account (prod, sandbox, etc)"
+}
+
 variable "slack_notification_arn" {
   description = "ARN of the sns topic used in response plans"
   type        = string

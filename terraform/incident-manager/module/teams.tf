@@ -34,7 +34,7 @@ resource "aws_ssmcontacts_rotation" "rotation" {
     }
 
     dynamic "shift_coverages" {
-      for_each = local.shift_coverages[each.value["shift_coverage"]]
+      for_each = local.shift_coverages[each.value["shift_coverage"][var.account_name]]
       content {
         map_block_key = shift_coverages.key
         coverage_times {

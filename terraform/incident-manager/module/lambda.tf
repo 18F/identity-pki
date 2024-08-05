@@ -18,7 +18,7 @@ module "incident_manager_actions_code" {
 
   source_code_filename = "incident_manager_actions.py"
   source_dir           = "${path.module}/src/"
-  zip_filename         = "incident_manager_actions_code"
+  zip_filename         = "incident_manager_actions_code.zip"
 }
 
 resource "aws_lambda_function" "incident_manager_actions_lambda" {
@@ -92,7 +92,7 @@ module "incident_manager_shift_code" {
 
   source_code_filename = "incident_manager_shift.py"
   source_dir           = "${path.module}/src/"
-  zip_filename         = "incident_manager_shift_code"
+  zip_filename         = "incident_manager_shift_code.zip"
 }
 
 resource "aws_lambda_function" "incident_manager_shift_lambda" {

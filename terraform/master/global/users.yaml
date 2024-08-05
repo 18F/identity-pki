@@ -1432,7 +1432,9 @@ oncall_teams:
         handoff_day: MON
         handoff_hour: "13"
         handoff_minute: "00"
-        shift_coverage: emergency
+        shift_coverage:
+          prod: emergency
+          sandbox: business
         members:
           - amir.reavis-bey
           - jonathan.hooper
@@ -1444,7 +1446,9 @@ oncall_teams:
         handoff_day: MON
         handoff_hour: "13"
         handoff_minute: "00"
-        shift_coverage: emergency
+        shift_coverage:
+          prod: emergency
+          sandbox: business
         # offset members by 1 from appdev_primary
         members:
           - jonathan.hooper
@@ -1459,7 +1463,9 @@ oncall_teams:
         handoff_day: TUE
         handoff_hour: "13"
         handoff_minute: "00"
-        shift_coverage: emergency
+        shift_coverage:
+          prod: emergency
+          sandbox: business
         members:
           - jonathan.pirro
           - justin.grevich
@@ -1470,7 +1476,9 @@ oncall_teams:
         handoff_day: TUE
         handoff_hour: "13"
         handoff_minute: "00"
-        shift_coverage: emergency
+        shift_coverage:
+          prod: emergency
+          sandbox: business
         # offset members by 1 from platform_primary:
         members:
           - justin.grevich

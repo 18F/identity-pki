@@ -15,7 +15,7 @@ terraform {
 }
 
 module "main" {
-  source = "../module"
-
+  source                 = "../module"
+  account_name           = "prod"
   slack_notification_arn = "arn:aws:sns:${local.region}:${local.account_id}:slack-alarms"
 }
