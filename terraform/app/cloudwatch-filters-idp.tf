@@ -38,7 +38,7 @@ locals {
     },
     telephony_otp_sent_method_not_resend = {
       name         = "telephony-otp-sent-method-is-not-resend"
-      pattern      = "{ ($.name = \"Telephony: OTP sent\") && $.properties.event_properties.success is true && ($.properties.event_properties.resend is false || $.properties.event_properties.resend is null) }"
+      pattern      = "{ ($.name = \"Telephony: OTP sent\") && $.properties.event_properties.success is true && ($.properties.event_properties.resend is false || $.properties.event_properties.resend is null || $.properties.event_properties.resend NOT EXISTS) }"
       metric_value = 1
       dimensions = {
         channel = "$.properties.event_properties.otp_delivery_preference",
@@ -400,7 +400,7 @@ locals {
     },
     idp_usps_proofing_results_minutes_without_status_check_completed_since_established = {
       name         = "usps-proofing-minutes-without-status-check-completed-since-established"
-      pattern      = "{ $.name = \"GetUspsProofingResultsJob:*\" && $.properties.event_properties.minutes_since_established > -1 && ($.properties.event_properties.minutes_since_last_status_check_completed IS NULL) }"
+      pattern      = "{ $.name = \"GetUspsProofingResultsJob:*\" && $.properties.event_properties.minutes_since_established > -1 && ($.properties.event_properties.minutes_since_last_status_check_completed IS NULL || $.properties.event_properties.minutes_since_last_status_check_completed NOT EXISTS) }"
       metric_value = "$.properties.event_properties.minutes_since_established"
       dimensions   = {}
     },
