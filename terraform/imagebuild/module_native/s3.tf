@@ -49,3 +49,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "codepipeline" {
     status = "Enabled"
   }
 }
+
+resource "aws_s3_bucket_logging" "codepipeline" {
+  bucket = aws_s3_bucket.codepipeline.id
+
+  target_bucket = data.aws_s3_bucket.access_logging.id
+  target_prefix = "${aws_s3_bucket.codepipeline.bucket}/"
+}
