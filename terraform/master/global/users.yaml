@@ -7,7 +7,7 @@
 users:
   aaron.nagucki:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - aaron.nagucki
     gitlab_groups:
