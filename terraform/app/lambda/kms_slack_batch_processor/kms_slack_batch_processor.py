@@ -40,6 +40,7 @@ def lambda_handler(event, context):
     message = {
         "AlarmName": environment + " Unmatched KMS Events",
         "AlarmDescription": description + runbook,
+        "NewStateValue": "ALARM",
         "NewStateReason": reason,
         "StateChangeTime": current_time,
         "Region": region,
