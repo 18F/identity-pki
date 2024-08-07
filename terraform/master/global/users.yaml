@@ -480,7 +480,7 @@ users:
     - Ursula
   jennifer.verdeyen:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - jverdeyen
     gitlab_groups:
