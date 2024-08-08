@@ -85,6 +85,25 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
       "${aws_s3_bucket.analytics_import.arn}/*"
     ]
   }
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.analytics_export.arn,
+      "${aws_s3_bucket.analytics_export.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
 }
 
 resource "aws_s3_bucket" "analytics_export" {
@@ -131,6 +150,33 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "analytics_export"
     apply_server_side_encryption_by_default {
       kms_master_key_id = aws_kms_key.redshift_kms_key.arn
       sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "analytics_export" {
+  bucket = aws_s3_bucket.analytics_export.id
+  policy = data.aws_iam_policy_document.analytics_export_require_secure_connections.json
+}
+
+data "aws_iam_policy_document" "analytics_export_require_secure_connections" {
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.analytics_export.arn,
+      "${aws_s3_bucket.analytics_export.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
     }
   }
 }
@@ -200,6 +246,25 @@ data "aws_iam_policy_document" "bucket_policy_json" {
       identifiers = [
         aws_iam_role.redshift_role.arn,
       ]
+    }
+  }
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.analytics_logs.arn,
+      "${aws_s3_bucket.analytics_logs.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
     }
   }
 }
