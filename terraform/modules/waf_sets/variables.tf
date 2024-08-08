@@ -116,10 +116,10 @@ variable "relaxed_uri_paths" {
     "docauth_image_upload"    = "^/api/verify/images"                                    # https://github.com/18F/identity-devops/issues/4092
     "login_form"              = "^/([a-z]{2}/)?$"                                        # https://github.com/18F/identity-devops/issues/4563
     "password_screening_flow" = "^/([a-z]{2}/)?verify/enter_password"                    # https://github.com/18F/identity-devops/issues/4563
-    "OIDC_authorization"      = "^/openid_connect/authorize"                             # https://github.com/18F/identity-devops/issues/4563
+    "OIDC_authorization"      = "^/([a-z]{2}/)?openid_connect/(authorize|logout)"        # https://github.com/18F/identity-devops/issues/4563
     "account_deletion"        = "^/([a-z]{2}/)?account/delete"                           # https://github.com/18F/identity-devops/issues/6127
-    "reauthn"                 = "^/([a-z]{2}/)?reauthn"                                  # https://github.com/18F/identity-devops/issues/6221
-    "capture_password"        = "^/([a-z]{2}/)?login/password"                           # https://github.com/18F/identity-devops/issues/6389
+    "reauthn"                 = "^/([a-z]{2}/)?(reauthn|login/piv_cac)"                  # https://github.com/18F/identity-devops/issues/6221
+    "capture_password"        = "^/([a-z]{2}/)?(login/password|users/password/edit)"     # https://github.com/18F/identity-devops/issues/6389
     "reactivate"              = "^/([a-z]{2}/)?account/reactivate/verify_password"       # https://github.com/18F/identity-devops/issues/6389
     "sign_up"                 = "^/([a-z]{2}/)?sign_up/(create_password|enter_password)" # https://gitlab.login.gov/lg-people/platform/radia/TeamRadia/-/issues/181
     "confirm_email"           = "^/([a-z]{2}/)?sign_up/email/confirm"                    # https://github.com/18F/identity-devops/issues/6576
