@@ -169,12 +169,8 @@ users:
     - lg-all
     - lg-public
   annie.hirshman:
-    aws_groups:
-    - analytics
-    ec2_username:
-    - ahirshman
     gitlab_groups:
-    - User Experience|maintainer
+    - user-experience-admins|reporter
     - Ada
   anthony.barbara:
     aws_groups:
