@@ -932,6 +932,7 @@ locals {
           "securityhub:EnableSecurityHub",
           "securityhub:GetEnabledStandards",
           "securityhub:UpdateSecurityHubConfiguration",
+          "securityhub:BatchEnableStandards",
         ]
         resources = [
           "*",
