@@ -684,6 +684,13 @@ users:
     - antifraud
     - lg-all
     - lg-public
+  luigi.ray-montanez:
+    aws_groups:
+    - appdev
+    gitlab_groups:
+    - appdev
+    ec2_username:
+    - lrmontanez
   luis.matos:
     aws_groups:
     - apponcall
