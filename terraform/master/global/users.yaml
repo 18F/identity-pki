@@ -1117,6 +1117,7 @@ users:
     - Katherine|owner
     - Melba|owner
     - Ross|owner
+    - Security|owner
     - Timnit|owner
     - Ursula|owner
     - Mary|owner
@@ -1172,6 +1173,8 @@ groups:
     description: Appdev melba group
   Ross:
     description: Appdev ross group
+  Security:
+    description: Security public group
   Timnit:
     description: Appdev timnit group
   Ursula:
