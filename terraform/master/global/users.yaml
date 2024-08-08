@@ -7,7 +7,7 @@
 users:
   aaron.nagucki:
     aws_groups:
-    - apponcall
+    - appdev
     ec2_username:
     - aaron.nagucki
     gitlab_groups:
@@ -16,7 +16,7 @@ users:
     - lg-public
   abir.shukla:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - ashukla
     gitlab_groups:
