@@ -67,9 +67,6 @@ RUN bundle config set --local without 'deploy development doc test'
 RUN bundle install --jobs $(nproc)
 RUN bundle binstubs --all
 
-# update CRLs
-RUN bundle exec rake crls:update
-
 # set IPs up in nginx.conf
 WORKDIR /tmp
 COPY k8files/nginx.conf /opt/nginx/conf/nginx.conf
@@ -200,6 +197,9 @@ RUN bundle config build.nokogiri --use-system-libraries
 RUN bundle config set --local deployment 'true'
 RUN bundle config set --local path $BUNDLE_PATH
 RUN bundle config set --local without 'deploy development doc test'
+
+# update CRLs
+RUN bundle exec rake crls:update
 
 # make everything the proper perms after everything is initialized
 RUN chown -R app:app $RAILS_ROOT/tmp && \
