@@ -476,15 +476,6 @@ users:
     - lg-all
     - lg-public
     - Joy
-  jenniffier.bieberbach:
-    aws_groups:
-    - secopsnonprod
-    - analytics
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
-    - login-security
   jeremy.curcio:
     aws_groups:
     - apponcall
