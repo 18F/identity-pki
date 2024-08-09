@@ -392,6 +392,9 @@ users:
     - lg-all
     - lg-public
     - Joy
+  goutham.kommanaboyina:
+    gitlab_groups:
+    - Ursula|reporter
   harlan.weber:
     aws_groups:
     - analytics
