@@ -21,13 +21,13 @@ ENV TZ=Etc/UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install dependencies
-RUN apt-get update && apt-get install -y \    
+RUN apt-get update && apt-get install -y \
     build-essential \
     cron \
-    curl \    
+    curl \
     gettext-base \
     git-core \
-    tar \ 
+    tar \
     unzip \
     jq \
     libcurl4-openssl-dev \
@@ -99,7 +99,7 @@ COPY --chmod=644 ./k8files/status.conf /opt/nginx/conf/sites.d/
 COPY ./k8files/pivcac.conf /opt/nginx/conf/sites.d/pivcac.conftemp
 
 # Download RDS Combined CA Bundles
-RUN wget -P /usr/local/share/aws/  https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+RUN wget -P /usr/local/share/aws/  https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
 
 # Create cron jobs
 RUN echo '* */4 * * * websrv flock -n /tmp/update_cert_revocations.lock -c /usr/local/bin/update_cert_revocations' > /etc/cron.d/update_cert_revocations; \
