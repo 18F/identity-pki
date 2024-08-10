@@ -133,7 +133,6 @@ RUN addgroup --gid 1000 app && \
     mkdir -p $RAILS_ROOT/log
 
 # Copy scripts
-COPY --chown=root:root --chmod=755 ./k8files/start.sh /start.sh
 COPY --chown=root:root --chmod=755 ./k8files/update_cert_revocations /usr/local/bin
 COPY --chown=root:root --chmod=755 ./k8files/push_letsencrypt_certs.sh /usr/local/bin/push_letsencrypt_certs.sh
 COPY --chown=root:root --chmod=755 ./k8files/update_letsencrypt_certs /usr/local/bin/update_letsencrypt_certs
