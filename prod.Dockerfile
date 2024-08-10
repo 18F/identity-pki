@@ -104,7 +104,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-    cron \
     gettext-base \
     git-core \
     libcurl4-openssl-dev \
@@ -157,11 +156,6 @@ COPY ./k8files/pivcac.conf /opt/nginx/conf/sites.d/pivcac.conf
 # copy rds cert from builder
 COPY --from=builder /usr/local/share/aws/rds-combined-ca-bundle.pem /usr/local/share/aws/rds-combined-ca-bundle.pem
 
-# Create cron jobs
-RUN echo '* */4 * * * websrv flock -n /tmp/update_cert_revocations.lock -c /usr/local/bin/update_cert_revocations' > /etc/cron.d/update_cert_revocations; \
-    chown root: /etc/cron.d/update_cert_revocations; \
-    chmod 700 /etc/cron.d/update_cert_revocations
-
 # Copy bundle in
 COPY --from=builder $RAILS_ROOT $RAILS_ROOT
 
@@ -199,9 +193,6 @@ RUN bundle config set --local deployment 'true'
 RUN bundle config set --local path $BUNDLE_PATH
 RUN bundle config set --local without 'deploy development doc test'
 
-# update CRLs
-RUN bundle exec rake crls:update
-
 # make everything the proper perms after everything is initialized
 RUN chown -R app:app $RAILS_ROOT/tmp && \
     chown -R app:app $RAILS_ROOT/log && \
@@ -216,4 +207,5 @@ EXPOSE 443
 
 USER app
 
-ENTRYPOINT ["/start.sh"]
+# The keys here are getting mapped in from a secret in the deployment.
+ENTRYPOINT ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://0.0.0.0:3000?key=/app/keys/localhost.key&cert=/app/keys/localhost.crt"]
