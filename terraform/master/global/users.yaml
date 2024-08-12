@@ -58,7 +58,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security|owner
+    - login-security|maintainer
   alex.kritikos:
     ec2_username:
     - akrito
@@ -182,7 +182,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security|developer
+    - login-security|maintainer
   benjamin.chait:
     aws_groups:
     - analytics
@@ -326,7 +326,7 @@ users:
     - dcassidy
     gitlab_groups:
     - devops
-    - login-security|developer
+    - login-security|maintainer
   devon.johnson:
     aws_groups:
     - supporteng
@@ -381,7 +381,7 @@ users:
     aws_groups:
     - soc
     gitlab_groups:
-    - login-security|developer
+    - login-security|maintainer
   gina.yamada:
     aws_groups:
     - apponcall
@@ -716,7 +716,7 @@ users:
     - devops
     - lg-all|developer
     - lg-public|developer
-    - login-security|developer
+    - login-security|maintainer
     email:
     - m.kananda@gsa.gov
   matt.hinz:
@@ -843,7 +843,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security|owner
+    - login-security|maintainer
   nick.ng:
     aws_groups:
     - analytics
@@ -947,7 +947,7 @@ users:
     - sorellana
     gitlab_groups:
     - devops
-    - login-security
+    - login-security|maintainer
   shane.chesnutt:
     aws_groups:
     - appdev
@@ -1045,7 +1045,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security|developer
+    - login-security|maintainer
   vishal.parekh:
     aws_groups:
     - devopsnonprod
