@@ -38,6 +38,7 @@ users:
     - aguru
     gitlab_groups:
     - antifraud
+    - login-fraud|maintainer
     - lg-all
     - lg-public
   akhlaq.khan:
@@ -107,6 +108,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   allison.rosenberg:
     aws_groups:
     - analytics
@@ -168,6 +170,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   annie.hirshman:
     gitlab_groups:
     - user-experience-admins|reporter
@@ -216,6 +219,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   bruce.blackman:
     aws_groups:
     - fraudops
@@ -223,6 +227,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
     ec2_username:
     - bblackman
   cale.rubenstein:
@@ -256,6 +261,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   chris.manger:
     aws_groups:
     - finops
@@ -377,6 +383,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   fred.agyepongyeboah:
     aws_groups:
     - soc
@@ -428,6 +435,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   isaac.arasato:
     gitlab_groups:
     - lg-all
@@ -456,6 +464,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
     ec2_username:
     - jgolden
   jeffrey.holden:
@@ -510,6 +519,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
     aws_groups:
     - fraudops
   jim.pham:
@@ -517,6 +527,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   john.maxwell:
     aws_groups:
     - apponcall
@@ -534,6 +545,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   jonathan.hooper:
     aws_groups:
     - apponcall
@@ -570,6 +582,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   julia.solorzano-gsa:
     gitlab_groups:
     - appdev
@@ -635,6 +648,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   kirsten.a.green:
     aws_groups:
     - analytics
@@ -678,6 +692,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   luigi.ray-montanez:
     aws_groups:
     - appdev
@@ -751,6 +766,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - login-fraud|maintainer
   micah.saul:
     aws_groups:
     - appdev
@@ -885,6 +901,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   princess.ojiaku:
     aws_groups:
     - analytics
@@ -910,6 +927,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   rodolfo.ornelas:
     aws_groups:
     - soc
@@ -977,6 +995,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
   stephen.shelton:
     aws_groups:
     - devops
@@ -1106,6 +1125,7 @@ users:
     - appdev|owner
     - pm|owner
     - antifraud|owner
+    - login-fraud|owner
     - login-security|owner
     - lg-people-platform|owner
     - lg-people-appdev|owner
@@ -1130,6 +1150,8 @@ users:
 groups:
   antifraud:
     description: Fraud Investigations
+  login-fraud:
+    description: Fraud Operations Team Group
   appdev:
     description: Application Developers
   devops:
@@ -1193,6 +1215,8 @@ projects:
     groups:
       antifraud:
         access: reporter
+      login-fraud:
+        access: reporter 
       appdev:
         access: developer
       devops:
