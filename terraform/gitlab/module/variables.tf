@@ -274,7 +274,7 @@ variable "rds_engine" {
 }
 
 variable "rds_engine_version" {
-  default = "13.10"
+  default = "13.15"
 }
 
 variable "rds_instance_class" {
