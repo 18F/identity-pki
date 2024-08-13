@@ -1,4 +1,9 @@
 ---
+# This file is used to manage users and their access to various parts of our DevOps infrastructure.  This includes AWS and Gitlab.  Please review the
+# following rules before modifying this file, and contact someone on the Platform team with any questions!
+# - Any edit to this file should have a corresponding issue, which should be linked in your MR
+# - A member of the DevOps team should approve any changes to this file
+
 users:
   aaron.nagucki:
     aws_groups:
@@ -1449,56 +1454,58 @@ oncall_teams:
       appdev_primary:
         name: AppDev Primary
         handoff_day: MON
-        handoff_hour: '13'
-        handoff_minute: '00'
+        handoff_hour: "13"
+        handoff_minute: "00"
         shift_coverage:
           prod: emergency
           sandbox: business
         members:
-        - amir.reavis-bey
-        - jonathan.hooper
-        - mitchell.henke
-        - matt.hinz
-        - zach.margolis
+          - amir.reavis-bey
+          - jonathan.hooper
+          - mitchell.henke
+          - matt.hinz
+          - zach.margolis
       appdev_secondary:
         name: AppDev Secondary
         handoff_day: MON
-        handoff_hour: '13'
-        handoff_minute: '00'
+        handoff_hour: "13"
+        handoff_minute: "00"
         shift_coverage:
           prod: emergency
           sandbox: business
+        # offset members by 1 from appdev_primary
         members:
-        - jonathan.hooper
-        - mitchell.henke
-        - matt.hinz
-        - zach.margolis
-        - amir.reavis-bey
+          - jonathan.hooper
+          - mitchell.henke
+          - matt.hinz
+          - zach.margolis
+          - amir.reavis-bey
   platform:
     rotations:
       platform_primary:
         name: Platform Primary
         handoff_day: TUE
-        handoff_hour: '13'
-        handoff_minute: '00'
+        handoff_hour: "13"
+        handoff_minute: "00"
         shift_coverage:
           prod: emergency
           sandbox: business
         members:
-        - jonathan.pirro
-        - justin.grevich
-        - alex.kritikos
-        - michael.w.ward
+          - jonathan.pirro
+          - justin.grevich
+          - alex.kritikos
+          - michael.w.ward
       platform_secondary:
         name: Platform Secondary
         handoff_day: TUE
-        handoff_hour: '13'
-        handoff_minute: '00'
+        handoff_hour: "13"
+        handoff_minute: "00"
         shift_coverage:
           prod: emergency
           sandbox: business
+        # offset members by 1 from platform_primary:
         members:
-        - justin.grevich
-        - alex.kritikos
-        - michael.w.ward
-        - jonathan.pirro
+          - justin.grevich
+          - alex.kritikos
+          - michael.w.ward
+          - jonathan.pirro
