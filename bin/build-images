@@ -9,33 +9,38 @@ set -euo pipefail
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} -a AWS_ACCOUNT [-b BRANCH|-t TYPE|-v]
+Usage: ${0} -a AWS_ACCOUNT [-p PIPE_NAME|-t TYPE]
 
 Runs \`aws codepipeline start-pipeline-execution\` for
-each type of AMI in the login-\$AWS_ACCOUNT account.
+each type of AMI in the login-\$AWS_ACCOUNT account, using
+the login-\$PIPE_NAME-\$TYPE CodePipelines.
+(\$PIPE_NAME defaults to 'image' if not specified.)
 
 Flags:
 
-  -a Account : Which Account to build Images in
-  -t TYPE    : Only update stacks/build project/pipeline for \$TYPE AMIs (base/rails)
-  -v         : Only verify branch in \`login-\$ACCOUNT\`; do not update/build
-  -h         : Display this help
+  -a Account   : Which Account to build Images in
+  -t TYPE      : Only update stacks/build project/pipeline
+                 for \$TYPE AMIs (base/rails)
+  -p PIPE_NAME : Run new executions of login-\$PIPE_NAME-\$TYPE
+                 CodePipelines
+  -h           : Display this help
 
 EOM
 }
 
-declare {ACCOUNT,BUILD_BRANCH,CURRENT_BRANCH,AV_PROFILE,VERIFY_ONLY}=
+declare {ACCOUNT,AV_PROFILE}=
 TYPE_LIST=('base' 'rails')
+PIPE_NAME='image'
 
 verify_root_repo
-while getopts :a:t:b:vh opt
+while getopts a:t:p:h opt
 do
   case $opt in
-    a) ACCOUNT="${OPTARG}"      ;;
-    t) TYPE_LIST=("${OPTARG}")  ;;
-    v) VERIFY_ONLY=true         ;;
-    h) usage && exit 0          ;;
-    *) raise 'Invalid option'   ;;
+    a) ACCOUNT="${OPTARG}"     ;;
+    t) TYPE_LIST=("${OPTARG}") ;;
+    p) PIPE_NAME="${OPTARG}"   ;;
+    h) usage && exit 0         ;;
+    *) raise 'Invalid option'  ;;
   esac
 done
 shift $((OPTIND-1))
@@ -49,15 +54,15 @@ fi
 
 get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
 
-echo -e "\nReady to build new AMI(s) for:"
+echo -e "\nReady to build new AMI(s) in \`login-${ACCOUNT}\`:"
 for TYPE in "${TYPE_LIST[@]}" ; do
-  echo_cyan "- ${ACCOUNT}-${TYPE}"
+  echo_cyan "- ${PIPE_NAME}-${TYPE}"
 done
 echo
 if prompt_yn "Continue?" ; then
   for TYPE in "${TYPE_LIST[@]}" ; do
     PIPELINE=$(ave -r aws codepipeline list-pipelines | jq -r '.pipelines[].name' |
-                grep -i "CodePipeline-Image${TYPE}Role-CodePipeline" | head -n1)
+                grep -i ${TYPE} | grep -i ${PIPE_NAME} | head -n1)
     ave aws codepipeline start-pipeline-execution --name ${PIPELINE} >/dev/null
   done
   echo_green "Pipeline execution(s) started in \`login-${ACCOUNT}\`!"

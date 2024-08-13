@@ -9,23 +9,29 @@ set -euo pipefail
 usage() {
   cat >&2 << EOM
 
-Usage: ${0} -a AWS_ACCOUNT -t TYPE
+Usage: ${0} -a AWS_ACCOUNT -t TYPE [-p PIPE_NAME]
 
-Runs \`aws logs tail --follow --format short\` on the most recent stream from
-/aws/codebuild/login-image-\$TYPE CloudWatch Logs in the login-\$AWS_ACCOUNT account.
+Runs \`aws logs tail --follow --format short\` on the most recent stream
+from the /aws/codebuild/login-\$PIPE_NAME-\$TYPE CloudWatch Log Group
+in the login-\$AWS_ACCOUNT account.
 
 Executed via \`aws-vault exec \$AWS_ACCOUNT-admin\`; requires FullAdministrator
 role/access to be set in ~/.aws/config as a result.
+\$PIPE_NAME defaults to 'image' if not specified.
 
 EOM
 }
 
+declare {ACCOUNT,TYPE,AV_PROFILE}=
+PIPE_NAME='image'
+
 verify_root_repo
-while getopts a:t:h opt
+while getopts a:t:p:h opt
 do
   case $opt in
     a) ACCOUNT="${OPTARG}"    ;;
     t) TYPE="${OPTARG}"       ;;
+    p) PIPE_NAME="${OPTARG}"  ;;
     h) usage && exit 0        ;;
     *) raise 'Invalid option' ;;
   esac
@@ -41,9 +47,9 @@ fi
 
 get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
 
-echo_cyan "Finding newest build run for login-image-${TYPE} CodeBuild project..."
+echo_cyan "Finding newest build run for login-${PIPE_NAME}-${TYPE} CodeBuild project..."
 BUILD_ID=$(ave aws codebuild list-builds-for-project \
-  --project-name login-image-${TYPE} --max-items 1 --query ids | jq -r '.[]')
+  --project-name login-${PIPE_NAME}-${TYPE} --max-items 1 --query ids | jq -r '.[]')
 echo_cyan "Verifying status of build run '${BUILD_ID}'..."
 BUILD_STATUS=$(ave aws codebuild batch-get-builds --ids ${BUILD_ID} \
   --query 'builds[].buildStatus' | jq -r '.[]')
@@ -58,5 +64,6 @@ fi
 LOG_STREAM=$(echo ${BUILD_ID} | awk -F':' '{print $NF}')
 echo_green "Following log stream ID '${LOG_STREAM}'; press CTRL-C to exit."
 trap "echo && echo_green 'Finished following ${BUILD_ID} in login-${ACCOUNT}.'" INT
-ave aws logs tail /aws/codebuild/login-us-west-2-${ACCOUNT}-imagebuild-${TYPE} \
+[[ ${PIPE_NAME} == 'image' ]] && PIPE_NAME=${ACCOUNT}
+ave aws logs tail /aws/codebuild/login-us-west-2-${PIPE_NAME}-imagebuild-${TYPE} \
   --log-stream-names ${LOG_STREAM} --follow --format short
