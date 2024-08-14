@@ -653,7 +653,7 @@ env-agnes:
   extends: .include_idp_jobs_template
   variables:
     ENV_NAME: agnes
-    branch: "mww59/restore_analytics"
+    branch: "main"
 
 env-joy:
   extends: .include_idp_jobs_template
