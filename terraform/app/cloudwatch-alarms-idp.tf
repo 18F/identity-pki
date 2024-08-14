@@ -407,7 +407,7 @@ EOM
     metric {
       metric_name = "telephony-otp-sent-country-code"
       namespace   = "${var.env_name}/idp-authentication"
-      period      = 300
+      period      = 900
       stat        = "Sum"
 
       dimensions = {
@@ -424,7 +424,7 @@ EOM
     metric {
       metric_name = "mfa-setup-success-by-country-code-method"
       namespace   = "${var.env_name}/idp-authentication"
-      period      = 300
+      period      = 900
       stat        = "Sum"
 
       dimensions = {
@@ -440,5 +440,5 @@ EOM
 
   treat_missing_data = "notBreaching"
 
-  alarm_actions = local.low_priority_alarm_actions
+  alarm_actions = local.moderate_priority_alarm_actions
 }

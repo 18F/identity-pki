@@ -152,7 +152,7 @@ EOM
     metric {
       metric_name = "telephony-otp-sent-method-is-resend"
       namespace   = "${var.env_name}/idp-authentication"
-      period      = 300
+      period      = 900
       stat        = "Sum"
 
       dimensions = {
@@ -167,7 +167,7 @@ EOM
     metric {
       metric_name = "telephony-otp-sent-method-is-not-resend"
       namespace   = "${var.env_name}/idp-authentication"
-      period      = 300
+      period      = 900
       stat        = "Sum"
 
       dimensions = {
