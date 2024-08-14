@@ -102,7 +102,6 @@ module "main" {
     "login-gov.scripts.lambda",
     "login-test-backup",
     "overbridgeconfigbucket-us-west-2-894947205914",
-    "pauldoom-cw-cleanup",
     "testingbucketgas",
   ]
 
