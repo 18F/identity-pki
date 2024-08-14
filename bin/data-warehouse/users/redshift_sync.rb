@@ -30,7 +30,7 @@ end
 
 def secret_arn
   @secret_arn ||= Aws::SecretsManager::Client.new(region: 'us-west-2')
-                                             .describe_secret(secret_id: "redshift!#{env_name}-analytics-awsuser")
+                                             .describe_secret(secret_id: "redshift!#{env_name}-analytics-superuser")
                                              .arn
 end
 
@@ -73,7 +73,7 @@ def disallowed_characters?(username)
 end
 
 def current_users
-  excluded_users = ['awsuser', 'rdsdb', "#{lambda_user['user_name']}"]
+  excluded_users = ['superuser', 'rdsdb', "#{lambda_user['user_name']}"]
 
   # get the list of users
   current_user_query = execute_sql("SELECT usename from pg_user WHERE usename NOT IN #{quote(excluded_users)}")
