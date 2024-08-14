@@ -22,7 +22,7 @@ Flags (will run all if no flags specified):
 Limit AMI selection via:
   -t TYPE    : Only look up \$TYPE AMIs ('base' or 'rails')
   -r REGION  : Only look up AMIs in \$REGION ('us-west-2' or 'us-east-1')
-  -a ACCOUNT : Only look up AMIs in \$ACCOUNT ('sandbox', 'prod',  or 'tooling-prod')
+  -a ACCOUNT : Only look up AMIs in \$ACCOUNT ('sandbox', 'prod', 'tooling-prod', or 'analytics-sandbox')
 
 EOM
 }
@@ -32,7 +32,7 @@ help_me() {
 
 Looks up the most recent base / rails AMIs built from the 'main' branch, in each
 account and each region where Terraform variables are used to set AMI IDs
-(sandbox/prod/tooling-prod), then:
+(sandbox/prod/tooling-prod/analytics-sandbox), then:
 
 1. Prints a table showing account/ID/date/type/OS version/region for all AMIs
 2. Updates the corresponding values in the appropriate .tf file(s), i.e.
@@ -52,16 +52,17 @@ The script will error out if:
 
 Example output:
 
-| ACCOUNT      | ID                    | DATE       | ROLE  | VERSION      | REGION    | 
-| -----        | -----                 | -----      | ----- | -----        | -----     | 
-| sandbox      | ami-0a67129cb56cc10d2 | 2023-07-27 | base  | Ubuntu 20.04 | us-west-2 | 
-| sandbox      | ami-08feaa1be7d8d01c7 | 2023-07-27 | rails | Ubuntu 20.04 | us-west-2 | 
-| sandbox      | ami-080d1de6e34256a5a | 2023-07-27 | base  | Ubuntu 20.04 | us-east-1 | 
-| sandbox      | ami-0f64a6e871baf482f | 2023-07-27 | rails | Ubuntu 20.04 | us-east-1 | 
-| prod         | ami-058ca41a84ae6f822 | 2023-07-27 | base  | Ubuntu 20.04 | us-west-2 | 
-| prod         | ami-0c29ceb2e5e0317cb | 2023-07-28 | rails | Ubuntu 20.04 | us-west-2 | 
-| tooling-prod | ami-0b9e84d755f061467 | 2023-07-28 | base  | Ubuntu 20.04 | us-west-2 | 
-
+| ACCOUNT           | ID                    | DATE       | ROLE  | VERSION      | REGION    |
+| -----             | -----                 | -----      | ----- | -----        | -----     |
+| sandbox           | ami-0467b3302d837873b | 2024-08-13 | base  | Ubuntu 20.04 | us-west-2 |
+| sandbox           | ami-012a47e9149bedcbd | 2024-08-13 | rails | Ubuntu 20.04 | us-west-2 |
+| sandbox           | ami-0c39935e7f532dc2c | 2024-08-13 | base  | Ubuntu 20.04 | us-east-1 |
+| sandbox           | ami-02a03d1d00dacddf0 | 2024-08-13 | rails | Ubuntu 20.04 | us-east-1 |
+| prod              | ami-05ff1ca3b56529bcf | 2024-08-13 | base  | Ubuntu 20.04 | us-west-2 |
+| prod              | ami-0bc992d8c3dab0669 | 2024-08-13 | rails | Ubuntu 20.04 | us-west-2 |
+| analytics-sandbox | ami-07b77485288628fb2 | 2024-08-13 | base  | Ubuntu 20.04 | us-west-2 |
+| analytics-sandbox | ami-00ecf755ea23d74de | 2024-08-13 | rails | Ubuntu 20.04 | us-west-2 |
+| tooling-prod      | ami-0aa8508d392026709 | 2024-08-13 | base  | Ubuntu 20.04 | us-west-2 |
 EOM
   usage
   exit 0
@@ -75,6 +76,9 @@ get_ami_info() {
     if [[ "${TF_ACCT}" == "tooling-prod" ]]; then
       AV_REGIONS=('us-west-2')
       AMI_TYPES=('base')
+    elif [[ "${TF_ACCT}" == "analytics-sandbox" ]]; then
+      AV_REGIONS=('us-west-2')
+      AMI_TYPES=('base' 'rails')
     fi
 
     for AV_REGION in "${AV_REGIONS[@]}"; do
@@ -141,7 +145,7 @@ update_vars() {
     UBUNTU_VERSION=$(echo ${LINE} | awk -F+ '{print $5}' | sed -E 's/(Ubuntu)-/\1 /g')
     AMI_REGION=$(echo ${LINE} | awk -F+ '{print $6}' | sed -E 's/([a-z0-9])[a-z0-9]+\-/\1/g')
 
-    if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
+    if [[ "${AMI_ACCT}" =~ 'tooling|analytics' ]]; then
       AMI_VAR="default_ami_id"
     else
       AMI_VAR="${AMI_TYPE}_ami_${AMI_ACCT}_${AMI_REGION}"
@@ -151,6 +155,8 @@ update_vars() {
     TF_VARS_PATHS=()
     if [[ "${AMI_ACCT}" == "tooling-prod" ]]; then
       TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
+    elif [[ "${AMI_ACCT}" == "analytics-sandbox" ]]; then
+      TF_VARS_PATHS+=('terraform/data-warehouse/module/variables.tf')
     else
       TF_VARS_PATHS+=('terraform/app/variables.tf')
     fi
@@ -235,7 +241,7 @@ UPDATED_VARS=0
 HEADERS="|ACCOUNT ID DATE ROLE VERSION REGION|"
 
 TASK_LIST=('list' 'update' 'open')
-TF_ACCTS=('sandbox' 'prod' 'tooling-prod')
+TF_ACCTS=('sandbox' 'prod' 'analytics-sandbox' 'tooling-prod')
 AV_REGIONS=('us-west-2' 'us-east-1')
 AMI_TYPES=('base' 'rails')
 
