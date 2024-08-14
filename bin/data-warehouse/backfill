@@ -1,0 +1,171 @@
+#!/bin/bash
+
+### Start Cloudwatch Exports to the analytics export bucket.
+
+set -euo pipefail
+
+. "$(dirname "$0")/../lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-e TF_ENV] [-f [val[y|m|w|d|H|M|S]|epoch_timestamp_in_milliseconds] [-t [val[y|m|w|d|H|M|S]|epoch_timestamp_in_milliseconds]] [-a]
+
+Flags:
+  -e TF_ENV : Environment. Defaults to \$GSA_USERNAME
+  -f FROM_DATE : Accepts epoch_timestamps_in_milliseconds or relative ranges from current timestamp (1y = 1 year, 2m = 2 Months, etc.) Defaults to 1 week.
+  -t TO_DATE :  Accepts epoch_timestamps_in_milliseconds or relative ranges from current timestamp (1y = 1 year, 2m = 2 Months, etc.) Defaults to now.
+  -a : All of time. Finds first occurrence of a log stream to Now
+
+Examples:
+
+  ${0} -e int -f 10d -t 5d
+	Exports the logs in the int environment from 10 days ago to 5 days ago.
+  ${0} -e int -a
+	Exports the logs in the int environment from Creation Date to Now.
+
+EOM
+}
+
+help_me() {
+  cat >&2 << EOM
+
+EOM
+  usage
+  exit 0
+}
+
+convert_millisecond_timestamp_to_human_readable() {
+	gdate -d @"$(echo "($1+500)/1000"|bc)"
+}
+
+check_if_export_in_progress() {
+	PENDING="$(aws logs describe-export-tasks --status-code 'PENDING' | jq -r '.exportTasks')"
+	RUNNING="$(aws logs describe-export-tasks --status-code 'RUNNING' | jq -r '.exportTasks')"
+
+	if [ ${#PENDING} -eq 2 ] && [ "${#RUNNING}" -eq 2 ] ; then
+		echo "No exports in process"
+		return 0
+	else
+		echo "Export in progress... Exiting"
+		return 1
+	fi
+}
+
+start_export() {
+	echo "Starting Task $1"
+	task_id="$(aws logs create-export-task --log-group-name $1 --destination $2 --destination-prefix $3 --from $4 --to $5 | jq -r '.taskId')"
+
+	monitor_export $task_id
+
+}
+
+monitor_export() {
+	echo "Starting Monitoring of Task $1"
+	possible_exit_values=("CANCELLED" "COMPLETED" "FAILED")
+	status="PENDING"
+
+	while [[ ! ${possible_exit_values[*]} =~ "$status" ]] ; do
+		echo "Task $1 is currently $status. Sleeping 10 Seconds..."
+		sleep 10
+		status="$(aws logs describe-export-tasks --task-id "$1" | jq -r '.exportTasks[0].status.code')"
+	done
+	
+}
+
+validate_target_account() {
+	valid_accounts=("894947205914" "555546682965")
+
+	if [[ ${valid_accounts[*]} =~ "$1" ]] ; then
+		echo "Target Account: $1"
+	else
+		raise "Invalid Account Target. Are you targeting an app environment? (login-[sandbox|prod])"
+	fi
+}
+
+##### main script
+
+verify_root_repo
+
+declare {AWS_PROFILE,AV_PROFILE,TF_ENV,FROM_DATE,TO_DATE}=
+ALL_RECORDS=false
+
+optf=false
+optt=false
+
+while getopts f:t:ae: OPT ; do
+	case "$OPT" in
+		e) TF_ENV="${OPTARG}" ;;
+		f) FROM_DATE="${OPTARG}"
+		   optf=true	;;
+		t) TO_DATE="${OPTARG}"
+		   optt=true	;;
+		a) $optt && raise "Can't specify -t with -a"
+			$optf && raise "Can't specify -f with -a"
+			ALL_RECORDS=true      ;;
+		*) usage && exit 1 ;;
+	esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${TF_ENV} ]] ; then
+	TF_ENV=${GSA_USERNAME}
+fi
+
+log_groups=("${TF_ENV}_/srv/idp/shared/log/production.log" "${TF_ENV}_/srv/idp/shared/log/events.log")
+
+check_if_export_in_progress
+
+# Finds the oldest records
+
+if [ "$ALL_RECORDS" = true ] ; then
+	TO_DATE=$(date +%s000)
+
+	declare oldest_creation_time
+	for log_group in "${log_groups[@]}" ; do
+		creation_time=$(aws logs describe-log-groups --log-group-name-pattern $log_group | jq -r '.logGroups[0].creationTime')
+		if [[ -z ${oldest_creation_time} ]] ||  [[ $creation_time -lt $oldest_creation_time ]]; then
+			oldest_creation_time=$creation_time
+		fi
+	done
+
+	FROM_DATE=$oldest_creation_time
+
+fi
+
+# Validate Input Timestamps
+
+if [[ -z ${FROM_DATE} ]] ; then
+	FROM_DATE=$(date -v-1w +%s000)
+	echo "Using Default Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE})"
+elif [[ ${FROM_DATE} =~ [ymwdHMS] ]] ; then
+	FROM_DATE=$(date -v-"${FROM_DATE}" +%s000)
+	echo "Using Relative Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE})"
+else
+	echo "Using Specified Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE})"
+fi
+
+if [[ -z ${TO_DATE} ]] ; then
+	TO_DATE=$(date +%s000)
+	echo "Using Default Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable ${TO_DATE})"
+elif [[ ${TO_DATE} =~ [ymwdHMS] ]] ; then
+	TO_DATE=$(date -v-"${TO_DATE}" +%s000)
+	echo "Using Relative Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable ${TO_DATE})"
+else
+	echo "Using Specified Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable ${TO_DATE})"
+fi
+
+# End of Validation for Timestamps
+
+ACCT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
+validate_target_account $ACCT_NUM
+
+destination="login-gov-analytics-export-${TF_ENV}-${ACCT_NUM}-us-west-2"
+
+prompt_yn "Would you like to perform the import with date range $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE}) to $(convert_millisecond_timestamp_to_human_readable ${TO_DATE}) to bucket ${destination}?"
+
+for log_group in "${log_groups[@]}"; do
+	log_group_underscore=$(echo "$log_group" | tr / _)
+	prefix="logs/${log_group_underscore}"
+	start_export "$log_group" "$destination" "$prefix" "$FROM_DATE" "$TO_DATE"
+done

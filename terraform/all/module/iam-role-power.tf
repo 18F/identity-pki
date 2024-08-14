@@ -789,7 +789,7 @@ module "poweruser-assumerole" {
     },
     {
       policy_name        = "Power4"
-      policy_description = "Power User EKS Permissions"
+      policy_description = "Policy 4 for Power User"
       policy_document = [
         {
           sid    = "EKS"

@@ -30,8 +30,8 @@ environments:
   - app-dm # Data migration applications
   - app-int # Integration/customer facing non-prod applications
   - app-sandbox # Other (overlapping) applications
-  - ~ # Unused
-  - ~ # Unused
+  - analytics-prod # Production data warehouse
+  - analytics-sandbox # Staging data warehouse
   - ~ # Unused
   - ~ # Unused
   - ~ # Unused

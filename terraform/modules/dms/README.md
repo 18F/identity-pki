@@ -77,7 +77,7 @@ No modules.
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnet ids | `list(any)` | n/a | yes |
 | <a name="input_target_db_address"></a> [target\_db\_address](#input\_target\_db\_address) | Source database address | `string` | n/a | yes |
 | <a name="input_vpc_security_group_ids"></a> [vpc\_security\_group\_ids](#input\_vpc\_security\_group\_ids) | List of security group ids | `list(any)` | n/a | yes |
-| <a name="input_dms_engine_version"></a> [dms\_engine\_version](#input\_dms\_engine\_version) | Engine version of the DMS replication instance. | `string` | `"3.5.1"` | no |
+| <a name="input_dms_engine_version"></a> [dms\_engine\_version](#input\_dms\_engine\_version) | Engine version of the DMS replication instance. | `string` | `"3.5.2"` | no |
 
 ## Outputs
 

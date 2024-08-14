@@ -37,6 +37,7 @@ cookbook 'identity-outboundproxy', path: prefixed('kitchen/cookbooks/identity-ou
 cookbook 'aws_s3', path: prefixed('kitchen/cookbooks/aws_s3')
 cookbook 'canonical_hostname', path: prefixed('kitchen/cookbooks/canonical_hostname')
 cookbook 'chef_proxy_env', path: prefixed('kitchen/cookbooks/chef_proxy_env')
+cookbook 'identity-analytics', path: prefixed('kitchen/cookbooks/identity-analytics')
 cookbook 'identity-gitlab', path: prefixed('kitchen/cookbooks/identity-gitlab')
 cookbook 'identity-locust', path: prefixed('kitchen/cookbooks/identity-locust')
 cookbook 'identity-nessus', path: prefixed('kitchen/cookbooks/identity-nessus')

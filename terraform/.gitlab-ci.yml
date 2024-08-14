@@ -32,6 +32,7 @@ tfsec-check-soft:
           - sms/module
           - tooling/module
           - waf/module
+          - data-warehouse/module
 
 # Add folders that should be vuln free and STAY THAT WAY
 tfsec-check-enforce:
@@ -69,7 +70,10 @@ lambda-unit-tests:
     - !reference [.merge_request, rules]
     - changes:
         - terraform/**/*
+  coverage: '/TOTAL.* (100\%|\d\d\%)$/'
   artifacts:
+    paths:
+      - htmlcov/
     reports:
       coverage_report:
         coverage_format: cobertura

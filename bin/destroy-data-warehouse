@@ -1,0 +1,138 @@
+#!/bin/bash
+
+#### Tear down/destroy a data-warehouse sandbox environment ####
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+trap replace_db_files EXIT
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-dbxk1234[a]h] [TF_ENV] (will use \$GSA_USERNAME if not specified)
+
+Flags (will run all if no flags specified):
+  -d / -1 : Remove deletion protection from RDS + zero out ASGs via targeted apply
+  -b / -2 : Empties all S3 buckets with ENV in the bucket name
+  -x / -3 : terraform-destroy + reset db .tf files
+  -k / -4 : Delete all ENV-named S3 keys in secrets/app-secrets buckets
+       -a : Same as -d, but do full (non-targeted) apply (not run by default)
+       -h : Detailed help
+
+EOM
+}
+
+help_me() {
+  cat >&2 << EOM
+
+Usage: ${0} [-dbxk1234[a]h] [TF_ENV] (will use \$GSA_USERNAME if not specified)
+
+Runs all necessary commands to prep and destroy an existing data-warehouse sandbox environment,
+\${TF_ENV}. Designed to run with no specified flags/arguments.
+
+The tasks in this script can also be individually executed as follows:
+
+  -d / -1 : Remove protection/prevent_destroy/final_snapshot from RDS databases, and
+            zero out Auto Scaling Groups, via a targeted \`tf-deploy\` operation.
+            (Step: 1_allow_db_destroy)
+  -b / -2 : Empties all S3 buckets with \${TF_ENV} in the bucket name,
+            and deletes all object versions as well
+            (Step: 2_empty_buckets)
+  -x / -3 : Run \`terraform destroy -auto-approve\` against the
+            environment, skipping the attempt to send a message to Slack
+            (Step: 3_tf_destroy)
+  -k / -4 : Delete all S3 keys in the secrets/app-secrets buckets that
+            have \${TF_ENV} in their name
+            (Step: 4_delete_env_keys)
+       -a : Same as -d but do a full \`apply\` without specifically targeting the
+            RDS databases/ASGs (use in case the targeted \`apply\` is failing).
+       -h : Displays this help
+
+This script will default to using \${GSA_USERNAME} for the
+value of \${TF_ENV}, unless a different one is specified
+as a final argument.
+
+EOM
+  exit 0
+}
+
+1_allow_db_destroy() {
+  local TF_ARGS=()
+  if [[ ! ${APPLY_ALL} == true ]] ; then
+    TF_ARGS=($(ave ${BASEPATH}/tf-deploy data-warehouse/${TF_ENV} state list |
+                   grep 'autoscaling_group\|cluster'))
+    TF_ARGS=( "${TF_ARGS[@]/#/-target=}" ) # adds DBs and ASGs as targets
+  fi
+  ave ${BASEPATH}/tf-deploy -z -t data-warehouse/${TF_ENV} apply -auto-approve "${TF_ARGS[@]:-}"
+}
+
+2_empty_buckets() {
+  for BUCKET in $(ave aws s3 ls | grep ${TF_ENV} | awk '{print $NF}' | sort -r); do
+    BUCKET_REGION=$(echo ${BUCKET} | sed -E 's/.*[0-9]+\-//')
+    empty_bucket_with_versions ${BUCKET} ${BUCKET_REGION}
+  done
+}
+
+3_tf_destroy() {
+  ave ${BASEPATH}/tf-deploy -t data-warehouse/${TF_ENV} destroy -auto-approve
+  replace_db_files
+}
+
+4_delete_env_keys() {
+  local OBJECTS
+  for BUCKET in $(ave aws s3 ls | grep 'secrets.' | awk '{print $NF}') ; do
+    OBJECTS_JSON=$(ave aws s3api list-object-versions \
+      --bucket ${BUCKET} --output=json \
+      --query='{Objects: Versions[].{Key:Key,VersionId:VersionId}}')
+    if [[ $(echo "${OBJECTS_JSON}" | jq -r '.Objects') != "null" ]] ; then
+      OBJECTS=$(echo "${OBJECTS_JSON}" | jq --arg name "${TF_ENV}" \
+        '{Objects:[.[][]|select(.Key|contains($name))|
+          {Key, VersionId}],Quiet: false}')
+      if [[ ! -z $(echo "${OBJECTS}" | jq '.Objects[]') ]] ; then
+        ave aws s3api delete-objects --bucket ${BUCKET} \
+          --delete "$(echo "${OBJECTS}" | jq)"
+      fi
+    fi
+    if [[ $(ave -r aws s3 ls "s3://${BUCKET}/${TF_ENV}") ]] ; then
+      BUCKET_REGION=$(echo ${BUCKET} | sed -E 's/.*[0-9]+\-//')
+      empty_bucket_with_versions "${BUCKET}/${TF_ENV}" ${BUCKET_REGION}
+    fi
+  done
+}
+
+TASKS=(
+  "1_allow_db_destroy"
+  "2_empty_buckets"
+  "3_tf_destroy"
+  "4_delete_env_keys"
+)
+
+TODO=()
+APPLY_ALL=false
+while getopts d1b2x3k4ah opt
+do
+  case $opt in
+    d|1) TODO+=("${TASKS[0]}") ;;
+    b|2) TODO+=("${TASKS[1]}") ;;
+    x|3) TODO+=("${TASKS[2]}") ;;
+    k|4) TODO+=("${TASKS[3]}") ;;
+    a) APPLY_ALL=true          ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
+  esac
+done
+shift $((OPTIND-1))
+
+initialize 'true' ${1:-} 'analytics-sandbox'
+remove_db_protection_in_state 'ALL'
+
+if [[ ${APPLY_ALL} == true ]] ; then
+  if [[ ! -z ${TODO-} ]] && [[ ! "${TODO[@]:-}" =~ "${TASKS[0]}" ]] ; then
+    TODO+=("${TASKS[0]}")
+  fi
+fi
+run_tasks

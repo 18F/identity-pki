@@ -62,9 +62,11 @@ $runner -m $unittest $(
 )
 
 if $coverage; then
-  coverage html
+  coverage report | grep 'TOTAL'
+  coverage html --directory htmlcov
 
   if $xml; then
     coverage xml -o coverage.xml
   fi
 fi
+

@@ -67,6 +67,11 @@ module "analytics-assumerole" {
               test     = "ForAnyValue:StringLike"
               variable = "kms:ResourceAliases"
               values   = ["alias/*-kms-s3-log-cache-bucket"]
+            },
+            {
+              test     = "StringNotEquals"
+              variable = "aws:RequestedRegion"
+              values   = var.permitted_regions
             }
           ]
         },

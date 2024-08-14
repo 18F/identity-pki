@@ -1,4 +1,4 @@
-TF_PATHS := $(shell find terraform -maxdepth 3 -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|org\-management\|gitlab\/\|prod')
+TF_PATHS := $(shell find terraform -maxdepth 3 -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|org\-management\|data\-warehouse\|gitlab\/\|prod')
 PLANS := $(TF_PATHS:=.plan)
 APPLIES := $(TF_PATHS:=.apply)
 PROD_TF_PATHS := $(shell find terraform -maxdepth 3 -name env-vars.sh -exec dirname {} \; |grep -v 'ecr\|gitlab\/' | grep 'prod')

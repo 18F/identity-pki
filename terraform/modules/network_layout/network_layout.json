@@ -1463,6 +1463,272 @@
           }
         }
       }
+    },
+    "analytics-prod": {
+      "_network": "100.91.0.0/16",
+      "_zones": {
+        "a": {
+          "public-ingress": {
+            "ipv4-cidr": "100.91.65.0/24",
+            "ipv6-netnum": 1,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.91.68.0/24",
+            "ipv6-netnum": 4,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx04::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.91.69.0/24",
+            "ipv6-netnum": 5,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx05::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.91.72.0/22",
+            "ipv6-netnum": 8,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.91.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.91.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
+          }
+        },
+        "b": {
+          "public-ingress": {
+            "ipv4-cidr": "100.91.81.0/24",
+            "ipv6-netnum": 33,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.91.84.0/24",
+            "ipv6-netnum": 36,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx24::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.91.85.0/24",
+            "ipv6-netnum": 37,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx25::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.91.88.0/22",
+            "ipv6-netnum": 40,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.91.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.91.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
+          }
+        },
+        "c": {
+          "public-ingress": {
+            "ipv4-cidr": "100.91.97.0/24",
+            "ipv6-netnum": 65,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.91.100.0/24",
+            "ipv6-netnum": 68,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx44::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.91.101.0/24",
+            "ipv6-netnum": 69,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx45::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.91.104.0/22",
+            "ipv6-netnum": 72,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.91.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.91.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
+          }
+        },
+        "d": {
+          "public-ingress": {
+            "ipv4-cidr": "100.91.113.0/24",
+            "ipv6-netnum": 97,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.91.116.0/24",
+            "ipv6-netnum": 100,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx64::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.91.117.0/24",
+            "ipv6-netnum": 101,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx65::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.91.120.0/22",
+            "ipv6-netnum": 104,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.91.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.91.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
+          }
+        }
+      }
+    },
+    "analytics-sandbox": {
+      "_network": "100.92.0.0/16",
+      "_zones": {
+        "a": {
+          "public-ingress": {
+            "ipv4-cidr": "100.92.65.0/24",
+            "ipv6-netnum": 1,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.92.68.0/24",
+            "ipv6-netnum": 4,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx04::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.92.69.0/24",
+            "ipv6-netnum": 5,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx05::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.92.72.0/22",
+            "ipv6-netnum": 8,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.92.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.92.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
+          }
+        },
+        "b": {
+          "public-ingress": {
+            "ipv4-cidr": "100.92.81.0/24",
+            "ipv6-netnum": 33,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.92.84.0/24",
+            "ipv6-netnum": 36,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx24::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.92.85.0/24",
+            "ipv6-netnum": 37,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx25::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.92.88.0/22",
+            "ipv6-netnum": 40,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.92.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.92.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
+          }
+        },
+        "c": {
+          "public-ingress": {
+            "ipv4-cidr": "100.92.97.0/24",
+            "ipv6-netnum": 65,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.92.100.0/24",
+            "ipv6-netnum": 68,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx44::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.92.101.0/24",
+            "ipv6-netnum": 69,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx45::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.92.104.0/22",
+            "ipv6-netnum": 72,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.92.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.92.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
+          }
+        },
+        "d": {
+          "public-ingress": {
+            "ipv4-cidr": "100.92.113.0/24",
+            "ipv6-netnum": 97,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.92.116.0/24",
+            "ipv6-netnum": 100,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx64::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.92.117.0/24",
+            "ipv6-netnum": 101,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx65::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.92.120.0/22",
+            "ipv6-netnum": 104,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.92.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.92.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
+          }
+        }
+      }
     }
   },
   "us-west-2": {
@@ -2924,6 +3190,272 @@
           },
           "cluster-b": {
             "ipv4-cidr": "100.106.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
+          }
+        }
+      }
+    },
+    "analytics-prod": {
+      "_network": "100.107.0.0/16",
+      "_zones": {
+        "a": {
+          "public-ingress": {
+            "ipv4-cidr": "100.107.65.0/24",
+            "ipv6-netnum": 1,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.107.68.0/24",
+            "ipv6-netnum": 4,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx04::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.107.69.0/24",
+            "ipv6-netnum": 5,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx05::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.107.72.0/22",
+            "ipv6-netnum": 8,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.107.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.107.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
+          }
+        },
+        "b": {
+          "public-ingress": {
+            "ipv4-cidr": "100.107.81.0/24",
+            "ipv6-netnum": 33,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.107.84.0/24",
+            "ipv6-netnum": 36,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx24::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.107.85.0/24",
+            "ipv6-netnum": 37,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx25::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.107.88.0/22",
+            "ipv6-netnum": 40,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.107.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.107.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
+          }
+        },
+        "c": {
+          "public-ingress": {
+            "ipv4-cidr": "100.107.97.0/24",
+            "ipv6-netnum": 65,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.107.100.0/24",
+            "ipv6-netnum": 68,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx44::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.107.101.0/24",
+            "ipv6-netnum": 69,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx45::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.107.104.0/22",
+            "ipv6-netnum": 72,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.107.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.107.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
+          }
+        },
+        "d": {
+          "public-ingress": {
+            "ipv4-cidr": "100.107.113.0/24",
+            "ipv6-netnum": 97,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.107.116.0/24",
+            "ipv6-netnum": 100,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx64::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.107.117.0/24",
+            "ipv6-netnum": 101,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx65::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.107.120.0/22",
+            "ipv6-netnum": 104,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.107.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.107.128.0/22",
+            "ipv6-netnum": 112,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
+          }
+        }
+      }
+    },
+    "analytics-sandbox": {
+      "_network": "100.108.0.0/16",
+      "_zones": {
+        "a": {
+          "public-ingress": {
+            "ipv4-cidr": "100.108.65.0/24",
+            "ipv6-netnum": 1,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx01::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.108.68.0/24",
+            "ipv6-netnum": 4,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx04::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.108.69.0/24",
+            "ipv6-netnum": 5,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx05::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.108.72.0/22",
+            "ipv6-netnum": 8,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx08::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.108.76.0/22",
+            "ipv6-netnum": 12,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx0c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.108.80.0/22",
+            "ipv6-netnum": 16,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx10::/64"
+          }
+        },
+        "b": {
+          "public-ingress": {
+            "ipv4-cidr": "100.108.81.0/24",
+            "ipv6-netnum": 33,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx21::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.108.84.0/24",
+            "ipv6-netnum": 36,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx24::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.108.85.0/24",
+            "ipv6-netnum": 37,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx25::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.108.88.0/22",
+            "ipv6-netnum": 40,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx28::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.108.92.0/22",
+            "ipv6-netnum": 44,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx2c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.108.96.0/22",
+            "ipv6-netnum": 48,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx30::/64"
+          }
+        },
+        "c": {
+          "public-ingress": {
+            "ipv4-cidr": "100.108.97.0/24",
+            "ipv6-netnum": 65,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx41::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.108.100.0/24",
+            "ipv6-netnum": 68,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx44::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.108.101.0/24",
+            "ipv6-netnum": 69,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx45::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.108.104.0/22",
+            "ipv6-netnum": 72,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx48::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.108.108.0/22",
+            "ipv6-netnum": 76,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx4c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.108.112.0/22",
+            "ipv6-netnum": 80,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx50::/64"
+          }
+        },
+        "d": {
+          "public-ingress": {
+            "ipv4-cidr": "100.108.113.0/24",
+            "ipv6-netnum": 97,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx61::/64"
+          },
+          "endpoints": {
+            "ipv4-cidr": "100.108.116.0/24",
+            "ipv6-netnum": 100,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx64::/64"
+          },
+          "data-services": {
+            "ipv4-cidr": "100.108.117.0/24",
+            "ipv6-netnum": 101,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx65::/64"
+          },
+          "apps": {
+            "ipv4-cidr": "100.108.120.0/22",
+            "ipv6-netnum": 104,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx68::/64"
+          },
+          "cluster-a": {
+            "ipv4-cidr": "100.108.124.0/22",
+            "ipv6-netnum": 108,
+            "ipv6-network": "xxxx:xxxx:xxxx:xx6c::/64"
+          },
+          "cluster-b": {
+            "ipv4-cidr": "100.108.128.0/22",
             "ipv6-netnum": 112,
             "ipv6-network": "xxxx:xxxx:xxxx:xx70::/64"
           }

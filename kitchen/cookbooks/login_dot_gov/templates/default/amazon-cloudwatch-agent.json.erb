@@ -168,6 +168,26 @@
 
                                         },
                                         {
+                                                "file_path": "/srv/reporting/shared/log/newrelic_agent.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/reporting/shared/log/newrelic_agent.log",
+                                                "log_stream_name": "{local_hostname}",
+                                                "timezone": "UTC",
+                                                "timestamp_format": "%Y-%m-%d %H:%M:%S %z"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/reporting/shared/log/production.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/reporting/shared/log/production.log",
+                                                "log_stream_name": "{local_hostname}"
+
+                                        },
+                                        {
+                                                "file_path": "/srv/reporting/shared/log/workers.log",
+                                                "log_group_name": "<%= @environmentName %>_/srv/reporting/shared/log/workers.log",
+                                                "log_stream_name": "{local_hostname}"
+
+                                        },
+                                        {
                                                 "file_path": "/srv/dashboard/shared/log/events.log",
                                                 "log_group_name": "<%= @environmentName %>_/srv/dashboard/shared/log/events.log",
                                                 "log_stream_name": "{local_hostname}"

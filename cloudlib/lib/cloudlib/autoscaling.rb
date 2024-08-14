@@ -444,7 +444,7 @@ module Cloudlib
         name = group.name
         puts pastel.bold.green("\nRefreshing #{name}")
         # Manage pre-refresh migration for IdP
-        if name.match?(/-(idp|worker)$/) && !skip_migration
+        if name.match?(/-(idp|worker|analytics)$/) && !skip_migration
           if !@pre_migrating
             puts pastel.bold.yellow('Launching migration instance prior to spin up')
             start_recycle("#{env}-migration",
@@ -503,7 +503,7 @@ module Cloudlib
         puts pastel.bold.green("\nRecycling #{group.name}")
 
         # Manage pre-recycle migration for IdP
-        if group.name.match?(/-(idp|worker)$/) && !skip_migration
+        if group.name.match?(/-(idp|worker|analytics)$/) && !skip_migration
           if not @pre_migrating
             puts pastel.bold.yellow('Launching migration instance prior to spin up')
             start_recycle("#{env}-migration",

@@ -154,8 +154,10 @@ For example:
   else
     asg_name = "#{env}-#{role}"
 
+    pre_migration_roles = ['idp', 'worker', 'migration', 'analytics']
+
     # Manage pre-migration
-    if !skip_migration && (role == 'idp' || role == 'worker' || role == 'migration')
+    if !skip_migration && pre_migration_roles.include?(role)
       puts as.pastel.bold.yellow("Launching migration instance prior to #{role} spin up")
       as.start_recycle("#{env}-migration",
                        new_size: 1,

@@ -1,0 +1,15 @@
+{
+  "name": "analytics-migration",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[base]",
+    "recipe[identity-analytics::migration]",
+    "recipe[login_dot_gov::common_scripts]"
+  ],
+  "env_run_lists": {
+  }
+}

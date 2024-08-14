@@ -1,0 +1,8 @@
+# Dropped off by chef
+# Systemd target for reporting-workers
+[Unit]
+Description=reporting-workers
+Requires=<%= @worker_service_descriptors %>
+
+[Install]
+WantedBy=multi-user.target

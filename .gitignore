@@ -60,3 +60,6 @@ terraform/modules/shield_ddos/.aws_webaclid_*.txt
 # lambda temp files
 terraform/app/lambda/*/.bundle/
 terraform/app/lambda/*/REVISION.txt
+
+# python version from pyenv
+**/.python-version

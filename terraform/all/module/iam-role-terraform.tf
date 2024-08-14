@@ -917,7 +917,14 @@ locals {
         sid    = "SecretsManager"
         effect = "Allow"
         actions = [
-          "secretsmanager:GetSecretValue"
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:CreateSecret",
+          "secretsmanager:RotateSecret",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:UpdateSecret",
+          "secretsmanager:DeleteSecret",
+          "secretsmanager:GetRandomPassword",
+          "secretsmanager:TagResource"
         ]
         resources = [
           "*",
@@ -1097,6 +1104,191 @@ locals {
         resources = [
           "*",
         ]
+      },
+      {
+        sid    = "NetworkFirewall"
+        effect = "Allow"
+        actions = [
+          "network-firewall:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "EKS"
+        effect = "Allow"
+        actions = [
+          "eks:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "ECR"
+        effect = "Allow"
+        actions = [
+          "ecr:CreateRepository",
+          "ecr:DeleteRepository",
+          "ecr:DeleteRepositoryPolicy",
+          "ecr:Describe*",
+          "ecr:GetLifecyclePolicy",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:GetRegistryPolicy",
+          "ecr:GetRegistryScanningConfiguration",
+          "ecr:GetRepositoryPolicy",
+          "ecr:List*",
+          "ecr:PutImageScanningConfiguration",
+          "ecr:PutImageTagMutability",
+          "ecr:PutLifecyclePolicy",
+          "ecr:PutRegistryPolicy",
+          "ecr:PutReplicationConfiguration",
+          "ecr:SetRepositoryPolicy",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Macie"
+        effect = "Allow"
+        actions = [
+          "macie2:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "DLM"
+        effect = "Allow"
+        actions = [
+          "dlm:*",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Athena"
+        effect = "Allow"
+        actions = [
+          "athena:CreateDataCatalog",
+          "athena:CreateNamedQuery",
+          "athena:CreatePreparedStatement",
+          "athena:CreateWorkGroup",
+          "athena:DeleteDataCatalog",
+          "athena:DeleteNamedQuery",
+          "athena:DeletePreparedStatement",
+          "athena:DeleteWorkGroup",
+          "athena:GetDatabase",
+          "athena:GetNamedQuery",
+          "athena:GetQueryExecution",
+          "athena:GetQueryResults",
+          "athena:GetWorkGroup",
+          "athena:ListTagsForResource",
+          "athena:StartQueryExecution",
+          "athena:StopQueryExecution",
+          "athena:TagResource",
+          "athena:UntagResource",
+          "athena:UpdateDataCatalog",
+          "athena:UpdateNamedQuery",
+          "athena:UpdatePreparedStatement",
+          "athena:UpdateWorkGroup",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Glue"
+        effect = "Allow"
+        actions = [
+          "glue:BatchCreatePartition",
+          "glue:BatchDeletePartition",
+          "glue:BatchDeleteTable",
+          "glue:CreateCrawler",
+          "glue:CreateDatabase",
+          "glue:CreatePartition",
+          "glue:CreateTable",
+          "glue:DeleteCrawler",
+          "glue:DeleteDatabase",
+          "glue:DeletePartition",
+          "glue:DeleteTable",
+          "glue:GetCrawler",
+          "glue:GetDatabase",
+          "glue:GetTable",
+          "glue:GetTables",
+          "glue:GetTags",
+          "glue:StartCrawlerSchedule",
+          "glue:StopCrawlerSchedule",
+          "glue:UpdateCrawler",
+          "glue:UpdateCrawlerSchedule",
+          "glue:UpdateDatabase",
+          "glue:UpdatePartition",
+          "glue:UpdateTable",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "GuardDuty"
+        effect = "Allow"
+        actions = [
+          "guardduty:CreateDetector",
+          "guardduty:CreatePublishingDestination",
+          "guardduty:DeleteDetector",
+          "guardduty:DeletePublishingDestination",
+          "guardduty:DescribePublishingDestination",
+          "guardduty:GetDetector",
+          "guardduty:ListDetectors",
+          "guardduty:ListPublishingDestinations",
+          "guardduty:TagResource",
+          "guardduty:UpdateDetector",
+          "guardduty:UpdatePublishingDestination",
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "DMS"
+        effect = "Allow"
+        actions = [
+          "dms:AddTagsToResource",
+          "dms:ApplyPendingMaintenanceAction",
+          "dms:CreateEndpoint",
+          "dms:CreateReplicationConfig",
+          "dms:CreateReplicationInstance",
+          "dms:CreateReplicationSubnetGroup",
+          "dms:CreateReplicationTask",
+          "dms:DeleteCertificate",
+          "dms:DeleteConnection",
+          "dms:DeleteEndpoint",
+          "dms:DeleteReplicationInstance",
+          "dms:DeleteReplicationSubnetGroup",
+          "dms:DeleteReplicationTask",
+          "dms:DescribeAccountAttributes",
+          "dms:DescribeCertificates",
+          "dms:DescribeEndpoints",
+          "dms:DescribeEventSubscriptions",
+          "dms:DescribeReplicationInstances",
+          "dms:DescribeReplicationSubnetGroups",
+          "dms:DescribeReplicationTasks",
+          "dms:ImportCertificate",
+          "dms:ListTagsForResource",
+          "dms:ModifyEndpoint",
+          "dms:ModifyReplicationInstance",
+          "dms:ModifyReplicationSubnetGroup",
+          "dms:ModifyReplicationTask",
+          "dms:RemoveTagsFromResource",
+          "dms:StopReplicationTask"
+        ]
+        resources = [
+          "*",
+        ]
       }
     ],
     [
@@ -1126,6 +1318,29 @@ locals {
           "ssm-contacts:AssociateContact",
           "ssm-contacts:TagResource",
           "ssm-contacts:UntagResource"
+        ]
+        resources = [
+          "*",
+        ]
+      },
+      {
+        sid    = "Redshift"
+        effect = "Allow"
+        actions = [
+          "redshift:CreateCluster",
+          "redshift:CreateClusterParameterGroup",
+          "redshift:CreateClusterSubnetGroup",
+          "redshift:CreateTags",
+          "redshift:DeleteCluster",
+          "redshift:DeleteClusterParameterGroup",
+          "redshift:DeleteClusterSubnetGroup",
+          "redshift:DescribeClusterParameterGroups",
+          "redshift:DescribeClusterParameters",
+          "redshift:DescribeClusterSubnetGroups",
+          "redshift:DescribeClusters",
+          "redshift:DescribeLoggingStatus",
+          "redshift:EnableLogging",
+          "redshift:ModifyClusterParameterGroup",
         ]
         resources = [
           "*",

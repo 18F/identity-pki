@@ -1,27 +1,30 @@
 primary_role = File.read('/etc/login.gov/info/role').chomp
 
-template "/opt/nginx/aws_v4_cidrs.txt" do
+template '/opt/nginx/aws_v4_cidrs.txt' do
   source 'aws_ipv4_cidrs.txt'
   mode '644'
 end
 
-template "/opt/nginx/aws_v6_cidrs.txt" do
+template '/opt/nginx/aws_v6_cidrs.txt' do
   source 'aws_ipv6_cidrs.txt'
   mode '644'
 end
 
-template "/opt/nginx/conf/nginx.conf" do
+template '/opt/nginx/conf/nginx.conf' do
   source 'nginx_base_server.conf.erb'
   mode '644'
   variables(
-    :log_path => '/var/log/nginx',
+    log_path: '/var/log/nginx',
     limit_connections: node['login_dot_gov']['nginx_limit_connections'],
     worker_processes: node['login_dot_gov']['nginx_worker_processes'],
     worker_connections: node['login_dot_gov']['nginx_worker_connections'],
     nofile_limit: node['login_dot_gov']['nginx_worker_connections'] * 2,
     log_client_ssl: false,
     ruby_path: node.fetch(:identity_shared_attributes).fetch(:rbenv_root) + '/shims/ruby',
-    pidfile: "/var/run/nginx.pid",
+    pidfile: '/var/run/nginx.pid',
+    server_names_hash_configurations: node['login_dot_gov']['nginx_server_names_hash_configurations'],
+    server_names_hash_bucket_size: node['login_dot_gov']['nginx_server_names_hash_bucket_size'],
+    server_names_hash_max_size: node['login_dot_gov']['nginx_server_names_hash_max_size'],
     cloudfront_cidrs_v4: lazy {
       # Grab Cloudfront IPv4 CIDR list from the CLOUDFRONT_ORIGIN_FACING subset
       # of Amazon IPv4 ranges

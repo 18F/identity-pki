@@ -1706,3 +1706,33 @@ variable "incident_manager_enabled" {
   type        = number
   default     = 0
 }
+
+variable "analytics_account_id" {
+  type        = string
+  default     = "487317109730"
+  description = "The associated analytics account to use. Defaults to analytics-sandbox"
+}
+
+variable "start_cw_export_task_lambda_schedule" {
+  type        = string
+  default     = "rate(1 day)"
+  description = "Determines the schedule to execute the export lambda. Supports rate expression and cron expression"
+}
+
+variable "start_dms_task_lambda_schedule" {
+  type        = string
+  default     = "rate(1 day)"
+  description = "Determines the schedule to execute the export lambda. Supports rate expression and cron expression"
+}
+
+variable "lambda_insights_account" {
+  description = "The lambda insights account provided by AWS for monitoring"
+  type        = string
+  default     = "580247275435"
+}
+
+variable "lambda_insights_version" {
+  description = "The lambda insights layer version to use for monitoring"
+  type        = number
+  default     = 38
+}

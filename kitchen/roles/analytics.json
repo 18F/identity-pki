@@ -1,0 +1,23 @@
+{
+  "name": "analytics",
+  "description": "",
+  "json_class": "Chef::Role",
+  "default_attributes": {
+  },
+  "override_attributes": {
+    "identity-jumphost": {
+      "retrieve-ssh-host-keys": false,
+      "loadtest": {
+        "enabled": false
+      }
+    }
+  },
+  "chef_type": "role",
+  "run_list": [
+    "role[base]",
+    "recipe[identity-analytics]",
+    "recipe[login_dot_gov::common_scripts]"
+  ],
+  "env_run_lists": {
+  }
+}

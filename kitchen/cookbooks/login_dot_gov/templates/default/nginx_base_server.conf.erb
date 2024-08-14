@@ -50,6 +50,11 @@ http {
   add_header X-Content-Type-Options nosniff;
   # Enable XSS filter
   add_header X-XSS-Protection "1; mode=block";
+<% if @server_names_hash_configurations %>
+
+  server_names_hash_bucket_size <%= @server_names_hash_bucket_size %>;
+  server_names_hash_max_size <%= @server_names_hash_max_size %>;
+<% end -%>
 
   # Enables nginx to check multiple set_real_ip_from lines
   real_ip_recursive on;

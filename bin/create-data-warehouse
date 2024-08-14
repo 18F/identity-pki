@@ -1,0 +1,188 @@
+#!/bin/bash
+
+#### Build up a data-warehouse for an environment from scratch ####
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")"
+. "${BASEPATH}/lib/common.sh"
+. "${BASEPATH}/lib/sandbox-lib.sh"
+
+OPTS_ARGUMENTS="v0c1a2s3d4m5r6f7h"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [-$OPTS_ARGUMENTS] [TF_ENV] (will use \$GSA_USERNAME if not specified)
+
+Flags (will run all if no flags specified):
+  -v / -0 : Validates Terraform configuration values exists for idp sandbox
+  -c / -1 : Clear CloudWatch log groups left over from previous env destroy
+  -a / -2 : Copy S3 app-secrets v1/application.yml files from agnes to ENV
+  -s / -3 : Copy S3 secrets listed in ./lib/build-keys from agnes to ENV
+  -d / -4 : Run a targeted terraform-apply against the idp sandbox
+  -m / -5 : Run a full terraform-apply against the data-warehouse sandbox
+  -r / -6 : Schedule the ENV-migration ASG to reset to 0 in 15min
+  -f / -7 : Run a full terraform-apply against the idp sandbox
+       -h : Detailed help
+
+EOM
+}
+
+help_me() {
+  cat >&2 << EOM
+  
+Usage: ${0} [-$OPTS_ARGUMENTS] [TF_ENV] (will use \$GSA_USERNAME if not specified)
+
+Runs all necessary commands to create a data warehouse, \${TF_ENV},
+in the login-analytics-sandbox account. Designed to run with no specified flags/arguments.
+
+The tasks in this script can also be individually executed as follows:
+
+  -v / -0 : Validates enable_dms_analytics is set to true for
+            idp sandbox environment to allow data-warehouse sandbox to build
+            (Step: 0_validate_idp_terraform_configuration)
+  -c / -1 : Clear out and delete any CloudWatch log groups accidentally
+            left over from a previous environment purge, if any exist
+            (Step: 1_clear_log_groups)
+  -a / -2 : Duplicate all v1/application.yml files for \`agnes\`,
+            within the login-gov.app-secrets bucket, for \${TF_ENV},
+            replacing all instances of \`agnes\` within with \${TF_ENV}
+            (Step: 2_app_secrets)
+  -s / -3 : Copy all files listed in ./lib/build-keys from the int/ dir
+            within the login-gov.secrets bucket to a \${TF_ENV}/ dir in
+            the same bucket
+            (Step: 3_regular_secrets)
+  -d / -4 : Run \`terraform apply -auto-approve -target=\` against \${TF_ENV} idp sandbox,
+            (Step: 4_tf_deploy_idp_app_minimum_resources)
+  -m / -5 : Run \`terraform apply -auto-approve\` against \${TF_ENV} data-warehouse sandbox,
+            (Step: 5_tf_deploy_data_warehouse)
+  -r / -6 : Add a Scheduled Action to the \${TF_ENV}-migration Auto
+            Scaling Group, which sets its Desired count back to 0 after
+            15 minutes' time (as is done with IDP recycles)
+            (Step: 6_migration_scaling)
+  -f / -7 : Run \`terraform apply -auto-approve\` against \${TF_ENV} idp sandbox,
+            (Step: 7_tf_deploy_full_idp_app)
+  -h      : Displays this help
+
+EOM
+  exit 0
+}
+
+0_validate_idp_terraform_configuration() {
+  aws_account_id=$(aws-vault exec sandbox-terraform -- aws sts get-caller-identity --output text --query 'Account')
+  tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$TF_ENV" "" | tr '\n' ' ')"
+
+  search=$({ grep -oe 'enable_dms_analytics\s*=\s*true' $tfvars_names || :;} | wc -l )
+
+  if [[ ! $search -eq 1 ]]
+  then
+    raise "Missing required configuration values. Please verify enable_dms_analytics is set to true."
+  fi
+}
+
+1_clear_log_groups() {
+  for REGION in 'us-west-2' 'us-east-1' ; do
+    for LOG_GROUP in $(ave aws logs describe-log-groups --region ${REGION} |
+      jq --arg TF "${TF_ENV}" -r '.logGroups[]|
+      select(.logGroupName|startswith($TF)).logGroupName') ; do
+        ave aws logs delete-log-group \
+          --log-group-name ${LOG_GROUP} --region ${REGION}
+    done
+  done
+}
+
+2_app_secrets() {
+  for BUCKET in $(ave -r aws s3 ls | grep 'app-secrets.' | awk '{print $NF}') ; do
+    for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
+        awk '{print $NF}' | tr -d '/') ; do
+          ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY}/v1/application.yml - |
+            sed -E "s/${SOURCE_ENV}(\.|-)/${TF_ENV}\1/" |
+            ave aws s3 cp - s3://${BUCKET}/${TF_ENV}/${KEY}/v1/application.yml >/dev/null
+    done
+  done
+}
+
+3_regular_secrets() {
+  for BUCKET in $(ave -r aws s3 ls | grep '\.secrets.' | awk '{print $NF}') ; do
+    for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
+	awk '{print $NF}' | tr -d '/') ; do
+    	case "${KEY}" in
+		"user-data")
+			;;
+		*)
+        		ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY} \
+				s3://${BUCKET}/${TF_ENV}/${KEY} >/dev/null
+			;;
+	esac
+    done
+  done
+}
+
+4_tf_deploy_idp_app_minimum_resources() {
+  aws-vault exec sandbox-terraform --  ${BASEPATH}/tf-deploy ${TF_ENV} app apply -target=aws_iam_role.replication -auto-approve
+}
+
+5_tf_deploy_data_warehouse() {
+  ave ${BASEPATH}/tf-deploy data-warehouse/${TF_ENV} apply -auto-approve
+}
+
+6_migration_scaling() {
+  while [[ ! ${MIGRATION_HOST_BUILT} ]] ; do
+    if [[ $(ave aws autoscaling describe-auto-scaling-groups \
+        --auto-scaling-group-name "${TF_ENV}-migration" \
+        --query 'AutoScalingGroups[].DesiredCapacity' \
+        --output text) == 0 ]] ; then
+      ave aws autoscaling set-desired-capacity \
+        --auto-scaling-group-name "${TF_ENV}-migration" \
+        --desired-capacity 1
+    else
+      MIGRATION_HOST_BUILT=true
+    fi
+  done
+  ave aws autoscaling put-scheduled-update-group-action \
+    --auto-scaling-group-name "${TF_ENV}-migration" \
+    --scheduled-action-name "DelayedScaleInOnce.asg-recycle" \
+    --start-time "$(date -uj -v+15M '+%Y-%m-%dT%H:%M:%SZ')" \
+    --desired-capacity 0
+}
+
+7_tf_deploy_full_idp_app() {
+  aws-vault exec sandbox-terraform -- ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve
+}
+
+
+TASKS=(
+  "0_validate_idp_terraform_configuration"
+  "1_clear_log_groups"
+  "2_app_secrets"
+  "3_regular_secrets"
+  "4_tf_deploy_idp_app_minimum_resources"
+  "5_tf_deploy_data_warehouse"
+  "6_migration_scaling"
+  "7_tf_deploy_full_idp_app"
+)
+TODO=()
+while getopts $OPTS_ARGUMENTS opt
+do
+  case $opt in
+    v|0) TODO+=("${TASKS[0]}") ;;
+    c|1) TODO+=("${TASKS[1]}") ;;
+    a|2) TODO+=("${TASKS[2]}") ;;
+    s|3) TODO+=("${TASKS[3]}") ;;
+    d|4) TODO+=("${TASKS[4]}") ;;
+    m|5) TODO+=("${TASKS[5]}") ;;
+    r|6) TODO+=("${TASKS[6]}") ;;
+    f|7) TODO+=("${TASKS[7]}") ;;
+    h) help_me                 ;;
+    *) usage && exit 1         ;;
+  esac
+done
+shift $((OPTIND-1))
+# sandbox-lib
+initialize 'true' ${1:-} 'analytics-sandbox'
+
+SOURCE_ENV='agnes'
+MIGRATION_HOST_BUILT=
+
+run_tasks

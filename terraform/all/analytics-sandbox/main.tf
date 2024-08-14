@@ -18,6 +18,8 @@ module "main" {
   source            = "../module"
   iam_account_alias = "login-analytics-sandbox"
 
+  account_purpose = "data_warehouse"
+
   account_roles_map = {
     iam_analytics_enabled      = true
     iam_auto_terraform_enabled = true

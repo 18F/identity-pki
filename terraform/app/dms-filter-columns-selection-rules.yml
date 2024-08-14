@@ -2,5 +2,14 @@
   table:  identities
   action: exclude
 - schema: public
+  table:  spatial_ref_sys
+  action: exclude
+- schema: public
+  table:  schema_migrations
+  action: exclude
+- schema: public
+  table:  ar_internal_metadata
+  action: exclude
+- schema: public
   table:  '%'
   action: include

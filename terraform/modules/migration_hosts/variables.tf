@@ -26,6 +26,11 @@ variable "fisma_tag" {
   default = "Q-LG"
 }
 
+variable "role" {
+  default = "migration"
+  type    = string
+}
+
 #variable "nessusserver_ip" {
 #  description = "Nessus server's public IP"
 #  default     = "44.230.151.136/32"

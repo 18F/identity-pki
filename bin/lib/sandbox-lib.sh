@@ -32,6 +32,7 @@ verify_sandbox_env() {
 # APP_DIR, AWS account number, and region, before continuing the main script
 initialize() {
   local RUN_AS_TERRAFORM=${1}
+  local ACCOUNT=${3:-'sandbox'}
   shift 1
   echo
   echo_green "Initializing..."
@@ -39,12 +40,12 @@ initialize() {
   verify_private_repo
   verify_sandbox_env ${1:-}
   if [[ ${RUN_AS_TERRAFORM} == "true" ]] ; then
-    get_iam 'app' 'sandbox' 'Terraform'
+    get_iam 'app' "${ACCOUNT}" 'Terraform'
     if [[ ! -z ${AWS_VAULT:-} ]] && [[ ${AWS_VAULT} != ${AV_PROFILE} ]] ; then
       raise "Must use ${AV_PROFILE} profile (detected: ${AWS_VAULT})"
     fi
   fi
-  
+
   APP_DIR="${GIT_DIR}/terraform/app"
   AWS_ACCT_NUM=$(ave aws sts get-caller-identity | jq -r '.Account')
 }

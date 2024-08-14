@@ -33,6 +33,7 @@
       datatype: integer
     - name: nonce
       datatype: string
+      limit: 360
     - name: requested_aal_value
       datatype: text
 
@@ -115,8 +116,6 @@
       datatype: datetime
     - name: cancelled_at
       datatype: datetime
-    - name: reported_fraud_at
-      datatype: datetime
     - name: granted_at
       datatype: datetime
     - name: created_at
@@ -195,6 +194,7 @@
       datatype: string
     - name: user_agent
       datatype: string
+      limit: 7360
     - name: last_used_at
       datatype: datetime
     - name: last_ip
@@ -318,20 +318,6 @@
     - name: letter_requests_count
       datatype: integer
 
-- table: monthly_auth_counts
-  schema: public
-  include_columns:
-    - name: id
-      datatype: integer
-    - name: issuer
-      datatype: string
-    - name: year_month
-      datatype: string
-    - name: user_id
-      datatype: integer
-    - name: auth_count
-      datatype: integer
-
 - table: notification_phone_configurations
   schema: public
   include_columns:
@@ -393,8 +379,6 @@
       datatype: integer
     - name: proofing_components
       datatype: jsonb
-    - name: reproof_at
-      datatype: datetime
     - name: initiating_service_provider_issuer
       datatype: string
     - name: fraud_review_pending_at
@@ -589,8 +573,6 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
-    - name: bounced_at
-      datatype: datetime
 
 - table: usps_confirmations
   schema: public
@@ -608,8 +590,6 @@
     - name: id
       datatype: integer
     - name: reset_password_sent_at
-      datatype: datetime
-    - name: remember_created_at
       datatype: datetime
     - name: created_at
       datatype: datetime
@@ -719,6 +699,7 @@
       datatype: boolean
     - name: redirect_uris
       datatype: string
+      limit: 16510
     - name: agency_id
       datatype: integer
     - name: failure_to_proof_url
@@ -781,6 +762,7 @@
       datatype: bigint
     - name: name
       datatype: string
+      limit: 550
     - name: created_at
       datatype: datetime
     - name: updated_at

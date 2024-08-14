@@ -1,6 +1,8 @@
 locals {
   common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
 
+  data_warehouse_enabled = var.account_purpose == "data_warehouse"
+
   enabled_roles = [
     for role, status in merge(
       {
@@ -514,4 +516,30 @@ declared/created in the aws_cloudwatch_log_group.account_ue1 list resource,
 which will point to the account identified by var.logarchive_acct_id above.
 EOM
   default     = false
+}
+
+variable "account_purpose" {
+  type        = string
+  description = "Defines the accounts usage type for generating account specific permissions"
+  default     = "not_applied"
+  validation {
+    condition = contains(
+      [
+        "data_warehouse",
+        "core_application",
+        "not_applied" # not_applied acts as a default null value
+      ], var.account_purpose
+    )
+    error_message = "Please review this accounts purpose"
+  }
+}
+
+variable "permitted_regions" {
+  type        = list(string)
+  description = "Declares the list of acceptable regions for IAM Permission Boundaries."
+  default = [
+    "us-west-2",
+    "us-east-1",
+    "us-east-2"
+  ]
 }

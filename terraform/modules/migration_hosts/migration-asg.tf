@@ -43,7 +43,7 @@ locals {
 module "migration_user_data" {
   source = "../../modules/bootstrap/"
 
-  role                   = "migration"
+  role                   = var.role
   env                    = var.env_name
   domain                 = var.root_domain
   s3_secrets_bucket_name = var.s3_secrets_bucket_name
@@ -73,7 +73,7 @@ module "migration_user_data" {
 module "migration_launch_template" {
   source = "github.com/18F/identity-terraform//launch_template?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
   #source = "../../../identity-terraform/launch_template"
-  role           = "migration"
+  role           = var.role
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map

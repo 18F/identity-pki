@@ -19,6 +19,10 @@ gem 'activesupport'
 gem 'aws-sdk', '>= 3.0'
 gem 'aws-sdk-secretsmanager', '>=1.20'
 
+group :analytics_utilities do
+  gem 'aws-sdk-redshiftdataapiservice', '>=1.41'
+end
+
 gem 'rake'
 gem 'csv'
 
