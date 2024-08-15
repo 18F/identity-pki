@@ -229,7 +229,7 @@ resource "aws_cloudwatch_dashboard" "idv_document_capture" {
       "x": 18,
       "type": "log",
       "properties": {
-        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth image upload vendor submitted'\n| filter properties.event_properties.success\n| filter properties.new_event\n| fields properties.event_properties.attempts as attempts\n| stats avg(attempts) as mean, pct(attempts, 50) as median_, pct(attempts, 95) as p95",
+        "query": "SOURCE '${var.env_name}_/srv/idp/shared/log/events.log' | filter name = 'IdV: doc auth image upload vendor submitted'\n| filter properties.event_properties.success\n| filter properties.new_event\n| fields properties.event_properties.submit_attempts as attempts\n| stats avg(attempts) as mean, pct(attempts, 50) as median_, pct(attempts, 95) as p95",
         "region": "${var.region}",
         "stacked": false,
         "title": "Number of submissions before success",
