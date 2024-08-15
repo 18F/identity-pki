@@ -5,7 +5,6 @@ set -euo pipefail
 while getopts e:c: opt
 do
   case $opt in
-    c) CERT_ENV="${OPTARG}" ;;
     e) ENV="${OPTARG}"      ;;
    \?) exit 1               ;;
   esac
@@ -15,10 +14,6 @@ shift $((OPTIND-1))
 if [[ -z "${ENV:-}" ]]; then
   echo "Must specify ENVIRONMENT (-e)" >&2
   exit 1
-fi
-
-if [[ -z "${CERT_ENV:-}" ]]; then
-  CERT_ENV=$ENV
 fi
 
 # Set AWS Account/Region
@@ -32,16 +27,9 @@ else
 fi
 
 # Set variables used to configure NGINX, SSL Certs, and Puma configuration
-
-if [[ "${ENV}" = "reviewapps" ]]; then
-  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="${CERT_ENV}.pivcac.identitysandbox.gov"
-  export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-  CERT_DOMAIN="-d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-else
-  export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.${CERT_ENV}.identitysandbox.gov"
-  export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-  CERT_DOMAIN="-d ${ENV_CONFIG_PIVCAC_SSL_DOMAIN} -d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
-fi 
+export ENV_CONFIG_PIVCAC_SSL_DOMAIN="pivcac.${ENV}.identitysandbox.gov"
+export ENV_CONFIG_NGINX_SERVER_NAME="*.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
+CERT_DOMAIN="-d ${ENV_CONFIG_PIVCAC_SSL_DOMAIN} -d *.${ENV_CONFIG_PIVCAC_SSL_DOMAIN}"
 
 if [[ -z "${CERT_DOMAIN:-}" ]]; then
   echo "Certificate Domain did not get set properly. This error should not happen. Troubleshoot script"
@@ -79,17 +67,17 @@ sudo -E -u root aws s3 cp s3://login-gov.secrets.${AWS_ACCOUNT_NUM}-us-west-2/${
 # Fetch LetsEncrypt bundle from AWS
 sudo chmod ugo+rwx /usr/local/bin/*
 sudo chmod ug-w /usr/local/bin/*
-sudo -E -u root aws s3 cp s3://login-gov-pivcac-${ENV}.${AWS_ACCOUNT_NUM}-us-west-2/letsencrypt.${CERT_ENV}.tar.gz /root/letsencrypt.${CERT_ENV}.tar.gz > /dev/null 2>&1 || echo 'LetsEncrypt bundle does not exist in S3'
+sudo -E -u root aws s3 cp s3://login-gov-pivcac-${ENV}.${AWS_ACCOUNT_NUM}-us-west-2/letsencrypt.${ENV}.tar.gz /root/letsencrypt.${ENV}.tar.gz > /dev/null 2>&1 || echo 'LetsEncrypt bundle does not exist in S3'
 
 # Set Cron Jobsbundle exec rake db:create db:migrate:monitor_concurrent --trace
-echo "@daily root flock -n /tmp/update_letsencrypt_certs.lock -c \"/usr/local/bin/update_letsencrypt_certs -e ${ENV} -c ${CERT_ENV}\" " | sudo tee /etc/cron.d/update_letsencrypt_certs
+echo "@daily root flock -n /tmp/update_letsencrypt_certs.lock -c \"/usr/local/bin/update_letsencrypt_certs -e ${ENV}\" " | sudo tee /etc/cron.d/update_letsencrypt_certs
 sudo -E -u root chown root: /etc/cron.d/update_letsencrypt_certs
 sudo -E -u root chmod 700 /etc/cron.d/update_letsencrypt_certs
 
 # Check if bundle exists/is not null
-sudo -E -u root [ -s /root/letsencrypt.${CERT_ENV}.tar.gz ] && sudo -E -u root tar zxf /root/letsencrypt.${CERT_ENV}.tar.gz -C /etc || sudo -E -u root certbot certonly --agree-tos -n --dns-route53 ${CERT_DOMAIN} --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
+sudo -E -u root [ -s /root/letsencrypt.${ENV}.tar.gz ] && sudo -E -u root tar zxf /root/letsencrypt.${ENV}.tar.gz -C /etc || sudo -E -u root certbot certonly --agree-tos -n --dns-route53 ${CERT_DOMAIN} --email identity-devops@login.gov --server https://acme-v02.api.letsencrypt.org/directory --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV}" --preferred-chain 'ISRG Root X1'  --key-type rsa --rsa-key-size 2048
 
-sudo -E -u root certbot renew -n --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV} -c ${CERT_ENV}" --preferred-chain 'ISRG Root X1' --key-type rsa --rsa-key-size 2048
+sudo -E -u root certbot renew -n --deploy-hook "/usr/local/bin/push_letsencrypt_certs.sh -e ${ENV}" --preferred-chain 'ISRG Root X1' --key-type rsa --rsa-key-size 2048
 
 # Update Letsencrypt folder permissions
 sudo -E -u root chmod 755 /etc/letsencrypt/live
