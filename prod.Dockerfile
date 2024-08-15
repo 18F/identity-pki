@@ -182,7 +182,6 @@ RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
     mkdir -p ${RAILS_ROOT}/tmp/pids; chmod -R 0755 ${RAILS_ROOT}/tmp/pids; \
     mkdir -p ${RAILS_ROOT}/tmp/sockets; chmod -R 0755 ${RAILS_ROOT}/tmp/sockets; \
     mkdir -p ${RAILS_ROOT}/config/puma; chmod -R 0755 ${RAILS_ROOT}/config/puma; 
-COPY --chmod=644 ./k8files/application.yml.default.docker ./config/application.yml
 COPY --chmod=644 ./k8files/newrelic.yml ./config/newrelic.yml
 COPY --chmod=755 ./k8files/puma_production ./config/puma/production.rbtemp
 
@@ -207,4 +206,4 @@ EXPOSE 443
 USER app
 
 # The keys here are getting mapped in from a secret in the deployment.
-ENTRYPOINT ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://0.0.0.0:3000?key=/app/keys/localhost.key&cert=/app/keys/localhost.crt"]
+CMD ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://0.0.0.0:3000?key=/app/keys/localhost.key&cert=/app/keys/localhost.crt"]
