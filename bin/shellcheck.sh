@@ -66,7 +66,6 @@ to_fix=(
   dockerfiles/terraform_apply.sh
   dockerfiles/terraform_plan.sh
   kitchen/cookbooks/identity-locust/files/default/id-locust
-  kitchen/cookbooks/login_dot_gov/templates/default/id-rails-console
   terraform/app/recycle.sh
   terraform/gitlab/asg-disable.sh
   terraform/gitlab/push-gitlab-runner-allowed-images.sh

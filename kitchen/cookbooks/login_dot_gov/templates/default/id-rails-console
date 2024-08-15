@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Enable the 'monitor' shell option, which allows background jobs to be monitored by the shell.
-# Setup an empty trap for common signals (SIGHUP, SIGINT, SIGQUIT, SIGTERM, SIGSTOP, and SIGTSTP)
+# Setup an empty trap for common signals (SIGHUP, SIGINT, SIGQUIT, SIGTERM, and SIGTSTP)
 # to prevent being able to drop into a shell from the ssm document
 set -o monitor
-trap '' 1 2 3 15 19 20
+trap '' SIGHUP SIGINT SIGQUIT SIGTERM SIGTSTP
 
 set -eu
 
@@ -39,21 +39,18 @@ Flags:
 EOM
 }
 
-MISSING_KEYS=0
+
 CHANNEL_FILES=(
   /etc/login.gov/keys/slackchannel
 )
 
 # Check for missing slack settings
-for file in "${CHANNEL_FILES[@]}"
-do
-  CHANNEL_FILE=$(cat "$file") || ((MISSING_KEYS++))
+for channel_file in "${CHANNEL_FILES[@]}"; do
+  if ! [ -f "$channel_file" ]; then
+    echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
+    exit 1
+  fi
 done
-WEBHOOK=$(cat /etc/login.gov/keys/slackwebhook) || ((MISSING_KEYS++))
-if [ ${MISSING_KEYS} -gt 0 ]; then
-  echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
-  exit 1
-fi
 
 ID_USER=$(whoami) || true
 if [[ "${ID_USER}" =~ ^(root|ssm-user|ubuntu|ec2-user|websrv|appinstall) ]] || [ -z "$ID_USER" ] ; then
@@ -108,10 +105,11 @@ fi
 
 while true; do
   read -r -p "Please provide an explanation for this Rails console: " USE_CASE
-  if [ ! -z "$USE_CASE" ]; then
+  if [ -n "$USE_CASE" ]; then
     break
   fi
 done
+# shellcheck disable=SC2207
 CONSOLE_INFO+=($(printf ":\n *%s*" "$USE_CASE"))
 
 if [[ ! "${LOGIN_TASK_LOG_LEVEL}" =~ ^(debug|info|warn|error|fatal|unknown)$ ]] ; then
@@ -121,6 +119,7 @@ fi
 ENV_VARS+=("LOGIN_TASK_LOG_LEVEL=$LOGIN_TASK_LOG_LEVEL")
 
 # Send message to slack first since we dont need console output
+# shellcheck disable=SC2124,SC2016
 TEXT=':rails: _console_ :rails: for `'"${ID_USER}"'` on `'"$(hostname)"'` '"${CONSOLE_INFO[@]:-}"''
 
 # Loop over channel files and send message to each designated channel
