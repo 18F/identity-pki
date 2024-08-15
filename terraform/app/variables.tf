@@ -1736,3 +1736,9 @@ variable "lambda_insights_version" {
   type        = number
   default     = 38
 }
+
+variable "transform_cw_export_memory_size" {
+  description = "Defines the amount of memory in MB the transform_cw_export lambda can use at runtime"
+  type        = number
+  default     = 128
+}

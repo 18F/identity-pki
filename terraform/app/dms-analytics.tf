@@ -474,6 +474,7 @@ resource "aws_lambda_function" "transform_cw_export" {
   role             = aws_iam_role.transform_cw_export[count.index].arn
   handler          = "transform_cw_export.lambda_handler"
   runtime          = "python3.9"
+  memory_size      = var.transform_cw_export_memory_size
   timeout          = 900 # in seconds, 15 minutes
 
   layers = [
