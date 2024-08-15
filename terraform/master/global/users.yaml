@@ -222,7 +222,7 @@ users:
     - login-fraud|maintainer
   bobby.blair:
     aws_groups:
-    - devops
+    - devopsnonprod
     ec2_username:
     - bblair
     gitlab_groups:
