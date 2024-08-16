@@ -166,9 +166,10 @@ variable "proxy_enabled_roles" {
   type        = map(string)
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
   default = {
-    unknown       = 1
-    outboundproxy = 0
-    gitlab        = 1
+    unknown                 = 1
+    analytics-outboundproxy = 0
+    outboundproxy           = 0
+    gitlab                  = 1
   }
 }
 
@@ -250,4 +251,13 @@ and/or zeroing out hosts.
 EOM
   type        = bool
   default     = false
+}
+
+variable "chef_role" {
+  description = <<EOM
+  Chef role to be used when provisioning instances. Values include 'outboundproxy'
+  and 'analytics-outboundproxy'
+  EOM
+  type        = string
+  default     = "outboundproxy"
 }

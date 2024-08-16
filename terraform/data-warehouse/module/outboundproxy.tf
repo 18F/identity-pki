@@ -12,6 +12,7 @@ module "outbound_proxy_net" {
 module "outbound_proxy" {
   source = "../../modules/outbound_proxy"
 
+  chef_role                            = "analytics-outboundproxy"
   ami_id_map                           = var.ami_id_map
   external_role                        = "${var.env_name}_obproxy_iam_role"
   asg_outboundproxy_desired            = var.asg_outboundproxy_desired

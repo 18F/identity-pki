@@ -20,7 +20,7 @@ module "data_warehouse" {
   source                    = "../module"
   env_name                  = "int"
   slack_events_sns_hook_arn = "arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-otherevents"
-  use_spot_instances        = 1
+  use_spot_instances        = 0
   autoscaling_schedule_name = "nozero_normal"
 }
 

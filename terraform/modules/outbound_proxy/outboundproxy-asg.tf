@@ -22,7 +22,7 @@ locals {
 module "outboundproxy_user_data" {
   source = "../../modules/bootstrap/"
 
-  role                   = "outboundproxy"
+  role                   = var.chef_role
   env                    = var.env_name
   domain                 = var.root_domain
   sns_topic_arn          = var.slack_events_sns_hook_arn
