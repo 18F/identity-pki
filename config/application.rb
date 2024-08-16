@@ -22,7 +22,7 @@ module IdentityPki
     Identity::Hostdata.load_config!(
       app_root: Rails.root,
       rails_env: Rails.env,
-      write_copy_to: Rails.root.join('tmp/application.yml'),
+      write_copy_to: nil,
       &IdentityConfig::CONFIG_BUILDER
     )
 
