@@ -53,6 +53,52 @@ EOM
   evaluation_periods  = each.value.evaluation_periods
 }
 
+resource "aws_cloudwatch_metric_alarm" "doc_auth_acuant_sdk_passing_rate" {
+  alarm_name        = "${aws_autoscaling_group.idp.name}-doc-auth-acuant-sdk-passing-rate"
+  alarm_description = <<EOM
+${aws_autoscaling_group.idp.name}: Acuant SDK success rate is below 40% over a period of 15 mins.
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-LexisNexis-TrueID-outage
+%{if var.env_name == "prod"}
+Notifying: @login-oncall-timnit
+%{endif}
+EOM
+
+  metric_query {
+    id          = "passing_rate_acuant_sdk"
+    expression  = "(passed_acuant_sdk / all_acuant_sdk) * 100"
+    label       = "Passing rate of Acuant SDK"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "passed_acuant_sdk"
+
+    metric {
+      metric_name = "doc-auth-acuant-sdk-passed"
+      namespace   = "${var.env_name}/idp-ialx"
+      period      = 900
+      stat        = "Sum"
+    }
+  }
+
+  metric_query {
+    id = "all_acuant_sdk"
+
+    metric {
+      metric_name = "doc-auth-acuant-sdk-overall"
+      namespace   = "${var.env_name}/idp-ialx"
+      period      = 900
+      stat        = "Sum"
+    }
+  }
+
+  alarm_actions       = local.doc_auth_alarm_actions
+  comparison_operator = "LessThanThreshold"
+  threshold           = 40
+  evaluation_periods  = 1
+}
+
 resource "aws_cloudwatch_metric_alarm" "idv_high_proofing_resolution_result_missing" {
   alarm_name        = "${aws_autoscaling_group.idp.name}-idv-proofing-resolution-result-missing-rate"
   alarm_description = <<EOM

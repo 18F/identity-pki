@@ -265,6 +265,32 @@ locals {
         }
       EOT
     },
+    doc_auth_acuant_sdk_overall = {
+      name         = "doc-auth-acuant-sdk-overall"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" &&
+          $.properties.event_properties.doc_auth_result = "*" &&
+          ($.properties.event_properties.workflow = "GSA2.TrueID.WF.NC.PM.Prod.2" ||
+          $.properties.event_properties.workflow = "GSA2.TrueID.WF.PT.Prod.2")
+        }
+      EOT
+    },
+    doc_auth_acuant_sdk_passed = {
+      name         = "doc-auth-acuant-sdk-passed"
+      metric_value = 1
+      dimensions   = {}
+      pattern      = <<EOT
+        {
+          $.name="IdV: doc auth image upload vendor submitted" &&
+          $.properties.event_properties.doc_auth_result = "Passed" &&
+          ($.properties.event_properties.workflow = "GSA2.TrueID.WF.NC.PM.Prod.2" ||
+          $.properties.event_properties.workflow = "GSA2.TrueID.WF.PT.Prod.2")
+        }
+      EOT
+    },
     idv_gpo_confirmation_upload_count = {
       name         = "idv-gpo-confirmation-upload-count"
       pattern      = "{ ($.name = \"gpo_confirmation_upload\") && $.properties.event_properties.success is true }"
