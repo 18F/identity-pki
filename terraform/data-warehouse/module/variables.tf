@@ -120,7 +120,7 @@ variable "asg_prevent_auto_terminate" {
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
   type        = string
-  default     = "mww59/restore_analytics"
+  default     = "main"
   description = <<EOM
 Git ref in identity-devops for provision.sh to check out. If set, this
 overrides the default "stages/<env>" value in locals. This var will be
