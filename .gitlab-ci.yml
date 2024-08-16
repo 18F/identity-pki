@@ -7,7 +7,7 @@ variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
   IDP_IMAGE_TAG: 'main'
   DASHBOARD_IMAGE_TAG: 'main'
-  PIVCAC_CI_SHA: 'sha256:247e38ad3e4abdaed3609ec752985cf308ae56d86eaf70159461bbbeddcadd81'
+  PIVCAC_CI_SHA: 'sha256:4ad509a892ba9af1f4fce37d18bebad2ca006686cf3ad81ea76fa35fc03adebf'
   CI: 'true'
 
 default:
