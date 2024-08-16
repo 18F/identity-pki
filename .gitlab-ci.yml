@@ -136,6 +136,39 @@ check_expiring_certificates:
     - bundle exec rake db:setup --trace
     - bundle exec rake certs:print_expiring[0]
 
+build-ci-image:
+  stage: build
+  interruptible: true
+  needs: []
+  tags:
+    - build-pool
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  rules:
+    # Build when there are changes to the Dockerfile
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "web"'
+      changes:
+        compare_to: 'refs/heads/main'
+        paths:
+          - dockerfiles/pivcac_ci.Dockerfile
+  script:
+    - mkdir -p /kaniko/.docker
+    - |-
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/dockerfiles/pivcac_ci.Dockerfile"
+      --destination "${ECR_REGISTRY}/pivcac/ci:latest"
+      --destination "${ECR_REGISTRY}/pivcac/ci:${CI_COMMIT_SHA}"
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+
 # Build a container image async, and don't block CI tests
 # Cache intermediate images for 1 week (168 hours)
 build-pivcac-image:
