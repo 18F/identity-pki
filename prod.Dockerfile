@@ -113,17 +113,9 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libpq-dev \
     patch \
-    python3 \
-    python3-pip \
-    python3-venv \
     util-linux \
-    letsencrypt \
     postgresql-contrib \
-    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
-
-RUN PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python; \
-    pip3 install certbot certbot_dns_route53 pyopenssl
 
 # Create user and setup working directory
 RUN addgroup --gid 1000 app && \
