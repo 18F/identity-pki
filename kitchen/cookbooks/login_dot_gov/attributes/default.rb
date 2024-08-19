@@ -27,7 +27,6 @@ default['login_dot_gov']['app_names']                                 = []
 default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['allow_unsafe_migrations']                   = false
 default['login_dot_gov']['allow_migration_console_access']            = false
-default['login_dot_gov']['idp_run_migrations']                        = false
 default['login_dot_gov']['idp_migrations_ignore_failure']             = true
 default['login_dot_gov']['idp_run_recurring_jobs']                    = true
 default['login_dot_gov']['idp_artifacts']                             = true

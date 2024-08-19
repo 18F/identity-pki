@@ -18,19 +18,14 @@ artifacts_downloaded = lambda { File.exist?('/srv/idp/releases/artifacts-downloa
 # unless deploy_branch.identity-#{app_name} is specifically set otherwise
 default_branch = node.fetch('login_dot_gov').fetch('deploy_branch_default')
 deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identity-#{app_name}", default_branch)
-if node.fetch('login_dot_gov').fetch('idp_run_migrations')
-  Chef::Log.info('Running idp migrations')
 
-  execute 'deploy migrate step' do
-    cwd '/srv/idp/releases/chef'
-    command './deploy/migrate && touch /tmp/ran-deploy-migrate'
-    environment (node.fetch('login_dot_gov').fetch('allow_unsafe_migrations') ? { "SAFETY_ASSURED" => "1" } : nil )
-    user node['login_dot_gov']['system_user']
-    group node['login_dot_gov']['system_user']
-    ignore_failure node.fetch('login_dot_gov').fetch('idp_migrations_ignore_failure')
-  end
-else
-  Chef::Log.info('Skipping idp migrations, idp_run_migrations is falsy')
+execute 'deploy migrate step' do
+  cwd '/srv/idp/releases/chef'
+  command './deploy/migrate'
+  environment (node.fetch('login_dot_gov').fetch('allow_unsafe_migrations') ? { "SAFETY_ASSURED" => "1" } : nil )
+  user node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
+  ignore_failure node.fetch('login_dot_gov').fetch('idp_migrations_ignore_failure')
 end
 
 static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')

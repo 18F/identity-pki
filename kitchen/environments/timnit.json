@@ -6,7 +6,6 @@
   "default_attributes": {
     "login_dot_gov": {
       "deploy_branch_default": "stages/timnit",
-      "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }
   },

@@ -9,7 +9,6 @@
       "deploy_branch": {
         "identity-dashboard": "stages/akrito"
       },
-      "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }
   },

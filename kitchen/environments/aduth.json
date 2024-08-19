@@ -10,7 +10,6 @@
         "identity-idp": "stages/aduth",
         "identity-pivcac": "stages/aduth"
       },
-      "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }
   },

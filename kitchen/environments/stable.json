@@ -11,7 +11,6 @@
     },
     "login_dot_gov": {
       "deploy_branch_default": "main",
-      "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
       "auto_eip_enabled_roles": ["outboundproxy"]
     }

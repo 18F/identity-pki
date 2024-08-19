@@ -9,7 +9,6 @@
       "deploy_branch": {
         "identity-idp": "stages/solipet"
       },
-      "idp_run_migrations": true,
       "allow_unsafe_migrations": true
     }
   },
