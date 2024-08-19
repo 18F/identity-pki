@@ -19,7 +19,7 @@ resource "aws_lambda_function" "db_consumption" {
   role             = aws_iam_role.db_consumption.arn
   handler          = "db_consumption.lambda_handler"
   runtime          = "python3.9"
-  timeout          = 120 # seconds
+  timeout          = 900 # in seconds, 15 minutes
   source_code_hash = module.db_consumption_code.zip_output_base64sha256
 
   layers = [
@@ -56,17 +56,19 @@ resource "aws_s3_bucket_notification" "s3_trigger_to_lambdas" {
 }
 
 module "db_consumption_alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=f6bb6ede0d969ea8f62ebba3cbcedcba834aee2f"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=190c3cb97ab6f9f935b959ec6016c508b002b1d8"
   #source = "../../../../identity-terraform/lambda_alerts"
 
   enabled              = 1
   function_name        = aws_lambda_function.db_consumption.function_name
-  alarm_actions        = []
-  error_rate_threshold = 5 # percent
-  datapoints_to_alarm  = 5
+  alarm_actions        = local.low_priority_alarm_actions
+  error_rate_threshold = 0 # percent
+  error_rate_operator  = "GreaterThanThreshold"
+  datapoints_to_alarm  = 1
   evaluation_periods   = 5
   insights_enabled     = true
   duration_setting     = aws_lambda_function.db_consumption.timeout
+  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting"
 }
 
 resource "aws_lambda_permission" "db_consumption_allow_s3_events" {

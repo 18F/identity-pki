@@ -14,42 +14,37 @@ def lambda_handler(event, context, started_means_done=False):
     iam_role = os.environ["IAM_ROLE"]
     redshift_cluster = os.environ["REDSHIFT_CLUSTER"]
 
-    try:
-        for entry in records:
-            s3_data = entry.get("s3", {})
-            bucket = s3_data["bucket"]["name"]
-            key = s3_data["object"]["key"]
-            db_consumption = get_consumption_class(key)
-            if db_consumption is None or (
-                db_consumption.schema_name == "logs"
-                and db_consumption.map_log_stream_to_table(key) is None
-            ):
-                logger.info(
-                    f"Could not find consumption class for file '{key}'. Skipping."
-                )
-                continue
-            if db_consumption.refresh_table:
-                truncate_statement = db_consumption.truncate_target_table_statement(key)
-                db_consumption.execute_sql_statement(
-                    redshift,
-                    truncate_statement,
-                    redshift_cluster,
-                    started_means_done,
-                )
+    # Since this lambda function is triggered per S3 upload, length of records is expected to be 1
+    assert len(records) == 1
 
-            column_list = db_consumption.get_column_headers(s3, bucket, key)
-
-            copy_statement = db_consumption.copy_statement(
-                bucket, key, iam_role, column_list
-            )
+    entry = records.pop()
+    s3_data = entry.get("s3", {})
+    bucket = s3_data["bucket"]["name"]
+    key = s3_data["object"]["key"]
+    db_consumption = get_consumption_class(key)
+    if db_consumption is None or (
+        db_consumption.schema_name == "logs"
+        and db_consumption.map_log_stream_to_table(key) is None
+    ):
+        logger.info(f"Could not find consumption class for file '{key}'. Skipping.")
+    else:
+        if db_consumption.refresh_table:
+            truncate_statement = db_consumption.truncate_target_table_statement(key)
             db_consumption.execute_sql_statement(
                 redshift,
-                copy_statement,
+                truncate_statement,
                 redshift_cluster,
                 started_means_done,
             )
-    except Exception as e:
-        logger.error(f"{e}")
-        pass
-    finally:
-        redshift.close()
+
+        column_list = db_consumption.get_column_headers(s3, bucket, key)
+
+        copy_statement = db_consumption.copy_statement(
+            bucket, key, iam_role, column_list
+        )
+        db_consumption.execute_sql_statement(
+            redshift,
+            copy_statement,
+            redshift_cluster,
+            started_means_done,
+        )

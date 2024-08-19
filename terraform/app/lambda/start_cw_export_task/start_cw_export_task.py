@@ -32,19 +32,24 @@ def lambda_handler(event, context):
     logger.debug("S3_BUCKET=%s" % os.environ["S3_BUCKET"])
 
     current_time = datetime.now()
-    now_milliseconds = (current_time + timedelta(minutes=3)).timestamp() * 1000
-    from_milliseconds = (
-        current_time - timedelta(days=previous_days)
-    ).timestamp() * 1000
+    previous_day_begin = current_time.replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ) - timedelta(days=1)
+    previous_day_end = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_time_ms, end_time_ms = (
+        previous_day_begin.timestamp() * 1000,
+        previous_day_end.timestamp() * 1000,
+    )
 
+    error_msgs = []
     for log_group in log_groups:
         log_group_name = log_group["name"]
         prefix = "logs/" + log_group_name.replace("/", "_")
         try:
             create_response = logs.create_export_task(
                 logGroupName=log_group_name,
-                fromTime=int(from_milliseconds),
-                to=int(now_milliseconds),
+                fromTime=int(start_time_ms),
+                to=int(end_time_ms),
                 destination=bucket,
                 destinationPrefix=prefix,
             )
@@ -61,29 +66,20 @@ def lambda_handler(event, context):
                 if status == "COMPLETED":
                     logger.info(f"Export Task completed for {log_group_name}")
                     break
-                elif status == "CANCELLED" or status == "FAILED":
-                    logger.error(f"Export Task failed for {log_group_name}")
-                    break
-                elif (
-                    status == "PENDING"
-                    or status == "PENDING_CANCEL"
-                    or status == "RUNNING"
-                ):
+                elif status in ("CANCELLED", "FAILED"):
+                    raise Exception(
+                        f"Export Task failed for {log_group_name}, status={status} task_id={task_id}"
+                    )
+                elif status in ("PENDING", "PENDING_CANCEL", "RUNNING"):
                     pass
                 else:
-                    raise Exception(f"Unknown status status={status} task_id={task_id}")
-
-        except logs.exceptions.LimitExceededException:
-            logger.error(
-                "Need to wait until all tasks are finished (LimitExceededException). Continuing later..."
-            )
-
-            return
-
+                    raise Exception(
+                        f"Unknown status, status={status} task_id={task_id}"
+                    )
         except Exception as e:
-            raise Exception(
+            error_msgs.append(
                 "Error exporting %s: %s"
                 % (log_group_name, getattr(e, "message", repr(e)))
             )
-
-            continue
+        if error_msgs:
+            raise Exception("\n".join(error_msgs))

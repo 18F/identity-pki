@@ -12,7 +12,7 @@ Jinja2==3.1.4
 jmespath==1.0.1
 lxml==5.2.1
 MarkupSafe==2.1.5
-moto==5.0.0
+moto==5.0.13
 mypy-extensions==1.0.0
 packaging==24.0
 pathspec==0.12.1

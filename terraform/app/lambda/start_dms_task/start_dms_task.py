@@ -39,3 +39,5 @@ def lambda_handler(event, context):
 
     if status == "running" or status == "starting":
         logger.info(f"Task {identifier} started successfully. Status: {status}")
+    elif status == "failed":
+        raise Exception(f"Task {identifier} failed to start. Status: {status}")

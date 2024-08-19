@@ -98,42 +98,41 @@ def lambda_handler(event, context):
 
     log_groups = json.loads(os.environ["LOG_GROUPS"])
 
-    for entry in records:
-        s3_data = entry.get("s3", {})
-        bucket = s3_data["bucket"]["name"]
-        original_key = s3_data["object"]["key"]
-        original_key_array = original_key.split("/")
+    # Since this lambda function is triggered per S3 upload, length of records is expected to be 1
+    assert len(records) == 1
 
-        logsdir, underscore_log_group_name, _id, log_stream_prefix, filename = (
-            original_key_array
-        )
+    entry = records.pop()
+    s3_data = entry.get("s3", {})
+    bucket = s3_data["bucket"]["name"]
+    original_key = s3_data["object"]["key"]
+    original_key_array = original_key.split("/")
 
-        log_group_name = underscore_log_group_name.replace("_", "/").replace(
-            "/", "_", 1
-        )
-        prefix = "/".join([logsdir, underscore_log_group_name])
-        in_filename = ".".join([log_stream_prefix, filename])
-        out_filename = in_filename.replace("/", ".").replace(".gz", ".csv")
+    logsdir, underscore_log_group_name, _id, log_stream_prefix, filename = (
+        original_key_array
+    )
 
-        log_stream_details = logs.describe_log_streams(
-            logGroupName=log_group_name,
-            logStreamNamePrefix=log_stream_prefix,
-        )
+    log_group_name = underscore_log_group_name.replace("_", "/").replace("/", "_", 1)
+    prefix = "/".join([logsdir, underscore_log_group_name])
+    in_filename = ".".join([log_stream_prefix, filename])
+    out_filename = in_filename.replace("/", ".").replace(".gz", ".csv")
 
-        create_time_in_ms = log_stream_details["logStreams"][0]["creationTime"]
-        create_day = datetime.fromtimestamp(create_time_in_ms / 1000).strftime(
-            "%Y/%m/%d"
-        )
+    log_stream_details = logs.describe_log_streams(
+        logGroupName=log_group_name,
+        logStreamNamePrefix=log_stream_prefix,
+    )
 
-        destination_key = f"{prefix}/processed/{create_day}/{out_filename}"
+    create_time_in_ms = log_stream_details["logStreams"][0]["creationTime"]
+    create_day = datetime.fromtimestamp(create_time_in_ms / 1000).strftime("%Y/%m/%d")
 
-        convert_to_csv(
-            s3,
-            bucket,
-            original_key,
-            destination_key,
-            json_encoded=should_json_encode(log_groups, log_group_name),
-        )
+    destination_key = f"{prefix}/processed/{create_day}/{out_filename}"
 
-        logger.info(f"Deleting: '{bucket}/{original_key}'")
-        s3.delete_object(Bucket=bucket, Key=original_key)
+    convert_to_csv(
+        s3,
+        bucket,
+        original_key,
+        destination_key,
+        json_encoded=should_json_encode(log_groups, log_group_name),
+    )
+
+    logger.info(f"Deleting: '{bucket}/{original_key}'")
+    s3.delete_object(Bucket=bucket, Key=original_key)
