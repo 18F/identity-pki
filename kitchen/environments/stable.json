@@ -13,8 +13,7 @@
       "deploy_branch_default": "main",
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "auto_eip_enabled_roles": ["outboundproxy"],
-      "idp_sync_static": true
+      "auto_eip_enabled_roles": ["outboundproxy"]
     }
   },
   "override_attributes": {

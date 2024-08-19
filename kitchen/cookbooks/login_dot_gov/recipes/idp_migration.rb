@@ -35,8 +35,8 @@ end
 
 static_bucket = node.fetch('login_dot_gov').fetch('static_bucket')
 static_cdn_max_age = node.fetch('login_dot_gov').fetch('static_cdn_max_age')
-if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
-  Chef::Log.info("Syncronizing IdP assets and packs to #{static_bucket}")
+if static_bucket
+  Chef::Log.info("Synchronizing IdP assets and packs to #{static_bucket}")
 
   execute 'deploy sync static assets step' do
     # Sync based on size only (not create time) and ignore asset manifest
@@ -60,7 +60,7 @@ if static_bucket && node.fetch('login_dot_gov').fetch('idp_sync_static')
     ignore_failure node.fetch('login_dot_gov').fetch('idp_sync_static_ignore_failure')
   end
 else
-  Chef::Log.info('Skipping assets sync - idp_sync_static or static_bucket are falsy')
+  Chef::Log.info('Skipping assets sync - static_bucket is falsey')
 end
 
 if idp_artifacts_enabled
