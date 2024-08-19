@@ -28,7 +28,6 @@ default['login_dot_gov']['dev_users']                                 = []
 default['login_dot_gov']['allow_unsafe_migrations']                   = false
 default['login_dot_gov']['allow_migration_console_access']            = false
 default['login_dot_gov']['idp_migrations_ignore_failure']             = true
-default['login_dot_gov']['idp_run_recurring_jobs']                    = true
 default['login_dot_gov']['idp_artifacts']                             = true
 default['login_dot_gov']['idp_sync_static_ignore_failure']            = false
 default['login_dot_gov']['idp_ruby_yjit_enabled']                     = true
