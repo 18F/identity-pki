@@ -81,17 +81,11 @@ resource "aws_iam_policy" "db_consumption_lambda_to_cloudwatch" {
         Sid    = "AllowCloudwatchLogs"
         Effect = "Allow"
         Action = [
-          "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
         ]
         Resource = [
-          join(":", [
-            "arn:aws:logs:${var.region}",
-            "${data.aws_caller_identity.current.account_id}:log-group",
-            "/aws/lambda/${aws_lambda_function.db_consumption.function_name}:*"
-          ])
-
+          "${aws_cloudwatch_log_group.db_consumption.arn}:*"
         ]
       }
     ]

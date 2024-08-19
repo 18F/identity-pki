@@ -1,5 +1,6 @@
 locals {
-  lambda_insights = "arn:aws:lambda:${var.region}:${var.lambda_insights_account}:layer:LambdaInsightsExtension:${var.lambda_insights_version}"
+  lambda_insights            = "arn:aws:lambda:${var.region}:${var.lambda_insights_account}:layer:LambdaInsightsExtension:${var.lambda_insights_version}"
+  db_consumption_lambda_name = "${var.env_name}-db-consumption"
 }
 
 module "db_consumption_code" {
@@ -13,7 +14,7 @@ module "db_consumption_code" {
 
 resource "aws_lambda_function" "db_consumption" {
   filename         = module.db_consumption_code.zip_output_path
-  function_name    = "${var.env_name}-db-consumption"
+  function_name    = local.db_consumption_lambda_name
   description      = ""
   role             = aws_iam_role.db_consumption.arn
   handler          = "db_consumption.lambda_handler"
@@ -24,6 +25,11 @@ resource "aws_lambda_function" "db_consumption" {
   layers = [
     local.lambda_insights
   ]
+
+  logging_config {
+    log_group  = aws_cloudwatch_log_group.db_consumption.name
+    log_format = "Text"
+  }
 
   environment {
     variables = {
