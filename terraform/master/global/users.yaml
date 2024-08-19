@@ -384,16 +384,6 @@ users:
     - devops
     - lg-all
     - lg-public
-  erik.arend:
-    aws_groups:
-    - fraudopsnonprod
-    ec2_username:
-    - earend
-    gitlab_groups:
-    - antifraud
-    - lg-all
-    - lg-public
-    - login-fraud|maintainer
   fred.agyepongyeboah:
     aws_groups:
     - soc
