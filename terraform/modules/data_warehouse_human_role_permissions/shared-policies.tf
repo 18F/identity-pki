@@ -7,6 +7,7 @@ data "aws_iam_policy_document" "redshift_query_execution_access" {
       "redshift:DeleteSavedQueries",
       "redshift:ExecuteQuery",
       "redshift:FetchResults",
+      "redshift:GetClusterCredentials",
       "redshift:ModifySavedQuery",
       "redshift:ViewQueriesFromConsole",
       "tag:GetResources"
