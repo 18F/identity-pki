@@ -12,8 +12,7 @@
       },
       "idp_run_migrations": true,
       "allow_unsafe_migrations": true,
-      "idp_sync_static": true,
-      "use_client_certificate": true
+      "idp_sync_static": true
     }
   },
   "override_attributes": {

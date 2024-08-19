@@ -162,8 +162,7 @@ template "/opt/nginx/conf/sites.d/pivcac.conf" do
   variables({
     log_path: '/var/log/nginx',
     server_name: node.fetch('pivcac').fetch('wildcard'),
-    ssl_domain: node.fetch('pivcac').fetch('domain'),
-    use_client_certificate: node.fetch('login_dot_gov').fetch('use_client_certificate')
+    ssl_domain: node.fetch('pivcac').fetch('domain')
   })
 end
 
