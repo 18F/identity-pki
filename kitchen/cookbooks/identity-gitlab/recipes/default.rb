@@ -780,6 +780,27 @@ cron_d 'run_usersync' do
   only_if { node['identity_gitlab']['user_sync_cron_enable'] }
 end
 
+file '/etc/gitlab/restart_gitlab_kas.sh' do
+  content <<-EOF
+    #!/bin/bash
+    gitlab-ctl stop gitlab-kas
+    rm /var/opt/gitlab/gitlab-kas/sockets/private-api.socket
+    rm /var/opt/gitlab/gitlab-kas/sockets/internal-api.socket
+    gitlab-ctl start gitlab-kas
+  EOF
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
+cron_d 'restart_gitlab_kas' do
+  action :create
+  minute '0'
+  hour '6'
+  command '/etc/gitlab/restart_gitlab_kas.sh'
+end 
+
 # set up logs for gitlab
 template '/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/gitlabcw.json' do
   source 'gitlabcw.json.erb'
