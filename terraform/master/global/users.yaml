@@ -977,7 +977,7 @@ users:
     - login-security|maintainer
   shane.chesnutt:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - schesnutt
     gitlab_groups:
@@ -1097,7 +1097,7 @@ users:
     - Melba|developer
   william.birdsall:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - william.birdsall
     gitlab_groups:
