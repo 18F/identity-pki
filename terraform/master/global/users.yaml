@@ -379,11 +379,6 @@ users:
     - lg-all
     - lg-public
     - Joy
-  eric.evans:
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
   fred.agyepongyeboah:
     aws_groups:
     - soc
@@ -1226,7 +1221,7 @@ projects:
       antifraud:
         access: reporter
       login-fraud:
-        access: reporter 
+        access: reporter
       appdev:
         access: developer
       devops:
