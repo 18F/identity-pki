@@ -55,46 +55,99 @@ module "db_aurora" {
   route53_ttl      = 300  
 }
 ```
+<!-- BEGIN_TF_DOCS -->
+## Requirements
 
-## Variables
+No requirements.
 
-Custom variable values ***must be declared*** if they default to a blank/empty value (e.g. `""`, `[]`) in the table below (unless otherwise specified).
+## Providers
 
-| Category                     | Name                         | Description                                                                                                                                                                                                        | Default                                                                                                  |
-| :--------------------------- | :--------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------- |
-| Identifiers                  | `region`                     | Primary AWS Region                                                                                                                                                                                                 | `us-west-2`                                                                                              |
-| Identifiers                  | `name_prefix`                | Prefix for resource names                                                                                                                                                                                          | `login`                                                                                                  |
-| Identifiers                  | `env_name`                   | Environment name                                                                                                                                                                                                   | ""                                                                                                       |
-| Identifiers                  | `db_identifier`              | Unique identifier for the database (e.g. `default`/`primary`/etc.)                                                                                                                                                 | ""                                                                                                       |
-| Identifiers                  | `rds_db_arn`                 | ARN of RDS DB used as replication source for the Aurora cluster; leave blank if not using an RDS replication source / creating a standalone cluster                                                                | ""                                                                                                       |
-| DB Engine / Parameter Config | `db_engine`                  | AuroraDB engine name (`aurora`/`aurora-mysql`/`aurora-postgresql`)                                                                                                                                                 | `aurora-postgresql`                                                                                      |
-| DB Engine / Parameter Config | `db_engine_version`          | Version number (e.g. ##.#) of db_engine to use                                                                                                                                                                     | `13.5`                                                                                                   |
-| DB Engine / Parameter Config | `db_port`                    | Database port number                                                                                                                                                                                               | **5432**                                                                                                 |
-| DB Engine / Parameter Config | `apg_db_pgroup_params`       | List of parameters to configure for the AuroraDB parameter group                                                                                                                                                   | []                                                                                                       |
-| DB Engine / Parameter Config | `apg_cluster_pgroup_params`  | List of parameters to configure for the AuroraDB cluster parameter group                                                                                                                                           | []                                                                                                       |
-| Engine Mode / Instance Class | `db_engine_mode`             | Engine mode for the AuroraDB cluster. Must be `global`, `multimaster`, `parallelquery`, `provisioned`, or `serverless`                                                                                             | `provisioned`                                                                                            |
-| Engine Mode / Instance Class | `db_instance_class`          | Instance class to use in AuroraDB cluster                                                                                                                                                                          | `db.r5.large`                                                                                            |
-| Engine Mode / Instance Class | `serverlessv2_config`        | Config for Aurora Serverless v2 (if using) which specifies min/max capacity, from 0.5 to 128 in steps of 0.5; MUST set var.db_engine_mode to 'provisioned' and var.db_instance_class to 'db.serverless' if using   | []                                                                                                       |
-| Read Replicas / Auto Scaling | `primary_cluster_instances`  | Number of instances to create for the primary AuroraDB cluster; MUST be Set to 1 if creating cluster as a read replica and then should be set to 2+ thereafter                                                     | **2**                                                                                                    |
-| Read Replicas / Auto Scaling | `enable_autoscaling`         | Whether or not to enable Auto Scaling of read replica instances                                                                                                                                                    | *false*                                                                                                  |
-| Read Replicas / Auto Scaling | `max_cluster_instances`      | Maximum number of read replica instances to scale up to (if enabling Auto Scaling for the Aurora cluster)                                                                                                          | **5**                                                                                                    |
-| Read Replicas / Auto Scaling | `autoscaling_metric_name`    | Name of the predefined metric used by the Auto Scaling policy (if enabling Auto Scaling for the Aurora cluster)                                                                                                    | ""                                                                                                       |
-| Read Replicas / Auto Scaling | `autoscaling_metric_value`   | Desired target value of Auto Scaling policy's predefined metric (if enabling Auto Scaling for the Aurora cluster)                                                                                                  | **40**                                                                                                   |
-| Logging / Monitoring         | `cw_logs_exports`            | List of log types to export to CloudWatch (will use `["general"]` if not specified or `["postgresql"]` if `var.db_engine` is `"aurora-postgresql"`                                                                 | []                                                                                                       |
-| Logging / Monitoring         | `pi_enabled`                 | Whether or not to enable Performance Insights on the Aurora cluster                                                                                                                                                | *true*                                                                                                   |
-| Logging / Monitoring         | `monitoring_interval`        | Time (in seconds) to wait before each metric sample collection; disabled if set to 0                                                                                                                               | **60**                                                                                                   |
-| Logging / Monitoring         | `monitoring_role`            | Name of an existing IAM role with the `AmazonRDSEnhancedMonitoringRole` service role policy attached; will create the `rds_monitoring` IAM role (which has said permission) if this value is left blank            | ""                                                                                                       |
-| Maintenance / Upgrades       | `auto_minor_upgrades`        | Whether or not to perform minor engine upgrades automatically during the specified in the maintenance window                                                                                                       | *false*                                                                                                  |
-| Maintenance / Upgrades       | `major_upgrades`             | Whether or not to allow performing major version upgrades when changing engine versions                                                                                                                            | *true*                                                                                                   |
-| Maintenance / Upgrades       | `retention_period`           | Number of days to retain backups for                                                                                                                                                                               | **34**                                                                                                   |
-| Maintenance / Upgrades       | `backup_window`              | Daily time range (in UTC) for automated backups                                                                                                                                                                    | `08:00-08:34`                                                                                            |
-| Maintenance / Upgrades       | `maintenance_window`         | Weekly time range (in UTC) for scheduled/system maintenance                                                                                                                                                        | `Sun:08:34-Sun:09:08`                                                                                    |
-| Networking                   | `db_security_group`          | VPC Security Group ID used by the AuroraDB cluster                                                                                                                                                                 | ""                                                                                                       |
-| Networking                   | `db_subnet_group`            | Name of private subnet group in the `var.region` VPC                                                                                                                                                               | ""                                                                                                       |
-| Security / KMS               | `storage_encrypted`          | Whether or not to encrypt the underlying Aurora storage layer                                                                                                                                                      | true                                                                                                     |
-| Security / KMS               | `db_kms_key_id`              | ID of an already-existing KMS Key used to encrypt the database; will create the `aws_kms_key.db` / `aws_kms_alias.db` resources and use those for encryption if left blank                                         | ""                                                                                                       |
-| Security / KMS               | `key_admin_role_name`        | Name of an external IAM role to be granted permissions to interact with the KMS key used for encrypting the database                                                                                               | ""                                                                                                       |
-| Security / KMS               | `rds_password`               | Password for the RDS master user account                                                                                                                                                                           | ""                                                                                                       |
-| Security / KMS               | `rds_username`               | Username for the RDS master user account                                                                                                                                                                           | ""                                                                                                       |
-| DNS / Route53                | `internal_zone_id`           | ID of the Route53 hosted zone to create records in                                                                                                                                                                 | ""                                                                                                       |
-| DNS / Route53                | `route53_ttl`                | TTL for the Route53 DNS records for the writer/reader endpoints                                                                                                                                                    | **300**                                                                                                  |
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+
+## Modules
+
+No modules.
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_appautoscaling_policy.db](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_policy) | resource |
+| [aws_appautoscaling_target.db](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appautoscaling_target) | resource |
+| [aws_cloudwatch_log_group.aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_iam_role.rds_monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.rds_monitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_rds_cluster.aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster) | resource |
+| [aws_rds_cluster_instance.aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster_instance) | resource |
+| [aws_rds_global_cluster.aurora](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_global_cluster) | resource |
+| [aws_availability_zones.region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_kms_key.rds_alias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/kms_key) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_apg_cluster_pgroup"></a> [apg\_cluster\_pgroup](#input\_apg\_cluster\_pgroup) | (REQUIRED) Name of an existing parameter group to use for the DB cluster. | `string` | n/a | yes |
+| <a name="input_apg_db_pgroup"></a> [apg\_db\_pgroup](#input\_apg\_db\_pgroup) | (REQUIRED) Name of an existing parameter group to use for the DB cluster instance(s). | `string` | n/a | yes |
+| <a name="input_db_identifier"></a> [db\_identifier](#input\_db\_identifier) | Unique identifier for the database (e.g. default/primary/etc.) | `string` | n/a | yes |
+| <a name="input_db_security_group"></a> [db\_security\_group](#input\_db\_security\_group) | (REQUIRED) VPC Security Group ID used by the AuroraDB cluster | `string` | n/a | yes |
+| <a name="input_db_subnet_group"></a> [db\_subnet\_group](#input\_db\_subnet\_group) | (REQUIRED) Name of DB subnet group used by the AuroraDB cluster | `string` | n/a | yes |
+| <a name="input_env_name"></a> [env\_name](#input\_env\_name) | Environment name | `string` | n/a | yes |
+| <a name="input_key_admin_role_name"></a> [key\_admin\_role\_name](#input\_key\_admin\_role\_name) | (REQUIRED) Name of an external IAM role to be granted permissions<br>to interact with the KMS key used for encrypting the database | `string` | n/a | yes |
+| <a name="input_rds_password"></a> [rds\_password](#input\_rds\_password) | Password for the RDS master user account | `string` | n/a | yes |
+| <a name="input_rds_username"></a> [rds\_username](#input\_rds\_username) | Username for the RDS master user account | `string` | n/a | yes |
+| <a name="input_auto_minor_upgrades"></a> [auto\_minor\_upgrades](#input\_auto\_minor\_upgrades) | Whether or not to perform minor engine upgrades automatically during the<br>specified in the maintenance window. Defaults to false. | `bool` | `false` | no |
+| <a name="input_autoscaling_metric_name"></a> [autoscaling\_metric\_name](#input\_autoscaling\_metric\_name) | Name of the predefined metric used by the Auto Scaling policy<br>(if enabling Auto Scaling for the Aurora cluster) | `string` | `""` | no |
+| <a name="input_autoscaling_metric_value"></a> [autoscaling\_metric\_value](#input\_autoscaling\_metric\_value) | Desired target value of Auto Scaling policy's predefined metric<br>(if enabling Auto Scaling for the Aurora cluster) | `number` | `40` | no |
+| <a name="input_backup_window"></a> [backup\_window](#input\_backup\_window) | Daily time range (in UTC) for automated backups | `string` | `"08:00-08:34"` | no |
+| <a name="input_cloudwatch_retention_days"></a> [cloudwatch\_retention\_days](#input\_cloudwatch\_retention\_days) | Number of days to retain CloudWatch Logs for groups defined in var.cw\_logs\_exports<br>Defaults to 0 (never expire). | `number` | `0` | no |
+| <a name="input_copy_tags_to_snapshot"></a> [copy\_tags\_to\_snapshot](#input\_copy\_tags\_to\_snapshot) | Enables auto copying database tags to snapshots | `bool` | `true` | no |
+| <a name="input_create_global_db"></a> [create\_global\_db](#input\_create\_global\_db) | Whether or not to enable creating an Aurora Global cluster AFTER the creation<br>of the aws\_rds\_cluster.aurora regional Aurora cluster. Must be set to 'false'<br>if this module instance is creating a secondary regional Aurora cluster<br>in an existing Global cluster. | `bool` | `false` | no |
+| <a name="input_cw_logs_exports"></a> [cw\_logs\_exports](#input\_cw\_logs\_exports) | List of log types to export to CloudWatch. Will use ["general"] if not specified,<br>or ["postgresql"] if var.db\_engine is "aurora-postgresql". | `list(string)` | `[]` | no |
+| <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | AuroraDB engine name (aurora / aurora-mysql / aurora-postgresql) | `string` | `"aurora-postgresql"` | no |
+| <a name="input_db_engine_mode"></a> [db\_engine\_mode](#input\_db\_engine\_mode) | Engine mode for the AuroraDB cluster. Must be one of:<br>"global", "multimaster", "parallelquery", "provisioned", "serverless" | `string` | `"provisioned"` | no |
+| <a name="input_db_engine_version"></a> [db\_engine\_version](#input\_db\_engine\_version) | Version number (e.g. ##.#) of db\_engine to use | `string` | `"13.9"` | no |
+| <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | Instance class to use in AuroraDB cluster | `string` | `"db.r6g.large"` | no |
+| <a name="input_db_kms_key_id"></a> [db\_kms\_key\_id](#input\_db\_kms\_key\_id) | (OPTIONAL) ID of an already-existing KMS Key used to encrypt the database;<br>will create the aws\_kms\_key.db / aws\_kms\_alias.db resources<br>and use those for encryption if left blank | `string` | `""` | no |
+| <a name="input_db_name_override"></a> [db\_name\_override](#input\_db\_name\_override) | Manually-specified name for the Aurora cluster. Will override the<br>default pattern of env\_name-db\_identifier unless left blank. | `string` | `""` | no |
+| <a name="input_db_port"></a> [db\_port](#input\_db\_port) | Database port number | `number` | `5432` | no |
+| <a name="input_db_publicly_accessible"></a> [db\_publicly\_accessible](#input\_db\_publicly\_accessible) | Bool to control if instance is publicly accessible | `bool` | `false` | no |
+| <a name="input_dr_restore_to_time"></a> [dr\_restore\_to\_time](#input\_dr\_restore\_to\_time) | Timestamp for point-in-time recovery (2023-04-21T12:00:00Z) | `string` | `""` | no |
+| <a name="input_dr_restore_type"></a> [dr\_restore\_type](#input\_dr\_restore\_type) | n/a | `string` | `""` | no |
+| <a name="input_dr_snapshot_identifier"></a> [dr\_snapshot\_identifier](#input\_dr\_snapshot\_identifier) | Identifier of the database snapshot for snapshot recovery | `string` | `""` | no |
+| <a name="input_dr_source_cluster_identifier"></a> [dr\_source\_cluster\_identifier](#input\_dr\_source\_cluster\_identifier) | Identifier (name) of the source database for point-in-time recovery | `string` | `""` | no |
+| <a name="input_enable_autoscaling"></a> [enable\_autoscaling](#input\_enable\_autoscaling) | Whether or not to enable Auto Scaling of read replica instances | `bool` | `false` | no |
+| <a name="input_global_db_id"></a> [global\_db\_id](#input\_global\_db\_id) | Identifier for an Aurora Global cluster. MUST be specified if this module instance<br>is creating a secondary regional Aurora cluster in an existing Global cluster<br>OR if creating an Aurora Global cluster specifically within this module. | `string` | `""` | no |
+| <a name="input_maintenance_window"></a> [maintenance\_window](#input\_maintenance\_window) | Weekly time range (in UTC) for scheduled/system maintenance | `string` | `"Sun:08:34-Sun:09:08"` | no |
+| <a name="input_major_upgrades"></a> [major\_upgrades](#input\_major\_upgrades) | Whether or not to allow performing major version upgrades when<br>changing engine versions. Defaults to true. | `bool` | `true` | no |
+| <a name="input_max_cluster_instances"></a> [max\_cluster\_instances](#input\_max\_cluster\_instances) | Maximum number of read replica instances to scale up to<br>(if enabling Auto Scaling for the Aurora cluster) | `number` | `5` | no |
+| <a name="input_monitoring_interval"></a> [monitoring\_interval](#input\_monitoring\_interval) | Time (in seconds) to wait before each metric sample collection.<br>Disabled if set to 0. | `number` | `60` | no |
+| <a name="input_monitoring_role"></a> [monitoring\_role](#input\_monitoring\_role) | (OPTIONAL) Name of an existing IAM role with the AmazonRDSEnhancedMonitoringRole<br>service role policy attached. If left blank, will create the rds\_monitoring IAM role<br>(which has said permission) within the module. | `string` | `""` | no |
+| <a name="input_pi_enabled"></a> [pi\_enabled](#input\_pi\_enabled) | Whether or not to enable Performance Insights on the Aurora cluster | `bool` | `true` | no |
+| <a name="input_primary_cluster_instances"></a> [primary\_cluster\_instances](#input\_primary\_cluster\_instances) | Number of instances to create for the primary AuroraDB cluster. MUST be Set to 1<br>if creating cluster as a read replica, then should be set to 2+ thereafter. | `number` | `1` | no |
+| <a name="input_rds_ca_cert_identifier"></a> [rds\_ca\_cert\_identifier](#input\_rds\_ca\_cert\_identifier) | Identifier of AWS RDS Certificate Authority Certificate | `string` | `"rds-ca-rsa2048-g1"` | no |
+| <a name="input_retention_period"></a> [retention\_period](#input\_retention\_period) | Number of days to retain backups for | `number` | `34` | no |
+| <a name="input_serverlessv2_config"></a> [serverlessv2\_config](#input\_serverlessv2\_config) | (OPTIONAL) Configuration for Aurora Serverless v2 (if using)<br>which specifies min/max capacity, in a range of 0.5 up to 128 in steps of 0.5.<br>If configuring a Serverless v2 cluster/instances, you MUST set<br>var.db\_engine\_mode to 'provisioned' and var.db\_instance\_class to 'db.serverless'. | <pre>list(object({<br>    max = number<br>    min = number<br>  }))</pre> | `[]` | no |
+| <a name="input_storage_encrypted"></a> [storage\_encrypted](#input\_storage\_encrypted) | Whether or not to encrypt the underlying Aurora storage layer | `bool` | `true` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_cluster_arn"></a> [cluster\_arn](#output\_cluster\_arn) | n/a |
+| <a name="output_cluster_id"></a> [cluster\_id](#output\_cluster\_id) | n/a |
+| <a name="output_global_cluster_arn"></a> [global\_cluster\_arn](#output\_global\_cluster\_arn) | n/a |
+| <a name="output_global_cluster_id"></a> [global\_cluster\_id](#output\_global\_cluster\_id) | n/a |
+| <a name="output_kms_arn"></a> [kms\_arn](#output\_kms\_arn) | n/a |
+| <a name="output_log_groups"></a> [log\_groups](#output\_log\_groups) | n/a |
+| <a name="output_reader_endpoint"></a> [reader\_endpoint](#output\_reader\_endpoint) | n/a |
+| <a name="output_reader_instances"></a> [reader\_instances](#output\_reader\_instances) | n/a |
+| <a name="output_writer_endpoint"></a> [writer\_endpoint](#output\_writer\_endpoint) | n/a |
+| <a name="output_writer_instance"></a> [writer\_instance](#output\_writer\_instance) | n/a |
+| <a name="output_writer_instance_az"></a> [writer\_instance\_az](#output\_writer\_instance\_az) | n/a |
+| <a name="output_writer_instance_endpoint"></a> [writer\_instance\_endpoint](#output\_writer\_instance\_endpoint) | n/a |
+<!-- END_TF_DOCS -->

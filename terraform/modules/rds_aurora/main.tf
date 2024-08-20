@@ -114,6 +114,8 @@ resource "aws_rds_cluster" "aurora" {
   # send logs to cloudwatch
   enabled_cloudwatch_logs_exports = local.cw_logs
 
+  copy_tags_to_snapshot = var.copy_tags_to_snapshot
+
   tags = {
     Name = local.db_name
   }

@@ -315,6 +315,14 @@ variable "rds_username" {
   description = "Username for the RDS master user account"
 }
 
+# Snapshot Management
+
+variable "copy_tags_to_snapshot" {
+  type        = bool
+  description = "Enables auto copying database tags to snapshots"
+  default     = true
+}
+
 # Disaster Recovery
 
 variable "dr_snapshot_identifier" {
