@@ -932,13 +932,6 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
-  rodolfo.ornelas:
-    aws_groups:
-    - soc
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
   ryan.d.brown:
     aws_groups:
     - devops
