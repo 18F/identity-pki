@@ -658,7 +658,7 @@ users:
     - lg-public
   lauren.george:
     aws_groups:
-    - appdev
+    - apponcall
     ec2_username:
     - lgeorge
     gitlab_groups:
