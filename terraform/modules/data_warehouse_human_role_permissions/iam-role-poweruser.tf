@@ -1,3 +1,7 @@
+data "aws_iam_role" "poweruser" {
+  name = "PowerUser"
+}
+
 data "aws_iam_policy_document" "redshift_administrator" {
   statement {
     sid    = "Redshift"
@@ -17,8 +21,6 @@ data "aws_iam_policy_document" "redshift_administrator" {
       "redshift:Describe*",
       "redshift:ExecuteQuery",
       "redshift:FetchResults",
-      "redshift:GetClusterCredentials",
-      "redshift:GetClusterCredentialsWithIAM",
       "redshift:List*",
       "redshift:ModifyAquaConfiguration",
       "redshift:ModifyAuthenticationProfile",
@@ -36,9 +38,32 @@ data "aws_iam_policy_document" "redshift_administrator" {
   }
 }
 
+data "aws_iam_policy_document" "redshift_user_access_poweruser" {
+  statement {
+    sid    = "RedshiftUserAccess"
+    effect = "Allow"
+    actions = [
+      "redshift:GetClusterCredentials",
+    ]
+    resources = [
+      "arn:aws:redshift:us-west-2:*:cluster:*",
+      "arn:aws:redshift:us-west-2:*:dbname:*/analytics",
+      "arn:aws:redshift:us-west-2:*:dbuser:*/$${redshift:DbUser}"
+    ]
+    condition {
+      test     = "StringEqualsIgnoreCase"
+      variable = "aws:userid"
+      values = [
+        "${data.aws_iam_role.poweruser.unique_id}:$${redshift:DbUser}",
+      ]
+    }
+  }
+}
+
 data "aws_iam_policy_document" "power_user" {
   source_policy_documents = [
     data.aws_iam_policy_document.redshift_administrator.json,
+    data.aws_iam_policy_document.redshift_user_access_poweruser.json,
     data.aws_iam_policy_document.redshift_query_execution_access.json,
     data.aws_iam_policy_document.query_editor_v2_kms_access.json,
   ]

@@ -37,14 +37,18 @@ No modules.
 | [aws_iam_policy_document.quicksight_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.redshift_administrator](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.redshift_query_execution_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.redshift_user_access_analytics](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.redshift_user_access_poweruser](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_role.analytics](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
+| [aws_iam_role.poweruser](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
 | [aws_iam_role.targets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_role) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_roles"></a> [roles](#input\_roles) | The list of roles to attach permissions to | `list(string)` | n/a | yes |
 | <a name="input_permitted_regions"></a> [permitted\_regions](#input\_permitted\_regions) | A list of regions users are allowed to perform actions within | `list(string)` | <pre>[<br>  "us-west-2"<br>]</pre> | no |
+| <a name="input_roles"></a> [roles](#input\_roles) | The list of roles to attach permissions to | `list(string)` | n/a | yes |
 
 ## Outputs
 
