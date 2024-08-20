@@ -1043,6 +1043,8 @@ users:
     - lg-public
     - Mary
   trevor.cornpropst:
+    email:
+    - trevor.cornpropst@gsa.gov
     aws_groups:
     - secopsnonprod
     ec2_username:
