@@ -45,6 +45,10 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_log_group.flow](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/cloudwatch_log_group) | resource |
+| [aws_flow_log.main](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/flow_log) | resource |
+| [aws_iam_role.flow](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.flow_policy](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/iam_role_policy) | resource |
 | [aws_internet_gateway.main](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/internet_gateway) | resource |
 | [aws_nat_gateway.main](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/nat_gateway) | resource |
 | [aws_route.private_default_ipv4](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/route) | resource |
@@ -59,9 +63,9 @@ No modules.
 | [aws_vpc.main](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/vpc) | resource |
 | [aws_vpc_endpoint.ec2](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/vpc_endpoint) | resource |
 | [aws_vpc_security_group_ingress_rule.endpoint_communications](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/resources/vpc_security_group_ingress_rule) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/data-sources/caller_identity) | data source |
 | [aws_eip.main](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/data-sources/eip) | data source |
-| [aws_iam_account_alias.current](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/data-sources/iam_account_alias) | data source |
+| [aws_iam_policy_document.flow_logs_assumable](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.flow_policy](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/5.43.0/docs/data-sources/region) | data source |
 
 ## Inputs
@@ -71,6 +75,7 @@ No modules.
 | <a name="input_account_name"></a> [account\_name](#input\_account\_name) | The login.gov alias associated with the account. Primarily used for identifying resources. | `string` | n/a | yes |
 | <a name="input_image_build_nat_eip"></a> [image\_build\_nat\_eip](#input\_image\_build\_nat\_eip) | Elastic IP address for the NAT gateway.<br>Must already be allocated via other means. | `string` | n/a | yes |
 | <a name="input_assign_generated_ipv6_cidr_block"></a> [assign\_generated\_ipv6\_cidr\_block](#input\_assign\_generated\_ipv6\_cidr\_block) | enable ipv6 | `bool` | `"false"` | no |
+| <a name="input_cloudwatch_retention_days"></a> [cloudwatch\_retention\_days](#input\_cloudwatch\_retention\_days) | Cloudwatch Retention Policy | `number` | `90` | no |
 | <a name="input_fisma_tag"></a> [fisma\_tag](#input\_fisma\_tag) | n/a | `string` | `"Q-LG"` | no |
 | <a name="input_image_build_private_cidr"></a> [image\_build\_private\_cidr](#input\_image\_build\_private\_cidr) | CIDR block for the public subnet 1 | `string` | `"10.0.11.0/24"` | no |
 | <a name="input_image_build_public_cidr"></a> [image\_build\_public\_cidr](#input\_image\_build\_public\_cidr) | CIDR block for the public subnet 1 | `string` | `"10.0.1.0/24"` | no |

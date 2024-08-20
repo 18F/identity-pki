@@ -29,8 +29,9 @@ module "main" {
 module "vpc" {
   source = "../../modules/utility_vpc"
 
-  account_name        = "tooling-prod"
-  image_build_nat_eip = "35.89.44.230"
+  account_name              = "tooling-prod"
+  image_build_nat_eip       = "35.89.44.230"
+  cloudwatch_retention_days = 3653
 }
 
 module "tooling-prod" {

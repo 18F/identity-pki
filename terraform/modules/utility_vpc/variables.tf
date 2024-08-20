@@ -50,3 +50,8 @@ variable "assign_generated_ipv6_cidr_block" {
   default     = "false"
 }
 
+variable "cloudwatch_retention_days" {
+  description = "Cloudwatch Retention Policy"
+  type        = number
+  default     = 90
+}

@@ -31,8 +31,9 @@ module "main" {
 module "vpc" {
   source = "../../modules/utility_vpc"
 
-  account_name        = "prod"
-  image_build_nat_eip = "34.216.215.127"
+  account_name              = "prod"
+  image_build_nat_eip       = "34.216.215.127"
+  cloudwatch_retention_days = 3653
 }
 
 module "prod" {
