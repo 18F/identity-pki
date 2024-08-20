@@ -57,7 +57,12 @@ locals {
       "ssmmessages",
       "sts",
   ])))
-  low_priority_alarm_actions = [var.slack_events_sns_hook_arn]
+  low_priority_alarm_actions      = flatten([var.slack_events_sns_hook_arn, var.additional_low_priority_sns_topics])
+  moderate_priority_alarm_actions = flatten([var.slack_alarms_sns_hook_arn, var.additional_moderate_priority_sns_topics])
+  high_priority_alarm_actions = var.page_devops == 1 ? flatten([
+    var.high_priority_sns_hook,
+    local.moderate_priority_alarm_actions
+  ]) : local.moderate_priority_alarm_actions
 }
 
 variable "allowed_analytics_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
@@ -266,6 +271,30 @@ variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #identity-events/#identity-otherevents channels in Slack"
 }
 
+variable "slack_alarms_sns_hook_arn" {
+  type        = string
+  description = "ARN of SNS topic that will notify the #login-alarms channel in Slack"
+}
+
+variable "additional_low_priority_sns_topics" {
+  type        = list(any)
+  description = "List of additional SNS topics that will be notified for a low-priority alert"
+  default     = []
+}
+
+variable "additional_moderate_priority_sns_topics" {
+  type        = list(any)
+  description = "List of additional SNS topics that will be notified for a moderate-priority alert"
+  default     = []
+}
+
+variable "high_priority_sns_hook" {
+  type        = list(any)
+  description = "ARN of SNS topic for high-priority pages"
+  default     = []
+}
+
+
 variable "use_spot_instances" {
   description = "Use spot instances for roles suitable for spot use"
   type        = number
@@ -461,3 +490,7 @@ defined in cloudwatch-*-logs.tf (vs. simply removing them from state).
 EOM
 }
 
+variable "page_devops" {
+  default     = 0
+  description = "Whether to page for high-priority Cloudwatch alarms"
+}

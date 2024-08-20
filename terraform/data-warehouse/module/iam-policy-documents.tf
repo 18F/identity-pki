@@ -223,9 +223,10 @@ data "aws_iam_policy_document" "sns-publish-alerts-policy" {
     actions = [
       "SNS:Publish",
     ]
-    resources = [
-      var.slack_events_sns_hook_arn,
-    ]
+    resources = flatten([
+      local.low_priority_alarm_actions,
+      local.moderate_priority_alarm_actions
+    ])
   }
 }
 

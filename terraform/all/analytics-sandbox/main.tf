@@ -33,6 +33,10 @@ module "main" {
     iam_terraform_enabled      = true
   }
 
+  account_slack_channels = {
+    "data-warehouse-events" = "login-data-warehouse-events"
+  }
+
   ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],

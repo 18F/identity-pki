@@ -10,7 +10,5 @@ resource "aws_cloudwatch_metric_alarm" "redshift_user_sync_failures" {
   alarm_description         = "This Alarm is executed if the Redshift user sync script has NOT completed successfully in the last 3 hours."
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
-  alarm_actions = [
-    var.slack_events_sns_hook_arn
-  ]
+  alarm_actions             = local.low_priority_alarm_actions
 }
