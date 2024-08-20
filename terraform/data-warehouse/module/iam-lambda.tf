@@ -6,20 +6,59 @@ resource "aws_iam_policy" "lambda_to_redshift" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "AllowRedshiftExecutions"
+        Sid    = "GetRedshiftClusterInformation"
         Effect = "Allow"
         Action = [
           "redshift:DescribeClusters",
+        ]
+        Resource = [
+          "*"
+        ]
+      },
+      {
+        Sid    = "GetRedshiftCredentials"
+        Effect = "Allow"
+        Action = [
           "redshift:GetClusterCredentials",
           "redshift:GetClusterCredentialsWithIAM",
+        ]
+        Resource = [
+          # This constructs the specific database ARN that the lambda is allowed to access.
+          # When a data resource or provider specific implementation is available, we should migrate to that. 
+          "${replace(aws_redshift_cluster.redshift.arn, ":cluster:", ":dbname:")}/${aws_redshift_cluster.redshift.database_name}"
+        ]
+        Condition = {
+          "StringEquals" = {
+            "redshift:DbName" : aws_redshift_cluster.redshift.database_name
+          }
+        }
+      },
+      {
+        Sid    = "AllowRedshiftExecutions"
+        Effect = "Allow"
+        Action = [
           "redshift-data:ExecuteStatement",
+        ]
+        Resource = [
+          aws_redshift_cluster.redshift.arn
+        ]
+      },
+      {
+        Sid    = "GetRedshiftExecutionsResults"
+        Effect = "Allow"
+        Action = [
           "redshift-data:GetStatementResult",
           "redshift-data:DescribeStatement",
           "redshift-data:ListStatements",
         ]
         Resource = [
-          "*"
+          aws_redshift_cluster.redshift.arn
         ]
+        Condition = {
+          "StringEquals" = {
+            "redshift-data:statement-owner-iam-userid" : "$${aws:userid}"
+          }
+        }
       },
     ]
   })

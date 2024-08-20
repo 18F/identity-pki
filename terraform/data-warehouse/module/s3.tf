@@ -95,8 +95,8 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
     ]
     effect = "Deny"
     resources = [
-      aws_s3_bucket.analytics_export.arn,
-      "${aws_s3_bucket.analytics_export.arn}/*"
+      aws_s3_bucket.analytics_import.arn,
+      "${aws_s3_bucket.analytics_import.arn}/*"
     ]
     condition {
       test     = "Bool"
