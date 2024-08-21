@@ -106,6 +106,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update && apt-get install -y \
     gettext-base \
     git-core \
+    curl \
     libcurl4-openssl-dev \
     libjemalloc-dev \
     libpcre3 \
