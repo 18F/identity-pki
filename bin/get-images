@@ -76,6 +76,9 @@ get_ami_info() {
     if [[ "${TF_ACCT}" == "tooling-prod" ]]; then
       AV_REGIONS=('us-west-2')
       AMI_TYPES=('base')
+    elif [[ "${TF_ACCT}" == "analytics-sandbox" ]]; then # HACK to not overwrite file
+      AV_REGIONS=('us-west-2')
+      AMI_TYPES=('base' 'rails')
     fi
 
     for AV_REGION in "${AV_REGIONS[@]}"; do

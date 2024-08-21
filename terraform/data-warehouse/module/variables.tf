@@ -13,8 +13,8 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "main"
 
-  default_base_ami_id     = "ami-02e539f4b6236b521"
-  default_rails_ami_id    = "ami-04326fdd2d57b43b3"
+  default_base_ami_id     = "ami-014019af5a0ddf8c7" # 2024-08-21 Ubuntu 20.04
+  default_rails_ami_id    = "ami-0bd4e86b1b9770167" # 2024-08-21 Ubuntu 20.04
   github_ipv4_cidr_blocks = sort(data.github_ip_ranges.meta.git_ipv4)
   network_zones           = toset(keys(local.network_layout[var.region][var.env_type]._zones))
   default_endpoint_security_group_ids = [
