@@ -52,6 +52,11 @@ if ! [[ "${TYPE_LIST[@]}" =~ (base|rails) ]] ; then
   raise "TYPE must be \`base\` or \`rails\`; remove -t flag to use both"
 fi
 
+# HACK, we need to standardize image pipeline names on all accounts
+if [[ ${PIPE_NAME} == 'image' ]] && [[ ${ACCOUNT} =~ 'analytics' ]] ; then
+  PIPE_NAME='main'
+fi
+
 get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
 
 echo -e "\nReady to build new AMI(s) in \`login-${ACCOUNT}\`:"

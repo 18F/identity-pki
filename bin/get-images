@@ -76,9 +76,6 @@ get_ami_info() {
     if [[ "${TF_ACCT}" == "tooling-prod" ]]; then
       AV_REGIONS=('us-west-2')
       AMI_TYPES=('base')
-    elif [[ "${TF_ACCT}" == "analytics-sandbox" ]]; then
-      AV_REGIONS=('us-west-2')
-      AMI_TYPES=('base' 'rails')
     fi
 
     for AV_REGION in "${AV_REGIONS[@]}"; do

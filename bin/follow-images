@@ -45,6 +45,11 @@ if ! [[ "${TYPE}" =~ (base|rails) ]] ; then
   raise "TYPE must be \`base\` or \`rails\`; specify with -t flag"
 fi
 
+# HACK, we need to standardize image pipeline names on all accounts
+if [[ ${PIPE_NAME} == 'image' ]] && [[ ${ACCOUNT} =~ 'analytics' ]] ; then
+  PIPE_NAME='main'
+fi
+
 get_iam 'imagebuild' "${ACCOUNT}" 'FullAdministrator'
 
 echo_cyan "Finding newest build run for login-${PIPE_NAME}-${TYPE} CodeBuild project..."
