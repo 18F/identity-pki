@@ -54,7 +54,7 @@ DESC
   default = {
     ami_filter_name         = "ubuntu-pro-fips-server/images/hvm-ssd/ubuntu-focal-20.04-amd64*"
     ami_owner_id            = "679593333241",
-    berkshelf_version       = "8.0.9"
+    berkshelf_version       = "8.0.15"
     chef_version            = "18.4.12" # also passed to CFN as ChefVersion parameter
     data_vol_size           = "200"
     delay_seconds           = "60"
