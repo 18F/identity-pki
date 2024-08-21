@@ -85,6 +85,7 @@ resource "aws_rds_cluster" "aurora" {
   engine_version     = var.db_engine_version
   engine_mode        = var.db_engine_mode
   port               = var.db_port
+  database_name      = var.db_identifier
   availability_zones = [
     for i in range(0, 3) : data.aws_availability_zones.region.names[i]
   ]
