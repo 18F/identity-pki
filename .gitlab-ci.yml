@@ -1125,6 +1125,15 @@ build_terraform_plan_container:
     dockerfile: terraform_plan.Dockerfile
     ecr_repo: cd/terraform_plan
 
+shellcheck:
+  stage: test
+  image: koalaman/shellcheck-alpine:latest
+  script:
+    - apk add bash
+    - ./bin/shellcheck.sh
+  rules:
+    - !reference [.merge_request, rules]
+
 include:
   - local: .gitlab-ci-rules.yml
   - local: kitchen/cookbooks/identity-gitlab/.gitlab-ci.yml

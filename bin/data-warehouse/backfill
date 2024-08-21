@@ -4,6 +4,7 @@
 
 set -euo pipefail
 
+# shellcheck source=bin/lib/common.sh
 . "$(dirname "$0")/../lib/common.sh"
 
 usage() {
@@ -54,9 +55,9 @@ check_if_export_in_progress() {
 
 start_export() {
 	echo "Starting Task $1"
-	task_id="$(aws logs create-export-task --log-group-name $1 --destination $2 --destination-prefix $3 --from $4 --to $5 | jq -r '.taskId')"
+	task_id="$(aws logs create-export-task --log-group-name "$1" --destination "$2" --destination-prefix "$3" --from "$4" --to "$5" | jq -r '.taskId')"
 
-	monitor_export $task_id
+	monitor_export "$task_id"
 
 }
 
@@ -65,18 +66,17 @@ monitor_export() {
 	possible_exit_values=("CANCELLED" "COMPLETED" "FAILED")
 	status="PENDING"
 
-	while [[ ! ${possible_exit_values[*]} =~ "$status" ]] ; do
+	while [[ ! ${possible_exit_values[*]} =~ $status ]] ; do
 		echo "Task $1 is currently $status. Sleeping 10 Seconds..."
 		sleep 10
 		status="$(aws logs describe-export-tasks --task-id "$1" | jq -r '.exportTasks[0].status.code')"
 	done
-	
 }
 
 validate_target_account() {
 	valid_accounts=("894947205914" "555546682965")
 
-	if [[ ${valid_accounts[*]} =~ "$1" ]] ; then
+	if [[ ${valid_accounts[*]} =~ $1 ]] ; then
 		echo "Target Account: $1"
 	else
 		raise "Invalid Account Target. Are you targeting an app environment? (login-[sandbox|prod])"
@@ -123,7 +123,7 @@ if [ "$ALL_RECORDS" = true ] ; then
 
 	declare oldest_creation_time
 	for log_group in "${log_groups[@]}" ; do
-		creation_time=$(aws logs describe-log-groups --log-group-name-pattern $log_group | jq -r '.logGroups[0].creationTime')
+		creation_time=$(aws logs describe-log-groups --log-group-name-pattern "$log_group" | jq -r '.logGroups[0].creationTime')
 		if [[ -z ${oldest_creation_time} ]] ||  [[ $creation_time -lt $oldest_creation_time ]]; then
 			oldest_creation_time=$creation_time
 		fi
@@ -137,32 +137,32 @@ fi
 
 if [[ -z ${FROM_DATE} ]] ; then
 	FROM_DATE=$(date -v-1w +%s000)
-	echo "Using Default Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE})"
+	echo "Using Default Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable "$FROM_DATE")"
 elif [[ ${FROM_DATE} =~ [ymwdHMS] ]] ; then
 	FROM_DATE=$(date -v-"${FROM_DATE}" +%s000)
-	echo "Using Relative Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE})"
+	echo "Using Relative Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable "$FROM_DATE")"
 else
-	echo "Using Specified Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE})"
+	echo "Using Specified Time for FROM_DATE: $(convert_millisecond_timestamp_to_human_readable "$FROM_DATE")"
 fi
 
 if [[ -z ${TO_DATE} ]] ; then
 	TO_DATE=$(date +%s000)
-	echo "Using Default Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable ${TO_DATE})"
+	echo "Using Default Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readabld "$TO_DATE")"
 elif [[ ${TO_DATE} =~ [ymwdHMS] ]] ; then
 	TO_DATE=$(date -v-"${TO_DATE}" +%s000)
-	echo "Using Relative Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable ${TO_DATE})"
+	echo "Using Relative Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable "$TO_DATE")"
 else
-	echo "Using Specified Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable ${TO_DATE})"
+	echo "Using Specified Time for TO_DATE: $(convert_millisecond_timestamp_to_human_readable "$TO_DATE")"
 fi
 
 # End of Validation for Timestamps
 
 ACCT_NUM=$(aws sts get-caller-identity | jq -r '.Account')
-validate_target_account $ACCT_NUM
+validate_target_account "$ACCT_NUM"
 
 destination="login-gov-analytics-export-${TF_ENV}-${ACCT_NUM}-us-west-2"
 
-prompt_yn "Would you like to perform the import with date range $(convert_millisecond_timestamp_to_human_readable ${FROM_DATE}) to $(convert_millisecond_timestamp_to_human_readable ${TO_DATE}) to bucket ${destination}?"
+prompt_yn "Would you like to perform the import with date range $(convert_millisecond_timestamp_to_human_readable "$FROM_DATE") to $(convert_millisecond_timestamp_to_human_readable "$TO_DATE") to bucket ${destination}?"
 
 for log_group in "${log_groups[@]}"; do
 	log_group_underscore=$(echo "$log_group" | tr / _)

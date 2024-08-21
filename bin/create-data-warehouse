@@ -31,7 +31,7 @@ EOM
 
 help_me() {
   cat >&2 << EOM
-  
+
 Usage: ${0} [-$OPTS_ARGUMENTS] [TF_ENV] (will use \$GSA_USERNAME if not specified)
 
 Runs all necessary commands to create a data warehouse, \${TF_ENV},
@@ -73,7 +73,7 @@ EOM
   aws_account_id=$(aws-vault exec sandbox-terraform -- aws sts get-caller-identity --output text --query 'Account')
   tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$TF_ENV" "" | tr '\n' ' ')"
 
-  search=$({ grep -oe 'enable_dms_analytics\s*=\s*true' $tfvars_names || :;} | wc -l )
+  search=$({ grep -oe 'enable_dms_analytics\s*=\s*true' "$tfvars_names" || :;} | wc -l )
 
   if [[ ! $search -eq 1 ]]
   then
@@ -87,44 +87,44 @@ EOM
       jq --arg TF "${TF_ENV}" -r '.logGroups[]|
       select(.logGroupName|startswith($TF)).logGroupName') ; do
         ave aws logs delete-log-group \
-          --log-group-name ${LOG_GROUP} --region ${REGION}
+          --log-group-name "$LOG_GROUP" --region "$REGION"
     done
   done
 }
 
 2_app_secrets() {
   for BUCKET in $(ave -r aws s3 ls | grep 'app-secrets.' | awk '{print $NF}') ; do
-    for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
+    for KEY in $(ave aws s3 ls "s3://${BUCKET}/${SOURCE_ENV}/" |
         awk '{print $NF}' | tr -d '/') ; do
-          ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY}/v1/application.yml - |
+          ave aws s3 cp "s3://${BUCKET}/${SOURCE_ENV}/${KEY}/v1/application.yml" - |
             sed -E "s/${SOURCE_ENV}(\.|-)/${TF_ENV}\1/" |
-            ave aws s3 cp - s3://${BUCKET}/${TF_ENV}/${KEY}/v1/application.yml >/dev/null
+            ave aws s3 cp - "s3://${BUCKET}/${TF_ENV}/${KEY}/v1/application.yml" >/dev/null
     done
   done
 }
 
 3_regular_secrets() {
   for BUCKET in $(ave -r aws s3 ls | grep '\.secrets.' | awk '{print $NF}') ; do
-    for KEY in $(ave aws s3 ls s3://${BUCKET}/${SOURCE_ENV}/ |
-	awk '{print $NF}' | tr -d '/') ; do
-    	case "${KEY}" in
-		"user-data")
-			;;
-		*)
-        		ave aws s3 cp s3://${BUCKET}/${SOURCE_ENV}/${KEY} \
-				s3://${BUCKET}/${TF_ENV}/${KEY} >/dev/null
-			;;
-	esac
+    for KEY in $(ave aws s3 ls "s3://${BUCKET}/${SOURCE_ENV}/" |
+    awk '{print $NF}' | tr -d '/') ; do
+        case "${KEY}" in
+        "user-data")
+            ;;
+        *)
+            ave aws s3 cp "s3://${BUCKET}/${SOURCE_ENV}/${KEY}" \
+                "s3://${BUCKET}/${TF_ENV}/${KEY}" >/dev/null
+            ;;
+    esac
     done
   done
 }
 
 4_tf_deploy_idp_app_minimum_resources() {
-  aws-vault exec sandbox-terraform --  ${BASEPATH}/tf-deploy ${TF_ENV} app apply -target=aws_iam_role.replication -auto-approve
+  aws-vault exec sandbox-terraform --  "${BASEPATH}/tf-deploy" "$TF_ENV}" app apply -target=aws_iam_role.replication -auto-approve
 }
 
 5_tf_deploy_data_warehouse() {
-  ave ${BASEPATH}/tf-deploy data-warehouse/${TF_ENV} apply -auto-approve
+  ave "${BASEPATH}/tf-deploy" "data-warehouse/${TF_ENV}" apply -auto-approve
 }
 
 6_migration_scaling() {
@@ -148,7 +148,7 @@ EOM
 }
 
 7_tf_deploy_full_idp_app() {
-  aws-vault exec sandbox-terraform -- ${BASEPATH}/tf-deploy ${TF_ENV} app apply -auto-approve
+  aws-vault exec sandbox-terraform -- "${BASEPATH}/tf-deploy" "$TF_ENV" app apply -auto-approve
 }
 
 
@@ -180,7 +180,7 @@ do
 done
 shift $((OPTIND-1))
 # sandbox-lib
-initialize 'true' ${1:-} 'analytics-sandbox'
+initialize 'true' "${1:-}" 'analytics-sandbox'
 
 SOURCE_ENV='agnes'
 MIGRATION_HOST_BUILT=

@@ -13,14 +13,15 @@
 
 
 debug=0
+pkg=$(basename "$0")
 
-until [ `expr "$random_pass" : ".*[!@#\$%^\&*()_+].*"` -gt 0 ];
+until [ "$(expr "$random_pass" : ".*[!@#\$%^\&*()_+].*")" -gt 0 ];
 do
  random_pass=$(openssl rand -base64 33)
 done
 
 if [[ $debug -ne 0 || ! $debug ]]; then
-    echo "echo $random_pass" 1>&2
+    echo "$random_pass" 1>&2
 fi
 
 if [[ -z $random_pass ]]; then
@@ -28,13 +29,11 @@ if [[ -z $random_pass ]]; then
     exit 1
 fi
 
-aws iam update-login-profile --user-name $AWS_IAM_USER --password "$random_pass"
-
-if [ $? -ne 0 ]; then
-  echo "password was not changed successfully" 
+if ! aws iam update-login-profile --user-name "$AWS_IAM_USER" --password "$random_pass"; then
+  echo "password was not changed successfully"
   exit 1
 else
-  echo $random_pass | tr -d '[:blank:]' | pbcopy
+  echo "$random_pass" | tr -d '[:blank:]' | pbcopy
 fi
 
 echo "Your new console password has been copied to the clipboard"

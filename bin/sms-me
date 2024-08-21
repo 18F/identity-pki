@@ -55,7 +55,7 @@ send_test() {
 }
 
 # Strip common noise
-PHONE_NUMBER=$(echo ${1-} | tr -d '()- ')
+PHONE_NUMBER=$(echo "${1-}" | tr -d '()- ')
 
 if [[ -z ${PHONE_NUMBER} ]]; then
     usage
@@ -71,12 +71,12 @@ else
 fi
 
 ACCOUNT_ALIAS=$(aws iam list-account-aliases --query AccountAliases --output text)
-if [[ ${ACCOUNT_ALIAS} != ${PINPOINT_ACCOUNT_ALIAS} ]]; then
+if [[ ${ACCOUNT_ALIAS} != "${PINPOINT_ACCOUNT_ALIAS}" ]]; then
     echo "WRONG AWS ACCOUNT!"
     echo "Please re-run with an active session in the \"${PINPOINT_ACCOUNT_ALIAS}\" account"
     exit 1
 fi
 
-send_test "us-west-2" $APPLICATION_ID_UW2 $SHORT_CODE_UW2 $PHONE_NUMBER
-send_test "us-east-1" $APPLICATION_ID_UE1 $SHORT_CODE_UE1 $PHONE_NUMBER
+send_test "us-west-2" "$APPLICATION_ID_UW2" "$SHORT_CODE_UW2" "$PHONE_NUMBER"
+send_test "us-east-1" "$APPLICATION_ID_UE1" "$SHORT_CODE_UE1" "$PHONE_NUMBER"
 

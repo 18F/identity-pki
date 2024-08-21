@@ -48,6 +48,7 @@ if [ $# -ne 1 ]; then
 
     # The `return 1 || exit 1` pattern allows us to return non-zero exit codes
     # to the user without exiting their shell if they are sourcing this file.
+    # shellcheck disable=SC2317
     return 1 2>/dev/null || exit 1
 fi
 
@@ -63,6 +64,7 @@ if [ -n "$ID_ENV_FILE" ]; then
     # shellcheck source=/dev/null
     . "$ID_ENV_FILE"
 
+    # shellcheck disable=SC2317
     return 0 2>/dev/null || exit 0
 fi
 
@@ -71,12 +73,14 @@ ID_ENV_DIR="$(run "$DIRNAME/get-private-env.sh")"
 
 if [ -z "$ID_ENV_DIR" ]; then
     echo_red "get-private-env.sh failed"
+    # shellcheck disable=SC2317
     return 3 >/dev/null || exit 3
 fi
 
 if [ "$(wc -l <<< "$ID_ENV_DIR")" -ne 1 ]; then
     echo_red "get-private-env.sh bug: file path shouldn't be multiple lines"
     echo_red "Path: '$ID_ENV_DIR'"
+    # shellcheck disable=SC2317
     return 3 >/dev/null || exit 3
 fi
 
@@ -91,6 +95,7 @@ else
     log "No env-specific vars file found: ($TF_VAR_env_name.sh)"
     echo_red >&2 "Unknown environment: '$TF_VAR_env_name'"
     echo_red >&2 "Please create env file $TF_VAR_env_name.sh in $ID_ENV_DIR"
+    # shellcheck disable=SC2317
     return 4 2>/dev/null || exit 4
 fi
 

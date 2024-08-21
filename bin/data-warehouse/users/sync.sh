@@ -7,6 +7,7 @@ if [ -z "$2" ] ; then
   exit 1
 fi
 
+# shellcheck source=/dev/null
 . /etc/environment
 export http_proxy
 export https_proxy
