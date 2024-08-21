@@ -924,6 +924,7 @@ locals {
           "secretsmanager:UpdateSecret",
           "secretsmanager:DeleteSecret",
           "secretsmanager:GetRandomPassword",
+          "secretsmanager:GetResourcePolicy",
           "secretsmanager:TagResource"
         ]
         resources = [
