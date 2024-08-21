@@ -177,6 +177,7 @@ users:
     - lg-all
     - lg-public
     - login-security|maintainer
+    - Security|maintainer
   benjamin.chait:
     aws_groups:
     - analytics
