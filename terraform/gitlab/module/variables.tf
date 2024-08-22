@@ -517,3 +517,14 @@ variable "gitlab_block_device_mappings" {
     }
   ]
 }
+
+
+variable "rds_auto_minor_version_upgrade" {
+  default     = false
+  description = "Allow RDS minor version upgrade"
+}
+
+variable "rds_allow_major_version_upgrade" {
+  default     = false
+  description = "Allow RDS Major version upgrade"
+}

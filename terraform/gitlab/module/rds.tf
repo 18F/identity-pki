@@ -33,9 +33,10 @@ resource "aws_db_instance" "gitlab" {
   db_name                 = "gitlabhq_production"
 
   # we want to push these via Terraform now
-  auto_minor_version_upgrade  = false
-  allow_major_version_upgrade = false
-  apply_immediately           = true
+  auto_minor_version_upgrade  = var.rds_auto_minor_version_upgrade
+  allow_major_version_upgrade = var.rds_allow_major_version_upgrade
+
+  apply_immediately = true
 
   tags = {
     Name = "${var.name}-${var.env_name}-gitlab"
