@@ -563,12 +563,6 @@ build_env_test_container:
     dockerfile: env_test.Dockerfile
     ecr_repo: cd/env_test
 
-build_dashboard_ci_container:
-  extends: .build_template
-  variables:
-    dockerfile: dashboard_ci.Dockerfile
-    ecr_repo: dashboard/ci
-
 # # Grab ECR scans and import into gitlab
 # scan_gitlab_deploy_container:
 #   extends: .container_scan_template
