@@ -870,6 +870,7 @@ users:
     - lg-public
     - Mary
     - Radia
+    - Product|owner
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
@@ -1026,6 +1027,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - Product|owner
     aws_groups:
     - analytics
   tim.lofinmakin:
@@ -1143,6 +1145,7 @@ users:
     - Radia|owner
     - User Experience|owner
     - Data Analytics|owner
+    - Product|owner
     can_create_group:
     - true
 groups:
@@ -1209,6 +1212,8 @@ groups:
     description: UX Team working space
   Data Analytics:
     description: Used to grant maintainer access to lg-people/data-analytics
+  Product:
+    description: Space for the Product team
 projects:
   lg/identity-devops:
     groups:
