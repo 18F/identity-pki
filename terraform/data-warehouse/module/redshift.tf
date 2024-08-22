@@ -23,6 +23,11 @@ resource "aws_redshift_parameter_group" "redshift_configuration" {
     name  = "enable_user_activity_logging"
     value = "true"
   }
+
+  parameter {
+    name  = "use_fips_ssl"
+    value = "true"
+  }
 }
 
 resource "aws_redshift_cluster" "redshift" {

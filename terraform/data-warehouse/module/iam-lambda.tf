@@ -52,7 +52,7 @@ resource "aws_iam_policy" "lambda_to_redshift" {
           "redshift-data:ListStatements",
         ]
         Resource = [
-          aws_redshift_cluster.redshift.arn
+          "*"
         ]
         Condition = {
           "StringEquals" = {
