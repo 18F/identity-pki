@@ -1121,12 +1121,12 @@ build_terraform_plan_container:
 
 shellcheck:
   stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
   image: koalaman/shellcheck-alpine:latest
   script:
     - apk add bash
     - ./bin/shellcheck.sh
-  rules:
-    - !reference [.merge_request, rules]
 
 include:
   - local: .gitlab-ci-rules.yml
