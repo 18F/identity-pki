@@ -168,7 +168,8 @@ resource "aws_rds_cluster" "aurora" {
       master_password,
       master_username,
       kms_key_id,
-      availability_zones
+      availability_zones,
+      database_name
     ]
   }
 
