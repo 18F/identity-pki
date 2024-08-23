@@ -820,7 +820,21 @@ module "poweruser-assumerole" {
           resources = [
             "*",
           ]
-        }
+        },
+        {
+          sid    = "SecretsManager"
+          effect = "Allow"
+          actions = [
+            "secretsmanager:ListSecrets",
+            "secretsmanager:DescribeSecret",
+            "secretsmanager:Get*",
+            "secretsmanager:ListSecretVersionIds",
+          ]
+          resources = [
+            "*",
+          ]
+        },
+
       ]
     }
   ]
