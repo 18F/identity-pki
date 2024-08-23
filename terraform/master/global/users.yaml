@@ -158,6 +158,8 @@ users:
     - lg-public
     - login-fraud|maintainer
   annie.hirshman:
+    aws_groups:
+    - analytics
     gitlab_groups:
     - user-experience-admins|reporter
     - Ada
