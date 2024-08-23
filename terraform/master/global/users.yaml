@@ -508,6 +508,8 @@ users:
     - login-fraud|maintainer
     aws_groups:
     - fraudops
+    ec2_username:
+    - jharrigan
   jim.pham:
     gitlab_groups:
     - antifraud
