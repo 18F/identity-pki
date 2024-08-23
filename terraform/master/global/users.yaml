@@ -1039,6 +1039,7 @@ users:
     - devops
     - lg-all
     - lg-public
+    - login-security|developer
     - Security|maintainer
   timothy.spencer:
     aws_groups:
