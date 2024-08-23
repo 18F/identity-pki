@@ -29,5 +29,6 @@ main_branch=${data.external.version_info.result.identity-devops-branch}
 main_version=${trimspace(file("${path.module}/../../VERSION.txt"))}
 private_commit=${data.external.version_info.result.identity-devops-private-commit}
 private_branch=${data.external.version_info.result.identity-devops-private-branch}
+deployed_by=${trimspace(split("/", data.aws_caller_identity.current.arn)[2])}
 EOF
 }

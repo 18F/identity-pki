@@ -673,6 +673,7 @@ if [[ "${TF_CMD[0]}" =~ ^(apply|destroy)$ ]] && [[ -z ${TEST_ONLY} ]] ; then
 main_commit=$(git log -n 1 --pretty=format:"%H")
 main_branch=$(git rev-parse --abbrev-ref HEAD)
 main_version=$(cat VERSION.txt)
+deployed_by=$(run aws sts get-caller-identity --output text --query Arn | awk -F\/ '{print $3}')
 EOM
 
     if [ -n "$MODULE_STYLE" ] ; then
