@@ -918,6 +918,7 @@ locals {
         effect = "Allow"
         actions = [
           "secretsmanager:GetSecretValue",
+          "secretsmanager:PutSecretValue",
           "secretsmanager:CreateSecret",
           "secretsmanager:RotateSecret",
           "secretsmanager:DescribeSecret",
