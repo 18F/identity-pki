@@ -1,9 +1,4 @@
 ---
-# This file is used to manage users and their access to various parts of our DevOps infrastructure.  This includes AWS and Gitlab.  Please review the
-# following rules before modifying this file, and contact someone on the Platform team with any questions!
-# - Any edit to this file should have a corresponding issue, which should be linked in your MR
-# - A member of the DevOps team should approve any changes to this file
-
 users:
   aaron.nagucki:
     aws_groups:
@@ -391,6 +386,16 @@ users:
   goutham.kommanaboyina:
     gitlab_groups:
     - Ursula|reporter
+  hannah.keaton:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - hkeaton
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    - login-fraud|maintainer
   harlan.weber:
     aws_groups:
     - analytics
