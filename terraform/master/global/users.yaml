@@ -569,6 +569,16 @@ users:
     - bleachbyte
     oncaller:
     - true
+  jt.taylor:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - jtaylor
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    - login-fraud|maintainer
   jude.uwazie:
     gitlab_groups:
     - antifraud
