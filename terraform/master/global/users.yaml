@@ -453,7 +453,7 @@ users:
     - lg-public
   jeffrey.golden:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     gitlab_groups:
     - antifraud
     - lg-all
