@@ -56,7 +56,7 @@ resource "aws_s3_bucket_notification" "s3_trigger_to_lambdas" {
 }
 
 module "db_consumption_alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=190c3cb97ab6f9f935b959ec6016c508b002b1d8"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
   #source = "../../../../identity-terraform/lambda_alerts"
 
   enabled              = 1

@@ -818,6 +818,9 @@ variable "slack_alarms_sns_hook_arn_use1" {
   description = "ARN of SNS topic that will notify the #login-alarms channel in Slack from US-East-1"
 }
 
+variable "dw_events_topic_name" {
+  description = "Name of the SNS topic for the data warehouse events channel; ex. slack-data-warehouse-events or slack-data-warehouse-otherevents"
+}
 
 # KMS Event Matching settings
 variable "kms_log_kinesis_shards" {

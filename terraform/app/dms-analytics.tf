@@ -18,7 +18,7 @@ data "aws_iam_policy_document" "assume_role_lambda" {
 }
 
 data "aws_sns_topic" "data_warehouse_events" {
-  name = "slack-data-warehouse-events"
+  name = var.dw_events_topic_name
 }
 
 locals {
@@ -443,7 +443,7 @@ resource "aws_lambda_function" "start_cw_export_task" {
 
 module "start_cw_export_task_alerts" {
   count  = var.enable_dms_analytics ? 1 : 0
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=190c3cb97ab6f9f935b959ec6016c508b002b1d8"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
   #source = "../lambda_alerts"
 
   enabled              = 1
@@ -509,7 +509,7 @@ resource "aws_lambda_function" "transform_cw_export" {
 
 module "transform_cw_export_alerts" {
   count  = var.enable_dms_analytics ? 1 : 0
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=190c3cb97ab6f9f935b959ec6016c508b002b1d8"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
   #source = "../lambda_alerts"
 
   enabled              = 1
@@ -641,7 +641,7 @@ resource "aws_lambda_function" "start_dms_task" {
 
 module "start_dms_task_alerts" {
   count  = var.enable_dms_analytics ? 1 : 0
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=190c3cb97ab6f9f935b959ec6016c508b002b1d8"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
   #source = "../lambda_alerts"
 
   enabled              = 1
