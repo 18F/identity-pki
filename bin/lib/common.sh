@@ -66,7 +66,7 @@ define() {
 # parse space/tab-separated column output and space with pipe marks
 mdout() {
   echo -e "|$@|" | column -t | tr -s ' ' '|' |
-  sed 's/ *| */@| /g' | column -s '@' -t | sed 's/ |/|/g' 
+  sed 's/ *| */@| /g' | column -s '@' -t | sed 's/ |/|/g'
 }
 
 # get top profile for ID_ACCT out of aws/config
@@ -175,7 +175,7 @@ verify_private_repo() {
 verify_tf_dir_and_env() {
   # default to 'app' if left blank
   if [[ -z ${TF_DIR} ]] ; then
-    TF_DIR='app' 
+    TF_DIR='app'
   elif [[ ! -d ${GIT_DIR}/terraform/${TF_DIR} ]] ; then
     raise "terraform/${TF_DIR} not found"
   fi
@@ -191,7 +191,7 @@ verify_tf_dir_and_env() {
       *)       TF_ENV='sandbox'       ;;
     esac
   fi
-  
+
   if [[ ! -d ${GIT_DIR}/terraform/${TF_DIR}/${TF_ENV} ]] ; then
     [[ ${TF_DIR} == "app" ]] || raise "terraform/${TF_DIR}/${TF_ENV} not found"
   fi
@@ -199,7 +199,7 @@ verify_tf_dir_and_env() {
 
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify() {
-  local AWS_ACCT_NUM TF_ENV AWS_REGION COLOR SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
+  local AWS_ACCT_NUM TF_ENV AWS_REGION ICON SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
 
   while getopts n:t:r:c:u:e:p:m:y: opt
   do
@@ -207,7 +207,7 @@ slack_notify() {
       n) AWS_ACCT_NUM="${OPTARG}" ;;
       t) TF_ENV="${OPTARG}"       ;;
       r) AWS_REGION="${OPTARG}"   ;;
-      c) COLOR="${OPTARG}"        ;;
+      i) ICON="${OPTARG}"        ;;
       u) SLACK_USER="${OPTARG}"   ;;
       e) SLACK_EMOJI="${OPTARG}"  ;;
       p) PRE_TEXT="${OPTARG}"     ;;
@@ -240,14 +240,23 @@ slack_notify() {
   "channel": "${SLACK_CHANNEL}",
   "username": "${SLACK_USER}",
   "icon_emoji": "${SLACK_EMOJI}",
-  "attachments": [
-  {
-    "mrkdwn_in": ["text"],
-    "pretext": "${PRE_TEXT}",
-    "color": "${COLOR}",
-    "text": "${TEXT}"
-  }
-  ]
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "${ICON} ${PRE_TEXT}"
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "${TEXT}"
+      }
+    }
+  ],
+  "text": "${TEXT}"
 }
 EOM
   PAYLOAD=$(printf '%s' "${PAYLOAD_JSON}" | jq -c .)
@@ -265,7 +274,7 @@ verify_iam_user() {
   FOUND_USER=$(echo ${IAM_USER_DATA} | jq -r '.[].UserName')
   EC2_USERNAME=$(echo ${IAM_USER_DATA} | jq -r '.[].Tags[]|
     select(.Key == "ec2_username").Value' 2>/dev/null || true)
-  
+
   if [[ -z "${WHO_AM_I}" ]] ; then
     if [[ -z "${ENV_USER}" ]] ; then
       if [[ -z "${FOUND_USER}" ]] ; then
