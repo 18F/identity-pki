@@ -116,7 +116,7 @@ class LogConsumptionTest(unittest.TestCase):
         sql = self.CONSUMPTION_CLASS.copy_statement(
             self.BUCKET_NAME, self.OBJECT_KEY_EVENTS, self.IAM_ROLE, column_string
         )
-        expected_sql = f"""COPY logs.unextracted_events (cloudwatch_timestamp, message)
+        expected_sql = f"""COPY logs.unextracted_events ("cloudwatch_timestamp", "message")
         FROM 's3://my-bucket/{self.OBJECT_KEY_EVENTS}'
         IAM_ROLE '{self.IAM_ROLE}'
         CSV
@@ -139,7 +139,7 @@ class LogConsumptionTest(unittest.TestCase):
         )
         expected_sql = f"""BEGIN;
         CREATE TEMP TABLE logs.unextracted_events(LIKE logs.events);
-        COPY logs.unextracted_events (cloudwatch_timestamp, message)
+        COPY logs.unextracted_events ("cloudwatch_timestamp", "message")
         FROM 's3://{self.BUCKET_NAME}/{self.OBJECT_KEY_EVENTS}'
         IAM_ROLE '{self.IAM_ROLE}'
         CSV
@@ -165,7 +165,7 @@ class LogConsumptionTest(unittest.TestCase):
         )
         expected_sql = f"""BEGIN;
         CREATE TEMP TABLE logs.unextracted_production(LIKE logs.production);
-        COPY logs.unextracted_production (cloudwatch_timestamp, message)
+        COPY logs.unextracted_production ("cloudwatch_timestamp", "message")
         FROM 's3://{self.BUCKET_NAME}/{self.OBJECT_KEY_PRODUCTION}'
         IAM_ROLE '{self.IAM_ROLE}'
         CSV

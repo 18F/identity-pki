@@ -64,10 +64,10 @@ class ConsumptionBase:
         column_list: str,
         temporary_table: bool = False,
     ):
-        column_string = f"({', '.join(column_list)})"
+        column_string = ", ".join(f'"{column}"' for column in column_list)
         target_table = self.table_selection(key, temporary_table)
         statement = f"""
-        COPY {target_table} {column_string}
+        COPY {target_table} ({column_string})
         FROM 's3://{bucket}/{key}'
         IAM_ROLE '{iam_role}'
         CSV

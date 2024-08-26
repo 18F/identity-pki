@@ -675,16 +675,21 @@
       datatype: text
     - name: metadata_url
       datatype: text
+      limit: 512
     - name: acs_url
       datatype: text
+      limit: 512
     - name: assertion_consumer_logout_service_url
       datatype: text
+      limit: 512
     - name: logo
       datatype: text
     - name: sp_initiated_login_url
       datatype: text
+      limit: 512
     - name: return_to_sp_url
       datatype: text
+      limit: 512
     - name: attribute_bundle
       datatype: json
     - name: created_at
@@ -704,6 +709,7 @@
       datatype: integer
     - name: failure_to_proof_url
       datatype: text
+      limit: 512
     - name: ial
       datatype: integer
     - name: piv_cac
@@ -714,6 +720,7 @@
       datatype: boolean
     - name: push_notification_url
       datatype: string
+      limit: 512
     - name: help_text
       datatype: jsonb
     - name: allow_prompt_login

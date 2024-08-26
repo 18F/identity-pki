@@ -75,7 +75,7 @@ class IdpConsumptionTest(unittest.TestCase):
             )
 
             self.assertIn(
-                "COPY idp.webauthn_configurations (Time, Event, User, Location, Status)",
+                'COPY idp.webauthn_configurations ("Time", "Event", "User", "Location", "Status")',
                 log.output[4],
                 "pulls the table name from the s3 path and creates a COPY statement",
             )
@@ -141,7 +141,7 @@ class IdpConsumptionTest(unittest.TestCase):
         sql = self.CONSUMPTION_CLASS.copy_statement(
             self.BUCKET_NAME, self.OBJECT_KEY, self.IAM_ROLE, column_string
         )
-        expected_sql = f"""COPY idp.webauthn_configurations (Time, Event, User, Location, Status)
+        expected_sql = f"""COPY idp.webauthn_configurations ("Time", "Event", "User", "Location", "Status")
         FROM 's3://my-bucket/{self.OBJECT_KEY}'
         IAM_ROLE '{self.IAM_ROLE}'
         CSV
@@ -164,7 +164,7 @@ class IdpConsumptionTest(unittest.TestCase):
         )
         expected_sql = f"""BEGIN;
         CREATE TEMP TABLE idp_webauthn_configurations_temp(LIKE idp.webauthn_configurations);
-        COPY idp_webauthn_configurations_temp (Time, Event, User, Location, Status)
+        COPY idp_webauthn_configurations_temp ("Time", "Event", "User", "Location", "Status")
         FROM 's3://{self.BUCKET_NAME}/{self.OBJECT_KEY}'
         IAM_ROLE '{self.IAM_ROLE}'
         CSV
