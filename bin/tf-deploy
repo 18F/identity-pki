@@ -561,6 +561,8 @@ fi
 
 check_release_versioning
 
+check_branch_age
+
 echo_blue >&2 "Finished loading environment variables"
 echo_blue >&2 "The .terraform directory for $TF_DIR is: $style_description"
 

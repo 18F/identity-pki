@@ -762,3 +762,34 @@ confirm_or_exit() {
     echo && exit 0
   fi
 }
+
+check_branch_age() {
+  # Git fetch to find most recent common commit
+  git fetch --tags
+ 
+  # Find the most recent common commit
+  local common_commit=$(git merge-base HEAD origin/main)
+ 
+  # Get the date of the most recent common commit
+  local common_commit_date=$(git show -s --date=format:'%Y-%m-%d' --format=%cd "${common_commit}")
+
+  # Convert date to Unix time
+  local common_commit_unix_time=$(date -j -f "%Y-%m-%d" "$common_commit_date" +"%s")
+
+  # Calculate age in days
+  local age_in_days=$((($(date +%s) - $common_commit_unix_time) / 86400 ))
+ 
+  if [[ $age_in_days -le 7 ]]; then
+    echo
+    echo_green "Git branch is less than 7 days old"
+  else
+    if [ -z "${DEPLOY_OLD_BRANCH+x}" ]; then
+      echo
+      echo_yellow "Git repository is $age_in_days days old. Please update your branch or set DEPLOY_OLD_BRANCH=1"
+      exit 1
+    else 
+      echo
+      echo_yellow "Git repository is $age_in_days days old. Deploying anyway"
+    fi
+  fi
+}
