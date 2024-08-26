@@ -875,6 +875,16 @@ users:
     - lg-public
     - Mary
     - Radia
+  nitesh.nagpal:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - nnagpal
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    - login-fraud|maintainer
     - Product|owner
   olayemisi.ogunshina:
     gitlab_groups:
