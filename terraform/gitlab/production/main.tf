@@ -42,6 +42,9 @@ module "main" {
   newrelic_pager_alerts_enabled   = 1
   cloudwatch_treat_missing_data   = "missing"
   send_cw_to_soc                  = 1
+  rds_engine_version              = "14.13"
+  rds_auto_minor_version_upgrade  = false
+  rds_allow_major_version_upgrade = false
 }
 
 output "gitlab_db_host" {
