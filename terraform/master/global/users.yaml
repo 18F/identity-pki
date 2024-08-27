@@ -527,6 +527,8 @@ users:
   john.saile:
     aws_groups:
     - fraudopsnonprod
+    ec2_username:
+    - jsaile
     gitlab_groups:
     - antifraud
     - lg-all
