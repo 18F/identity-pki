@@ -45,8 +45,6 @@ variables:
   TEST_IMAGE_DIGEST: "sha256:a4dfd7cdef84db66b0328847116b4a0eae91c2ee80e58c3ec92ff067b6e31566"
   GITDEPLOY_IMAGE_DIGEST: "sha256:fb2df5c1b5168cebacf14f87ae442a4ec045cac74c795f92ce1dff12b8be0c6c"
   GITTEST_IMAGE_DIGEST: "sha256:e00e01789bd4c1ab3ccd34179e451096b8f89dfd4f4b80959ce07c764b3a2cc5"
-  TERRAFORM_APPLY_IMAGE_DIGEST: "ssha256:fafbf7667d3d67d3ffa6cc276357790431532966be9281c99be6d8cb09e44079"
-  TERRAFORM_PLAN_IMAGE_DIGEST: "sha256:4be90c9f1dc679fb379d01ffb3227aa9af0f0d9e7cad43e48a04bb4ce70b41c4"
   NESSUS_URL: "https://44.230.151.136:8834"
 
 .nessus_scan:
@@ -1053,71 +1051,6 @@ test_images_exist:
     - aws ecr describe-images --repository-name cd/env_test/blessed --image-ids imageDigest=$TEST_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/gitlab_deploy/blessed --image-ids imageDigest=$GITDEPLOY_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/gitlab_test/blessed --image-ids imageDigest=$GITTEST_IMAGE_DIGEST
-
-# deploy job template for gitlab envs
-.apply_terraform_template:
-  image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/terraform_apply@$TERRAFORM_APPLY_IMAGE_DIGEST
-  stage: deploy
-  artifacts:
-    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
-    paths:
-      - terraform.plan
-      - plan.txt
-    expire_in: 1 year
-    reports:
-      terraform: plan.json
-  script:
-    - echo "Yay deploys!" ; exit 1
-
-# deploy job template for gitlab envs
-.plan_terraform_template:
-  image:
-    # these are hardcoded to make this deploy process more secure.
-    # If you want to update this image, you will need to edit it here, and in
-    # s3://login-gov.secrets.<account>-us-west-2/<env>/gitlab_env_runner_allowed_images,
-    # or s3://login-gov.secrets.<account>-us-west-2/common/gitlab_env_runner_allowed_images.
-    # If you are doing development work, you can override them for your env.
-    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/terraform_plan@$TERRAFORM_PLAN_IMAGE_DIGEST
-  stage: deploy
-  artifacts:
-    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
-    paths:
-      - terraform.plan
-      - plan.txt
-    expire_in: 1 year
-    reports:
-      terraform: plan.json
-  script:
-    - echo "Yay deploys!" ; exit 1
-  allow_failure: true
-
-build_terraform_apply_container:
-  extends: .build_template
-  rules:
-    - !reference [.build_template, rules]
-    - changes:
-        - dockerfiles/terraform_apply*
-        - versions.tf
-  variables:
-    dockerfile: terraform_apply.Dockerfile
-    ecr_repo: cd/terraform_apply
-
-build_terraform_plan_container:
-  extends: .build_template
-  rules:
-    - !reference [.build_template, rules]
-    - changes:
-        - dockerfiles/terraform_plan*
-        - versions.tf
-  variables:
-    dockerfile: terraform_plan.Dockerfile
-    ecr_repo: cd/terraform_plan
 
 shellcheck:
   stage: test

@@ -113,9 +113,33 @@ repos:
   dashboard_ci:
     name: "dashboard/ci"
     <<: *all_write_template
-  terraform_plan:
-    name: "cd/terraform_plan"
+  identity_idp:
+    name: "identity-idp/idp"
     <<: *all_write_template
-  terraform_apply:
-    name: "cd/terraform_apply"
+  identity_idp_cache:
+    name: "identity-idp/idp/cache"
+    <<: *all_write_template
+  gitlab-runner:
+    name: "ecr-public/gitlab/gitlab-runner"
+    <<: *all_write_template
+  gitlab-runner-helper:
+    name: "ecr-public/gitlab/gitlab-runner-helper"
+    <<: *all_write_template
+  gitlab-runner-helper:
+    name: "ecr-public/gitlab/gitlab-runner-helper"
+    <<: *all_write_template
+  kyverno:
+    name: "kyverno/kyverno"
+    <<: *all_write_template
+  kyvernobgcontroller:
+    name: "kyverno/background-controller"
+    <<: *all_write_template
+  kyvernocleanup:
+    name: "kyverno/cleanup-controller"
+    <<: *all_write_template
+  kyvernopre:
+    name: "kyverno/kyvernopre"
+    <<: *all_write_template
+  kyvernoreports:
+    name: "kyverno/reports-controller"
     <<: *all_write_template

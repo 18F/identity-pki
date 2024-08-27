@@ -117,9 +117,36 @@ repos:
   dashboard_ci:
     name: "dashboard/ci"
     <<: *all_write_template
-  terraform_plan:
-    name: "cd/terraform_plan"
+  tf_deploy_blessed:
+    name: "cd/tf_deploy/blessed"
     <<: *all_write_template
-  terraform_apply:
-    name: "cd/terraform_apply"
+  gitlab-runner:
+    name: "ecr-public/gitlab/gitlab-runner"
+    <<: *all_write_template
+  gitlab-runner-helper:
+    name: "ecr-public/gitlab/gitlab-runner-helper"
+    <<: *all_write_template
+  kubectl:
+    name: "ecr-public/bitnami/kubectl"
+    <<: *all_write_template
+  dns_check_lambda:
+    name: "dns_check_lambda"
+    <<: *all_write_template
+  kyverno:
+    name: "kyverno/kyverno"
+    <<: *all_write_template
+  kyvernobgcontroller:
+    name: "kyverno/background-controller"
+    <<: *all_write_template
+  kyvernocleanup:
+    name: "kyverno/cleanup-controller"
+    <<: *all_write_template
+  kyvernopre:
+    name: "kyverno/kyvernopre"
+    <<: *all_write_template
+  kyvernoreports:
+    name: "kyverno/reports-controller"
+    <<: *all_write_template
+  tspencertest:
+    name: "tspencertest"
     <<: *all_write_template
