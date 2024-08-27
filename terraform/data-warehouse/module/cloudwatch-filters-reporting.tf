@@ -16,6 +16,18 @@ locals {
       metric_value = 1
     }
   }
+  reporting_production_filters = {
+    reporting_log_column_extractor_failure = {
+      name         = "log-column-extractor-failure"
+      pattern      = "{ $.message = \"LogsColumnExtractorJob: Query executed successfully\" }"
+      metric_value = 1
+    },
+    "duplicate_row_checker_metric_filter" = {
+      name         = "duplicate-row-alert-count"
+      pattern      = "{ $.message = \"DuplicateRowCheckerJob: Found*\" }"
+      metric_value = 1
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "reporting_worker" {
@@ -26,6 +38,18 @@ resource "aws_cloudwatch_log_metric_filter" "reporting_worker" {
   metric_transformation {
     name      = each.value["name"]
     namespace = "${var.env_name}/reporting-worker"
+    value     = each.value["metric_value"]
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "reporting_production" {
+  for_each       = local.reporting_production_filters
+  name           = each.value["name"]
+  pattern        = each.value["pattern"]
+  log_group_name = aws_cloudwatch_log_group.log["reporting_production"].name
+  metric_transformation {
+    name      = each.value["name"]
+    namespace = "${var.env_name}/reporting-production"
     value     = each.value["metric_value"]
   }
 }

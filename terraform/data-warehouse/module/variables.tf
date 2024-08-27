@@ -508,6 +508,18 @@ variable "page_devops" {
   description = "Whether to page for high-priority Cloudwatch alarms"
 }
 
+variable "log_column_extractor_alarm_enabled" {
+  type        = bool
+  default     = true
+  description = "Whether to set up alarms for Log Column extractor failures"
+}
+
+variable "duplicate_row_checker_alert_enabled" {
+  type        = bool
+  default     = true
+  description = "Whether to set up alarms for Duplicate Row checker alert"
+}
+
 # Disaster Recovery variables
 
 variable "dr_restore_redshift_dw" {
