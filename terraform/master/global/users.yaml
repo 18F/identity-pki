@@ -811,7 +811,8 @@ users:
     - devops
     - lg-all
     - lg-public
-    - lg-people-platform|reporter
+    - Mary|reporter
+    - Radia|reporter
     oncaller:
     - true
   moncef.belyamani:
