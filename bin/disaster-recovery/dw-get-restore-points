@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} -d DATAWAREHOUSE [-n NUMBER_OF_SNAPSHOTS]
+
+Required:
+  -d DATAWAREHOUSE            : Redshift Cluster Identifier to search for snapshots
+
+Flags:
+  -n NUMBER_OF_SNAPSHOTS : Number of snapshots to display (defaults to 5)
+  -h                     : Display help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`!
+
+EOM
+}
+
+help_me() {
+    cat >&2 << EOM
+
+For restoring a data warehouse from a snapshot.  Given a DATAWAREHOUSE name:
+1. Finds the last n snapshots (defaults to 5) for \`snapshot\` recovery
+
+EOM
+  usage
+  exit 0
+}
+
+DEFAULT_NUM_SNAPSHOTS=5
+
+while getopts d:n:h opt
+do
+  case $opt in
+    d) DATAWAREHOUSE="$OPTARG"            ;;
+    n) NUMBER_OF_SNAPSHOTS="$OPTARG" ;;
+    h) help_me                       ;;
+    *) usage && exit 1               ;;
+  esac
+done
+
+# Set NUMBER_OF_SNAPSHOTS to default if not provided
+NUMBER_OF_SNAPSHOTS="${NUMBER_OF_SNAPSHOTS:-$DEFAULT_NUM_SNAPSHOTS}"
+
+env | grep -q 'AWS_VAULT=' || raise 'Must be run with aws-vault!'
+
+echo_yellow "SNAPSHOTS: Getting last $NUMBER_OF_SNAPSHOTS available Redshift cluster snapshots"
+aws redshift describe-cluster-snapshots \
+  --cluster-identifier "$DATAWAREHOUSE" \
+  --query 'Snapshots[*].{SnapshotId:SnapshotIdentifier, CreateTime:SnapshotCreateTime, SnapshotSizeInMegabytes:TotalBackupSizeInMegaBytes}' \
+  --output json | jq --argjson num_snapshots "$NUMBER_OF_SNAPSHOTS" '
+  . as $snapshots |
+  {
+    TotalSnapshots: ($snapshots | length),
+    Snapshots: ($snapshots | sort_by(.CreateTime) | reverse | .[:$num_snapshots])
+  } | 
+  {
+    Notice: "Showing \(.Snapshots | length) snapshots out of \(.TotalSnapshots) total snapshots available for this cluster",
+    Snapshots: .Snapshots
+  }'

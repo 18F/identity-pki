@@ -17,6 +17,7 @@ terraform {
 }
 
 module "data_warehouse" {
+
   source                             = "../module"
   env_name                           = "cnattrass"
   bootstrap_main_git_ref_default     = "stages/cnattrass"
@@ -25,4 +26,7 @@ module "data_warehouse" {
   additional_low_priority_sns_topics = ["arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-data-warehouse-events"]
   use_spot_instances                 = 1
   autoscaling_schedule_name          = "dailyzero_normal"
+
+  # Disaster Recovery variables
+
 }

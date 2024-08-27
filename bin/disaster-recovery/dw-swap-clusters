@@ -1,0 +1,168 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 <<EOM
+
+Usage: ${0} -e ENVIRONMENT -d DATAWAREHOUSE [-r DATAWAREHOUSE_RESTORED]
+
+Required:
+  -e ENVIRONMENT         : Environment for the data warehouse swap
+  -d DATAWAREHOUSE            : RDS Cluster Identifier for the original data warehouse cluster
+
+Flags:
+  -r DATAWAREHOUSE_RESTORED   : Redshift Cluster Identifier for the restored data warehouse cluster
+  -h                          : Display help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`!
+
+EOM
+}
+
+help_me() {
+  cat >&2 <<EOM
+
+For swapping out a disaster recovery data warehouse cluster.  Given a DATAWAREHOUSE name and ENVIRONMENT:
+1. Rename original cluster to \`cluster-original\`
+2. Rename disaster recovery cluster to original cluster name
+
+EOM
+  usage
+  exit 0
+}
+
+DATAWAREHOUSE_RESTORED=
+
+while getopts d:e:r:h opt; do
+  case $opt in
+  d) DATAWAREHOUSE="$OPTARG" ;;
+  r) DATAWAREHOUSE_RESTORED="$OPTARG" ;;
+  e) TF_ENV="$OPTARG" ;;
+  h) help_me ;;
+  *) usage && exit 1 ;;
+  esac
+done
+
+if [ -z "$TF_ENV" ] || [ -z "$DATAWAREHOUSE" ]; then
+        echo 'Missing -h or -u' >&2
+        exit 1
+fi
+
+env | grep -q 'AWS_VAULT=' || raise 'Must be run with aws-vault!'
+
+wait_for_dw() {
+  local DW_TO_WAIT=${1}
+  local WAIT_ACT=${2}
+  local SCOPE=${3:-"cluster"}
+  local DW_READY=0
+
+  echo_yellow "Waiting for ${SCOPE} ${DW_TO_WAIT} to be ${WAIT_ACT}. This may take a few minutes..."
+  DW_READY=0
+  while [[ ${DW_READY} == 0 ]] ; do
+    sleep 5
+    ave -r aws redshift wait "cluster-${WAIT_ACT}" \
+        --cluster-identifier "${DW_TO_WAIT}"
+    if ave -r aws redshift wait "cluster-${WAIT_ACT}" \
+        --cluster-identifier "${DW_TO_WAIT}"; then
+      DW_READY=1
+    fi
+    # echo_yellow "Cluster ${DW_TO_WAIT} is ${WAIT_ACT}"
+  done
+}
+
+rename_cluster() {
+  local DATAWAREHOUSE_FROM=${1}
+  local DATAWAREHOUSE_TO=${2}
+
+  echo_yellow "Renaming '$DATAWAREHOUSE_FROM' to '$DATAWAREHOUSE_TO'"
+  ave -r aws redshift modify-cluster --cluster-identifier "$DATAWAREHOUSE_FROM" \
+    --new-cluster-identifier "$DATAWAREHOUSE_TO" 1>/dev/null
+  wait_for_dw "$DATAWAREHOUSE_TO" 'available' 'cluster'
+}
+
+cluster_list() {
+  local DATAWAREHOUSE_FROM=${1}
+  local DATAWAREHOUSE_TO=${2}
+
+  ave -r aws redshift describe-clusters \
+    --query "Clusters[?ClusterIdentifier=='$DATAWAREHOUSE_FROM' || ClusterIdentifier=='$DATAWAREHOUSE_TO'].{ClusterIdentifier:ClusterIdentifier}" \
+    --output json
+}
+
+tf_state_juggle() {
+  STATE_LIST=$(ave -r "${BASEPATH}"/tf-deploy data-warehouse/"${TF_ENV}" state list)
+
+  if echo "$STATE_LIST" | grep -q 'module.data_warehouse.aws_redshift_cluster.redshift'; then
+    echo_yellow "Removing original cluster from tfstate"
+    ave -r "${BASEPATH}"/tf-deploy data-warehouse/"${TF_ENV}" state rm module.data_warehouse.aws_redshift_cluster.redshift
+  fi
+
+  if echo "$STATE_LIST" | grep -q 'module.data_warehouse.aws_redshift_cluster.dr_redshift[0]'; then
+    echo_yellow "Removing disaster recovery cluster from tfstate"
+    ave -r "${BASEPATH}"/tf-deploy data-warehouse/"${TF_ENV}" state rm module.data_warehouse.aws_redshift_cluster.dr_redshift[0]
+  fi
+
+  echo_yellow "Importing new snapshot cluster from tfstate"
+  ave -r "${BASEPATH}"/tf-deploy data-warehouse/"${TF_ENV}" import module.data_warehouse.aws_redshift_cluster.redshift "${DATAWAREHOUSE}"
+}
+
+if [ -z "$DATAWAREHOUSE_RESTORED" ]; then
+  DATAWAREHOUSE_RESTORED="$DATAWAREHOUSE-restored"
+fi
+DATAWAREHOUSE_ORIGINAL="$DATAWAREHOUSE-original"
+
+echo_red "
+###############################################################################
+#                      DISASTER-RECOVERY / DW-SWAP-CLUSTERS                   #
+###############################################################################
+
+This script will rename the ${DATAWAREHOUSE} data warehouse cluster
+to ${DATAWAREHOUSE_ORIGINAL}, then rename the ${DATAWAREHOUSE_RESTORED} data warehouse cluster
+to ${DATAWAREHOUSE}.
+"
+
+if ! prompt_yn "Are you sure you want to swap data warehouse clusters?"; then
+  echo_yellow "Cancelling."
+  echo && exit 0
+fi
+
+echo "Checking for restored or/and data warehouse cluster"
+if [[ $(cluster_list "$DATAWAREHOUSE" "$DATAWAREHOUSE_RESTORED" | jq '. | length') -lt 1 ]]; then
+  echo_red "Either '${DATAWAREHOUSE}' or '${DATAWAREHOUSE_RESTORED}' is missing. At least one must exist to continue. Exiting..."
+  exit 1
+fi
+
+echo && echo_blue "Stage 1: Renaming \`${DATAWAREHOUSE}\` to '${DATAWAREHOUSE_ORIGINAL}"
+if [[ $(cluster_list "$DATAWAREHOUSE" "$DATAWAREHOUSE_RESTORED" | jq '. | length') -eq 2 ]]; then
+  rename_cluster "$DATAWAREHOUSE" "$DATAWAREHOUSE_ORIGINAL"
+else
+  echo_red "Either '${DATAWAREHOUSE_ORIGINAL}' or '${DATAWAREHOUSE}' is missing. Both must exist to rename the original cluster."
+  exit 1
+fi
+
+echo && echo_blue "Stage 2: Renaming \`${DATAWAREHOUSE_RESTORED}\` to '${DATAWAREHOUSE}"
+if [[ $(cluster_list "$DATAWAREHOUSE_RESTORED" "$DATAWAREHOUSE" | jq '. | length') -eq 1 ]]; then
+  rename_cluster "$DATAWAREHOUSE_RESTORED" "$DATAWAREHOUSE"
+else
+  echo_red "Either '${DATAWAREHOUSE_RESTORED}' or '${DATAWAREHOUSE}' is missing. The restored cluster must exist to rename the restored cluster."
+  exit 1
+fi
+
+echo && echo_blue "Stage 3: Fixing Terraform state"
+if [[ $(cluster_list "$DATAWAREHOUSE" "$DATAWAREHOUSE_ORIGINAL" | jq '. | length') -eq 2 ]]; then
+  tf_state_juggle
+
+  echo_green "Data Warehouse clusters have been swapped"
+  echo "
+    NEXT STEPS
+    - Remove the \`dr_\` variables from the main.tf file.
+    - Terraform- review and apply changes to the ${TF_ENV} environment if any differences exist
+  "
+else
+  echo_red "Either '${DATAWAREHOUSE_ORIGINAL}' or '${DATAWAREHOUSE}' is missing. Both must exist to fix the Terraform state."
+  exit 1
+fi

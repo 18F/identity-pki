@@ -145,7 +145,7 @@ data "aws_iam_policy_document" "application_secrets_secrets_manager_role_policy"
       "secretsmanager:GetSecretValue",
     ]
     resources = [
-      "arn:aws:secretsmanager:*:*:secret:redshift!${aws_redshift_cluster.redshift.cluster_identifier}-*",
+      "arn:aws:secretsmanager:*:*:secret:redshift/${aws_redshift_cluster.redshift.cluster_identifier}-*",
     ]
   }
 }

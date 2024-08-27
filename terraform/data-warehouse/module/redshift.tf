@@ -1,3 +1,22 @@
+module "redshift_credentials" {
+  source = "../../modules/secrets_manager_secret"
+
+  exclude_punctuation = true
+  secret_name         = "redshift/${var.env_name}-analytics-${var.redshift_username}"
+  secret_string = jsonencode(
+    {
+      username = var.redshift_username
+      password = "generateRandomPassword"
+    }
+  )
+  recovery_window_in_days = 0
+}
+
+data "aws_secretsmanager_secret_version" "redshift_credentials" {
+  secret_id  = module.redshift_credentials.secret_id
+  depends_on = [module.redshift_credentials]
+}
+
 resource "aws_kms_key" "redshift_kms_key" {
   description             = "KMSKeyForRedshift"
   deletion_window_in_days = 7
@@ -31,22 +50,23 @@ resource "aws_redshift_parameter_group" "redshift_configuration" {
 }
 
 resource "aws_redshift_cluster" "redshift" {
-  cluster_identifier           = "${var.env_name}-analytics"
-  database_name                = "analytics"
-  master_username              = var.redshift_username
-  manage_master_password       = true
-  node_type                    = var.redshift_node_type
-  cluster_type                 = var.redshift_cluster_type
-  number_of_nodes              = var.redshift_number_of_nodes
-  cluster_subnet_group_name    = aws_redshift_subnet_group.redshift_subnet_group.name
-  publicly_accessible          = false
-  enhanced_vpc_routing         = true
-  iam_roles                    = [aws_iam_role.redshift_role.arn]
-  encrypted                    = true
-  kms_key_id                   = aws_kms_key.redshift_kms_key.arn
-  cluster_parameter_group_name = aws_redshift_parameter_group.redshift_configuration.name
-  vpc_security_group_ids       = [aws_security_group.redshift.id]
-  skip_final_snapshot          = true
+  cluster_identifier                  = "${var.env_name}-analytics"
+  database_name                       = "analytics"
+  master_username                     = jsondecode(data.aws_secretsmanager_secret_version.redshift_credentials.secret_string)["username"]
+  master_password                     = jsondecode(data.aws_secretsmanager_secret_version.redshift_credentials.secret_string)["password"]
+  node_type                           = var.redshift_node_type
+  cluster_type                        = var.redshift_cluster_type
+  number_of_nodes                     = var.redshift_number_of_nodes
+  cluster_subnet_group_name           = aws_redshift_subnet_group.redshift_subnet_group.name
+  publicly_accessible                 = false
+  enhanced_vpc_routing                = true
+  iam_roles                           = [aws_iam_role.redshift_role.arn]
+  encrypted                           = true
+  kms_key_id                          = aws_kms_key.redshift_kms_key.arn
+  cluster_parameter_group_name        = aws_redshift_parameter_group.redshift_configuration.name
+  vpc_security_group_ids              = [aws_security_group.redshift.id]
+  skip_final_snapshot                 = true
+  automated_snapshot_retention_period = 30
   logging {
     enable               = true
     log_destination_type = "cloudwatch"
@@ -60,7 +80,48 @@ resource "aws_redshift_cluster" "redshift" {
   depends_on = [
     aws_cloudwatch_log_group.redshift_logs["connectionlog"],
     aws_cloudwatch_log_group.redshift_logs["useractivitylog"],
-    aws_cloudwatch_log_group.redshift_logs["userlog"]
+    aws_cloudwatch_log_group.redshift_logs["userlog"],
+    module.redshift_credentials
+  ]
+}
+
+resource "aws_redshift_cluster" "dr_redshift" {
+  count = var.dr_restore_redshift_dw && (var.dr_redshift_snapshot_identifier != "") ? 1 : 0
+
+  snapshot_identifier = var.dr_redshift_snapshot_identifier
+
+  cluster_identifier                  = "${var.env_name}-analytics-restored"
+  database_name                       = "analytics"
+  master_username                     = jsondecode(data.aws_secretsmanager_secret_version.redshift_credentials.secret_string)["username"]
+  master_password                     = jsondecode(data.aws_secretsmanager_secret_version.redshift_credentials.secret_string)["password"]
+  node_type                           = var.redshift_node_type
+  cluster_type                        = var.redshift_cluster_type
+  number_of_nodes                     = var.redshift_number_of_nodes
+  cluster_subnet_group_name           = aws_redshift_subnet_group.redshift_subnet_group.name
+  publicly_accessible                 = false
+  enhanced_vpc_routing                = true
+  iam_roles                           = [aws_iam_role.redshift_role.arn]
+  encrypted                           = true
+  kms_key_id                          = aws_kms_key.redshift_kms_key.arn
+  cluster_parameter_group_name        = aws_redshift_parameter_group.redshift_configuration.name
+  vpc_security_group_ids              = [aws_security_group.redshift.id]
+  skip_final_snapshot                 = true
+  automated_snapshot_retention_period = 30
+  logging {
+    enable               = true
+    log_destination_type = "cloudwatch"
+    log_exports = [
+      "connectionlog",
+      "userlog",
+      "useractivitylog"
+    ]
+  }
+
+  depends_on = [
+    aws_cloudwatch_log_group.redshift_logs["connectionlog"],
+    aws_cloudwatch_log_group.redshift_logs["useractivitylog"],
+    aws_cloudwatch_log_group.redshift_logs["userlog"],
+    module.redshift_credentials
   ]
 }
 

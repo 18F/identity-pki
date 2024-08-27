@@ -507,3 +507,16 @@ variable "page_devops" {
   default     = 0
   description = "Whether to page for high-priority Cloudwatch alarms"
 }
+
+# Disaster Recovery variables
+
+variable "dr_restore_redshift_dw" {
+  type    = bool
+  default = false
+}
+
+variable "dr_redshift_snapshot_identifier" {
+  type        = string
+  description = "Identifier of the redshift data warehouse snapshot for snapshot recovery"
+  default     = ""
+}
