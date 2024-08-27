@@ -25,4 +25,4 @@ else
   git clone git@github.com:18F/identity-devops.git
 fi
 
-/etc/login.gov/repos/identity-devops/bin/data-warehouse/users/redshift_sync.rb && aws cloudwatch put-metric-data --namespace "$1" --metric-name "$2" --value 1
+/etc/login.gov/repos/identity-devops/bin/data-warehouse/users/redshift_sync.rb /usersync/identity-devops/terraform/master/global/users.yaml && aws cloudwatch put-metric-data --namespace "$1" --metric-name "$2" --value 1
