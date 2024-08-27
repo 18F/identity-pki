@@ -1,5 +1,5 @@
 # this part builds everything
-FROM ruby:3.2.2-slim-bullseye as builder
+FROM ruby:3.3.4-slim-bullseye as builder
 
 # Set environment variables
 ENV RAILS_ROOT /app
@@ -81,7 +81,7 @@ RUN curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.ipv6_prefix
 
 #####################################################
 # here is where the actual image gets built
-FROM ruby:3.2.2-slim-bullseye
+FROM ruby:3.3.4-slim-bullseye
 
 SHELL ["/bin/bash", "-c"]
 
