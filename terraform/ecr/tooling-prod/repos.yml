@@ -96,6 +96,9 @@ repos:
   identity_pivcac:
     name: "identity-pivcac/pivcac"
     <<: *all_write_template
+  identity_pivcac_nginx:
+    name: "identity-pivcac/nginx"
+    <<: *all_write_template
   identity_pivcac_cache:
     name: "identity-pivcac/pivcac/cache"
     <<: *all_write_template
