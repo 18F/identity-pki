@@ -34,7 +34,8 @@ module "main" {
   }
 
   account_slack_channels = {
-    "data-warehouse-events" = "login-data-warehouse-events"
+    "data-warehouse-events"      = "login-data-warehouse-events"
+    "data-warehouse-otherevents" = "login-data-warehouse-otherevents"
   }
 
   ssm_document_access_map = {

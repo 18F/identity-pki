@@ -21,10 +21,11 @@ module "main" {
   iam_account_alias = "login-sandbox"
 
   account_slack_channels = {
-    "data-warehouse-events" = "login-data-warehouse-events"
-    "doc-auth"              = "login-doc-auth-events"
-    "events-pt"             = "login-events-pt"
-    "in-person-proofing"    = "login-in-person-proofing-events"
+    "data-warehouse-events"      = "login-data-warehouse-events"
+    "data-warehouse-otherevents" = "login-data-warehouse-otherevents"
+    "doc-auth"                   = "login-doc-auth-events"
+    "events-pt"                  = "login-events-pt"
+    "in-person-proofing"         = "login-in-person-proofing-events"
   }
 
   dnssec_zone_exists  = true
