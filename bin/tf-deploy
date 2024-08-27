@@ -690,11 +690,11 @@ EOM
     TF_SLACK_EMOJI=':terraform:'
     TF_SLACK_USER='Terraform Deployments'
     if [ "$DEPLOY_FAIL" == 'true' ] ; then
-        SLACK_ICON=':large_red_square:'
+        TF_SLACK_ICON=':large_red_square:'
         SLACK_PRETEXT="tf-deploy *FAILED* for \`${TF_PATH}\` !"
         SLACK_MESSAGE="Please investigate!"
     else
-        SLACK_ICON=':large_green_square:'
+        TF_SLACK_ICON=':large_green_square:'
         SLACK_PRETEXT="tf-deploy *SUCCESSFUL* for \`${TF_PATH}\` !"
         SLACK_MESSAGE="\`\`\`${TF_DEPLOY_INFO}\`\`\`"
     fi
@@ -703,7 +703,7 @@ EOM
         -n "${real_account_id}" \
         -t "${ENVIRONMENT}" \
         -r "${TERRAFORM_STATE_BUCKET_REGION}" \
-        -i "${SLACK_ICON}" \
+        -i "${TF_SLACK_ICON}" \
         -u "${TF_SLACK_USER}" \
         -e "${TF_SLACK_EMOJI}" \
         -p "${SLACK_PRETEXT}" \

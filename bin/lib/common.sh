@@ -199,15 +199,15 @@ verify_tf_dir_and_env() {
 
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify() {
-  local AWS_ACCT_NUM TF_ENV AWS_REGION ICON SLACK_USER SLACK_EMOJI PRE_TEXT TEXT KEYS
+  local AWS_ACCT_NUM TF_ENV AWS_REGION SLACK_ICON SLACK_USER SLACK_EMOJI PRE_TEXT TEXT TF_TYPE KEYS
 
-  while getopts n:t:r:c:u:e:p:m:y: opt
+  while getopts n:t:r:i:u:e:p:m:y: opt
   do
     case "${opt}" in
       n) AWS_ACCT_NUM="${OPTARG}" ;;
       t) TF_ENV="${OPTARG}"       ;;
       r) AWS_REGION="${OPTARG}"   ;;
-      i) ICON="${OPTARG}"        ;;
+      i) SLACK_ICON="${OPTARG}"   ;;
       u) SLACK_USER="${OPTARG}"   ;;
       e) SLACK_EMOJI="${OPTARG}"  ;;
       p) PRE_TEXT="${OPTARG}"     ;;
@@ -245,7 +245,7 @@ slack_notify() {
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "${ICON} ${PRE_TEXT}"
+        "text": "${SLACK_ICON} ${PRE_TEXT}"
       }
     },
     {
