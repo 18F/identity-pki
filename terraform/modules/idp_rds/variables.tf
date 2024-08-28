@@ -14,15 +14,6 @@ variable "db_identifier" {
   default     = "idp"
 }
 
-variable "db_name_override" {
-  type        = string
-  description = <<EOM
-Manually-specified name for the Aurora cluster. Will override the
-default pattern of env_name-db_identifier unless left blank.
-EOM
-  default     = ""
-}
-
 variable "db_engine" {
   type        = string
   description = "Name of the DB engine."

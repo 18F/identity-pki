@@ -113,7 +113,7 @@ No modules.
 | <a name="input_db_engine_version"></a> [db\_engine\_version](#input\_db\_engine\_version) | Version number (e.g. ##.#) of db\_engine to use | `string` | `"13.9"` | no |
 | <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | Instance class to use in AuroraDB cluster | `string` | `"db.r6g.large"` | no |
 | <a name="input_db_kms_key_id"></a> [db\_kms\_key\_id](#input\_db\_kms\_key\_id) | (OPTIONAL) ID of an already-existing KMS Key used to encrypt the database;<br>will create the aws\_kms\_key.db / aws\_kms\_alias.db resources<br>and use those for encryption if left blank | `string` | `""` | no |
-| <a name="input_db_name_override"></a> [db\_name\_override](#input\_db\_name\_override) | Manually-specified name for the Aurora cluster. Will override the<br>default pattern of env\_name-db\_identifier unless left blank. | `string` | `""` | no |
+| <a name="input_db_name_override"></a> [db\_name\_override](#input\_db\_name\_override) | Manually-specified value for the database_name attribute of the Aurora cluster.<br>Defaults to "postgres" for `aurora-postgresql` clusters if not specified. | `string` | `""` | no |
 | <a name="input_db_port"></a> [db\_port](#input\_db\_port) | Database port number | `number` | `5432` | no |
 | <a name="input_db_publicly_accessible"></a> [db\_publicly\_accessible](#input\_db\_publicly\_accessible) | Bool to control if instance is publicly accessible | `bool` | `false` | no |
 | <a name="input_dr_restore_to_time"></a> [dr\_restore\_to\_time](#input\_dr\_restore\_to\_time) | Timestamp for point-in-time recovery (2023-04-21T12:00:00Z) | `string` | `""` | no |

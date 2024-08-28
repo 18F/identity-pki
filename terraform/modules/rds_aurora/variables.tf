@@ -1,8 +1,7 @@
 # Locals
 
 locals {
-  db_name = var.db_name_override == "" ? (
-  "${var.env_name}-${var.db_identifier}") : var.db_name_override
+  db_name = "${var.env_name}-${var.db_identifier}"
 
   cw_logs = var.cw_logs_exports == [] ? (
     can(regex("postgresql", var.db_engine)) ? ["postgresql"] : ["general"]
@@ -24,8 +23,8 @@ variable "db_identifier" {
 variable "db_name_override" {
   type        = string
   description = <<EOM
-Manually-specified name for the Aurora cluster. Will override the
-default pattern of env_name-db_identifier unless left blank.
+Manually-specified value for the database_name attribute of the Aurora cluster.
+Defaults to 'postgres' for aurora-postgresql clusters if not specified.
 EOM
   default     = ""
 }

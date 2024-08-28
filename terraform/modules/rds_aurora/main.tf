@@ -60,6 +60,7 @@ resource "aws_rds_global_cluster" "aurora" {
   global_cluster_identifier    = "${var.env_name}-${var.global_db_id}"
   source_db_cluster_identifier = aws_rds_cluster.aurora.arn
   force_destroy                = true
+  database_name                = aws_rds_cluster.aurora.database_name
 
   # To properly delete this cluster via Terraform:
   # 1. Comment out the `deletion_protection` and `lifecycle/prevent_destroy` lines.
@@ -71,7 +72,10 @@ resource "aws_rds_global_cluster" "aurora" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [source_db_cluster_identifier]
+    ignore_changes = [
+      database_name,
+      source_db_cluster_identifier
+    ]
   }
 
   depends_on = [aws_rds_cluster.aurora]
@@ -85,7 +89,13 @@ resource "aws_rds_cluster" "aurora" {
   engine_version     = var.db_engine_version
   engine_mode        = var.db_engine_mode
   port               = var.db_port
-  database_name      = var.db_identifier
+
+  # default initial database name for an aurora-postgresql cluster is 'postgres';
+  # var.db_name_override can be used to specify a different value.
+  # DO NOT SET if this is a replica cluster connected to a global DB.
+  database_name = var.global_db_id == "" ? (
+  var.db_name_override == "" ? "postgres" : var.db_name_override) : null
+
   availability_zones = [
     for i in range(0, 3) : data.aws_availability_zones.region.names[i]
   ]

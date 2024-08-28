@@ -7,8 +7,9 @@ resource "aws_db_subnet_group" "aurora" {
 module "analytics_aurora" {
   source = "../../modules/rds_aurora"
 
-  env_name      = var.env_name
-  db_identifier = "analytics"
+  env_name         = var.env_name
+  db_identifier    = "analytics"
+  db_name_override = "analytics"
 
   rds_password = var.rds_password
   rds_username = var.rds_username

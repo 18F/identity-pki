@@ -10,8 +10,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   pgroup_family = join("", [var.db_engine, split(".", var.db_engine_version)[0]])
-  db_name = var.db_name_override == "" ? (
-  "${var.env_name}-${var.db_identifier}") : var.db_name_override
+  db_name       = "${var.env_name}-${var.db_identifier}"
   db_name_prefix = join("-", [
     var.name, var.env_name, var.db_identifier, local.pgroup_family, ""
   ])
