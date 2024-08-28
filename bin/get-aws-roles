@@ -62,6 +62,7 @@ for POLICY in $(echo ${FOUND_POLICIES[@]} |
   ACCOUNT=$(echo $POLICY | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/')
   ROLE=$(echo $POLICY | sed -E 's/.*Assume//')
   SHORT_ROLE=$(grep -wlr "${ROLE}" terraform/all/module/iam-role-*.tf |
+               grep -v "account-specific-permissions" |
                sed -E 's/.*\-([a-z]+)\.tf/\1/')
   for ACCOUNT_ID in $(echo $ACCOUNT_TYPES | jq -r --arg ACCOUNT "$ACCOUNT" '.[$ACCOUNT][]') ; do
     SHORT_ACCT=$(egrep "^\s+\"${ACCOUNT_ID}\"" ${MASTER_FILE} |
