@@ -813,6 +813,7 @@ variable "slack_events_sns_hook_arn_use1" {
 
 variable "slack_dw_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #login-data-warehouse-otherevents/#login-data-warehouse-events channels in Slack"
+  default     = ""
 }
 
 variable "slack_alarms_sns_hook_arn" {
