@@ -738,6 +738,7 @@ locals {
   doc_auth_alarm_actions               = [coalesce(var.doc_auth_slack_alarms_sns_hook, var.slack_events_sns_hook_arn)]
   low_priority_alarm_actions           = [var.slack_events_sns_hook_arn]
   low_priority_alarm_actions_use1      = [var.slack_events_sns_hook_arn_use1]
+  low_priority_dw_alarm_actions        = [var.slack_events_sns_hook_arn, var.slack_dw_events_sns_hook_arn]
   moderate_priority_alarm_actions      = [var.slack_alarms_sns_hook_arn]
   moderate_priority_alarm_actions_use1 = [var.slack_alarms_sns_hook_arn_use1]
 
@@ -810,16 +811,16 @@ variable "slack_events_sns_hook_arn_use1" {
   description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack from US-East-1"
 }
 
+variable "slack_dw_events_sns_hook_arn" {
+  description = "ARN of SNS topic that will notify the #login-data-warehouse-otherevents/#login-data-warehouse-events channels in Slack"
+}
+
 variable "slack_alarms_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #login-alarms channel in Slack"
 }
 
 variable "slack_alarms_sns_hook_arn_use1" {
   description = "ARN of SNS topic that will notify the #login-alarms channel in Slack from US-East-1"
-}
-
-variable "dw_events_topic_name" {
-  description = "Name of the SNS topic for the data warehouse events channel; ex. slack-data-warehouse-events or slack-data-warehouse-otherevents"
 }
 
 # KMS Event Matching settings

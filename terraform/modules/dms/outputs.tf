@@ -18,3 +18,6 @@ output "dms_policy_arn" {
   value = aws_iam_role.dms.arn
 }
 
+output "dms_log_group" {
+  value = "dms-tasks-${local.replication_instance_id}"
+}

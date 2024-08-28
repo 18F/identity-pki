@@ -490,34 +490,9 @@ defined in cloudwatch-*-logs.tf (vs. simply removing them from state).
 EOM
 }
 
-# Enables worker alarms
-variable "reporting_worker_alarms_enabled" {
-  type        = bool
-  default     = true
-  description = "Whether to set up alarms for Reporting workers"
-}
-
-variable "data_freshness_alarm_enabled" {
-  type        = bool
-  default     = true
-  description = "Whether to set up alarms for Data Freshness Out of range"
-}
-
 variable "page_devops" {
   default     = 0
   description = "Whether to page for high-priority Cloudwatch alarms"
-}
-
-variable "log_column_extractor_alarm_enabled" {
-  type        = bool
-  default     = true
-  description = "Whether to set up alarms for Log Column extractor failures"
-}
-
-variable "duplicate_row_checker_alert_enabled" {
-  type        = bool
-  default     = true
-  description = "Whether to set up alarms for Duplicate Row checker alert"
 }
 
 # Disaster Recovery variables

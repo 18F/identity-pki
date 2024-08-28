@@ -17,10 +17,6 @@ data "aws_iam_policy_document" "assume_role_lambda" {
   }
 }
 
-data "aws_sns_topic" "data_warehouse_events" {
-  name = var.dw_events_topic_name
-}
-
 locals {
   analytics_import_bucket = join("-", [
     "login-gov-redshift-import-${var.env_name}",
@@ -43,10 +39,6 @@ locals {
       resource     = aws_cloudwatch_log_group.log["idp_events"],
       json_encoded = "true"
     }
-  ]
-  low_priority_dw_alarm_actions = [
-    var.slack_events_sns_hook_arn,
-    data.aws_sns_topic.data_warehouse_events.arn
   ]
 }
 
@@ -441,23 +433,6 @@ resource "aws_lambda_function" "start_cw_export_task" {
 
 }
 
-module "start_cw_export_task_alerts" {
-  count  = var.enable_dms_analytics ? 1 : 0
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
-  #source = "../lambda_alerts"
-
-  enabled              = 1
-  function_name        = aws_lambda_function.start_cw_export_task[count.index].function_name
-  alarm_actions        = local.low_priority_dw_alarm_actions
-  error_rate_threshold = 0 # percent
-  error_rate_operator  = "GreaterThanThreshold"
-  datapoints_to_alarm  = 1
-  evaluation_periods   = 5
-  insights_enabled     = true
-  duration_setting     = aws_lambda_function.start_cw_export_task[count.index].timeout
-  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting"
-}
-
 resource "aws_lambda_permission" "transform_cw_export_s3_events" {
   count         = var.enable_dms_analytics ? 1 : 0
   action        = "lambda:InvokeFunction"
@@ -505,23 +480,6 @@ resource "aws_lambda_function" "transform_cw_export" {
     }
   }
 
-}
-
-module "transform_cw_export_alerts" {
-  count  = var.enable_dms_analytics ? 1 : 0
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
-  #source = "../lambda_alerts"
-
-  enabled              = 1
-  function_name        = aws_lambda_function.transform_cw_export[count.index].function_name
-  alarm_actions        = local.low_priority_dw_alarm_actions
-  error_rate_threshold = 0 # percent
-  error_rate_operator  = "GreaterThanThreshold"
-  datapoints_to_alarm  = 1
-  evaluation_periods   = 5
-  insights_enabled     = true
-  duration_setting     = aws_lambda_function.transform_cw_export[count.index].timeout
-  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting"
 }
 
 resource "aws_iam_role" "transform_cw_export" {
@@ -637,23 +595,6 @@ resource "aws_lambda_function" "start_dms_task" {
     }
   }
 
-}
-
-module "start_dms_task_alerts" {
-  count  = var.enable_dms_analytics ? 1 : 0
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
-  #source = "../lambda_alerts"
-
-  enabled              = 1
-  function_name        = aws_lambda_function.start_dms_task[count.index].function_name
-  alarm_actions        = local.low_priority_dw_alarm_actions
-  error_rate_threshold = 0 # percent
-  error_rate_operator  = "GreaterThanThreshold"
-  datapoints_to_alarm  = 1
-  evaluation_periods   = 5
-  insights_enabled     = true
-  duration_setting     = aws_lambda_function.start_dms_task[count.index].timeout
-  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting"
 }
 
 resource "aws_iam_role" "start_dms_task" {

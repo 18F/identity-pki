@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "reporting_worker_alive_alarm" {
-  count = var.reporting_worker_alarms_enabled ? 1 : 0
+  count = var.enable_dms_analytics ? 1 : 0
 
   alarm_name                = "${var.env_name}-ReportingWorkers-Alive"
   comparison_operator       = "LessThanThreshold"
@@ -22,7 +22,7 @@ EOM
 
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "reporting_worker_failure_alarm" {
-  count = var.reporting_worker_alarms_enabled ? 1 : 0
+  count = var.enable_dms_analytics ? 1 : 0
 
   alarm_name                = "${var.env_name}-ReportingWorkers-Failure"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
@@ -44,7 +44,7 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "data_freshness_out_of_range_alarm" {
-  count = var.data_freshness_alarm_enabled ? 1 : 0
+  count = var.enable_dms_analytics ? 1 : 0
 
   alarm_name                = "${var.env_name}-DataFreshness-OutOfRange-Alarm"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
@@ -67,7 +67,7 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "log_column_extractor_failure_alarm" {
-  count = var.log_column_extractor_alarm_enabled ? 1 : 0
+  count = var.enable_dms_analytics ? 1 : 0
 
   alarm_name                = "${var.env_name}-LogColumnExtractor-failure-Alarm"
   comparison_operator       = "LessThanThreshold"
@@ -90,7 +90,7 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
-  count                     = var.duplicate_row_checker_alert_enabled ? 1 : 0
+  count                     = var.enable_dms_analytics ? 1 : 0
   alarm_name                = "${var.env_name}-DuplicateRowChecker-Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
