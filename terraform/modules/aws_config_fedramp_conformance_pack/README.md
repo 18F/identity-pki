@@ -24,7 +24,9 @@ No modules.
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_cloudwatch_log_group_min_retention"></a> [cloudwatch\_log\_group\_min\_retention](#input\_cloudwatch\_log\_group\_min\_retention) | Defines the minimum cloudwatch log group retention period AWS Config checks for | `number` | `30` | no |
 
 ## Outputs
 

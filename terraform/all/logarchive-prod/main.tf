@@ -20,6 +20,8 @@ module "main" {
 
   #limit_allowed_services = true  # uncomment to limit allowed services for all Roles
 
+  cloudwatch_minimum_retention_days_scanning = 3653
+
   # Restricted access - TODO: Add a role for historical search of data with
   # possible spilled PII
   account_roles_map = {

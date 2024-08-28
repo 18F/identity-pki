@@ -21,6 +21,8 @@ resource "aws_config_config_rule" "approved-amis-by-tag" {
 module "aws_config_fedramp_moderate_compliance" {
   source = "../../modules/aws_config_fedramp_conformance_pack"
 
+  cloudwatch_log_group_min_retention = var.cloudwatch_minimum_retention_days_scanning
+
   depends_on = [
     aws_config_configuration_recorder.default
   ]

@@ -16,6 +16,9 @@ Parameters:
   AcmCertificateExpirationCheckParamDaysToExpiration:
     Default: '90'
     Type: String
+  CwLoggroupRetentionPeriodCheckParamMinRetentionTime:
+    Default: '30'
+    Type: String
   BackupPlanMinFrequencyAndMinRetentionCheckParamRequiredFrequencyUnit:
     Default: days
     Type: String
@@ -347,6 +350,12 @@ Resources:
   CwLoggroupRetentionPeriodCheck:
     Properties:
       ConfigRuleName: cw-loggroup-retention-period-check
+      InputParameters:
+        MinRetentionTime:
+          Fn::If:
+          - cwLoggroupRetentionPeriodCheckParamMinRetentionTime
+          - Ref: CwLoggroupRetentionPeriodCheckParamMinRetentionTime
+          - Ref: AWS::NoValue
       Source:
         Owner: AWS
         SourceIdentifier: CW_LOGGROUP_RETENTION_PERIOD_CHECK
@@ -1449,6 +1458,11 @@ Conditions:
     - Fn::Equals:
       - ''
       - Ref: AcmCertificateExpirationCheckParamDaysToExpiration
+  cwLoggroupRetentionPeriodCheckParamMinRetentionTime:
+    Fn::Not:
+    - Fn::Equals:
+      - ''
+      - Ref: CwLoggroupRetentionPeriodCheckParamMinRetentionTime
   backupPlanMinFrequencyAndMinRetentionCheckParamRequiredFrequencyUnit:
     Fn::Not:
     - Fn::Equals:

@@ -31,6 +31,8 @@ module "main" {
     iam_auto_terraform_enabled = false
   }
 
+  cloudwatch_minimum_retention_days_scanning = 3653
+
   account_cloudwatch_log_groups = [
     "/var/log/messages"
   ]

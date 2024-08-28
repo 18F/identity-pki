@@ -482,6 +482,16 @@ EOM
   type        = number
 }
 
+variable "cloudwatch_minimum_retention_days_scanning" {
+  default     = 30
+  description = <<EOM
+The minimum number of retention days to be consider compliant by AWS Config.
+  Used by the FedRamp Conformance Package.
+  Defaults to 30 days.
+EOM
+  type        = number
+}
+
 variable "account_cloudwatch_log_groups" {
   default     = []
   description = <<EOM

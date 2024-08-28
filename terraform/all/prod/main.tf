@@ -134,6 +134,8 @@ module "main" {
     "FraudOps" = [{ "*" = ["data-pull", "action-account"] }],
   }
 
+  cloudwatch_minimum_retention_days_scanning = 3653
+
   account_cloudwatch_log_groups = [
     "/aws/ssm/dm-ssm-cmd-passenger-restart",
     "/aws/ssm/prod-ssm-cmd-passenger-restart",

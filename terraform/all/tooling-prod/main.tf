@@ -46,6 +46,8 @@ module "main" {
     }
   ]
 
+  cloudwatch_minimum_retention_days_scanning = 3653
+
   ssm_document_access_map = {
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],

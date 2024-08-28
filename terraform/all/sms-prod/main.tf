@@ -27,6 +27,8 @@ module "main" {
     iam_auto_terraform_enabled = false
   }
 
+  cloudwatch_minimum_retention_days_scanning = 3653
+
   cloudtrail_event_selectors = [
     {
       include_management_events = false
