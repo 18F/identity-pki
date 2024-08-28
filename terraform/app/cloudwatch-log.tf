@@ -30,8 +30,6 @@ locals {
       "nginx_access"                = "var/log/nginx/access.log",
       "nginx_error"                 = "var/log/nginx/error.log",
       "nginx_status"                = "var/log/nginx/nginx_status.log",
-      "nginx_passenger"             = "var/log/nginx/passenger.log",
-      "nginx_passenger_status"      = "var/log/nginx/passenger_status.log",
       "nginx_puma_status"           = "var/log/nginx/puma_status.log",
       "postgresql_pgbouncer"        = "var/log/postgresql/pgbouncer.log",
       "syslog"                      = "var/log/syslog",

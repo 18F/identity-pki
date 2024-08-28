@@ -3,12 +3,6 @@
   "description": "Top level role for PIV/CAC instances",
   "json_class": "Chef::Role",
   "default_attributes": {
-    "passenger": {
-      "production": {
-        "log_alb_headers": false,
-        "log_client_ssl": true
-      }
-    }
   },
   "override_attributes": {
   },
@@ -16,7 +10,6 @@
   "run_list": [
     "role[base]",
     "recipe[login_dot_gov::nginx_base]",
-    "recipe[login_dot_gov::passenger_service]",
     "recipe[login_dot_gov::dhparam]",
     "recipe[identity-pivcac]",
     "recipe[login_dot_gov::common_scripts]"

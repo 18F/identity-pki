@@ -252,16 +252,6 @@ link cert_path do
   to node.fetch('instance_certificate').fetch('cert_path')
 end
 
-# disable passenger service for workers
-# this is not necessary for puma since the puma service is started in idp_web
-execute 'stop passenger' do
-  command 'systemctl stop passenger.service'
-end
-
-execute 'disable passenger' do
-  command 'chmod -x /etc/init.d/passenger'
-end
-
 
 # configure nginx for health checks via reverse proxy
 domain_name = node.fetch('login_dot_gov').fetch('domain_name')
@@ -285,7 +275,7 @@ systemd_unit 'nginx.service' do
 
   content <<-EOM
 # Dropped off by Chef
-# systemd unit for nginx without passenger
+# systemd unit for nginx
 
 [Unit]
 Description=idp worker nginx service

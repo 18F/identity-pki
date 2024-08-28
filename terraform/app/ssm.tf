@@ -50,14 +50,6 @@ locals {
       logging     = false
       parameters  = []
     }
-    "passenger-restart" = {
-      command = [
-        "id-passenger-restart",
-      ]
-      description = "Restart passenger service via id-passenger-restart script"
-      logging     = false
-      parameters  = []
-    }
     "puma-restart" = {
       command = [
         "id-puma-restart",
@@ -151,11 +143,6 @@ locals {
       command     = "/usr/local/bin/id-rails-console --write"
       description = "Run id-rails-console with --write set"
       logging     = false
-    }
-    "passenger-stat" = {
-      command     = "sudo systemctl status passenger.service| grep Active"
-      description = "Check status of passenger via systemctl, report Active line"
-      logging     = true
     }
   }
 

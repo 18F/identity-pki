@@ -41,7 +41,7 @@ deploy_branch = node.fetch('login_dot_gov').fetch('deploy_branch').fetch("identi
 %w{cached-copy config log}.each do |dir|
   directory "#{base_dir}/shared/#{dir}" do
     group node['login_dot_gov']['system_user']
-    owner node.fetch(:passenger).fetch(:production).fetch(:user)
+    owner node.fetch('login_dot_gov').fetch('web_system_user')
     recursive true
     subscribes :create, "deploy[/srv/dashboard]", :before
   end
@@ -274,14 +274,14 @@ execute 'start puma target' do
   command 'systemctl start puma.service'
 end
 
-# After doing the full deploy, we want to ensure that passenger is up and
+# After doing the full deploy, we want to ensure that rails is up and
 # running before the ELB starts trying to health check it. We've seen some
-# cases where passenger takes too long to start up the process, fails two
+# cases where rails takes too long to start up the process, fails two
 # health checks, and the whole instance gets terminated.
-prewarm_timeout = node.fetch('login_dot_gov').fetch('passenger_prewarm_timeout')
+prewarm_timeout = node.fetch('login_dot_gov').fetch('rails_prewarm_timeout')
 Chef.event_handler do
   on :run_completed do
-    Chef::Log.info('Pre-warming passenger by sending an HTTP request')
+    Chef::Log.info('Pre-warming Rails by sending an HTTP request')
     cmd = Mixlib::ShellOut.new('curl', '-sSIk', 'https://localhost', timeout: prewarm_timeout)
     cmd.run_command
     cmd.error!
