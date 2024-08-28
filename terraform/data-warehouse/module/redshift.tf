@@ -1,8 +1,10 @@
 module "redshift_credentials" {
   source = "../../modules/secrets_manager_secret"
 
-  exclude_punctuation = true
-  secret_name         = "redshift/${var.env_name}-analytics-${var.redshift_username}"
+  exclude_punctuation        = true
+  include_space              = false
+  require_each_included_type = true
+  secret_name                = "redshift/${var.env_name}-analytics-${var.redshift_username}"
   secret_string = jsonencode(
     {
       username = var.redshift_username
