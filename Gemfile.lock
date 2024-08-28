@@ -260,7 +260,7 @@ GEM
     regexp_parser (2.7.0)
     request_store (1.5.1)
       rack (>= 1.4)
-    rexml (3.3.3)
+    rexml (3.3.6)
       strscan
     rgl (0.5.6)
       lazy_priority_queue (~> 0.1.0)
