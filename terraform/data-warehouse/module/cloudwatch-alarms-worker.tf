@@ -97,7 +97,7 @@ resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
   datapoints_to_alarm       = "1"
   metric_name               = "duplicate-row-alert-count"
   namespace                 = "${var.env_name}/reporting-production"
-  period                    = "3600"
+  period                    = "86400"
   statistic                 = "Sum"
   threshold                 = "1"
   treat_missing_data        = "notBreaching"

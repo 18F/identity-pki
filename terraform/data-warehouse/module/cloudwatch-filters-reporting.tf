@@ -24,7 +24,7 @@ locals {
     },
     "duplicate_row_checker_metric_filter" = {
       name         = "duplicate-row-alert-count"
-      pattern      = "{ $.message = \"DuplicateRowCheckerJob: Found*\" }"
+      pattern      = "\"DuplicateRowCheckerJob: Found\""
       metric_value = 1
     }
   }
