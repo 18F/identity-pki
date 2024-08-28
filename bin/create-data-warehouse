@@ -71,10 +71,10 @@ EOM
 
 0_validate_idp_terraform_configuration() {
   aws_account_id=$(aws-vault exec sandbox-terraform -- aws sts get-caller-identity --output text --query 'Account')
-  tfvars_names="$(bin/deploy/get-tfvars-for-env "$aws_account_id" "$TF_ENV" "" | tr '\n' ' ')"
+  # shellcheck disable=SC2207
+  tfvars_names=($(bin/deploy/get-tfvars-for-env "$aws_account_id" "$TF_ENV" ""))
 
-  search=$({ grep -oe 'enable_dms_analytics\s*=\s*true' "$tfvars_names" || :;} | wc -l )
-
+  search=$({ grep -oe 'enable_dms_analytics\s*=\s*true' "${tfvars_names[@]}" || :;} | wc -l )
   if [[ ! $search -eq 1 ]]
   then
     raise "Missing required configuration values. Please verify enable_dms_analytics is set to true."
@@ -120,7 +120,7 @@ EOM
 }
 
 4_tf_deploy_idp_app_minimum_resources() {
-  aws-vault exec sandbox-terraform --  "${BASEPATH}/tf-deploy" "$TF_ENV}" app apply -target=aws_iam_role.replication -auto-approve
+  aws-vault exec sandbox-terraform --  "${BASEPATH}/tf-deploy" "${TF_ENV}" app apply -target=aws_iam_role.replication -auto-approve
 }
 
 5_tf_deploy_data_warehouse() {
