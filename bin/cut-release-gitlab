@@ -71,6 +71,7 @@ echo
 verify_root_repo
 
 declare {OLD_RELEASE_DATE,NEW_VERSION_MR,BREAKING_MRS,REGULAR_MRS}=
+MR_LIST=()
 TODO=()
 TASKS=(
   "1_remote_tag"
@@ -125,30 +126,34 @@ if [[ ! -z ${TODO-} ]]; then
   fi
 fi
 
-# get data on last 100 MRs: id, title, and date merged. from there,
-# find the MR of the last release. keep incrementing the number of MRs
-# to check if not found, and bail out at 500 MRs
-echo_cyan "Finding MR for previous release 'v${OLD_RELEASE}'..."
-MR_NUM=100
-while [[ -z ${OLD_RELEASE_DATE} ]]; do
-  MR_LIST=$(glab mr list -t main -M -P 100 -F json |
-    jq '.[]|{id:.iid,title:.title,date:.merged_at}')
+# get data on last 1000 MRs: id, title, and date merged.
+echo_cyan "Getting merge request (MR) data..."
+for PAGE_NUM in $(seq 1 10) ; do
+  MR_LIST+=($(glab mr list -t main -M -P 100 -F json -p ${PAGE_NUM} |
+            jq '.[]|{id:.iid,title:.title,date:.merged_at}'))
+done
 
-  OLD_RELEASE_DATE=$(echo "${MR_LIST}" |
+# find the MR of the last release. keep incrementing the number of MRs
+# to check (by page number x 100) if not found, and bail out at 200 MRs
+echo_cyan "Finding MR for previous release 'v${OLD_RELEASE}'..."
+while [[ -z ${OLD_RELEASE_DATE} ]]; do
+  OLD_RELEASE_DATE=$(echo "${MR_LIST[@]}" |
     jq -r --arg OLD_RELEASE "Release v${OLD_RELEASE}" \
     '.|select(.title == $OLD_RELEASE).date')
-  if [[ ${MR_NUM} -lt 500 ]]; then
-    ((MR_NUM += 100))
+  if [[ ${PAGE_NUM} -lt 20 ]]; then
+    ((PAGE_NUM++))
+    MR_LIST+=($(glab mr list -t main -M -P 100 -F json -p ${PAGE_NUM} |
+            jq '.[]|{id:.iid,title:.title,date:.merged_at}'))
   else
-    echo_red "Previous release 'v${OLD_RELEASE}' was not found in the last ${MR_NUM} MRs."
+    echo_red "Previous release 'v${OLD_RELEASE}' not found in the last $((${PAGE_NUM} * 10)) MRs."
     raise "Verify release number in VERSION.txt and try again"
   fi
 done
 
-# get all MRs since last release; separate out anything marked '(BREAKING)'
-RELEASE_MRS=$(echo "${MR_LIST}" |
+# sort list of MRs by .date (merged_at), separate out anything marked '(BREAKING)'
+RELEASE_MRS=$(echo "${MR_LIST[@]}" | jq -s '.|sort_by(.date)|reverse' |
   jq -r --arg RELEASE_DATE "$OLD_RELEASE_DATE" \
-  '.|select(.date > $RELEASE_DATE)|"- !" + (.id|tostring) + "  " + .title')
+  '.[]|select(.date > $RELEASE_DATE)|"- !" + (.id|tostring) + "  " + .title')
 REGULAR_MRS=$(echo "${RELEASE_MRS}" | grep -v BREAKING) || true
 if [[ $(echo "${RELEASE_MRS}" | grep BREAKING) ]]; then
   BREAKING_MRS="
