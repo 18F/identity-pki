@@ -157,6 +157,7 @@ ORIGIN_REMOTE_NAME="${ORIGIN_REMOTE_NAME-origin}"
 
 # Parse options
 declare {IMPORT_REMOTE_STATE,TEST_ONLY,EXTRA_ENV}=
+TERRAFORM_SLACK_CHANNEL=0
 LOCAL_LOCKFILE=0
 while [ $# -gt 0 ] && [[ $1 == -* ]]; do
     case "$1" in
@@ -708,7 +709,8 @@ EOM
         -e "${TF_SLACK_EMOJI}" \
         -p "${SLACK_PRETEXT}" \
         -m "${SLACK_MESSAGE}" \
-        -y "${MODULE_STYLE}"
+        -y "${MODULE_STYLE}" \
+        -c "${TERRAFORM_SLACK_CHANNEL}"
 fi
 
 if [ "$DEPLOY_FAIL" == 'true' ] ; then exit 1 ; fi

@@ -20,3 +20,7 @@ ID_state_lock_table=terraform_locks
 if [ -z "${AWS_PROFILE-}${AWS_ACCESS_KEY_ID-}" ]; then
     export AWS_PROFILE="login-tooling"
 fi
+
+# send tf-deploy success/failure events to #login-personal-events
+# DO NOT REMOVE except for gitstaging/production which send to #login-change
+TERRAFORM_SLACK_CHANNEL='#login-personal-events'

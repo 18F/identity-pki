@@ -199,20 +199,21 @@ verify_tf_dir_and_env() {
 
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify() {
-  local AWS_ACCT_NUM TF_ENV AWS_REGION SLACK_ICON SLACK_USER SLACK_EMOJI PRE_TEXT TEXT TF_TYPE KEYS
+  local AWS_ACCT_NUM TF_ENV AWS_REGION SLACK_ICON SLACK_USER SLACK_EMOJI PRE_TEXT TEXT TF_TYPE KEYS SLACK_CHANNEL
 
-  while getopts n:t:r:i:u:e:p:m:y: opt
+  while getopts n:t:r:i:u:e:p:m:y:c: opt
   do
     case "${opt}" in
-      n) AWS_ACCT_NUM="${OPTARG}" ;;
-      t) TF_ENV="${OPTARG}"       ;;
-      r) AWS_REGION="${OPTARG}"   ;;
-      i) SLACK_ICON="${OPTARG}"   ;;
-      u) SLACK_USER="${OPTARG}"   ;;
-      e) SLACK_EMOJI="${OPTARG}"  ;;
-      p) PRE_TEXT="${OPTARG}"     ;;
-      m) TEXT="${OPTARG}"         ;;
-      y) TF_TYPE="${OPTARG}"      ;;
+      n) AWS_ACCT_NUM="${OPTARG}"  ;;
+      t) TF_ENV="${OPTARG}"        ;;
+      r) AWS_REGION="${OPTARG}"    ;;
+      i) SLACK_ICON="${OPTARG}"    ;;
+      u) SLACK_USER="${OPTARG}"    ;;
+      e) SLACK_EMOJI="${OPTARG}"   ;;
+      p) PRE_TEXT="${OPTARG}"      ;;
+      m) TEXT="${OPTARG}"          ;;
+      y) TF_TYPE="${OPTARG}"       ;;
+      c) SLACK_CHANNEL="${OPTARG}" ;;
     esac
   done
 
@@ -221,12 +222,14 @@ slack_notify() {
     BUCKET="${BUCKET}/${TF_ENV}"
   fi
 
-  if ! SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" - 2>/dev/null) ; then
-    if [[ ${TF_TYPE} == 0 ]] ; then
-      BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
-      SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" -) || ((KEYS++))
-    else
-      SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
+  if [[ ${SLACK_CHANNEL} == 0 ]] ; then
+    if ! SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" - 2>/dev/null) ; then
+      if [[ ${TF_TYPE} == 0 ]] ; then
+        BUCKET="s3://login-gov.secrets.${AWS_ACCT_NUM}-${AWS_REGION}"
+        SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/tfslackchannel" -) || ((KEYS++))
+      else
+        SLACK_CHANNEL=$(aws s3 cp "${BUCKET}/slackchannel" -) || ((KEYS++))
+      fi
     fi
   fi
   SLACK_WEBHOOK=$(aws ssm get-parameter --name '/account/slack/webhook/url' --output text --with-decryption --query 'Parameter.Value') || ((KEYS++))
