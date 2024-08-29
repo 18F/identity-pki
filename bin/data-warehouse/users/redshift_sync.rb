@@ -33,7 +33,7 @@ end
 
 def secret_arn
   @secret_arn ||= Aws::SecretsManager::Client.new(region: 'us-west-2')
-                                             .describe_secret(secret_id: "redshift!#{env_name}-analytics-superuser")
+                                             .describe_secret(secret_id: "redshift/#{env_name}-analytics-superuser")
                                              .arn
 end
 
