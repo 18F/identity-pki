@@ -178,7 +178,9 @@ locals {
         {
           $.name="IdV: doc auth verify proofing results" &&
           $.properties.event_properties.proofing_results.context.stages.state_id.exception = "*" &&
-          $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id"
+          $.properties.event_properties.proofing_results.context.stages.state_id.vendor_name = "aamva:state_id" &&
+          ($.properties.event_properties.proofing_results.context.stages.state_id.jurisdiction_in_maintenance_window IS FALSE ||
+             $.properties.event_properties.proofing_results.context.stages.state_id.jurisdiction_in_maintenance_window NOT EXISTS)
         }
       EOT
     },
