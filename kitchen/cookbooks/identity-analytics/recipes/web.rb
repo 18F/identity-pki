@@ -97,12 +97,6 @@ else
   Chef::Log.info("No #{nginx_mime_types} - synced asset MIME types may be wrong")
 end
 
-file '/etc/init.d/passenger' do
-  action :nothing
-  notifies(:restart, 'service[passenger]')
-  only_if { ::File.exist?('/etc/init.d/passenger') && !node['login_dot_gov']['setup_only'] }
-end
-
 
 web_system_user = node.fetch('login_dot_gov').fetch('web_system_user')
 

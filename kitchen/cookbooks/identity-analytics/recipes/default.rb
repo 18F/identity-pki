@@ -1,5 +1,4 @@
 include_recipe 'login_dot_gov::nginx_base'
-include_recipe 'login_dot_gov::passenger_service'
 include_recipe 'identity-analytics::pgbouncer_autoconfig'
 include_recipe 'identity-analytics::base'
 include_recipe 'identity-analytics::web'
