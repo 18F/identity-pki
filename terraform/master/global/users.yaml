@@ -396,14 +396,6 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
-  harlan.weber:
-    aws_groups:
-    - analytics
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
-    - Joy
   henry.richardson:
     aws_groups:
     - devops
