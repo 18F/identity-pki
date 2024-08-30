@@ -68,7 +68,7 @@ resource "aws_lambda_permission" "allow_eventbridge_to_invoke_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.incident_manager_actions_lambda[each.key].function_name
   principal     = "events.amazonaws.com"
-  source_arn    = "arn:aws:events:${var.region}:${data.aws_caller_identity.current.account_id}:rule/aws.partner/newrelic.com/*/${each.key}-*/new-relic-incident-manager-${each.key}-*"
+  source_arn    = "arn:aws:events:${var.region}:${data.aws_caller_identity.current.account_id}:rule/aws.partner/newrelic.com/*/${each.key}*/new-relic-incident-manager-${each.key}*"
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_invoke_lambda" {

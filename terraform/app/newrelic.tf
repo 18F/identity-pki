@@ -108,5 +108,11 @@ resource "aws_cloudwatch_event_target" "new_relic" {
   rule           = aws_cloudwatch_event_rule.new_relic[each.value].name
   event_bus_name = "aws.partner/newrelic.com/${data.newrelic_account.current.account_id}/${each.value}-${var.env_name}"
   target_id      = "new-relic-incident-manager-${each.value}-${var.env_name}"
-  arn            = "arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${each.value}-incident-manager-actions"
+  arn = join(":", [
+    "arn:aws:lambda",
+    var.region,
+    data.aws_caller_identity.current.account_id,
+    "function:${each.value == "appdev_enduser" ? "appdev" : each.value}-incident-manager-actions"
+  ])
+
 }
