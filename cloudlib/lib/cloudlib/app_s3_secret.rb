@@ -259,10 +259,10 @@ module Cloudlib
 
           has_smart_quotes = parsed['production'].any? do |key, value|
             value.kind_of?(String) && (
-              value.start_with?('“') ||
-                value.start_with?('‘') ||
-                value.end_with?('”') ||
-                value.end_with?('’')
+              value.include?('“') ||
+                value.include?('‘') ||
+                value.include?('”') ||
+                value.include?('’')
             )
           end
           raise "smart/curly quotes in YAML detected [“”‘’]" if has_smart_quotes
