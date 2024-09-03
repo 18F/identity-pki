@@ -755,8 +755,12 @@ locals {
     "arn:aws:s3:::login-gov.s3-inventory",
     "${data.aws_caller_identity.current.account_id}-${var.region}"
   ])
-  incident_manager_teams = flatten([[for k, v in yamldecode(file("../master/global/users.yaml"))["oncall_teams"] : k], [var.idp_enduser_newrelic_alerts_enabled == 1 ? "appdev_enduser" : null]])
-  dnssec_runbook_prefix  = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
+  incident_manager_teams = flatten([
+    [
+    for k, v in yamldecode(file("../master/global/users.yaml"))["oncall_teams"] : k],
+    var.idp_enduser_newrelic_alerts_enabled == 1 ? ["appdev_enduser"] : []
+  ])
+  dnssec_runbook_prefix = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
 }
 
 # These variables are used to toggle whether certain services are enabled.
