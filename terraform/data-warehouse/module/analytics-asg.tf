@@ -35,7 +35,7 @@ module "analytics_launch_template" {
   env            = var.env_name
   root_domain    = var.root_domain
   ami_id_map     = var.ami_id_map
-  default_ami_id = local.default_rails_ami_id
+  default_ami_id = var.rails_ami_analytics_sandbox_uw2
 
   instance_type             = var.instance_type_analytics
   iam_instance_profile_name = aws_iam_instance_profile.analytics.name

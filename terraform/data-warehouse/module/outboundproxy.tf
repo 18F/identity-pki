@@ -28,7 +28,7 @@ module "outbound_proxy" {
   bootstrap_main_s3_ssh_key_url        = local.bootstrap_main_s3_ssh_key_url
   bootstrap_private_s3_ssh_key_url     = local.bootstrap_private_s3_ssh_key_url
   cloudwatch_treat_missing_data        = var.cloudwatch_treat_missing_data
-  default_ami_id                       = local.default_base_ami_id
+  default_ami_id                       = var.base_ami_analytics_sandbox_uw2
   env_name                             = var.env_name
   fisma_tag                            = var.fisma_tag
   hostname                             = "obproxy.login.gov.internal"

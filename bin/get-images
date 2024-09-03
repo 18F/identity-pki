@@ -145,8 +145,11 @@ update_vars() {
     UBUNTU_VERSION=$(echo ${LINE} | awk -F+ '{print $5}' | sed -E 's/(Ubuntu)-/\1 /g')
     AMI_REGION=$(echo ${LINE} | awk -F+ '{print $6}' | sed -E 's/([a-z0-9])[a-z0-9]+\-/\1/g')
 
-    if [[ "${AMI_ACCT}" =~ 'tooling|analytics' ]]; then
+    if [[ "${AMI_ACCT}" =~ 'tooling' ]]; then
       AMI_VAR="default_ami_id"
+    elif [[ "${AMI_ACCT}" =~ 'analytics' ]]; then
+      AMI_ACCT_VAR=$(echo "${AMI_ACCT}" | sed -E 's/-/_/')
+      AMI_VAR="${AMI_TYPE}_ami_${AMI_ACCT_VAR}_${AMI_REGION}"
     else
       AMI_VAR="${AMI_TYPE}_ami_${AMI_ACCT}_${AMI_REGION}"
     fi
@@ -155,14 +158,14 @@ update_vars() {
     TF_VARS_PATHS=()
     if [[ "${AMI_ACCT}" == "tooling-prod" ]]; then
       TF_VARS_PATHS+=('terraform/gitlab/production/main.tf')
-    elif [[ "${AMI_ACCT}" == "analytics-sandbox" ]]; then
+    elif [[ "${AMI_ACCT}" =~ "analytics" ]]; then
       TF_VARS_PATHS+=('terraform/data-warehouse/module/variables.tf')
     else
       TF_VARS_PATHS+=('terraform/app/variables.tf')
     fi
 
     for VAR_PATH in "${TF_VARS_PATHS[@]:-}"; do
-      if [[ "${VAR_PATH}" =~ 'app' ]]; then
+      if [[ "${VAR_PATH}" =~ (app|warehouse) ]]; then
         sed -i '' -E "/\"${AMI_VAR}\"/{n;s/\ami.+/${AMI_STRING}/;}" \
           "${GIT_DIR}/${VAR_PATH}"
       else

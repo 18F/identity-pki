@@ -13,8 +13,6 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "main"
 
-  default_base_ami_id     = "ami-080c83cdf06637bbf" # 2024-08-27 Ubuntu 20.04
-  default_rails_ami_id    = "ami-0989464765b4ca161" # 2024-08-27 Ubuntu 20.04
   github_ipv4_cidr_blocks = sort(data.github_ip_ranges.meta.git_ipv4)
   network_zones           = toset(keys(local.network_layout[var.region][var.env_type]._zones))
   default_endpoint_security_group_ids = [
@@ -506,4 +504,18 @@ variable "dr_redshift_snapshot_identifier" {
   type        = string
   description = "Identifier of the redshift data warehouse snapshot for snapshot recovery"
   default     = ""
+}
+
+variable "base_ami_analytics_sandbox_uw2" {
+  default     = "ami-004d42c86b06816b8" # 2024-09-02 Ubuntu 20.04
+  description = <<EOM
+us-west-2 AMI ID for 'base' hosts (outboundproxy) in the analytics-sandbox account
+EOM
+}
+
+variable "rails_ami_analytics_sandbox_uw2" {
+  default     = "ami-09deacdbf132cccef" # 2024-09-02 Ubuntu 20.04
+  description = <<EOM
+us-west-2 AMI ID for 'rails' hosts in the analytics-sandbox account
+EOM
 }

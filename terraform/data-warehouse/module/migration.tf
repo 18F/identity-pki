@@ -26,7 +26,7 @@ module "migration" {
   bootstrap_main_s3_ssh_key_url    = var.bootstrap_main_s3_ssh_key_url
   chef_download_url                = var.chef_download_url
   chef_download_sha256             = var.chef_download_sha256
-  rails_ami_id                     = local.default_rails_ami_id
+  rails_ami_id                     = var.rails_ami_analytics_sandbox_uw2
   env_name                         = var.env_name
   fisma_tag                        = var.fisma_tag
   instance_type_migration          = var.instance_type_migration
