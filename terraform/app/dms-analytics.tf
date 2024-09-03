@@ -203,6 +203,7 @@ resource "aws_s3_bucket_replication_configuration" "to_analytics" {
   rule {
     id     = "ToAnalyticsAccount"
     status = "Enabled"
+    filter {}
 
     destination {
 
@@ -212,8 +213,39 @@ resource "aws_s3_bucket_replication_configuration" "to_analytics" {
       access_control_translation {
         owner = "Destination"
       }
+
+      metrics {
+        status = "Enabled"
+      }
+    }
+
+    delete_marker_replication {
+      status = "Enabled"
     }
   }
+}
+
+resource "aws_cloudwatch_metric_alarm" "s3_replication_failed_operations_analytics" {
+  count               = var.enable_dms_analytics ? 1 : 0
+  alarm_name          = "${var.env_name}-idp-s3-toAnalyticsAccount-replicationFailedAlarm"
+  alarm_description   = "Alarm when S3 replication operations fail in analytics export bucket."
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "OperationsFailedReplication"
+  namespace           = "AWS/S3"
+  period              = 3600
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+
+  dimensions = {
+    BucketName  = aws_s3_bucket.analytics_export[count.index].id
+    StorageType = "AllStorageTypes"
+  }
+
+  alarm_actions = local.low_priority_dw_alarm_actions
+
+  actions_enabled = true
 }
 
 data "aws_iam_policy_document" "replication" {
