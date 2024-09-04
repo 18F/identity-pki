@@ -5,10 +5,11 @@
   "chef_type": "environment",
   "default_attributes": {
     "login_dot_gov": {
+      "deploy_branch": {
+        "identity-pivcac": "main"
+      },
       "allow_unsafe_migrations": true
     }
   },
-  "override_attributes": {
-
-  }
+  "override_attributes": {}
 }
