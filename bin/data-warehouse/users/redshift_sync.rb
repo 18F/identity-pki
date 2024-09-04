@@ -167,18 +167,16 @@ def create_lambda_user(user_name, schemas)
     user_exists_result = query_results(user_exists_query['id'])
   end
 
-  return if user_exists_result.any?
-
   schema_privileges = schemas.map do |schema|
     create_lambda_user_privileges(user_name, schema)
   end
 
-  sql = <<~SQL
-    CREATE USER #{user_name} WITH PASSWORD DISABLE;
-    #{schema_privileges.join("\n")}
-  SQL
+  sql = [
+    *("CREATE USER #{user_name} WITH PASSWORD DISABLE;" unless user_exists_result.any?),
+    schema_privileges
+  ]
 
-  query_succeded?(execute_query(sql)['id'])
+  query_succeded?(execute_query(sql.flatten.join("\n"))['id'])
 end
 
 def create_lambda_user_privileges(user_name, schema)
@@ -260,11 +258,11 @@ def main
   @logger = Logger.new($stdout)
   @logger.level = Logger::INFO
 
-  user_groups.each do |user_group|
-    create_user_group(user_group)
-  end
   lambda_users.each do |lambda_user|
     create_lambda_user(lambda_user['user_name'], lambda_user['schemas'])
+  end
+  user_groups.each do |user_group|
+    create_user_group(user_group)
   end
   drop_users
   create_users
