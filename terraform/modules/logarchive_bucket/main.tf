@@ -1,7 +1,10 @@
 ##### Variables
 
 locals {
-  aws_alias = trimprefix(data.aws_iam_account_alias.current.account_alias, "login-")
+  aws_alias = var.archive_type == "" ? (
+    trimprefix(data.aws_iam_account_alias.current.account_alias, "login-")) : (
+    "${var.archive_type}-${trimprefix(data.aws_iam_account_alias.current.account_alias, "login-log")}"
+  )
 
   bucket_name = join(".", [
     "login-gov.${local.aws_alias}",
@@ -22,6 +25,12 @@ locals {
 variable "kms_key_id" {
   type        = string
   description = "Key ID of the KMS key used for aws:kms encryption"
+}
+
+variable "archive_type" {
+  type        = string
+  description = "Type of archive bucket"
+  default     = ""
 }
 
 ##### Data Sources

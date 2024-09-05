@@ -48,3 +48,35 @@ resource "aws_kms_alias" "logarchive_replica" {
   name          = "alias/${local.aws_alias}-s3"
   target_key_id = aws_kms_replica_key.logarchive.key_id
 }
+
+resource "aws_kms_key" "db_export_archive" {
+  description             = "KMS key for the ${local.aws_alias} DB bucket (primary)"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+  multi_region            = true
+
+  policy = data.aws_iam_policy_document.kms.json
+  tags = {
+    Name = "${local.aws_alias}-db"
+  }
+}
+
+resource "aws_kms_alias" "db_export_archive" {
+  name          = "alias/${local.aws_alias}-db"
+  target_key_id = aws_kms_key.db_export_archive.key_id
+}
+
+resource "aws_kms_replica_key" "db_export_archive" {
+  provider = aws.use1
+
+  description     = "KMS key for the ${local.aws_alias} DB bucket (replica)"
+  policy          = data.aws_iam_policy_document.kms.json
+  primary_key_arn = aws_kms_key.db_export_archive.arn
+}
+
+resource "aws_kms_alias" "db_export_archive_replica" {
+  provider = aws.use1
+
+  name          = "alias/${local.aws_alias}-db"
+  target_key_id = aws_kms_replica_key.db_export_archive.key_id
+}
