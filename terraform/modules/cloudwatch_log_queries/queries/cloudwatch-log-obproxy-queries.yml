@@ -1,0 +1,27 @@
+---
+outboundproxy/allowed-requests-by-destination:
+  logs:
+    - ${env}_/var/log/squid/access.log
+  query: |
+    ## Count allowed outbound requests by destination FQDN
+    parse @message /CONNECT (?<destination>.+:\d+) /
+    | stats count() as count by destination
+    | sort count desc
+
+outboundproxy/blocked-requests:
+  logs:
+    - ${env}_/var/log/squid/access.log
+  query: |
+    ## Find blocked outbound requests
+    filter @message like "TCP_DENIED"
+
+outboundproxy/blocked-requests-by-destination:
+  logs:
+    - ${env}_/var/log/squid/access.log
+  query: |
+    ## Count blocked outbound requests by destionation FQDN
+    filter @message like "TCP_DENIED"
+    | parse @message /TCP_DENIED\/403 \d+ (CONNECT|GET|POST|PUT|HEAD) (?<destination>.+?) -/
+    | stats count() as count by destination
+    | sort count desc
+

@@ -1,44 +1,4 @@
 ---
-database/idp-postgresql-unusual-messages:
-  logs:
-    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
-  query: |
-    ## Look for unusual messages in PostgreSQL logs
-    filter @message not like /DETAIL:/
-    | filter @message not like /STATEMENT:\s+INSERT/
-    | filter @message not like /ERROR:\s+duplicate/
-    | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
-
-database/slow-queries/idp-postgresql-slow-queries:
-  logs:
-    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
-  query: |
-    # Parse logs and search for slow queries
-    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
-    | parse logs "duration:* ms*" as query_duration_ms, statement
-    | filter @message like 'duration'
-    | display date, time, remote_host, query_duration_ms, statement
-
-database/slow-queries/idp-postgresql-slow-queries-avg-max:
-  logs:
-    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
-  query: |
-    # Parse logs and search for slow queries. Show average duration and max duration per minute
-    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
-    | parse logs "duration:* ms*" as query_duration_ms, statement
-    | stats max(query_duration_ms) as max_query_duration, avg(query_duration_ms) as avg_query_duration by bin(1m) as timestamp
-    | sort timestamp desc
-
-database/slow-queries/idp-postgresql-sharelock-waits:
-  logs:
-    - /aws/rds/cluster/login-${env}-idp-aurora-${region}/postgresql
-  query: |
-    # Find all waits for ShareLocks
-    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
-    | parse logs "LOG:  process * * ShareLock on transaction * after * ms" as lock_process, action, transaction_id, lock_duration_ms
-    | filter @message like 'ShareLock'
-    | display @timestamp, lock_process, action, transaction_id, lock_duration_ms
-
 nginx/errors-by-source:
   logs:
     - ${env}_/var/log/nginx/access.log
@@ -90,32 +50,6 @@ nginx/requests-by-ip:
     #
     | sort count desc
 
-outboundproxy/allowed-requests-by-destination:
-  logs:
-    - ${env}_/var/log/squid/access.log
-  query: |
-    ## Count allowed outbound requests by destination FQDN
-    parse @message /CONNECT (?<destination>.+:\d+) /
-    | stats count() as count by destination
-    | sort count desc
-
-outboundproxy/blocked-requests:
-  logs:
-    - ${env}_/var/log/squid/access.log
-  query: |
-    ## Find blocked outbound requests
-    filter @message like "TCP_DENIED"
-
-outboundproxy/blocked-requests-by-destination:
-  logs:
-    - ${env}_/var/log/squid/access.log
-  query: |
-    ## Count blocked outbound requests by destionation FQDN
-    filter @message like "TCP_DENIED"
-    | parse @message /TCP_DENIED\/403 \d+ (CONNECT|GET|POST|PUT|HEAD) (?<destination>.+?) -/
-    | stats count() as count by destination
-    | sort count desc
-
 pii/id-token-hint-use-by-redirect-uri:
   logs:
   - ${env}_/srv/idp/shared/log/production.log
@@ -149,26 +83,6 @@ pivcac/failures-by-service-provider:
     | filter properties.service_provider like /./
     | stats count() as count by properties.service_provider as sp, properties.event_properties.errors.type as error
     | sort by count desc
-
-provisioning/cloud-init-output:
-  logs:
-    - /var/log/cloud-init-output.log
-  query: |
-    ## Find startup/provisioning logs for instances in this environment
-    fields @timestamp, @logStream, @message
-    | filter @logStream like /\.${env}\.[a-z]+\.gov$/
-    #
-    ## Find IdP instances for environment
-    # | filter @logStream like /^idp/
-    #
-    ## Or pick a specific instance
-    # | filter @logStream like /i-053d9cf7cc0bb5b32/
-    #
-    ## Only select the end result (CONTINUE for Good, ABANDON for Bad)
-    # | filter @message like "--lifecycle-action-result"
-    #
-    ## Show most recent lines first
-    | sort @timestamp desc
 
 rails/500s-by-controller:
   logs:
@@ -293,35 +207,3 @@ workers/failed_jobs:
     ## Shows jobs that raised an exception while running
     fields @timestamp, @message
     | filter ispresent(exception_class) and name = 'perform.active_job'
-
-ssm/aws-ssm-commands:
-  logs:
-    - aws-ssm-cmds-${env}
-  query: |
-    ## Shows ssm sessions started in an environment
-    filter detail.eventName = "StartSession"
-    | fields @timestamp, detail.responseElements.sessionId as sessionId, detail.requestParameters.documentName as documentName, detail.sourceIPAddress as sourceIPAddress, detail.userIdentity.arn as userIdentityArn, detail.userIdentity.accessKeyId as accessKeyId
-    ## Uncomment to search for activity by a specific user
-    # | filter userIdentity like /paul.doom/
-    ## Uncomment to search for activity by a specific ssm document name
-    # | filter documentName like /action-account/
-    ## Uncomment to search for activity by a specific source address
-    # | filter sourceIPAddress like /8.8.8.8/
-    ## Uncomment to search for activity by a specific sessionId
-    # | filter sessionId like /paul.doom-06e40423815d036e1/
-    ## Uncomment to search for activity by a specific accessKeyId
-    # | filter accessKeyId like /ASIA5AXYIREUFHDAQF12/
-ssm/aws-ssm-output:
-  logs:
-    - aws-ssm-sessions-${env}
-  query: |
-    ## Shows ssm command output in an environment
-    fields @timestamp, sessionId, target.id as instance, runAsUser
-    | parse @message /"sessionData":\[(?<ssmOutput>.*?)\]/
-    | display @timestamp, sessionId, target.id as instance, runAsUser, ssmOutput
-    ## Uncomment to search for activity by a specific user
-    # | filter runAsUser like /paul.doom/
-    ## Uncomment to search for activity by a specific sessionId
-    # | filter sessionId like /paul.doom-123456789asdfghjk/
-    ## Uncomment to search for activity from a specific instance
-    # | filter instance like /i-123456789asdfghjk/

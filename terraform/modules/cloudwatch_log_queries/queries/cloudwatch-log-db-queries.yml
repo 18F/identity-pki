@@ -1,0 +1,42 @@
+---
+%{ for type_key, type_value in db_types }
+database/${type_key}-postgresql-unusual-messages:
+  logs:
+    - /aws/rds/cluster/${env}-${type_value}/postgresql
+  query: |
+    ## Look for unusual messages in PostgreSQL logs
+    filter @message not like /DETAIL:/
+    | filter @message not like /STATEMENT:\s+INSERT/
+    | filter @message not like /ERROR:\s+duplicate/
+    | filter @message not like /LOG:\s+(checkpoint|duration|recovery|restartpoint)/
+
+database/slow-queries/${type_key}-postgresql-slow-queries:
+  logs:
+    - /aws/rds/cluster/${env}-${type_value}/postgresql
+  query: |
+    # Parse logs and search for slow queries
+    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
+    | parse logs "duration:* ms*" as query_duration_ms, statement
+    | filter @message like 'duration'
+    | display date, time, remote_host, query_duration_ms, statement
+
+database/slow-queries/${type_key}-postgresql-slow-queries-avg-max:
+  logs:
+    - /aws/rds/cluster/${env}-${type_value}/postgresql
+  query: |
+    # Parse logs and search for slow queries. Show average duration and max duration per minute
+    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
+    | parse logs "duration:* ms*" as query_duration_ms, statement
+    | stats max(query_duration_ms) as max_query_duration, avg(query_duration_ms) as avg_query_duration by bin(1m) as timestamp
+    | sort timestamp desc
+
+database/slow-queries/${type_key}-postgresql-sharelock-waits:
+  logs:
+    - /aws/rds/cluster/${env}-${type_value}/postgresql
+  query: |
+    # Find all waits for ShareLocks
+    parse @message "* * *:*(*):*:*:*" as date, time, tz, remote_host, remote_host_port, user, process, logs
+    | parse logs "LOG:  process * * ShareLock on transaction * after * ms" as lock_process, action, transaction_id, lock_duration_ms
+    | filter @message like 'ShareLock'
+    | display @timestamp, lock_process, action, transaction_id, lock_duration_ms
+%{ endfor ~}

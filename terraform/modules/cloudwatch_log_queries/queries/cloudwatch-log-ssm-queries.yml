@@ -1,0 +1,32 @@
+---
+ssm/aws-ssm-commands:
+  logs:
+    - aws-ssm-cmds-${env}
+  query: |
+    ## Shows ssm sessions started in an environment
+    filter detail.eventName = "StartSession"
+    | fields @timestamp, detail.responseElements.sessionId as sessionId, detail.requestParameters.documentName as documentName, detail.sourceIPAddress as sourceIPAddress, detail.userIdentity.arn as userIdentityArn, detail.userIdentity.accessKeyId as accessKeyId
+    ## Uncomment to search for activity by a specific user
+    # | filter userIdentity like /paul.doom/
+    ## Uncomment to search for activity by a specific ssm document name
+    # | filter documentName like /action-account/
+    ## Uncomment to search for activity by a specific source address
+    # | filter sourceIPAddress like /8.8.8.8/
+    ## Uncomment to search for activity by a specific sessionId
+    # | filter sessionId like /paul.doom-06e40423815d036e1/
+    ## Uncomment to search for activity by a specific accessKeyId
+    # | filter accessKeyId like /ASIA5AXYIREUFHDAQF12/
+ssm/aws-ssm-output:
+  logs:
+    - aws-ssm-sessions-${env}
+  query: |
+    ## Shows ssm command output in an environment
+    fields @timestamp, sessionId, target.id as instance, runAsUser
+    | parse @message /"sessionData":\[(?<ssmOutput>.*?)\]/
+    | display @timestamp, sessionId, target.id as instance, runAsUser, ssmOutput
+    ## Uncomment to search for activity by a specific user
+    # | filter runAsUser like /paul.doom/
+    ## Uncomment to search for activity by a specific sessionId
+    # | filter sessionId like /paul.doom-123456789asdfghjk/
+    ## Uncomment to search for activity from a specific instance
+    # | filter instance like /i-123456789asdfghjk/
