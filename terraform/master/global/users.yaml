@@ -872,7 +872,7 @@ users:
     - Radia
   nitesh.nagpal:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     ec2_username:
     - nnagpal
     gitlab_groups:
