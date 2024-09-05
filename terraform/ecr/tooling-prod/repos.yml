@@ -83,12 +83,18 @@ repos:
     <<: *all_write_template
   identity_idp:
     name: "identity-idp/idp"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_idp_cache:
     name: "identity-idp/idp/cache"
     <<: *all_write_template
   identity_pivcac_review:
     name: "identity-pivcac/review"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_pivcac_review_cache:
     name: "identity-pivcac/review/cache"
