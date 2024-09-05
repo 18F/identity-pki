@@ -40,6 +40,7 @@ data "aws_iam_policy_document" "ecr_repo" {
     actions = [
       "ecr:BatchGetImage",
       "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchImportUpstreamImage",
       "ecr:GetDownloadUrlForLayer"
     ]
   }

@@ -11,7 +11,7 @@ readonly_template: &readonly_template
 
 # If you add an existing repo, you may need to import the state, e.g.
 # tf-deploy ecr/tooling import 'module.repos["gitlab-qa"].aws_ecr_repository.ecr_repo' gitlab-qa
-    
+
 repos:
   alpine:
     name: "ecr-public/docker/library/alpine"
@@ -156,3 +156,133 @@ repos:
   tspencertest:
     name: "tspencertest"
     <<: *all_write_template
+  ## third party helm chart images
+  # argo-rollouts
+  argo-rollouts:
+    name: "quay/argoproj/argo-rollouts"
+    <<: *readonly_template
+  argo-rollouts-dashboard:
+    name: "quay/argoproj/kubectl-argo-rollouts"
+    <<: *readonly_template
+  # argocd
+  argocd:
+    name: "quay/argoproj/argocd"
+    <<: *readonly_template
+  dex:
+    name: "github/dexidp/dex"
+    <<: *readonly_template
+  argo-extensions:
+    name: "quay/argoprojlabs/argocd-extension-installer"
+    <<: *readonly_template
+  # aws-load-balancer-controller
+  # (nothing)
+  # cert-manager
+  cert-manager:
+    name: "quay/jetstack/cert-manager-controller"
+    <<: *readonly_template
+  cert-manager-webhook:
+    name: "quay/jetstack/cert-manager-webhook"
+    <<: *readonly_template
+  cert-manager-cainjector:
+    name: "quay/jetstack/cert-manager-cainjector"
+    <<: *readonly_template
+  cert-manager-acmesolver:
+    name: "quay/jetstack/cert-manager-acmesolver"
+    <<: *readonly_template
+  cert-manager-startupapicheck:
+    name: "quay/jetstack/cert-manager-startupapicheck"
+    <<: *readonly_template
+  # cluster-autoscaler
+  cluster-autoscaler:
+    name: "kubernetes/autoscaling/cluster-autoscaler"
+    <<: *readonly_template
+  # external-dns
+  # (nothing)
+  # falco
+  redis-stack:
+    name: "docker-hub/redis/redis-stack"
+    <<: *readonly_template
+  # fluent-bit
+  fluent-bit:
+    name: "docker-hub/fluent/fluent-bit"
+    <<: *readonly_template
+  # ingress-nginx
+  ingress-nginx:
+    name: "kubernetes/ingress-nginx/controller"
+    <<: *readonly_template
+  ingress-nginx-opentelemetry:
+    name: "kubernetes/ingress-nginx/opentelemetry"
+    <<: *readonly_template
+  ingress-nginx-webhook:
+    name: "kubernetes/ingress-nginx/kube-webhook-certgen"
+    <<: *readonly_template
+  # kuma
+  kuma-cni:
+    name: "docker-hub/kumahq/kuma-cni"
+    <<: *readonly_template
+  kuma-cp:
+    name: "docker-hub/kumahq/kuma-cp"
+    <<: *readonly_template
+  kumactl:
+    name: "docker-hub/kumahq/kumactl"
+    <<: *readonly_template
+  kuma-init:
+    name: "docker-hub/kumahq/kuma-init"
+    <<: *readonly_template
+  kuma-dp:
+    name: "docker-hub/kumahq/kuma-dp"
+    <<: *readonly_template
+  # kyverno
+  gh-kyverno:
+    name: "github/kyverno/kyverno"
+    <<: *readonly_template
+  gh-kyvernopre:
+    name: "github/kyverno/kyvernopre"
+    <<: *readonly_template
+  background-controller:
+    name: "github/kyverno/background-controller"
+    <<: *readonly_template
+  cleanup-controller:
+    name: "github/kyverno/cleanup-controller"
+    <<: *readonly_template
+  reports-controller:
+    name: "github/kyverno/reports-controller"
+    <<: *readonly_template
+  # metrics-server
+  metrics-server:
+    name: "kubernetes/metrics-server/metrics-server"
+    <<: *readonly_template
+  addon-resizer:
+    name: "kubernetes/autoscaling/addon-resizer"
+    <<: *readonly_template
+  # pgbouncer
+  # (nothing)
+  # policy-reporter
+  policy-reporter:
+    name: "github/kyverno/policy-reporter"
+    <<: *readonly_template
+  policy-reporter-kyverno-plugin:
+    name: "github/kyverno/policy-reporter-kyverno-plugin"
+    <<: *readonly_template
+  policy-reporter-ui:
+    name: "github/kyverno/policy-reporter-ui"
+    <<: *readonly_template
+  # prometheus
+  prometheus:
+    name: "quay/prometheus/prometheus"
+    <<: *readonly_template
+  prometheus-config-reloader:
+    name: "quay/prometheus-operator/prometheus-config-reloader"
+    <<: *readonly_template
+  prometheus-alertmanager:
+    name: "quay/prometheus/alertmanager"
+    <<: *readonly_template
+  prometheus-node-exporter:
+    name: "quay/prometheus/node-exporter"
+    <<: *readonly_template
+  prometheus-pushgateway:
+    name: "quay/prometheus/pushgateway"
+    <<: *readonly_template
+  kube-state-metrics:
+    name: "kubernetes/kube-state-metrics/kube-state-metrics"
+    <<: *readonly_template
