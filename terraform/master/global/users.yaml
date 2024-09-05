@@ -526,7 +526,7 @@ users:
     - Ada
   john.saile:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     ec2_username:
     - jsaile
     gitlab_groups:
