@@ -56,3 +56,30 @@ resource "aws_s3_bucket_logging" "codepipeline" {
   target_bucket = data.aws_s3_bucket.access_logging.id
   target_prefix = "${aws_s3_bucket.codepipeline.bucket}/"
 }
+
+resource "aws_s3_bucket_policy" "codepipeline" {
+  bucket = aws_s3_bucket.codepipeline.id
+  policy = data.aws_iam_policy_document.s3_reject_non_secure_connections.json
+}
+
+data "aws_iam_policy_document" "s3_reject_non_secure_connections" {
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.codepipeline.arn,
+      "${aws_s3_bucket.codepipeline.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
+}
