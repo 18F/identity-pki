@@ -32,6 +32,7 @@ class IdentifyController < ApplicationController
   end
 
   def render_bad_referrer_error
+    logger.warn("bad_referrer_error: headers are #{request.headers}")
     render_bad_request('Bad referrer')
   end
 
