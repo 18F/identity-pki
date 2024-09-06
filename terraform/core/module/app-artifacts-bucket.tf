@@ -13,6 +13,7 @@ data "aws_iam_policy_document" "app_artifacts_cross_account" {
     for_each = var.cross_account_archive_bucket_access
 
     content {
+      sid = "${split("/", statement.key)[1]}-${each.key}"
       actions = [
         "s3:GetObject",
         "s3:PutObject"

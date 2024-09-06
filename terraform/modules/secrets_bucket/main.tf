@@ -54,9 +54,35 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "secrets" {
 }
 
 resource "aws_s3_bucket_policy" "secrets" {
-  count  = var.policy == "" ? 0 : 1
   bucket = aws_s3_bucket.secrets.id
-  policy = var.policy
+  policy = data.aws_iam_policy_document.secret_bucket_policy.json
+}
+
+data "aws_iam_policy_document" "secret_bucket_policy" {
+  source_policy_documents = var.policy == "" ? [data.aws_iam_policy_document.s3_secure_connections.json] : [var.policy, data.aws_iam_policy_document.s3_secure_connections.json]
+}
+
+data "aws_iam_policy_document" "s3_secure_connections" {
+  statement {
+    sid = "S3DenyNonSecureConnections"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.secrets.arn,
+      "${aws_s3_bucket.secrets.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
 }
 
 resource "aws_s3_bucket_logging" "secrets" {
