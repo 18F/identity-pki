@@ -1,5 +1,6 @@
 data "aws_iam_policy_document" "cloudtrail" {
   statement {
+    sid = "S3GetBucketACL"
     principals {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
@@ -8,10 +9,11 @@ data "aws_iam_policy_document" "cloudtrail" {
       "s3:GetBucketAcl"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}"
+      aws_s3_bucket.cloudtrail.arn
     ]
   }
   statement {
+    sid = "S3PutObjects"
     principals {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
@@ -20,7 +22,7 @@ data "aws_iam_policy_document" "cloudtrail" {
       "s3:PutObject"
     ]
     resources = [
-      "arn:aws:s3:::login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/*"
+      "${aws_s3_bucket.cloudtrail.arn}/*"
     ]
     condition {
       test     = "StringEquals"
@@ -28,6 +30,26 @@ data "aws_iam_policy_document" "cloudtrail" {
       values = [
         "bucket-owner-full-control"
       ]
+    }
+  }
+  statement {
+    sid = "S3DenyNonSecureConnections"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.cloudtrail.arn,
+      "${aws_s3_bucket.cloudtrail.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
     }
   }
 }
