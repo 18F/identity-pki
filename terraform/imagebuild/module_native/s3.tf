@@ -3,7 +3,7 @@ resource "aws_s3_bucket" "codepipeline" {
 
   tags = {
     Name        = local.codepipeline_s3_bucket_name
-    Environment = "${var.env_name}"
+    Environment = var.env_name
   }
 
   lifecycle {

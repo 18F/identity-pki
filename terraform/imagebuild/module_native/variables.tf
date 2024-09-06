@@ -16,33 +16,25 @@ locals {
 
 variable "region" {
   default = "us-west-2"
+  type    = string
 }
 
 variable "name" {
   default = "login"
+  type    = string
 }
 
 variable "env_name" {
+  type = string
 }
 
 variable "account_name" {
+  type = string
 }
 
 variable "fisma_tag" {
   default = "Q-LG"
-}
-
-variable "ami_types" {
-  description = "Names of the types of AMIs being created (base/rails by default)."
-  type        = list(string)
-  default = [
-    "base",
-    "rails"
-  ]
-}
-
-variable "artifact_bucket" {
-  default = "login-gov-public-artifacts-us-west-2"
+  type    = string
 }
 
 variable "packer_config" {
