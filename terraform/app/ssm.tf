@@ -164,7 +164,7 @@ locals {
 }
 
 module "ssm_uw2" {
-  source = "github.com/18F/identity-terraform//ssm?ref=0e5e7c62b940abc34b9661e1af8cbfda8f3f359e"
+  source = "github.com/18F/identity-terraform//ssm?ref=8f71136f23cb01cc09d86d68f7403d1fe8498ea4"
   #source = "../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"
@@ -180,7 +180,7 @@ module "ssm_uw2" {
 
 module "ssm_ue1" {
   count  = var.enable_us_east_1_infra ? 1 : 0
-  source = "github.com/18F/identity-terraform//ssm?ref=0e5e7c62b940abc34b9661e1af8cbfda8f3f359e"
+  source = "github.com/18F/identity-terraform//ssm?ref=8f71136f23cb01cc09d86d68f7403d1fe8498ea4"
   #source = "../../../identity-terraform/ssm"
   providers = {
     aws = aws.use1
