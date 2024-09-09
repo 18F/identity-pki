@@ -89,45 +89,72 @@ module "config_bucket_config" {
 resource "aws_s3_bucket_policy" "config_recorder" {
   depends_on = [aws_s3_bucket.config_recorder]
   bucket     = aws_s3_bucket.config_recorder.id
-  policy     = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AWSConfigBucketPermissionsCheck",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "config.amazonaws.com"
-            },
-            "Action": "s3:GetBucketAcl",
-            "Resource": "arn:aws:s3:::${local.config_recorder_s3_bucket_name}"
-        },
-                {
-            "Sid": "AWSConfigBucketExistenceCheck",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "config.amazonaws.com"
-            },
-            "Action": "s3:ListBucket",
-            "Resource": "arn:aws:s3:::${local.config_recorder_s3_bucket_name}"
-        },
-        {
-            "Sid": "AWSConfigBucketDelivery",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "config.amazonaws.com"
-            },
-            "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::${local.config_recorder_s3_bucket_name}/AWSLogs/${data.aws_caller_identity.current.account_id}/Config/*",
-            "Condition": {
-                "StringEquals": {
-                    "s3:x-amz-acl": "bucket-owner-full-control"
-                }
-            }
-        }
-    ]
+  policy     = data.aws_iam_policy_document.config_recorder_bucket_policy.json
 }
-POLICY
+
+data "aws_iam_policy_document" "config_recorder_bucket_policy" {
+  statement {
+    sid       = "AWSConfigBucketPermissionsCheck"
+    effect    = "Allow"
+    resources = [aws_s3_bucket.config_recorder.arn]
+    actions   = ["s3:GetBucketAcl"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid       = "AWSConfigBucketExistenceCheck"
+    effect    = "Allow"
+    resources = [aws_s3_bucket.config_recorder.arn]
+    actions   = ["s3:ListBucket"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid       = "AWSConfigBucketDelivery"
+    effect    = "Allow"
+    resources = ["${aws_s3_bucket.config_recorder.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/Config/*"]
+    actions   = ["s3:PutObject"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid = "S3DenyNonSecureConnections"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    effect = "Deny"
+    resources = [
+      aws_s3_bucket.config_recorder.arn,
+      "${aws_s3_bucket.config_recorder.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
 }
 
 resource "aws_config_configuration_recorder" "default" {
