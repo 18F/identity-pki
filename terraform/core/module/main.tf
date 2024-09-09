@@ -16,3 +16,7 @@ locals {
   s3_logs_bucket_ue1        = "${local.bucket_name_prefix}.s3-access-logs.${data.aws_caller_identity.current.account_id}-us-east-1"
   dnssec_runbook_prefix     = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
 }
+
+data "aws_s3_bucket" "s3_logs_bucket_uw2" {
+  bucket = local.s3_logs_bucket_uw2
+}
