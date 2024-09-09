@@ -182,19 +182,25 @@ module IdentityKMSMonitor
       # cleanup extra character at beginning of Json string
       jsondata = extracted_fields.fetch('json')
 
-      jsondata = JSON.parse(jsondata)
-
-      encryption_context = jsondata.fetch('kms').fetch('encryption_context')
-      kmsevent.context = encryption_context.fetch('context')
-      kmsevent.uuid = encryption_context.fetch('user_uuid')
-      kmsevent.action = jsondata.fetch('kms').fetch('action')
-
-      dbrecord = get_db_record(kmsevent.get_key, kmsevent.timestamp)
-
-      if dbrecord
-        update_db_record(dbrecord, kmsevent)
+      begin
+        jsondata = JSON.parse(jsondata)
+      rescue => e
+        log.info('Invalid JSON detected. Dropping Record')
       else
-        insert_into_db(kmsevent.get_key, kmsevent.timestamp, kmsevent.to_h)
+        encryption_context = jsondata.fetch('kms').fetch('encryption_context')
+        return if encryption_context.nil?
+        
+        kmsevent.context = encryption_context.fetch('context')
+        kmsevent.uuid = encryption_context.fetch('user_uuid')
+        kmsevent.action = jsondata.fetch('kms').fetch('action')
+
+        dbrecord = get_db_record(kmsevent.get_key, kmsevent.timestamp)
+
+        if dbrecord
+          update_db_record(dbrecord, kmsevent)
+        else
+          insert_into_db(kmsevent.get_key, kmsevent.timestamp, kmsevent.to_h)
+        end
       end
     end
   end
