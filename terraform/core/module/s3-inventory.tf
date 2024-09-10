@@ -10,7 +10,7 @@ module "s3_inventory_uw2" {
 }
 
 module "s3_config_ue1" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=53fd4809b95dfab7e7e10b6ca080f6c89bda459b"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=188d82b9e9b7423f1a71988413ec5899d31807fe"
   #source = "../../../../identity-terraform/state_bucket"
   providers = {
     aws = aws.use1
