@@ -825,7 +825,8 @@ users:
     - true
   moncef.belyamani:
     aws_groups:
-    - apponcall
+    - appdev
+    - prodreadonly
     ec2_username:
     - mbelyamani
     gitlab_groups:

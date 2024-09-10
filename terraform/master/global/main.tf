@@ -137,7 +137,10 @@ module "main" {
       { "KMSAdministrator" = ["Sandbox", "Prod"] }
     ],
     "secops2" = [
-      { "ReadOnly" = ["Sandbox", "Prod", "Master"] },
+      { "ReadOnly" = ["Sandbox", "Prod", "Master"] }
+    ],
+    "prodreadonly" = [
+      { "ReadOnly" = ["Sandbox", "Prod"] }
     ]
   }
 
