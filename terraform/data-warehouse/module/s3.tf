@@ -21,6 +21,48 @@ resource "aws_s3_bucket_ownership_controls" "analytics_import" {
   }
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "data_warehouse" {
+  for_each = toset([
+    aws_s3_bucket.analytics_export.id,
+    aws_s3_bucket.analytics_import.id,
+    aws_s3_bucket.analytics_logs.id,
+  ])
+  bucket = each.key
+
+  rule {
+    id = "ExpireDatabaseCopies"
+    filter {
+      prefix = "public/"
+    }
+
+    noncurrent_version_expiration {
+      newer_noncurrent_versions = 7
+      noncurrent_days           = 7
+    }
+    status = "Enabled"
+  }
+
+  rule {
+    id = "GeneralLifecycle"
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 90
+      storage_class = "INTELLIGENT_TIERING"
+    }
+
+    expiration {
+      days = 2190
+    }
+
+    status = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_acl" "analytics_import" {
   bucket = aws_s3_bucket.analytics_import.id
   acl    = "log-delivery-write"
