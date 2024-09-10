@@ -144,8 +144,6 @@
       datatype: integer
     - name: user_id
       datatype: integer
-    - name: name
-      datatype: string
     - name: totp_timestamp
       datatype: integer
     - name: created_at
@@ -431,8 +429,6 @@
       datatype: integer
     - name: user_id
       datatype: integer
-    - name: name
-      datatype: string
     - name: created_at
       datatype: datetime
     - name: updated_at
@@ -767,9 +763,6 @@
       datatype: integer
     - name: user_id
       datatype: bigint
-    - name: name
-      datatype: string
-      limit: 550
     - name: created_at
       datatype: datetime
     - name: updated_at
