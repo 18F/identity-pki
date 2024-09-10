@@ -36,9 +36,10 @@ resource "aws_cloudwatch_log_metric_filter" "reporting_worker" {
   pattern        = each.value["pattern"]
   log_group_name = aws_cloudwatch_log_group.log["reporting_workers"].name
   metric_transformation {
-    name      = each.value["name"]
-    namespace = "${var.env_name}/reporting-worker"
-    value     = each.value["metric_value"]
+    name          = each.value["name"]
+    namespace     = "${var.env_name}/reporting-worker"
+    value         = each.value["metric_value"]
+    default_value = 0
   }
 }
 
@@ -48,8 +49,9 @@ resource "aws_cloudwatch_log_metric_filter" "reporting_production" {
   pattern        = each.value["pattern"]
   log_group_name = aws_cloudwatch_log_group.log["reporting_production"].name
   metric_transformation {
-    name      = each.value["name"]
-    namespace = "${var.env_name}/reporting-production"
-    value     = each.value["metric_value"]
+    name          = each.value["name"]
+    namespace     = "${var.env_name}/reporting-production"
+    value         = each.value["metric_value"]
+    default_value = 0
   }
 }

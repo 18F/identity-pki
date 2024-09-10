@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import boto3
 
@@ -31,7 +31,7 @@ def lambda_handler(event, context):
 
     logger.debug("S3_BUCKET=%s" % os.environ["S3_BUCKET"])
 
-    current_time = datetime.now()
+    current_time = datetime.now(timezone.utc)
     previous_day_begin = current_time.replace(
         hour=0, minute=0, second=0, microsecond=0
     ) - timedelta(days=1)
