@@ -815,18 +815,6 @@ resource "aws_security_group" "redshift" {
   description = "allow GSA to get to redshift"
   vpc_id      = aws_vpc.analytics_vpc.id
 
-  # ref http://docs.aws.amazon.com/quicksight/latest/user/regions.html
-  ingress {
-    description = "allow quicksight in to redshift via the regional public IPs"
-    from_port   = 5439
-    to_port     = 5439
-    protocol    = "tcp"
-    cidr_blocks = [
-      "52.23.63.224/27",
-      "54.70.204.128/27",
-    ]
-  }
-
   ingress {
     description = "Allow Analytics Hosts into redshift"
     from_port   = 5439
@@ -835,19 +823,6 @@ resource "aws_security_group" "redshift" {
     security_groups = [
       aws_security_group.analytics.id,
       aws_security_group.migration.id
-    ]
-  }
-
-
-  # ref http://docs.aws.amazon.com/quicksight/latest/user/regions.html
-  egress {
-    description = "allow redshift out to quicksight via the regional public IPs"
-    from_port   = 5439
-    to_port     = 5439
-    protocol    = "tcp"
-    cidr_blocks = [
-      "52.23.63.224/27",
-      "54.70.204.128/27",
     ]
   }
 
