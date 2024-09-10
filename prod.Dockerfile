@@ -30,24 +30,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install and configure nginx
-RUN mkdir -p /opt/nginx/src; \
-    chmod 755 /opt/nginx/src; \
-    mkdir -p /var/log/nginx; \
-    chmod 755 /var/log/nginx; \
-    ln -s /var/log/nginx/ /opt/nginx/logs; \
-    wget https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -P /opt/nginx/src; \
-    tar zxpf /opt/nginx/src/nginx-${NGINX_VERSION}.tar.gz -C /opt/nginx/src;
-COPY --chmod=644 ./k8files/fipsmode.patch /opt/nginx/src
-RUN patch -d /opt/nginx/src/nginx-${NGINX_VERSION} -p1 < /opt/nginx/src/fipsmode.patch; \
-    mkdir -p /opt/nginx/src/headers-more-nginx-module-0.34; \
-    wget --no-proxy -O /opt/nginx/src/headers-more-nginx-module-0.34.tar.gz https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v0.34.tar.gz; \
-    tar xzvf /opt/nginx/src/headers-more-nginx-module-0.34.tar.gz -C /opt/nginx/src;
-WORKDIR /opt/nginx/src/nginx-${NGINX_VERSION}
-RUN ./configure --sbin-path=/usr/local/nginx/nginx --prefix=/opt/nginx --with-http_ssl_module --with-ipv6 --with-http_stub_status_module --with-http_realip_module --with-ld-opt="-L/usr/lib/x86_64-linux-gnu" --with-cc-opt="-I/usr/include/x86_64-linux-gnu/openssl" --add-module=/opt/nginx/src/headers-more-nginx-module-0.34 && \
-    make && \
-    make install
-
 # Download RDS Combined CA Bundle
 RUN mkdir -p /usr/local/share/aws \
   && curl https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem > /usr/local/share/aws/rds-combined-ca-bundle.pem \
@@ -66,16 +48,6 @@ RUN bundle config set --local path $BUNDLE_PATH
 RUN bundle config set --local without 'deploy development doc test'
 RUN bundle install --jobs $(nproc)
 RUN bundle binstubs --all
-
-# set IPs up in nginx.conf
-WORKDIR /tmp
-COPY k8files/nginx.conf /opt/nginx/conf/nginx.conf
-RUN curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.prefixes[] | select(.service=="CLOUDFRONT_ORIGIN_FACING") | .ip_prefix' | awk '{printf("  set_real_ip_from %s;\n",$1)}' > /tmp/ips.out && \
-    sed -i '/<REAL_IP4_PLACEHOLDER>/r /tmp/ips.out' /opt/nginx/conf/nginx.conf && \
-    sed -i '/<REAL_IP4_PLACEHOLDER>/d' /opt/nginx/conf/nginx.conf
-RUN curl -s https://ip-ranges.amazonaws.com/ip-ranges.json | jq -r '.ipv6_prefixes[] | select(.service=="CLOUDFRONT") | .ipv6_prefix' | awk '{printf("  set_real_ip_from %s;\n",$1)}' > /tmp/ips.out && \
-    sed -i '/<REAL_IP6_PLACEHOLDER>/r /tmp/ips.out' /opt/nginx/conf/nginx.conf && \
-    sed -i '/<REAL_IP6_PLACEHOLDER>/d' /opt/nginx/conf/nginx.conf
 
 
 
@@ -125,26 +97,6 @@ RUN addgroup --gid 1000 app && \
     mkdir -p $RAILS_ROOT/tmp/pids && \
     mkdir -p $RAILS_ROOT/log
 
-# Copy scripts
-COPY --chown=root:root --chmod=755 ./k8files/update_cert_revocations /usr/local/bin
-COPY --chown=root:root --chmod=755 ./k8files/push_letsencrypt_certs.sh /usr/local/bin/push_letsencrypt_certs.sh
-COPY --chown=root:root --chmod=755 ./k8files/update_letsencrypt_certs /usr/local/bin/update_letsencrypt_certs
-COPY --chown=root:root --chmod=755 ./k8files/configure_environment /usr/local/bin/configure_environment
-
-# install nginx from build
-COPY --from=builder /usr/local/nginx /usr/local/nginx
-COPY --from=builder /opt/nginx /opt/nginx
-COPY --from=builder /var/log/nginx /var/log/nginx
-RUN ln -s /usr/local/nginx/nginx /usr/local/sbin/nginx; \
-    mkdir -p /opt/nginx/conf/conf.d; \
-    chmod 755 /opt/nginx/conf/conf.d; \
-    mkdir -p /opt/nginx/conf/sites.d; \
-    chmod 755 /opt/nginx/conf/sites.d;
-COPY --chmod=644 ./k8files/status-map.conf /opt/nginx/conf/
-COPY --chmod=644 ./k8files/status.conf /opt/nginx/conf/sites.d/
-# this is actually kinda a placeholder, meant to be mounted over
-COPY ./k8files/pivcac.conf /opt/nginx/conf/sites.d/pivcac.conf
-
 # copy rds cert from builder
 COPY --from=builder /usr/local/share/aws/rds-combined-ca-bundle.pem /usr/local/share/aws/rds-combined-ca-bundle.pem
 
@@ -176,7 +128,6 @@ RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
     mkdir -p ${RAILS_ROOT}/tmp/sockets; chmod -R 0755 ${RAILS_ROOT}/tmp/sockets; \
     mkdir -p ${RAILS_ROOT}/config/puma; chmod -R 0755 ${RAILS_ROOT}/config/puma; 
 COPY --chmod=644 ./k8files/newrelic.yml ./config/newrelic.yml
-COPY --chmod=755 ./k8files/puma_production ./config/puma/production.rbtemp
 
 # set bundler up
 RUN bundle config build.nokogiri --use-system-libraries
