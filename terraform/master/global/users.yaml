@@ -1466,6 +1466,10 @@ projects:
     groups:
       Data Analytics:
         access: maintainer
+  lg-people/Prodct:
+    groups:
+      pm:
+        access: owner
 oncall_teams:
   appdev:
     rotations:
