@@ -1090,6 +1090,15 @@ users:
     - lg-public
     - login-security|maintainer
     - Security|maintainer
+  ulises.gomez:
+    aws_groups:
+    - fraudops
+    ec2_username:
+    - ugomez
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
   vishal.parekh:
     aws_groups:
     - devopsnonprod
