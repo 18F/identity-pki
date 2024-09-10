@@ -47,10 +47,16 @@ CHANNEL_FILES=(
 # Check for missing slack settings
 for channel_file in "${CHANNEL_FILES[@]}"; do
   if ! [ -f "$channel_file" ]; then
-    echo 'Slack channel/webhook missing! Verify files and run Chef to repopulate.'
+    echo 'Slack channel missing! Verify files and run Chef to repopulate.'
     exit 1
   fi
 done
+
+WEBHOOK=$(cat /etc/login.gov/keys/slackwebhook)
+if [ -z "$WEBHOOK" ]; then
+  echo 'Slack webhook missing! Verify files and run Chef to repopulate.'
+  exit 1
+fi
 
 ID_USER=$(whoami) || true
 if [[ "${ID_USER}" =~ ^(root|ssm-user|ubuntu|ec2-user|websrv|appinstall) ]] || [ -z "$ID_USER" ] ; then
