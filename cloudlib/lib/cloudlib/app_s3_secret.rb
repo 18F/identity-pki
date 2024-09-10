@@ -30,6 +30,7 @@ module Cloudlib
         prefix: app_secret_path,
         dry_run: dry_run?,
         app: app,
+        env: env,
       ).download(destination: destination)
     end
 
@@ -40,6 +41,7 @@ module Cloudlib
         prefix: app_secret_path,
         dry_run: dry_run?,
         app: app,
+        env: env,
       ).upload(source: source)
     end
 
@@ -49,6 +51,7 @@ module Cloudlib
         prefix: app_secret_path,
         dry_run: dry_run?,
         app: app,
+        env: env,
       ).edit(validate_file: validate_file, autoconfirm: autoconfirm)
     end
 
@@ -93,12 +96,14 @@ module Cloudlib
     end
 
     class UploadDownloadEdit
-      attr_reader :bucket, :prefix, :app
+      PROTECTED_ENVS = ["prod"].freeze
+      attr_reader :bucket, :prefix, :app, :env
 
-      def initialize(bucket:, prefix:, app:, dry_run: false)
+      def initialize(bucket:, prefix:, app:, env:, dry_run: false)
         @bucket = bucket
         @prefix = prefix
         @app = app
+        @env = env
         @dry_run = dry_run
       end
 
@@ -192,6 +197,19 @@ module Cloudlib
           end
           upload(source: tempfile.path) if !dry_run?
         else
+          if PROTECTED_ENVS.include?(@env)
+            STDOUT.puts <<~EOM
+
+            #######################################################################
+            #                               NOTICE                                #
+            #######################################################################
+
+            Uploading this file will change the secrets/config values for the
+            #{@env} environment. If you didn't mean to update #{@env}, select 'n' below
+
+
+            EOM
+          end
           STDOUT.puts "#{basename}: Upload changes to S3? (y/n)"
           fd = IO.sysopen("/dev/tty", "r")
           tty_in = IO.new(fd,"r")
