@@ -15,7 +15,7 @@ assignees: ''
 <!-- HTML code to create a collapsible drop-down for the Terraform plan. -->
 <details><summary><tt>terraform/DIR/ACCT-OR-ENV</tt> plan</summary>
 
-```
+```hcl
 
 ```
 
