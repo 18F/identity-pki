@@ -85,11 +85,9 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
   policy = data.aws_iam_policy_document.cloudtrail.json
 }
 
-resource "aws_s3_bucket_logging" "cloudtrail" {
-  bucket = aws_s3_bucket.cloudtrail.id
-
-  target_bucket = module.tf_state_uw2.s3_access_log_bucket
-  target_prefix = "login-gov-cloudtrail-${data.aws_caller_identity.current.account_id}/"
+moved {
+  from = aws_s3_bucket_logging.cloudtrail
+  to   = module.cloudtrail_bucket_config.aws_s3_bucket_logging.access_logging
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail" {
@@ -130,11 +128,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail" {
 }
 
 module "cloudtrail_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//s3_config?ref=188d82b9e9b7423f1a71988413ec5899d31807fe"
   #source = "../../../../identity-terraform/s3_config"
 
   bucket_name_override = aws_s3_bucket.cloudtrail.id
   inventory_bucket_arn = module.tf_state_uw2.inventory_bucket_arn
+  logging_bucket_id    = module.tf_state_uw2.s3_access_log_bucket
 }
 
 resource "aws_cloudwatch_log_group" "cloudtrail_default" {
@@ -207,3 +206,4 @@ resource "aws_cloudwatch_event_target" "cloudtrail_logging_disabled" {
   target_id = "SendToSlack"
   arn       = aws_sns_topic.slack_usw2["events"].arn
 }
+
