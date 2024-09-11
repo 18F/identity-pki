@@ -85,6 +85,9 @@ EOM
 }
 
 5_delete_tf_locks_table() {
+  run aws dynamodb update-table --table-name terraform_locks --no-deletion-protection-enabled
+  echo_blue "Waiting for deletion protection of \`terraform_locks\` to be removed..."
+  run aws dynamodb wait table-exists --table-name terraform_locks
   run aws dynamodb delete-table --table-name terraform_locks
   echo_blue "Waiting for deletion of \`terraform_locks\` to complete..."
   run aws dynamodb wait table-not-exists --table-name terraform_locks

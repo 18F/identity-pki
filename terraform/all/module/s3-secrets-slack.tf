@@ -7,7 +7,7 @@
 ## us-west-2
 
 module "tf_state_uw2" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=188d82b9e9b7423f1a71988413ec5899d31807fe"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=2d05076e1d089d9e9ab251fa0f11a2e2ceb132a3"
   #source = "../../../../identity-terraform/state_bucket"
 
   remote_state_enabled = 1
@@ -45,7 +45,7 @@ output "main_secrets_bucket_uw2" {
 ## us-east-1
 
 module "tf_state_ue1" {
-  source = "github.com/18F/identity-terraform//state_bucket?ref=188d82b9e9b7423f1a71988413ec5899d31807fe"
+  source = "github.com/18F/identity-terraform//state_bucket?ref=2d05076e1d089d9e9ab251fa0f11a2e2ceb132a3"
   #source = "../../../../identity-terraform/state_bucket"
   providers = {
     aws = aws.use1
