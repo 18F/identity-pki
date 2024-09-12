@@ -77,6 +77,12 @@ func TestResolveUsers(t *testing.T) {
 				"ghost": {
 					Username: "ghost",
 				},
+				// project_xxx_bot users are autocreated by
+				// project access tokens and should be ignored
+				// by the user sync script
+				"project_210_bot_03ed703ab828f27259bc2b5cbcb1b465": {
+					Username: "project_210_bot_03ed703ab828f27259bc2b5cbcb1b465",
+				},
 			},
 			AuthorizedUsers: &AuthorizedUsers{
 				Users: map[string]*AuthUser{

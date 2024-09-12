@@ -619,6 +619,11 @@ func resolveUsers(
 			continue
 		}
 
+		// ignore project_xxx_bot users created by project access tokens
+		if strings.HasPrefix(username, "project_") {
+			continue
+		}
+
 		// Did we create/unblock this user?
 		if _, ok := keptUsers[username]; !ok {
 			if err := blockUser(gitc, user); err != nil {
