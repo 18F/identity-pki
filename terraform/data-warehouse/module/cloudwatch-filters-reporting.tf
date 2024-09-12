@@ -22,9 +22,14 @@ locals {
       pattern      = "\"LogsColumnExtractorJob: Query executed successfully\""
       metric_value = 1
     },
-    "duplicate_row_checker_metric_filter" = {
+    duplicate_row_checker_metric_filter = {
       name         = "duplicate-row-alert-count"
       pattern      = "\"DuplicateRowCheckerJob: Found\""
+      metric_value = 1
+    },
+    pii_row_checker_metric_filter = {
+      name         = "pii-pattern-row-alert"
+      pattern      = "\"PiiRowCheckerJob: Found\""
       metric_value = 1
     }
   }

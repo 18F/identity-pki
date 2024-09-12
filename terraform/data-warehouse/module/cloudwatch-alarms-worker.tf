@@ -109,3 +109,24 @@ resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
 Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
 EOM
 }
+
+resource "aws_cloudwatch_metric_alarm" "pii_row_checker_alert" {
+  count                     = var.enable_dms_analytics ? 1 : 0
+  alarm_name                = "${var.env_name}-PiiRowChecker-Alert"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "pii-pattern-row-alert"
+  namespace                 = "${var.env_name}/reporting-production"
+  period                    = "3600"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+  alarm_description         = <<EOM
+  This alarm is executed when pii pattern have been identified in the table.
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+EOM
+}
