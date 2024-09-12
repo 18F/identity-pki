@@ -1,4 +1,3 @@
-data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 #tfsec:ignore:aws-iam-no-policy-wildcards
@@ -35,7 +34,6 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
     effect = "Allow"
     actions = [
       "ec2:DescribeImages",
-      "ec2:DescribeImageAttribute",
       "ec2:DescribeInstances"
     ]
     resources = ["*"]
@@ -136,3 +134,4 @@ resource "aws_lambda_permission" "cloudwatch_to_ami_cleanup" {
     create_before_destroy = true
   }
 }
+
