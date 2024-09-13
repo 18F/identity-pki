@@ -217,20 +217,8 @@ module Cloudlib
         end
 
         if autoconfirm
-          current_object = s3_client.get_object(
-            bucket: bucket,
-            key: prefix,
-          )
+          check_lock_version!(object: object)
 
-          if current_object.version_id != object.version_id
-            STDERR.puts <<~ERR
-            #{basename}: The file version has changed since editing started.
-            Version changed to #{current_object.version_id}, but we expected to see #{object.version_id}.
-
-            Aborting to avoid overwriting other changes.
-            ERR
-            exit 1
-          end
           upload(source: tempfile.path) if !dry_run?
         else
           if PROTECTED_ENVS.include?(@env)
@@ -252,20 +240,7 @@ module Cloudlib
 
           input = tty_in.read(1)
           if input == 'y'
-            current_object = s3_client.get_object(
-              bucket: bucket,
-              key: prefix,
-            )
-
-            if current_object.version_id != object.version_id
-              STDERR.puts <<~ERR
-              #{basename}: The file version has changed since editing started.
-              Version changed to #{current_object.version_id}, but we expected to see #{object.version_id}.
-
-              Aborting to avoid overwriting other changes.
-              ERR
-              exit 1
-            end
+            check_lock_version!(object: object)
 
             upload(source: tempfile.path) if !dry_run?
           else
@@ -278,6 +253,25 @@ module Cloudlib
       end
 
       private
+
+      # Checks that the version_id of the S3 object has not changed
+      # Prints an error message and exits if the versions differ
+      def check_lock_version!(object:)
+        current_object = s3_client.get_object(
+          bucket: bucket,
+          key: prefix,
+        )
+
+        if current_object.version_id != object.version_id
+          STDERR.puts <<~ERR
+            #{basename}: The file version has changed since editing started.
+            Version changed to #{current_object.version_id}, but we expected to see #{object.version_id}.
+
+            Aborting to avoid overwriting other changes.
+          ERR
+          exit 1
+        end
+      end
 
       # logs an equivalent aws command line
       def log_aws_cp_command(source:, destination:)
