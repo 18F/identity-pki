@@ -18,7 +18,7 @@ resource "aws_cloudwatch_log_group" "account_uw2" {
   provider = aws.usw2
 
   name              = each.key
-  retention_in_days = var.cloudwatch_retention_days
+  retention_in_days = local.cloudwatch_retention_days
   skip_destroy      = true
 }
 
@@ -35,6 +35,6 @@ resource "aws_cloudwatch_log_group" "account_ue1" {
   provider = aws.use1
 
   name              = each.key
-  retention_in_days = var.cloudwatch_retention_days
+  retention_in_days = local.cloudwatch_retention_days
   skip_destroy      = true
 }

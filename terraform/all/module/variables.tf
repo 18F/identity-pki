@@ -1,5 +1,6 @@
 locals {
-  common_account_name = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
+  cloudwatch_retention_days = strcontains(var.iam_account_alias, "prod") ? 2192 : var.cloudwatch_retention_days
+  common_account_name       = var.iam_account_alias == "login-master" ? "global" : replace(var.iam_account_alias, "login-", "")
 
   data_warehouse_enabled = var.account_purpose == "data_warehouse"
 
@@ -473,7 +474,7 @@ EOM
 }
 
 variable "cloudwatch_retention_days" {
-  default     = 0
+  default     = 30
   description = <<EOM
 Number of days to retain CloudWatch Logs for all Log Groups defined in either the
 local.cloudwatch_log_group_names or var.account_cloudwatch_log_groups variable(s).
