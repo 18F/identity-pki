@@ -24,12 +24,12 @@ module "main" {
     iam_analytics_enabled      = true
     iam_auto_terraform_enabled = true
     iam_billing_enabled        = false
-    iam_fraudops_enabled       = true
+    iam_fraudops_enabled       = false # No FraudOps Role User Story
     iam_power_enabled          = true
     iam_readonly_enabled       = false
     iam_reports_enabled        = false # No reports buckets defined yet
     iam_socadmin_enabled       = true
-    iam_supporteng_enabled     = true
+    iam_supporteng_enabled     = false # No Support Role User Story
     iam_terraform_enabled      = true
   }
 
