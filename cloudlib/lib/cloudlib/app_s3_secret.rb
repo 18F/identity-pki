@@ -12,8 +12,44 @@ module Cloudlib
     attr_reader :app, :env, :remote_file, :region
 
     # To get current values, run the following in an IDP console:
-    # puts IdentityConfig.key_types.filter { |key, type| type == :json }.map { |key, _type| key.to_s }.sort.inspect
-    IDP_JSON_KEYS = ['aamva_sp_banlist_issuers','aamva_supported_jurisdictions','address_identity_proofing_supported_country_codes','allowed_ialmax_providers','attribute_encryption_key_queue','country_phone_number_overrides','deleted_user_accounts_report_configs','disposable_email_services','gpo_designated_receiver_pii','hmac_fingerprinter_key_queue','idv_getting_started_a_b_testing','idv_tmx_test_csp_disabled_emails','idv_tmx_test_js_disabled_emails','nonessential_email_banlist','phone_recaptcha_country_score_overrides,','pinpoint_sms_configs','pinpoint_voice_configs','pinpoint_voice_configs','risc_notifications_rate_limit_overrides','saml_endpoint_configs','skip_encryption_allowed_list','sp_issuer_user_counts_report_configs','valid_authn_contexts','verification_errors_report_configs','voip_allowed_phones', 'weekly_auth_funnel_report_config']
+    # puts Identity::Hostdata.config_builder.key_types.filter { |key, type| type == :json }.map { |key, _type| key.to_s }.sort.join("\n")
+    IDP_JSON_KEYS = %w[
+      aamva_supported_jurisdictions
+      address_identity_proofing_supported_country_codes
+      allowed_biometric_ial_providers
+      allowed_ialmax_providers
+      allowed_valid_authn_contexts_semantic_providers
+      allowed_verified_within_providers
+      attribute_encryption_key_queue
+      component_previews_embed_frame_ancestors
+      country_phone_number_overrides
+      deleted_user_accounts_report_configs
+      disposable_email_services
+      doc_auth_supported_country_codes
+      drop_off_report_config
+      gpo_designated_receiver_pii
+      hmac_fingerprinter_key_queue
+      openid_connect_redirect_issuer_override_map
+      openid_connect_redirect_uuid_override_map
+      phone_carrier_registration_blocklist_array
+      phone_recaptcha_country_score_overrides
+      pinpoint_sms_configs
+      pinpoint_voice_configs
+      protocols_report_config
+      risc_notifications_rate_limit_overrides
+      saml_endpoint_configs
+      skip_encryption_allowed_list
+      socure_webhook_secret_key_queue
+      sp_issuer_user_counts_report_configs
+      team_all_login_emails
+      team_daily_fraud_metrics_emails
+      team_daily_reports_emails
+      team_monthly_fraud_metrics_emails
+      valid_authn_contexts
+      valid_authn_contexts_semantic
+      verification_errors_report_configs
+      weekly_auth_funnel_report_config
+    ]
 
     def initialize(app: nil, env: nil, remote_file: nil, dry_run: false, region: nil)
       @app = app
