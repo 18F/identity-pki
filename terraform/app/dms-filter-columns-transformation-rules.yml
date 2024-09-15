@@ -31,9 +31,6 @@
       datatype: datetime
     - name: aal
       datatype: integer
-    - name: nonce
-      datatype: string
-      limit: 360
     - name: requested_aal_value
       datatype: text
 
