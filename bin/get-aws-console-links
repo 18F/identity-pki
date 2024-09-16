@@ -44,22 +44,18 @@ for GROUP in $(aws iam list-groups-for-user \
 done
 
 MASTER_FILE='terraform/master/global/main.tf'
-# shellcheck disable=SC1003
-ACCOUNT_TYPES=$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' ${MASTER_FILE})}" |
-                sed -E 's/\]\}/\]\'$'\n\}/;s/ = /\: /g;s/ #.+$//g')
+
+read -ra ALL_ACCOUNT_IDS <<< "$(sed -E '1,/aws_account_types/d;/\}/,$d' ${MASTER_FILE} | grep -Eo '[0-9]{12}' | tr '\n' ' ')"
+
 for POLICY in $(echo "${FOUND_POLICIES[@]}" |
                 tr -s '[:blank:]' '\n' | sort -u | tr '\n' ' ') ; do
-  ACCOUNT=$(echo "$POLICY" | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/')
   ROLE=$(echo "$POLICY" | sed -E 's/.*Assume//')
   SHORT_ROLE=$(grep -wlr "${ROLE}" terraform/all/module/iam-role-*.tf |
                sed -E 's/.*\-([a-z]+)\.tf/\1/')
-  for ACCOUNT_ID in $(echo "$ACCOUNT_TYPES" | jq -r --arg ACCOUNT "$ACCOUNT" '.[$ACCOUNT][]') ; do
+  for ACCOUNT_ID in "${ALL_ACCOUNT_IDS[@]}" ; do
     SHORT_ACCT=$(grep -E "^\s+\"${ACCOUNT_ID}\"" "${MASTER_FILE}" |
       sed -E 's/.+login-([a-z-]+).*/\1/')
     ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role+${ROLE}")
     echo "https://signin.aws.amazon.com/switchrole?account=${ACCOUNT_ID}&roleName=${ROLE}&displayName=${SHORT_ACCT}-${SHORT_ROLE}"
   done
 done
-
-
-
