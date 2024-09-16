@@ -5,14 +5,6 @@ resource "aws_s3_bucket" "analytics_import" {
   ])
 }
 
-locals {
-  query_roles = [
-    "FullAdministrator",
-    "Terraform",
-    "AutoTerraform",
-  ]
-}
-
 resource "aws_s3_bucket_ownership_controls" "analytics_import" {
   bucket = aws_s3_bucket.analytics_import.id
 
@@ -21,13 +13,8 @@ resource "aws_s3_bucket_ownership_controls" "analytics_import" {
   }
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "data_warehouse" {
-  for_each = toset([
-    aws_s3_bucket.analytics_export.id,
-    aws_s3_bucket.analytics_import.id,
-    aws_s3_bucket.analytics_logs.id,
-  ])
-  bucket = each.key
+resource "aws_s3_bucket_lifecycle_configuration" "analytics_import" {
+  bucket = aws_s3_bucket.analytics_import.id
 
   rule {
     id = "ExpireDatabaseCopies"
@@ -41,6 +28,54 @@ resource "aws_s3_bucket_lifecycle_configuration" "data_warehouse" {
     }
     status = "Enabled"
   }
+
+  rule {
+    id = "GeneralLifecycle"
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 90
+      storage_class = "INTELLIGENT_TIERING"
+    }
+
+    expiration {
+      days = 2190
+    }
+
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "analytics_export" {
+  bucket = aws_s3_bucket.analytics_export.id
+
+  rule {
+    id = "GeneralLifecycle"
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 90
+      storage_class = "INTELLIGENT_TIERING"
+    }
+
+    expiration {
+      days = 2190
+    }
+
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "analytics_logs" {
+  bucket = aws_s3_bucket.analytics_logs.id
 
   rule {
     id = "GeneralLifecycle"
