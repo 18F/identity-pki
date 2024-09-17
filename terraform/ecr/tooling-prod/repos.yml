@@ -156,6 +156,9 @@ repos:
   tspencertest:
     name: "tspencertest"
     <<: *all_write_template
+  eks_deploy:
+    name: "eks_deploy"
+    <<: *all_write_template
   ## third party helm chart images
   # argo-rollouts
   argo-rollouts:
