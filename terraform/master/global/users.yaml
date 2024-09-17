@@ -1403,7 +1403,7 @@ projects:
   lg/identity-loadtest:
     groups:
       devops:
-        access: developer
+        access: maintainer
       appdev:
         access: developer
       pm:
