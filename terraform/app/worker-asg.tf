@@ -24,7 +24,7 @@ module "worker_user_data" {
   # proxy settings
   proxy_server        = var.proxy_server
   proxy_port          = var.proxy_port
-  no_proxy_hosts      = var.no_proxy_hosts
+  no_proxy_hosts      = local.no_proxy_hosts
   proxy_enabled_roles = var.proxy_enabled_roles
 }
 

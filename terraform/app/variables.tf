@@ -39,10 +39,6 @@ variable "proxy_port" {
   default = "3128"
 }
 
-variable "no_proxy_hosts" {
-  default = "localhost,127.0.0.1,169.254.169.254,169.254.169.123,.login.gov.internal,ec2.us-west-2.amazonaws.com,kms.us-west-2.amazonaws.com,secretsmanager.us-west-2.amazonaws.com,ssm.us-west-2.amazonaws.com,ec2messages.us-west-2.amazonaws.com,lambda.us-west-2.amazonaws.com,ssmmessages.us-west-2.amazonaws.com,sns.us-west-2.amazonaws.com,sqs.us-west-2.amazonaws.com,events.us-west-2.amazonaws.com,metadata.google.internal,sts.us-west-2.amazonaws.com"
-}
-
 variable "proxy_enabled_roles" {
   type        = map(string)
   description = "Mapping from role names to integer {0,1} for whether the outbound proxy server is enabled during bootstrapping."
@@ -761,6 +757,33 @@ locals {
     var.idp_enduser_newrelic_alerts_enabled == 1 ? ["appdev_enduser"] : []
   ])
   dnssec_runbook_prefix = " - https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-DNS#dnssec"
+
+  # defines which VPC service endpoints to create; always create all endpoints for prod envs
+  aws_endpoints = yamldecode(file("./vpc_endpoints.yaml"))[
+    local.acct_type == "prod" ? "all" : (
+      var.enable_all_vpc_endpoints ? "all" : "required"
+    )
+  ]
+
+  no_proxy_hosts = join(",", concat(
+    # These hosts should always be no_proxy. The latter set of hosts are added depending on
+    # which VPC endpoints are created, and whether or not us-east-1 VPC creation is enabled.
+    # VPC endpoint traffic should skip the outbound proxy.
+    [
+      "localhost",
+      "127.0.0.1",
+      "169.254.169.254",
+      "169.254.169.123",
+      ".login.gov.internal",
+      "metadata.google.internal"
+    ],
+    sort(flatten([for region in compact([
+      "us-west-2",
+      var.enable_us_east_1_vpc ? "us-east-1" : ""
+      ]) :
+      [for k, v in local.aws_endpoints : "${k}.${region}.amazonaws.com"]
+    ]))
+  ))
 }
 
 # These variables are used to toggle whether certain services are enabled.
@@ -1647,6 +1670,12 @@ variable "enable_us_east_1_vpc" {
 variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
   default     = "172.17.32.0/22"
   description = "Primary CIDR for the new vpc in us-east-1 region"
+}
+
+variable "enable_all_vpc_endpoints" {
+  type        = bool
+  default     = true
+  description = "Whether or not to create all of the VPC endpoints. This must be enabled in ATO environments."
 }
 
 variable "enable_tls_and_cipher_headers" {

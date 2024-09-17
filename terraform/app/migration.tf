@@ -36,7 +36,7 @@ module "migration_uw2" {
   migration_rotation_schedules     = local.migration_rotation_schedules
   migration_subnet_ids             = [for subnet in module.network_uw2.app_subnet : subnet.id]
   migration_security_group_id      = module.network_uw2.migration_sg_id
-  no_proxy_hosts                   = var.no_proxy_hosts
+  no_proxy_hosts                   = local.no_proxy_hosts
   proxy_enabled_roles              = var.proxy_enabled_roles
   proxy_port                       = var.proxy_port
   proxy_server                     = var.proxy_server

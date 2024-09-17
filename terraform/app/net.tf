@@ -768,7 +768,7 @@ resource "aws_ssm_parameter" "net_outboundproxy" {
 resource "aws_ssm_parameter" "net_noproxy" {
   name  = "${local.net_ssm_parameter_prefix}outboundproxy/no_proxy"
   type  = "String"
-  value = var.no_proxy_hosts
+  value = local.no_proxy_hosts
 }
 resource "aws_security_group" "quarantine" {
   name        = "${var.env_name}-quarantine"

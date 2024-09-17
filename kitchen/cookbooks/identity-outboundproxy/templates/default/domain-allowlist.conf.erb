@@ -6,17 +6,66 @@
 .maven.org
 .newrelic.com
 .rubygems.org
-.s3-us-west-2.amazonaws.com
-.s3.amazonaws.com
-.s3.us-west-2.amazonaws.com
-.queue.amazonaws.com
 .us-gov-east-1.aws.elastic-cloud.com
-api.authy.com
-api.berkshelf.com
-api.snapcraft.io
+
+# AWS Services that we do not use a VPC for
+.ecr.us-east-1.amazonaws.com
+.ecr.us-west-2.amazonaws.com
+.queue.amazonaws.com
+.s3.amazonaws.com
+.s3.us-east-1.amazonaws.com
+.s3.us-west-2.amazonaws.com
 arsenal.us-west-2.amazonaws.com
 autoscaling.us-east-1.amazonaws.com
 autoscaling.us-west-2.amazonaws.com
+email.us-east-1.amazonaws.com
+email.us-west-2.amazonaws.com
+iam.amazonaws.com
+pinpoint.us-east-1.amazonaws.com
+pinpoint.us-east-2.amazonaws.com
+pinpoint.us-west-2.amazonaws.com
+rds.us-east-1.amazonaws.com
+rds.us-east-2.amazonaws.com
+rds.us-west-2.amazonaws.com
+route53.amazonaws.com
+s3.dualstack.us-west-2.amazonaws.com
+sms-voice.pinpoint.us-east-1.amazonaws.com
+sms-voice.pinpoint.us-east-2.amazonaws.com
+sms-voice.pinpoint.us-west-2.amazonaws.com
+xray-fips.us-east-1.amazonaws.com
+xray-fips.us-west-2.amazonaws.com
+xray.us-east-1.amazonaws.com
+xray.us-west-2.amazonaws.com
+
+# AWS Services that we may use a VPC for
+dms.us-west-2.amazonaws.com
+ec2.us-west-2.amazonaws.com
+ec2messages.us-west-2.amazonaws.com
+events.us-west-2.amazonaws.com
+kms.us-west-2.amazonaws.com
+lambda.us-west-2.amazonaws.com
+logs.us-east-1.amazonaws.com
+logs.us-west-2.amazonaws.com
+monitoring.us-west-2.amazonaws.com
+secretsmanager.us-west-2.amazonaws.com
+sns.us-east-1.amazonaws.com
+sns.us-east-2.amazonaws.com
+sns.us-west-2.amazonaws.com
+sqs.us-west-2.amazonaws.com
+ssm.us-west-2.amazonaws.com
+ssmmessages.us-west-2.amazonaws.com
+sts.amazonaws.com
+sts.us-east-1.amazonaws.com
+sts.us-west-2.amazonaws.com
+
+<% unless @identity_idp == '.login.gov' -%>
+# access to KMS in us-east-1
+kms.us-east-1.amazonaws.com
+<% end -%>
+
+api.authy.com
+api.berkshelf.com
+api.snapcraft.io
 # NOTE - The following uses HTTP which FireEyeHDX uses for updates for some reason.
 # The data itself is signed if that makes you feel better.
 avupdate.fireeye.com
@@ -34,10 +83,6 @@ www.google.com
 recaptchaenterprise.googleapis.com
 doesspocsp.managed.entrust.com
 downloads.nessus.org
-.ecr.us-east-1.amazonaws.com
-.ecr.us-west-2.amazonaws.com
-email.us-east-1.amazonaws.com
-email.us-west-2.amazonaws.com
 epp.gsa.gov
 esm.ubuntu.com
 fedmz.gsa.gov
@@ -45,17 +90,11 @@ files.pythonhosted.org
 github-production-release-asset-2e65be.s3.amazonaws.com
 github.com
 hooks.slack.com
-iam.amazonaws.com
 launchpad.net
-logs.us-east-1.amazonaws.com
-logs.us-west-2.amazonaws.com
 nginx.org
 nodejs.org
 objects.githubusercontent.com
 oss.sonatype.org
-pinpoint.us-east-1.amazonaws.com
-pinpoint.us-east-2.amazonaws.com
-pinpoint.us-west-2.amazonaws.com
 pki.treasury.gov
 repo.fpki.gov
 ppa.launchpad.net
@@ -63,24 +102,14 @@ pypi.org
 pypi.python.org
 raw.githubusercontent.com
 registry.npmjs.org
-rds.us-west-2.amazonaws.com
-rds.us-east-1.amazonaws.com
-rds.us-east-2.amazonaws.com
 registry.yarnpkg.com
 releases.floragunn.com
 maven.search-guard.com
 releases.hashicorp.com
 repo.maven.apache.org
 repository.sonatype.org
-s3.dualstack.us-west-2.amazonaws.com
 security.ubuntu.com
 esm.ubuntu.com
-sms-voice.pinpoint.us-east-1.amazonaws.com
-sms-voice.pinpoint.us-east-2.amazonaws.com
-sms-voice.pinpoint.us-west-2.amazonaws.com
-sns.us-east-1.amazonaws.com
-sns.us-east-2.amazonaws.com
-sns.us-west-2.amazonaws.com
 ssp5.eva.orc.com
 standards.ieee.org
 truststore.pki.rds.amazonaws.com
@@ -88,14 +117,9 @@ updates.atomicorp.com
 www.atomicorp.com
 www.openssl.org
 www.tenable.com
-xray.us-east-1.amazonaws.com
-xray.us-west-2.amazonaws.com
-xray-fips.us-east-1.amazonaws.com
-xray-fips.us-west-2.amazonaws.com
 # ideally we wouldn't fetch GPG keys at runtime, but there's an
 # apt_repository[openjdk-r-ppa] made by the java::openjdk cookbook
 keyserver.ubuntu.com
-route53.amazonaws.com
 livepatch.canonical.com
 contracts.canonical.com
 
@@ -108,17 +132,6 @@ sit-services.usps.com
 gis.gsa.gov
 
 <%= @identity_idp %>
-
-<% unless @identity_idp == '.login.gov' -%>
-# access to KMS in us-east-1
-kms.us-east-1.amazonaws.com
-<% end -%>
-
-# TODO: we should be using a VPC private endpoint for STS
-# https://github.com/18F/identity-devops/issues/2200
-sts.amazonaws.com
-sts.us-west-2.amazonaws.com
-sts.us-east-1.amazonaws.com
 
 # LexisNexis
 #   lower env

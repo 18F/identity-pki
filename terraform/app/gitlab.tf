@@ -63,22 +63,8 @@ module "env-runner" {
   s3_prefix_list_id                = module.network_uw2.s3_prefix_list_id
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   slack_events_sns_hook_arn        = var.slack_alarms_sns_hook_arn
-  endpoint_security_groups = [
-    module.network_uw2.endpoint_sg["kms"],
-    module.network_uw2.endpoint_sg["ssm"],
-    module.network_uw2.endpoint_sg["ssmmessages"],
-    module.network_uw2.endpoint_sg["ec2"],
-    module.network_uw2.endpoint_sg["ec2messages"],
-    module.network_uw2.endpoint_sg["logs"],
-    module.network_uw2.endpoint_sg["monitoring"],
-    module.network_uw2.endpoint_sg["secretsmanager"],
-    module.network_uw2.endpoint_sg["sts"],
-    module.network_uw2.endpoint_sg["events"],
-    module.network_uw2.endpoint_sg["sns"],
-    module.network_uw2.endpoint_sg["lambda"],
-    module.network_uw2.endpoint_sg["sqs"],
-    module.network_uw2.endpoint_sg["dms"]
-  ]
+
+  endpoint_security_groups  = [for k, v in local.aws_endpoints : module.network_uw2.endpoint_sg[k]]
   gitlab_configbucket       = var.gitlab_configbucket
   ssm_access_policy         = module.ssm_uw2.ssm_access_role_policy
   terraform_powers          = true
