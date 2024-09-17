@@ -31,7 +31,7 @@ module "main" {
   destination_artifact_accounts   = ["894947205914"] # login-sandbox
   destination_idp_static_accounts = ["894947205914"] # login-sandbox
   production                      = true
-  accountids                      = ["894947205914", "034795980528", "217680906704"]
+  accountids                      = ["894947205914", "034795980528", "217680906704", "487317109730"]
   asg_outboundproxy_desired       = 2
   asg_outboundproxy_min           = 2
   use_waf_rules                   = true

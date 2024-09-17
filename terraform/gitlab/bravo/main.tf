@@ -27,7 +27,7 @@ module "main" {
   destination_artifact_accounts  = ["894947205914"] # login-sandbox
   production                     = true
   # These are the account IDs who can access this cluster's gitlab service.
-  accountids                      = ["894947205914", "034795980528", "217680906704"]
+  accountids                      = ["894947205914", "034795980528", "217680906704", "487317109730"]
   root_domain                     = "gitlab.identitysandbox.gov"
   asg_outboundproxy_desired       = 2
   asg_outboundproxy_min           = 2
