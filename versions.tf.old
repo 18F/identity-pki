@@ -13,23 +13,27 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.33.0"
+      version = "5.43.0"
     }
     archive = {
       source  = "hashicorp/archive"
-      version = "2.2.0"
+      version = "2.3.0"
     }
     cloudinit = {
       source  = "hashicorp/cloudinit"
-      version = "2.2.0"
+      version = "2.3.2"
     }
     external = {
       source  = "hashicorp/external"
-      version = "2.2.3"
+      version = "2.3.1"
     }
     github = {
       source  = "integrations/github"
-      version = "5.9.1"
+      version = "5.25.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = "3.4.0"
     }
     local = {
       source  = "hashicorp/local"
@@ -41,11 +45,11 @@ terraform {
     }
     newrelic = {
       source  = "newrelic/newrelic"
-      version = "3.7.1"
+      version = "3.22.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.4.3"
+      version = "3.5.1"
     }
   }
 }
