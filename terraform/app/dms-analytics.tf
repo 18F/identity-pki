@@ -159,8 +159,26 @@ data "aws_iam_policy_document" "allow_export_tasks" {
       values = [for log_group in local.analytics_target_log_groups : "${log_group.resource.arn}:*"]
     }
   }
-}
 
+  statement {
+    effect = "Deny"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    resources = [
+      "${aws_s3_bucket.analytics_export[count.index].arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
 
 resource "aws_s3_bucket_acl" "analytics_export" {
   count  = var.enable_dms_analytics ? 1 : 0
@@ -353,18 +371,6 @@ resource "aws_dms_s3_endpoint" "analytics_export" {
   count = var.enable_dms_analytics ? 1 : 0
 
   endpoint_id             = "${var.env_name}-analytics-export"
-  endpoint_type           = "target"
-  bucket_name             = aws_s3_bucket.analytics_export[count.index].id
-  service_access_role_arn = module.dms[0].dms_role.arn
-  add_column_name         = true
-
-  depends_on = [aws_iam_role_policy.dms_s3]
-}
-
-resource "aws_dms_s3_endpoint" "analytics_export_headers" {
-  count = var.enable_dms_analytics ? 1 : 0
-
-  endpoint_id             = "${var.env_name}-analytics-export-headers"
   endpoint_type           = "target"
   bucket_name             = aws_s3_bucket.analytics_export[count.index].id
   service_access_role_arn = module.dms[0].dms_role.arn
