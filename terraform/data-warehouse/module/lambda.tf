@@ -68,7 +68,7 @@ module "db_consumption_alerts" {
   evaluation_periods   = 5
   insights_enabled     = true
   duration_setting     = aws_lambda_function.db_consumption.timeout
-  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting"
+  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
 }
 
 resource "aws_lambda_permission" "db_consumption_allow_s3_events" {
