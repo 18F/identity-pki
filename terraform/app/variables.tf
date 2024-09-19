@@ -1674,7 +1674,7 @@ variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
 
 variable "enable_all_vpc_endpoints" {
   type        = bool
-  default     = true
+  default     = false
   description = "Whether or not to create all of the VPC endpoints. This must be enabled in ATO environments."
 }
 
