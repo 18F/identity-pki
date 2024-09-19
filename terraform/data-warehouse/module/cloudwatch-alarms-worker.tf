@@ -130,3 +130,25 @@ resource "aws_cloudwatch_metric_alarm" "pii_row_checker_alert" {
 Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
 EOM
 }
+
+resource "aws_cloudwatch_metric_alarm" "unexpected_redshift_user_alert" {
+  count                     = var.enable_dms_analytics ? 1 : 0
+  alarm_name                = "${var.env_name}-analytics-ReportingRailsJob-UnexpectedRedshiftUserDetected"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "unexpected-redshift-user"
+  namespace                 = "${var.env_name}/reporting-worker"
+  period                    = "300"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+  alarm_description         = <<EOM
+  This alarm is triggered when a local user in Redshift has been created outside of the automated user sync script
+  or if the associated reporting rails job encounters an error.
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+EOM
+}

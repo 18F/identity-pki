@@ -14,6 +14,11 @@ locals {
       name         = "data-freshness-out-of-range"
       pattern      = "{ $.name = \"DataFreshnessJob\" && ($.status = \"out_of_range\" || $.error = \"No logs found!\") }"
       metric_value = 1
+    },
+    reporting_worker_unexpected_redshift_user = {
+      name         = "unexpected-redshift-user"
+      pattern      = "{ $.name = \"RedshiftUnexpectedUserDetectionJob\" && ($.unexpected_users_detected = \"*\" || $.error = \"*\") }"
+      metric_value = 1
     }
   }
   reporting_production_filters = {
