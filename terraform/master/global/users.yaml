@@ -44,7 +44,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security|maintainer
+    - login-security|owner
     - Security|owner
   alex.kritikos:
     ec2_username:
@@ -864,7 +864,7 @@ users:
     - devops
     - lg-all
     - lg-public
-    - login-security|maintainer
+    - login-security|owner
     - Security|owner
   nick.ng:
     aws_groups:
