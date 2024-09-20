@@ -619,6 +619,16 @@ users:
     - lg-all
     - lg-public
     - Joy
+  kellery.greene:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - kgreene
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    - Joy
   kelli.ho:
     aws_groups:
     - analytics
