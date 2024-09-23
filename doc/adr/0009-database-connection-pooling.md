@@ -40,6 +40,11 @@ PGBouncer is configured to:
   locks in Rails ActiveRecord). GoodJob relies on advisory locks, so alternative
   strategies will have to be considered if the worker database needs to reduce the
   number of connections.
+  * \[2024-09-23 Update\] PGBouncer [1.21.0](https://www.pgbouncer.org/2023/10/pgbouncer-1-21-0)
+    added support for prepared statements in transaction mode. There are some potential
+    inconsistencies in the interaction between the [Rails prepared statement pool](https://github.com/rails/rails/blob/592a52b9370df79787d74b1bac9b201891c45054/activerecord/lib/active_record/connection_adapters/statement_pool.rb#L8) and
+    PGBouncer's `max_prepared_statements`. It's likely we could enable prepared statements with some work
+    and consideration if we needed to improve query throughput.
 * Log to the `ENV_/var/log/postgresql/pgbouncer.log` CloudWatch Logs group for
   troubleshooting and potential telemetry of pooler usage.
 
