@@ -5,6 +5,13 @@ output "privileged_cidrs_v4" {
   ) : []
 }
 
+output "socure_privileged_cidrs_v4" {
+  description = "Socure IPv4 CIDR blocks to allow through the WAFv2 web ACL(s)."
+  value = length(var.socure_privileged_cidr_blocks_v4) > 0 ? sort(
+    aws_wafv2_ip_set.socure_privileged_ips_v4[0].addresses
+  ) : []
+}
+
 output "privileged_cidrs_v6" {
   description = "IPv6 CIDR blocks to allow through the WAFv2 web ACL(s)."
   value = length(local.privileged_cidrs_v6) > 0 ? sort(

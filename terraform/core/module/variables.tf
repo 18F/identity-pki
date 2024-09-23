@@ -181,6 +181,17 @@ EOM
   ]
 }
 
+variable "socure_privileged_cidr_blocks_v4" {
+  type        = list(string)
+  description = <<EOM
+List of IPv4 CIDR blocks that should be allowed access to the IdP Socure webhook endpoint
+EOM
+  default = [
+    "3.30.214.216/32",   # Socure Webhook access
+    "15.205.229.193/32", # Socure Webhook access
+  ]
+}
+
 variable "privileged_cidr_blocks_v6" {
   type        = list(string)
   description = <<EOM

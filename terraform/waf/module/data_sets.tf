@@ -7,14 +7,17 @@ locals {
     "relaxed_uri_paths",
     "limit_exempt_paths",
   ]
-  ip_sets = [
-    "block_list_v4",
-    "block_list_v6",
-    "privileged_ips_v4",
-    "privileged_ips_v6",
-    "override_ips_v4",
-    "override_ips_v6",
-  ]
+  ip_sets = concat(
+    [
+      "block_list_v4",
+      "block_list_v6",
+      "privileged_ips_v4",
+      "privileged_ips_v6",
+      "override_ips_v4",
+      "override_ips_v6",
+    ],
+    var.extra_ip_sets
+  )
 }
 
 data "aws_wafv2_regex_pattern_set" "header_blocks" {

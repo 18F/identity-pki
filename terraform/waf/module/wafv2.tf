@@ -54,7 +54,7 @@ resource "aws_wafv2_web_acl" "alb" {
     }
   }
 
-  # Only these first 2 rules have the 'allow' action, short-circuiting the other rules.
+  # Only AllowPrivilegedIPs and AllowTrafficToPaths rules have the 'allow' action, short-circuiting the other rules.
   dynamic "rule" {
     for_each = length(data.aws_wafv2_ip_set.acl["privileged_ips_v4"]) > 0 ? [1] : []
     content {
@@ -184,6 +184,53 @@ resource "aws_wafv2_web_acl" "alb" {
       visibility_config {
         cloudwatch_metrics_enabled = true
         metric_name                = "${var.env}-restricted-paths-BlockPaths-metric"
+        sampled_requests_enabled   = true
+      }
+    }
+  }
+
+  # This needs to be above the "AllowTrafficToPathsRule" because that rule may ALLOW requests that match the Socure path
+  # which would prevent this rule from ever being evaluated.
+  dynamic "rule" {
+    for_each = (length(lookup(data.aws_wafv2_ip_set.acl, "socure_privileged_ips_v4", [])) > 0) ? [1] : []
+    content {
+      name     = "IdpRestrictedSocureWebhook"
+      priority = 56
+
+      action {
+        block {}
+      }
+
+      statement {
+        and_statement {
+          statement {
+            byte_match_statement {
+              field_to_match {
+                uri_path {}
+              }
+              positional_constraint = "EXACTLY"
+              search_string         = var.socure_restricted_path
+              text_transformation {
+                priority = 0
+                type     = "LOWERCASE"
+              }
+            }
+          }
+          statement {
+            not_statement {
+              statement {
+                ip_set_reference_statement {
+                  arn = data.aws_wafv2_ip_set.acl["socure_privileged_ips_v4"].arn
+                }
+              }
+            }
+          }
+        }
+      }
+
+      visibility_config {
+        cloudwatch_metrics_enabled = true
+        metric_name                = "${local.web_acl_name}-IdpRestrictedSocureWebhook-metric"
         sampled_requests_enabled   = true
       }
     }

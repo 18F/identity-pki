@@ -202,6 +202,18 @@ variable "header_block_regex" {
   default = []
 }
 
+variable "extra_ip_sets" {
+  description = <<EOM
+Additional account-specific sets of IPs/CIDR ranges, created externally
+by the waf_sets module in said account, that can be read as aws_wafv2_ip_set
+data sources when creating WAF rules. Can be left with the default
+value of '[]' if no custom rules are required for specific IP/CIDR ranges
+outside of block_list, privileged_ips, and/or override_ips for both V4 and V6.
+EOM
+  type        = list(string)
+  default     = []
+}
+
 variable "waf_alert_blocked_period" {
   description = "Window (period) in seconds to for evaluating blocks"
   type        = string
@@ -250,6 +262,14 @@ variable "restricted_paths_enforce" {
   description = "Count instead of Block excluded paths - ONLY USE IN SANDBOXES!"
   type        = bool
   default     = true
+}
+
+variable "socure_restricted_path" {
+  type        = string
+  description = <<EOM
+IdP path for inbound Socure inbound event webhook used for the IdpRestrictedSocureWebhook WAF rule
+EOM
+  default     = "/api/webhooks/socure/event"
 }
 
 variable "geo_allow_list" {

@@ -161,6 +161,15 @@ resource "aws_wafv2_ip_set" "privileged_ips_v4" {
   addresses          = local.privileged_cidrs_v4
 }
 
+resource "aws_wafv2_ip_set" "socure_privileged_ips_v4" {
+  count              = length(var.socure_privileged_cidr_blocks_v4) > 0 ? 1 : 0
+  name               = "${local.web_acl_name}-socure-privileged-ips-v4"
+  description        = "${local.web_acl_name} Socure Privileged IPv4 CIDRs"
+  scope              = var.wafv2_web_acl_scope
+  ip_address_version = "IPV4"
+  addresses          = var.socure_privileged_cidr_blocks_v4
+}
+
 resource "aws_wafv2_ip_set" "privileged_ips_v6" {
   count              = length(local.privileged_cidrs_v6) > 0 ? 1 : 0
   name               = "${local.web_acl_name}-privileged-ips-v6"

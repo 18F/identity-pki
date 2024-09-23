@@ -22,6 +22,7 @@ module "main" {
   enforce            = true
   enforce_rate_limit = true
   geo_allow_list     = [] # allow all countries in app WAFv2
+  extra_ip_sets      = ["socure_privileged_ips_v4"]
 
   waf_alert_actions  = ["arn:aws:sns:us-west-2:555546682965:slack-otherevents"]
   ddos_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
@@ -58,6 +59,7 @@ module "cloudfront-waf" {
   soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
   enforce_rate_limit  = true
   geo_allow_list      = [] # allow all countries in app WAFv2
+  extra_ip_sets       = ["socure_privileged_ips_v4"]
 
   # populate to define rules to COUNT (and BLOCK all others),
   # or leave blank to skip applying the bot control ruleset

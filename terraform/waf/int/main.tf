@@ -24,6 +24,7 @@ module "main" {
   enforce_waf_challenge = false
   enforce_rate_limit    = true
   geo_allow_list        = [] # allow all countries in app WAFv2
+  extra_ip_sets         = ["socure_privileged_ips_v4"]
 
   anonymous_ip_ruleset_actions = {
     "AnonymousIPList"       = "count",
@@ -67,6 +68,7 @@ module "cloudfront-waf" {
   enforce_rate_limit               = true
   email_password_rate_limit_per_ip = 100
   geo_allow_list                   = [] # allow all countries in app WAFv2
+  extra_ip_sets                    = ["socure_privileged_ips_v4"]
 
   anonymous_ip_ruleset_actions = {
     "AnonymousIPList"       = "count",

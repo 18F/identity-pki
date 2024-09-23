@@ -14,10 +14,11 @@ data "aws_vpc" "default" {
 module "waf_sets_regional" {
   source = "../../modules/waf_sets/"
 
-  privileged_cidr_blocks_v4 = var.privileged_cidr_blocks_v4
-  privileged_cidr_blocks_v6 = var.privileged_cidr_blocks_v6
-  override_cidr_blocks_v4   = var.override_cidr_blocks_v4
-  override_cidr_blocks_v6   = var.override_cidr_blocks_v6
+  privileged_cidr_blocks_v4        = var.privileged_cidr_blocks_v4
+  privileged_cidr_blocks_v6        = var.privileged_cidr_blocks_v6
+  socure_privileged_cidr_blocks_v4 = var.socure_privileged_cidr_blocks_v4
+  override_cidr_blocks_v4          = var.override_cidr_blocks_v4
+  override_cidr_blocks_v6          = var.override_cidr_blocks_v6
 
   # Uncomment to use header_block_regex filter
   # Only do once env-specific regex sets are gone!
@@ -30,13 +31,14 @@ module "waf_sets_cloudfront" {
     aws = aws.use1
   }
 
-  wafv2_web_acl_scope       = "CLOUDFRONT"
-  privileged_cidr_blocks_v4 = module.waf_sets_regional.privileged_cidrs_v4
-  privileged_cidr_blocks_v6 = module.waf_sets_regional.privileged_cidrs_v6
-  override_cidr_blocks_v4   = module.waf_sets_regional.override_cidrs_v4
-  override_cidr_blocks_v6   = module.waf_sets_regional.override_cidrs_v6
-  ip_block_cidrs_v4         = module.waf_sets_regional.block_list_v4
-  ip_block_cidrs_v6         = module.waf_sets_regional.block_list_v6
+  wafv2_web_acl_scope              = "CLOUDFRONT"
+  privileged_cidr_blocks_v4        = module.waf_sets_regional.privileged_cidrs_v4
+  privileged_cidr_blocks_v6        = module.waf_sets_regional.privileged_cidrs_v6
+  socure_privileged_cidr_blocks_v4 = module.waf_sets_regional.socure_privileged_cidrs_v4
+  override_cidr_blocks_v4          = module.waf_sets_regional.override_cidrs_v4
+  override_cidr_blocks_v6          = module.waf_sets_regional.override_cidrs_v6
+  ip_block_cidrs_v4                = module.waf_sets_regional.block_list_v4
+  ip_block_cidrs_v6                = module.waf_sets_regional.block_list_v6
   # Uncomment to use header_block_regex filter
   # Only do once env-specific regex sets are gone!
   #header_block_regex = yamldecode(file("header_block_regex.yml"))

@@ -24,6 +24,7 @@ module "main" {
   enforce_waf_challenge    = true
   restricted_paths_enforce = false # Count only in Dev
   geo_allow_list           = []    # allow all countries in app WAFv2
+  extra_ip_sets            = ["socure_privileged_ips_v4"]
 
   waf_alert_actions  = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
   ddos_alert_actions = ["arn:aws:sns:us-west-2:894947205914:slack-otherevents"]
@@ -37,6 +38,7 @@ module "cloudfront-waf" {
   region              = "us-east-1"
   enforce             = true
   geo_allow_list      = [] # allow all countries in app WAFv2
+  extra_ip_sets       = ["socure_privileged_ips_v4"]
 
   soc_destination_arn = "arn:aws:logs:us-east-1:752281881774:destination:elp-waf-lg"
 

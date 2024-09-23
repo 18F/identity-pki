@@ -20,6 +20,15 @@ EOM
   default     = []
 }
 
+variable "socure_privileged_cidr_blocks_v4" {
+  type        = list(string)
+  description = <<EOM
+List of Socure IPv4 CIDR blocks that should be allowed access
+through the WAFv2 web ACL(s) to Socure restricted endpoints.
+EOM
+  default     = []
+}
+
 variable "privileged_cidr_blocks_v6" {
   type        = list(string)
   description = <<EOM
