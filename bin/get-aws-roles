@@ -34,6 +34,7 @@ EOM
 
 [ $# -gt 1 ] && raise 'Must provide 0-1 arguments'
 verify_root_repo
+check_branch_age "SKIP_FETCH"
 echo
 
 declare {FOUND_POLICIES,ROLE_ARNS,RUN_AS_CONFIG,VERIFIED_USER}=
@@ -44,28 +45,26 @@ echo_cyan "Getting available roles(s) for user ${VERIFIED_USER}..."
 echo
 # verify that we have permission to see the groups for $VERIFIED_USER
 for GROUP in $(aws iam list-groups-for-user \
-                --user-name ${VERIFIED_USER} \
+                --user-name "${VERIFIED_USER}" \
                 --query 'Groups[].{Group:GroupName}' \
                 --output text) ; do
   FOUND_POLICIES+=$(aws iam list-attached-group-policies \
-                    --group ${GROUP} \
+                    --group "${GROUP}" \
                     --query 'AttachedPolicies[].{Arn:PolicyArn}' \
                     --output text)
   FOUND_POLICIES+=" "
 done
 
 MASTER_FILE='terraform/master/global/main.tf'
-ACCOUNT_TYPES=$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' ${MASTER_FILE})}" |
-                sed -E 's/\]\}/\]\'$'\n\}/;s/ = /\: /g;s/ #.+$//g')
-for POLICY in $(echo ${FOUND_POLICIES[@]} |
+read -ra ALL_ACCOUNT_IDS <<< "$(echo -e "{\n$(sed -E '1,/aws_account_types/d;/\}/,$d' ${MASTER_FILE})}" | grep -Eo '[0-9]{12}' | tr '\n' ' ')"
+for POLICY in $(echo "${FOUND_POLICIES[@]}" |
                 tr -s '[:blank:]' '\n' | sort -u | tr '\n' ' ') ; do
-  ACCOUNT=$(echo $POLICY | sed -E 's/.*policy\/([a-zA-z]+)Assume.*/\1/')
-  ROLE=$(echo $POLICY | sed -E 's/.*Assume//')
+  ROLE=$(echo "$POLICY" | sed -E 's/.*Assume//')
   SHORT_ROLE=$(grep -wlr "${ROLE}" terraform/all/module/iam-role-*.tf |
                grep -v "account-specific-permissions" |
                sed -E 's/.*\-([a-z]+)\.tf/\1/')
-  for ACCOUNT_ID in $(echo $ACCOUNT_TYPES | jq -r --arg ACCOUNT "$ACCOUNT" '.[$ACCOUNT][]') ; do
-    SHORT_ACCT=$(egrep "^\s+\"${ACCOUNT_ID}\"" ${MASTER_FILE} |
+  for ACCOUNT_ID in "${ALL_ACCOUNT_IDS[@]}" ; do
+    SHORT_ACCT=$(grep -E "^\s+\"${ACCOUNT_ID}\"" ${MASTER_FILE} |
       sed -E 's/.+login-([a-z-]+).*/\1/')
     ROLE_ARNS+=("${SHORT_ACCT}-${SHORT_ROLE}+arn:aws:iam::${ACCOUNT_ID}:role+${ROLE}")
   done
@@ -84,18 +83,15 @@ if [[ "${FOUND_USER}" == "${VERIFIED_USER}" ]] ; then
     fi
     echo_blue "Generating config and adding to file..."
     echo
-    MAIN_PROFILE=${AWS_VAULT:-$(echo $AWS_PROFILE)}
-    MFA_ARN=$(aws iam list-mfa-devices \
-              --user-name "${FOUND_USER}" |
-              jq -r '.[][0].SerialNumber')
+    MAIN_PROFILE="${AWS_VAULT:-$AWS_PROFILE}"
     for ROLE in $(echo "${ROLE_ARNS[@]}" | tr ' ' '\n' | sed -E 's/\+/ /g' |
                 sed -E 's/role /role\//' | column -t | sort -t: -k4 | sed -E 's/ +/\+/g') ; do
       #echo $ROLE
-      ROLE_NAME=$(echo $ROLE | awk -F'+' '{print $1}')
-      ROLE_ARN=$(echo $ROLE | awk -F'+' '{print $2}')
-      if [[ $(grep "${ROLE_ARN}" ~/.aws/config) ]] ; then
+      ROLE_NAME=$(echo "$ROLE" | awk -F'+' '{print $1}')
+      ROLE_ARN=$(echo "$ROLE" | awk -F'+' '{print $2}')
+      if grep -q "${ROLE_ARN}" ~/.aws/config; then
         echo_yellow "${ROLE_ARN} already in config file; skipping."
-      elif [[ $(grep "profile ${ROLE_NAME}" ~/.aws/config) ]] ; then
+      elif grep -q "profile ${ROLE_NAME}" ~/.aws/config; then
         echo_yellow "${ROLE_NAME} already in config file; skipping."
       else
         define ROLE_BLOCK <<EOF

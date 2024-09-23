@@ -27,7 +27,6 @@ to_fix=(
   bin/disaster-recovery/db-swap-clusters
   bin/enable-autotf
   bin/follow-images
-  bin/get-aws-roles
   bin/get-images
   bin/kms-matching-toggle
   bin/kms-matching.sh

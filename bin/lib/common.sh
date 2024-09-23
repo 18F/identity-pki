@@ -767,11 +767,15 @@ confirm_or_exit() {
 }
 
 check_branch_age() {
-  # Git fetch to find most recent common commit
-  git fetch --tags
- 
-  # Find the most recent common commit
-  local common_commit=$(git merge-base HEAD origin/main)
+  # Allows bypassing remote operations which can be heavy/slow to respond
+  if [ -z "$1" ]; then
+    # Git fetch to find most recent common commit
+    git fetch --tags
+    # Find the most recent common commit
+    local common_commit=$(git merge-base HEAD origin/main)
+  else
+    local common_commit=$(git merge-base HEAD main)
+  fi
  
   # Get the date of the most recent common commit
   local common_commit_date=$(git show -s --date=format:'%Y-%m-%d' --format=%cd "${common_commit}")
