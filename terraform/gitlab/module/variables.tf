@@ -94,6 +94,10 @@ variable "asg_gitlab_test_runner_desired" {
   default = 1
 }
 
+variable "asg_gitlab_account_runner_desired" {
+  default = 1
+}
+
 variable "asg_outboundproxy_desired" {
   default = 1
 }
@@ -197,6 +201,10 @@ variable "instance_type_gitlab_runner" {
 
 variable "instance_type_gitlab_test" {
   default = "c6i.xlarge"
+}
+
+variable "instance_type_gitlab_account_runner" {
+  default = "c6i.large"
 }
 
 variable "instance_type_outboundproxy" {
@@ -518,6 +526,19 @@ variable "gitlab_block_device_mappings" {
   ]
 }
 
+variable "account_runner_accounts_to_access" {
+  type        = list(string)
+  description = "If set, Create gitlab runners that can assume AutoTerraform role in AWS accounts listed"
+  default     = []
+  validation {
+    condition     = alltrue([for str in var.account_runner_accounts_to_access : contains(["sandbox"], str)])
+    error_message = "All 'account_runner_accounts_to_access' must be one of 'sandbox'"
+  }
+  validation {
+    condition     = length(var.account_runner_accounts_to_access) == length(distinct(var.account_runner_accounts_to_access))
+    error_message = "All 'account_runner_accounts_to_access' elements must be unique"
+  }
+}
 
 variable "rds_auto_minor_version_upgrade" {
   default     = false

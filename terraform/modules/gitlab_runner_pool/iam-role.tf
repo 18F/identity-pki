@@ -478,6 +478,21 @@ data "aws_iam_policy_document" "idp_static_assets_role_bucket_role_policy_docume
   }
 }
 
+# Allow gitlab runner to assume the AutoTerraform role in all AWS Accounts
+data "aws_iam_policy_document" "allow_assume_autoterraform_role_policy_document" {
+  count = length(var.assume_autoterraform_account) > 0 ? 1 : 0
+  statement {
+    sid    = "AssumeAutoTerraform"
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "arn:aws:iam::${local.account_name_number_map[var.assume_autoterraform_account]}:role/AutoTerraform"
+    ]
+  }
+}
+
 resource "aws_iam_role_policy" "app_artifacts_role_bucket_role_policy" {
   count = length(var.destination_artifact_accounts) > 0 ? 1 : 0
 
@@ -510,4 +525,12 @@ resource "aws_iam_role_policy_attachment" "AutoTerraform" {
 
   role       = aws_iam_role.gitlab_runner.id
   policy_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${each.key}"
+}
+
+resource "aws_iam_role_policy" "allow_assume_autoterraform_role_policy" {
+  count = length(var.assume_autoterraform_account) > 0 ? 1 : 0
+
+  name   = "${var.env_name}-allow_assume_autoterraform_role_${var.assume_autoterraform_account}"
+  role   = aws_iam_role.gitlab_runner.id
+  policy = data.aws_iam_policy_document.allow_assume_autoterraform_role_policy_document[0].json
 }

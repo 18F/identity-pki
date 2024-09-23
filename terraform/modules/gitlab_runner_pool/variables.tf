@@ -40,6 +40,9 @@ locals {
       "sts",
   ])))
 
+  account_name_number_map = {
+    sandbox = "894947205914"
+  }
 }
 
 variable "aws_vpc" {
@@ -325,5 +328,11 @@ variable "cloudwatch_treat_missing_data" {
 
 variable "s3_secrets_bucket_name" {
   description = "Name of bucket used to track user_data"
+  default     = ""
+}
+
+variable "assume_autoterraform_account" {
+  description = "Add policy to the gitlab runner's IAM role to allow assuming AutoTerraform role in AWS account"
+  type        = string
   default     = ""
 }

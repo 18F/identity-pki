@@ -47,7 +47,10 @@ data "aws_iam_policy_document" "master_account_assumerole" {
   }
 }
 
-# used for assuming of AutoTerraform role from tooling
+# Used for assuming of AutoTerraform role from tooling
+# Second statement block for "AssumeTerraformRoleFromGitlabAccountRunner" is to allow account-runners to assume the AutoTerraform role
+# The IAM roles specified only allow the 'sandbox-account-runner' Gitlab runners from the Bravo and Production Gitlab environments 
+# to perform this role assumption.   
 data "aws_iam_policy_document" "autotf_assumerole" {
   statement {
     sid = "AssumeTerraformRoleFromAutotfRole"
@@ -59,6 +62,19 @@ data "aws_iam_policy_document" "autotf_assumerole" {
       identifiers = [
         "arn:aws:iam::${var.tooling_account_id}:role/auto_terraform",
         "arn:aws:iam::${var.toolingprod_account_id}:role/auto_terraform"
+      ]
+    }
+  }
+  statement {
+    sid = "AssumeTerraformRoleFromGitlabAccountRunner"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${var.tooling_account_id}:role/bravo-sandbox-account-runner_gitlab_runner_role",
+        "arn:aws:iam::${var.toolingprod_account_id}:role/production-sandbox-account-runner_gitlab_runner_role"
       ]
     }
   }

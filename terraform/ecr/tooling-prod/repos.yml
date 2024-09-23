@@ -129,6 +129,12 @@ repos:
   gitlab-runner:
     name: "ecr-public/gitlab/gitlab-runner"
     <<: *all_write_template
+  tf_eks_plan_apply:
+    name: "cd/tf_eks_plan_apply"
+    <<: *all_write_template
+  tf_eks_plan_apply_blessed:
+    name: "cd/tf_eks_plan_apply/blessed"
+    <<: *readonly_template
   gitlab-runner-helper:
     name: "ecr-public/gitlab/gitlab-runner-helper"
     <<: *all_write_template
