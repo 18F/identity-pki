@@ -415,6 +415,13 @@ users:
     - lg-all
     - lg-public
     - Radia
+  hetabahen.thakkar:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    - lg-all
+    - lg-public
   howard.miller:
     aws_groups:
     - appdev
