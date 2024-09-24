@@ -922,6 +922,15 @@ users:
     - lg-public
     - login-fraud|maintainer
     - Product|owner
+  obinna.ebbis:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - oebbis
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
