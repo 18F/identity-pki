@@ -364,6 +364,15 @@ users:
     - lg-all
     - lg-public
     - Joy
+  eric.dimeo:
+    aws_groups:
+    - appdev
+    ec2_username:
+    - edimeo
+    gitlab_groups:
+    - appdev
+    - lg-all
+    - lg-public
   fred.agyepongyeboah:
     aws_groups:
     - soc
