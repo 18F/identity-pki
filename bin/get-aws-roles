@@ -34,7 +34,7 @@ EOM
 
 [ $# -gt 1 ] && raise 'Must provide 0-1 arguments'
 verify_root_repo
-check_branch_age "SKIP_FETCH"
+check_branch_age
 echo
 
 declare {FOUND_POLICIES,ROLE_ARNS,RUN_AS_CONFIG,VERIFIED_USER}=
