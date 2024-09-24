@@ -116,6 +116,9 @@ repos:
     <<: *all_write_template
   identity_dashboard_review:
     name: "identity-dashboard/review"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_dashboard_review_cache:
     name: "identity-dashboard/review/cache"
