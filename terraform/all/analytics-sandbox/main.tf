@@ -24,7 +24,9 @@ module "main" {
     iam_analytics_enabled      = true
     iam_auto_terraform_enabled = true
     iam_billing_enabled        = false
-    iam_fraudops_enabled       = false # No FraudOps Role User Story
+    iam_dwuser_enabled         = true
+    iam_dwadmin_enabled        = true
+    iam_fraudops_enabled       = false
     iam_power_enabled          = true
     iam_readonly_enabled       = false
     iam_reports_enabled        = false # No reports buckets defined yet
@@ -39,6 +41,8 @@ module "main" {
   }
 
   ssm_document_access_map = {
+    "DWAdmin"           = [{ "*" = ["*"] }],
+    "DWUser"            = [{ "*" = ["*"] }],
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
@@ -46,6 +50,8 @@ module "main" {
   }
 
   ssm_command_access_map = {
+    "DWAdmin"           = [{ "*" = ["*"] }],
+    "DWUser"            = [{ "*" = ["*"] }],
     "FullAdministrator" = [{ "*" = ["*"] }],
     "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
@@ -53,4 +59,3 @@ module "main" {
   }
 
 }
-

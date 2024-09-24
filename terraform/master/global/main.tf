@@ -29,6 +29,12 @@ module "main" {
   # * NO TRAILING COMMAS IN LISTS!  This gets parsed as JSON
   # * A comment followed by the account alias
   aws_account_types = {
+    "DataWarehouseProd" = [
+      "461353137281" # login-analytics
+    ],
+    "DataWarehouseSandbox" = [
+      "487317109730" # login-analytics-sandbox
+    ],
     "Master" = [
       "340731855345" # login-master
     ],
@@ -39,7 +45,6 @@ module "main" {
       "555546682965", # login-prod
       "472911866628", # login-sms-prod
       "217680906704", # login-tooling-prod
-      "461353137281", # login-analytics - In-ATO so included in Prod list
       "429506220995"  # login-logarchive-prod
     ],
     "Sandbox" = [
@@ -47,7 +52,6 @@ module "main" {
       "035466892286", # login-sms-sandbox
       "138431511372", # login-secops-dev
       "034795980528", # login-tooling-sandbox
-      "487317109730", # login-analytics-sandbox
       "221972985980", # login-logarchive-sandbox
       "917793222841"  # login-alpha
     ]
@@ -65,7 +69,7 @@ module "main" {
     ],
     "apponcall" = [
       { "Analytics" = ["Sandbox", "Prod"] },
-      { "PowerUser" = ["Sandbox", "Prod"] },
+      { "PowerUser" = ["Sandbox", "Prod", "DataWarehouseSandbox"] },
       { "ReadOnly" = ["Sandbox", "Prod"] },
       { "Terraform" = ["Sandbox"] }
     ],
@@ -80,10 +84,31 @@ module "main" {
       { "Terraform" = ["Sandbox", "Prod", "Master"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
+    "devops2" = [
+      { "FullAdministrator" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
+      { "Terraform" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
+    ],
     "devopsnonprod" = [
       { "Analytics" = ["Sandbox", "Prod"] },
       { "FullAdministrator" = ["Sandbox"] },
       { "Terraform" = ["Sandbox"] }
+    ],
+    "dwusernonprod" = [
+      { "DwUser" = ["DataWarehouseSandbox"] },
+    ],
+    "dwadminnonprod" = [
+      { "DwUser" = ["DataWarehouseSandbox"] },
+      { "DwAdmin" = ["DataWarehouseSandbox"] },
+      { "Terraform" = ["DataWarehouseSandbox"] }
+
+    ],
+    "dwuser" = [
+      { "DWUser" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
+    ],
+    "dwadmin" = [
+      { "DWUser" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
+      { "DWAdmin" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
+      { "Terraform" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
     ],
     "finops" = [
       { "Analytics" = ["Sandbox", "Organization", "Prod"] },
@@ -120,6 +145,11 @@ module "main" {
       { "Terraform" = ["Sandbox"] },
       { "KMSAdministrator" = ["Sandbox"] }
     ],
+    "secops2" = [
+      { "ReadOnly" = ["Sandbox", "Prod", "Master"] },
+      { "FullAdministrator" = ["DataWarehouseSandbox", "DataWarehouseProd"] },
+
+    ],
     "soc" = [
       { "Auditor" = ["Sandbox", "Prod", "Master"] },
       { "ReadOnly" = ["Sandbox", "Prod", "Master"] },
@@ -136,9 +166,6 @@ module "main" {
     "keymasters" = [
       { "KMSAdministrator" = ["Sandbox", "Prod"] }
     ],
-    "secops2" = [
-      { "ReadOnly" = ["Sandbox", "Prod", "Master"] }
-    ],
     "prodreadonly" = [
       { "ReadOnly" = ["Sandbox", "Prod"] }
     ]
@@ -149,6 +176,8 @@ module "main" {
     "Analytics",
     "Auditor",
     "BillingReadOnly",
+    "DWUser",
+    "DWAdmin",
     "EKSAdmin",
     "FullAdministrator",
     "PowerUser",

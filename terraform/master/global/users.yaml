@@ -3,6 +3,7 @@ users:
   aaron.nagucki:
     aws_groups:
     - apponcall
+    - dwadminnonprod
     ec2_username:
     - aaron.nagucki
     gitlab_groups:
@@ -57,6 +58,7 @@ users:
     - alex.kritikos@gsa.gov
     aws_groups:
     - devops
+    - devops2
     - orgadmin
     gitlab_groups:
     - devops
@@ -190,6 +192,7 @@ users:
   birane.seck:
     aws_groups:
     - apponcall
+    - dwadminnonprod
     gitlab_groups:
     - devops
     - appdev
@@ -271,6 +274,7 @@ users:
     aws_groups:
     - apponcall
     - devopsnonprod
+    - dwadminnonprod
     ec2_username:
     - cnattrass
     gitlab_groups:
@@ -282,6 +286,7 @@ users:
   connor.mccarthy:
     aws_groups:
     - devops
+    - devops2
     gitlab_groups:
     - devops
     - lg-all
@@ -294,6 +299,7 @@ users:
   david.a.zimmerman:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -401,6 +407,8 @@ users:
   henry.richardson:
     aws_groups:
     - devops
+    - devops2
+    - dwadminnonprod
     ec2_username:
     - henrydrich
     gitlab_groups:
@@ -542,6 +550,7 @@ users:
     aws_groups:
     - apponcall
     - devops
+    - devops2
     - keymasters
     ec2_username:
     - jhooper
@@ -556,6 +565,7 @@ users:
   jonathan.pirro:
     aws_groups:
     - devops
+    - devops2
     - apponcall
     - orgadmin
     ec2_username:
@@ -594,6 +604,7 @@ users:
   justin.grevich:
     aws_groups:
     - devops
+    - devops2
     - orgadmin
     ec2_username:
     - jgrevich
@@ -678,6 +689,7 @@ users:
   lily.rappaport:
     aws_groups:
     - devops
+    - devops2
     ec2_username:
     - lrappaport
     gitlab_groups:
@@ -794,7 +806,9 @@ users:
   michael.w.ward:
     aws_groups:
     - devops
+    - devops2
     - orgadmin
+    - dwadminnonprod
     ec2_username:
     - mww59
     gitlab_groups:
@@ -812,6 +826,7 @@ users:
     aws_groups:
     - apponcall
     - devops
+    - devops2
     ec2_username:
     - mhenke
     gitlab_groups:
@@ -905,6 +920,7 @@ users:
   osman.latif:
     aws_groups:
     - apponcall
+    - dwadminnonprod
     ec2_username:
     - olatif
     gitlab_groups:
@@ -957,6 +973,7 @@ users:
   ryan.d.brown:
     aws_groups:
     - devops
+    - devops2
     ec2_username:
     - ryandbrown
     gitlab_groups:
@@ -967,7 +984,8 @@ users:
   samatha.dondeti:
     aws_groups:
     - apponcall
-    - devops
+    - devopsnonprod
+    - dwadminnonprod
     gitlab_groups:
     - appdev
     - lg-all
@@ -1019,6 +1037,7 @@ users:
   stephen.shelton:
     aws_groups:
     - devops
+    - devops2
     ec2_username:
     - sshelton
     gitlab_groups:
@@ -1032,6 +1051,7 @@ users:
   sudheer.dandamudi:
     aws_groups:
     - devops
+    - devops2
     ec2_username:
     - sdandamudi
     gitlab_groups:
@@ -1069,6 +1089,7 @@ users:
   timothy.spencer:
     aws_groups:
     - devops
+    - devops2
     - secops
     - secops2
     ec2_username:
@@ -1138,6 +1159,7 @@ users:
     - zachary.margolis@gsa.gov
     aws_groups:
     - apponcall
+    - dwadminnonprod
     gitlab_groups:
     - appdev
     - lg-all

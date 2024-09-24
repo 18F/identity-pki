@@ -8,6 +8,8 @@ locals {
     for role, status in merge(
       {
         iam_analytics_enabled      = false
+        iam_dwuser_enabled         = false
+        iam_dwadmin_enabled        = false
         iam_power_enabled          = true
         iam_readonly_enabled       = true
         iam_socadmin_enabled       = true
