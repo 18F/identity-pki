@@ -50,5 +50,3 @@ group :test do
   gem 'simplecov', '>= 0.13.0'
   gem 'webmock'
 end
-
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
