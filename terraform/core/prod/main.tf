@@ -28,6 +28,8 @@ module "main" {
   ses_inbound_usps_features_enabled = true
   ses_inbound_usps_enabled_envs     = ["staging"]
 
+  manage_nessus_server = true
+
   #logarchive_acct_id          = "429506220995" # uncomment once access is approved
   #logarchive_secondary_region = "us-east-1" # disable for now
 

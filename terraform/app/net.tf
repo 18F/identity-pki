@@ -9,8 +9,6 @@ locals {
     var.root_domain == "identitysandbox.gov" && var.allow_nessus_external_scanning ?
     true : false
   )
-  chunked_ipv6 = { for index, chunk in chunklist(data.aws_ip_ranges.uswest2_ec2.ipv6_cidr_blocks, 100) : index => chunk }
-  chunked_ipv4 = { for index, chunk in chunklist(data.aws_ip_ranges.uswest2_ec2.cidr_blocks, 100) : index => chunk }
 }
 
 module "network_layout" {
@@ -690,99 +688,6 @@ resource "aws_security_group" "worker" {
   }
 
   vpc_id = module.network_uw2.vpc_id
-}
-
-data "aws_ip_ranges" "uswest2_ec2" {
-  regions  = ["us-west-2"]
-  services = ["ec2"]
-}
-
-resource "aws_security_group" "nessus" {
-  for_each    = (var.env_name == "prod") ? local.chunked_ipv4 : {}
-  description = "Nessus Server"
-  name        = "ec2_from_uswest2_${each.key}"
-
-  ingress {
-    from_port   = "8834"
-    to_port     = "8834"
-    protocol    = "tcp"
-    cidr_blocks = each.value
-  }
-
-  # needed for ssm
-  egress {
-    from_port   = "443"
-    to_port     = "443"
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # needed for apt-get
-  egress {
-    description = "Allow apt-get to work"
-    from_port   = "80"
-    to_port     = "80"
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # RDS scan access
-  egress {
-    description = "Allow RDS DB scans"
-    from_port   = var.rds_db_port
-    to_port     = var.rds_db_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    CreateDate = data.aws_ip_ranges.uswest2_ec2.create_date
-    SyncToken  = data.aws_ip_ranges.uswest2_ec2.sync_token
-  }
-}
-
-resource "aws_security_group" "nessus_ipv6" {
-  for_each    = (var.env_name == "prod") ? local.chunked_ipv6 : {}
-  description = "Nessus Server"
-  name        = "ec2_from_uswest2_ipv6_${each.key}"
-
-  ingress {
-    from_port        = "8834"
-    to_port          = "8834"
-    protocol         = "tcp"
-    ipv6_cidr_blocks = each.value
-  }
-
-  # needed for ssm
-  egress {
-    from_port   = "443"
-    to_port     = "443"
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # needed for apt-get
-  egress {
-    description = "Allow apt-get to work"
-    from_port   = "80"
-    to_port     = "80"
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # RDS scan access
-  egress {
-    description = "Allow RDS DB scans"
-    from_port   = var.rds_db_port
-    to_port     = var.rds_db_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    CreateDate = data.aws_ip_ranges.uswest2_ec2.create_date
-    SyncToken  = data.aws_ip_ranges.uswest2_ec2.sync_token
-  }
 }
 
 module "vpc_flow_cloudwatch_filters" {

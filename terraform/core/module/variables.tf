@@ -259,3 +259,18 @@ Defaults to 0 (never expire).
 EOM
   type        = number
 }
+
+variable "manage_nessus_server" {
+  type        = bool
+  description = <<EOM
+Whether or not to create/manage resources related to the Nessus server.
+Should ONLY be set to 'true' in the login-prod account.
+EOM
+  default     = false
+}
+
+variable "rds_db_port" {
+  type        = number
+  description = "Database port number for Aurora/RDS; used for Nessus access."
+  default     = 5432
+}
