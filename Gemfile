@@ -48,7 +48,6 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'shoulda-matchers', '~> 3.1', '>= 3.1.3', require: false
   gem 'simplecov', '>= 0.13.0'
-  gem 'timecop'
   gem 'webmock'
 end
 
