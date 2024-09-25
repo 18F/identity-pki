@@ -30,7 +30,6 @@ nonce_bloom_filter_server: 'redis://localhost/'
 nonce_bloom_filter_size: '100_000'
 nonce_bloom_filter_ttl: '300'
 piv_cac_verify_token_secret: ''
-secret_key_base: ''
 token_encryption_key_pepper_old: ''
 token_encryption_key_salt_old: ''
 
@@ -57,6 +56,7 @@ development:
   token_encryption_key_salt_old: de+hXqHqjAIIKq+mgdbUdTfvOZQP7ya1MPsUKgy1/ueEl+Yw1w7ZzaObENqDD4DhrWD3zXUgI3UQm9ZISzOwpEk8lq/azWg8Pw9lPL1yBUR2easxcgbAl6gjPB+8fAFD
   token_encryption_key_pepper_old: 1HkCB/IADCORWlBAUmeM9S+KBBv0eWzxJG8NM6+A1/f7K3KoVpa2HTED4pTNf8DGp834etYxOL+NdjvH88Lk1s5u401Hu3d3nPbnI11nWTfhaBCz6foOfS/3KGBd/8hz
   certificate_store_directory: 'config/certs'
+  secret_key_base: development_secret_key_base
 
 test:
   aws_region: 'us-east-1'
@@ -70,6 +70,7 @@ test:
   token_encryption_key_pepper_old: 1HkCB/IADCORWlBAUmeM9S+KBBv0eWzxJG8NM6+A1/f7K3KoVpa2HTED4pTNf8DGp834etYxOL+NdjvH88Lk1s5u401Hu3d3nPbnI11nWTfhaBCz6foOfS/3KGBd/8hz
   certificate_store_directory: 'config/test-certs'
   ca_issuer_host_allow_list: 'uri1.example.com,uri2.example.com'
+  secret_key_base: test_secret_key_base
 
 
 production:
@@ -83,3 +84,4 @@ production:
   nonce_bloom_filter_enabled: 'false'
   token_encryption_key_salt: ''
   token_encryption_key_pepper: ''
+  secret_key_base:
