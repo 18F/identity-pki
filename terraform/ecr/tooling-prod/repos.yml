@@ -126,6 +126,15 @@ repos:
   dashboard_ci:
     name: "dashboard/ci"
     <<: *all_write_template
+  saml_sinatra_ci:
+    name: "saml_sinatra/ci"
+    <<: *all_write_template
+  oidc_sinatra_ci:
+    name: "oidc_sinatra/ci"
+    <<: *all_write_template
+  cloudfoundry_cd:
+    name: "cloudfoundry/cd"
+    <<: *all_write_template
   tf_deploy_blessed:
     name: "cd/tf_deploy/blessed"
     <<: *all_write_template
