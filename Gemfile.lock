@@ -132,7 +132,8 @@ GEM
       redis
     bootsnap (1.18.4)
       msgpack (~> 1.2)
-    brakeman (6.0.1)
+    brakeman (6.2.1)
+      racc
     builder (3.3.0)
     bullet (7.1.6)
       activesupport (>= 3.0.0)
