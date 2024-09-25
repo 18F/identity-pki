@@ -1177,6 +1177,17 @@ users:
     - lg-all
     - lg-public
     - Melba|developer
+  william.ayo:
+    aws_groups:
+    - secopsnonprod
+    ec2_username:
+    - wayo
+    gitlab_groups:
+    - devops
+    - lg-all
+    - lg-public
+    - login-security
+    - Security
   william.birdsall:
     aws_groups:
     - apponcall
