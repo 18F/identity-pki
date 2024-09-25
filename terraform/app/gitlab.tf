@@ -63,6 +63,7 @@ module "env-runner" {
   s3_prefix_list_id                = module.network_uw2.s3_prefix_list_id
   s3_secrets_bucket_name           = data.aws_s3_bucket.secrets.bucket
   slack_events_sns_hook_arn        = var.slack_alarms_sns_hook_arn
+  aws_endpoints                    = local.aws_endpoints
 
   endpoint_security_groups  = [for k, v in local.aws_endpoints : module.network_uw2.endpoint_sg[k]]
   gitlab_configbucket       = var.gitlab_configbucket

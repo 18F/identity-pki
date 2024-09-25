@@ -16,6 +16,27 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "stages/${var.env_name}"
 
+  default_endpoints_no_proxy_targets = formatlist("%s.${var.region}.amazonaws.com", [
+    "dms",
+    "ec2",
+    "ec2messages",
+    "events",
+    "kms",
+    "lambda",
+    "monitoring",
+    "secretsmanager",
+    "sns",
+    "sqs",
+    "ssm",
+    "ssmmessages",
+    "sts",
+  ])
+
+  vpc_endpoints_no_proxy_targets = (
+    length(var.aws_endpoints) == 0 ? local.default_endpoints_no_proxy_targets :
+    sort([for service, endpoint_region in var.aws_endpoints : "${service}.${endpoint_region}.amazonaws.com" if endpoint_region == var.region])
+  )
+
   no_proxy_hosts = join(",", concat([
     "localhost",
     "127.0.0.1",
@@ -24,21 +45,7 @@ locals {
     "44.230.151.136",
     ".login.gov.internal",
     "metadata.google.internal",
-    ], formatlist("%s.${var.region}.amazonaws.com", [
-      "dms",
-      "ec2",
-      "ec2messages",
-      "events",
-      "kms",
-      "lambda",
-      "monitoring",
-      "secretsmanager",
-      "sns",
-      "sqs",
-      "ssm",
-      "ssmmessages",
-      "sts",
-  ])))
+  ], local.vpc_endpoints_no_proxy_targets))
 
   account_name_number_map = {
     sandbox = "894947205914"
@@ -53,6 +60,12 @@ variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
   default = [
     "159.142.0.0/16",
   ]
+}
+
+variable "aws_endpoints" {
+  type        = map(string)
+  description = "map of available AWS VPC endpoints"
+  default     = {}
 }
 
 variable "ami_id_map" {

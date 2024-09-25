@@ -765,6 +765,8 @@ locals {
     )
   ]
 
+  vpc_endpoints_no_proxy_hosts = sort(flatten([for region in compact(["us-west-2", var.enable_us_east_1_vpc ? "us-east-1" : ""]) : [for k, v in local.aws_endpoints : "${k}.${region}.amazonaws.com"]]))
+
   no_proxy_hosts = join(",", concat(
     # These hosts should always be no_proxy. The latter set of hosts are added depending on
     # which VPC endpoints are created, and whether or not us-east-1 VPC creation is enabled.
@@ -777,12 +779,7 @@ locals {
       ".login.gov.internal",
       "metadata.google.internal"
     ],
-    sort(flatten([for region in compact([
-      "us-west-2",
-      var.enable_us_east_1_vpc ? "us-east-1" : ""
-      ]) :
-      [for k, v in local.aws_endpoints : "${k}.${region}.amazonaws.com"]
-    ]))
+    local.vpc_endpoints_no_proxy_hosts
   ))
 }
 
