@@ -63,7 +63,6 @@ variable "allowed_gitlab_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
 }
 
 variable "aws_endpoints" {
-  type        = map(string)
   description = "map of available AWS VPC endpoints"
   default     = {}
 }
