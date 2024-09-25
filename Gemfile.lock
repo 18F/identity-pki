@@ -149,6 +149,7 @@ GEM
     crack (0.4.5)
       rexml
     crass (1.0.6)
+    csv (3.3.0)
     date (3.3.4)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -382,6 +383,7 @@ DEPENDENCIES
   brakeman
   bullet (~> 7.1.2)
   bundler-audit
+  csv
   factory_bot_rails (>= 5.2.0)
   fakefs
   identity-hostdata!
@@ -413,4 +415,4 @@ RUBY VERSION
    ruby 3.3.4p94
 
 BUNDLED WITH
-   2.5.6
+   2.5.20
