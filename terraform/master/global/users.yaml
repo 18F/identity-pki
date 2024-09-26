@@ -69,14 +69,6 @@ users:
     - Radia
     oncaller:
     - true
-  alex.rowley:
-    aws_groups:
-    - analytics
-    ec2_username:
-    - arowley
-    gitlab_groups:
-    - pm
-    - Melba|owner
   alexander.bradley:
     aws_groups:
     - apponcall
