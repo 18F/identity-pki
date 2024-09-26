@@ -276,6 +276,10 @@ repos:
   addon-resizer:
     name: "kubernetes/autoscaling/addon-resizer"
     <<: *readonly_template
+  # node-local-dns
+  node-local-dns:
+    name: "kubernetes/dns/k8s-dns-node-cache"
+    <<: *readonly_template
   # pgbouncer
   # (nothing)
   # policy-reporter
