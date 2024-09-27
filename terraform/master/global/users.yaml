@@ -23,6 +23,7 @@ users:
   adalis.morales:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - amorales
     gitlab_groups:
@@ -31,6 +32,7 @@ users:
     aws_groups:
     - analytics
     - bizops
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -92,6 +94,7 @@ users:
   allison.rosenberg:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - arosenberg
     gitlab_groups:
@@ -135,6 +138,7 @@ users:
   andrew.hsieh:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -154,6 +158,7 @@ users:
   annie.hirshman:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - user-experience-admins|reporter
     - Ada
@@ -172,6 +177,7 @@ users:
   benjamin.chait:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -232,6 +238,7 @@ users:
   carrie.mcgrath:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -241,6 +248,7 @@ users:
   charles.hazen:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - chazen
     gitlab_groups:
@@ -300,6 +308,7 @@ users:
   david.dsilva:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -441,6 +450,7 @@ users:
   jeff.bordogna:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -458,6 +468,7 @@ users:
   jeffrey.holden:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -496,6 +507,7 @@ users:
   jia.gu:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -632,6 +644,7 @@ users:
   kelli.ho:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -640,6 +653,7 @@ users:
   ken.myers:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - kmyers
     gitlab_groups:
@@ -659,6 +673,7 @@ users:
   kevin.peoples:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - antifraud
     - lg-all
@@ -667,6 +682,7 @@ users:
   kirsten.a.green:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - kgreen
     gitlab_groups:
@@ -684,6 +700,7 @@ users:
   laurie.cole:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - lcole
     gitlab_groups:
@@ -886,6 +903,7 @@ users:
   nick.ng:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -894,6 +912,7 @@ users:
   nick.soutouras:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - devops|owner
@@ -940,6 +959,7 @@ users:
   princess.ojiaku:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -1019,9 +1039,11 @@ users:
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
+    - dwuser
   stacey.evans:
     aws_groups:
     - analytics
+    - dwuser
     ec2_username:
     - sevans
     gitlab_groups:
@@ -1050,6 +1072,7 @@ users:
   stesha.marcon:
     aws_groups:
     - analytics
+    - dwuser
   sudheer.dandamudi:
     aws_groups:
     - devops
@@ -1071,6 +1094,7 @@ users:
   tahinee.felixmarin:
     aws_groups:
     - analytics
+    - dwuser
     gitlab_groups:
     - pm
     - lg-all
@@ -1085,6 +1109,7 @@ users:
     - Product|owner
     aws_groups:
     - analytics
+    - dwuser
   tim.lofinmakin:
     aws_groups:
     - secopsnonprod
