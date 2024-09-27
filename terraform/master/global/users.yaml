@@ -1061,6 +1061,13 @@ users:
     - lg-all
     - lg-public
     - Mary
+  sumi.thaiveettil:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - pm
+    - lg-all
+    - lg-public
   tahinee.felixmarin:
     aws_groups:
     - analytics
