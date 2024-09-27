@@ -1,6 +1,4 @@
 resource "aws_cloudwatch_metric_alarm" "reporting_worker_alive_alarm" {
-  count = var.enable_dms_analytics ? 1 : 0
-
   alarm_name                = "${var.env_name}-ReportingWorkers-Alive"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "6"
@@ -22,8 +20,6 @@ EOM
 
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "reporting_worker_failure_alarm" {
-  count = var.enable_dms_analytics ? 1 : 0
-
   alarm_name                = "${var.env_name}-ReportingWorkers-Failure"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -44,8 +40,6 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "data_freshness_out_of_range_alarm" {
-  count = var.enable_dms_analytics ? 1 : 0
-
   alarm_name                = "${var.env_name}-DataFreshness-OutOfRange-Alarm"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -67,8 +61,6 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "log_column_extractor_failure_alarm" {
-  count = var.enable_dms_analytics ? 1 : 0
-
   alarm_name                = "${var.env_name}-LogColumnExtractor-failure-Alarm"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "1"
@@ -90,7 +82,6 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
-  count                     = var.enable_dms_analytics ? 1 : 0
   alarm_name                = "${var.env_name}-DuplicateRowChecker-Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -111,7 +102,6 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "pii_row_checker_alert" {
-  count                     = var.enable_dms_analytics ? 1 : 0
   alarm_name                = "${var.env_name}-PiiRowChecker-Alert"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
@@ -132,7 +122,6 @@ EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "unexpected_redshift_user_alert" {
-  count                     = var.enable_dms_analytics ? 1 : 0
   alarm_name                = "${var.env_name}-analytics-ReportingRailsJob-UnexpectedRedshiftUserDetected"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"

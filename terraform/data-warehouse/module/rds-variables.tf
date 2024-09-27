@@ -26,12 +26,6 @@ locals {
         value = "30000"
       },
     ],
-    # BigInt: Set logical replication for change data capture (cdc)
-    (var.enable_dms_migration || var.enable_dms_analytics) ? [{
-      name   = "rds.logical_replication",
-      value  = "1",
-      method = "pending-reboot"
-    }] : []
   ])
 
   apg_db_pgroup_params = [
@@ -155,15 +149,6 @@ variable "enable_dms_migration" {
 Enables creation of resources necessary for migrating idp databases
 from integer columns to BigInt columns.
 EOM
-  default     = false
-}
-
-variable "enable_dms_analytics" {
-  description = <<EOM
-Enables creation of resources necessary for loading idp data
-into the data analytics platform.
-EOM
-  type        = bool
   default     = false
 }
 
