@@ -94,11 +94,11 @@ module "main" {
       { "Terraform" = ["Sandbox"] }
     ],
     "dwusernonprod" = [
-      { "DwUser" = ["DataWarehouseSandbox"] },
+      { "DWUser" = ["DataWarehouseSandbox"] },
     ],
     "dwadminnonprod" = [
-      { "DwUser" = ["DataWarehouseSandbox"] },
-      { "DwAdmin" = ["DataWarehouseSandbox"] },
+      { "DWUser" = ["DataWarehouseSandbox"] },
+      { "DWAdmin" = ["DataWarehouseSandbox"] },
       { "Terraform" = ["DataWarehouseSandbox"] }
 
     ],
