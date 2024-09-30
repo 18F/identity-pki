@@ -17,79 +17,79 @@ resource "aws_dms_replication_task" "filtercolumns" {
         "EnableLogContext" : false,
         "LogComponents" : [
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "TRANSFORMATION"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "SOURCE_UNLOAD"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "IO"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "TARGET_LOAD"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "PERFORMANCE"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "SOURCE_CAPTURE"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "SORTER"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "REST_SERVER"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "VALIDATOR_EXT"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "TARGET_APPLY"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "TASK_MANAGER"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "TABLES_MANAGER"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "METADATA_MANAGER"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "FILE_FACTORY"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "COMMON"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "ADDONS"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "DATA_STRUCTURE"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "COMMUNICATION"
           },
           {
-            "Severity" : "${var.dms_logging_level}",
+            "Severity" : var.dms_logging_level,
             "Id" : "FILE_TRANSFER"
           }
         ],
@@ -123,23 +123,6 @@ resource "aws_dms_replication_task" "filtercolumns" {
         "DataErrorPolicy" : "LOG_ERROR",
         "TableErrorPolicy" : "SUSPEND_TABLE"
       },
-      "ValidationSettings" : {
-        "ValidationPartialLobSize" : 0,
-        "PartitionSize" : 50000,
-        "RecordFailureDelayLimitInMinutes" : 0,
-        "SkipLobColumns" : false,
-        "FailureMaxCount" : 10000,
-        "HandleCollationDiff" : false,
-        "ValidationQueryCdcDelaySeconds" : 0,
-        "ValidationMode" : "ROW_LEVEL",
-        "TableFailureMaxCount" : 1000,
-        "RecordFailureDelayInMinutes" : 5,
-        "MaxKeyColumnSize" : 8096,
-        "EnableValidation" : false,
-        "ThreadCount" : 16,
-        "RecordSuspendDelayInMinutes" : 30,
-        "ValidationOnly" : false
-      },
       "TTSettings" : {
         "TTS3Settings" : null,
         "TTRecordSettings" : null,
@@ -152,7 +135,8 @@ resource "aws_dms_replication_task" "filtercolumns" {
         "MaxFullLoadSubTasks" : 1,
         "TransactionConsistencyTimeout" : 60,
         "CreatePkAfterFullLoad" : false,
-        "TargetTablePrepMode" : "DROP_AND_CREATE"
+        "TargetTablePrepMode" : "DROP_AND_CREATE",
+        "PersistPartitionProgressForResumption" : false,
       },
       "TargetMetadata" : {
         "ParallelApplyBufferSize" : 0,
@@ -185,6 +169,7 @@ resource "aws_dms_replication_task" "filtercolumns" {
       "CharacterSetSettings" : null,
       "FailTaskWhenCleanTaskResourceFailed" : false,
       "ChangeProcessingTuning" : {
+        "RecoveryTimeout" : -1,
         "StatementCacheSize" : 50,
         "CommitTimeout" : 1,
         "BatchApplyPreserveTransaction" : true,
