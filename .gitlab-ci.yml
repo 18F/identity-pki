@@ -677,12 +677,6 @@ env-zmargolis:
     ENV_NAME: zmargolis
     branch: "stages/zmargolis"
 
-env-jmdembe:
-  extends: .include_idp_jobs_template
-  variables:
-    ENV_NAME: jmdembe
-    branch: "stages/stable"
-
 env-solipet:
   extends: .include_idp_jobs_template
   variables:
