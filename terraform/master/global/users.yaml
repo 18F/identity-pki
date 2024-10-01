@@ -1100,6 +1100,7 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - Timnit
     - Product
   tiffanyj.andrews:
     gitlab_groups:
