@@ -116,6 +116,7 @@ COPY Gemfile $RAILS_ROOT/Gemfile
 COPY Gemfile.lock $RAILS_ROOT/Gemfile.lock
 
 RUN bundle config build.nokogiri --use-system-libraries
+RUN bundle config set --local frozen 'true'
 RUN bundle config set --local deployment 'true'
 RUN bundle config set --local path $BUNDLE_PATH
 RUN bundle config set --local without 'deploy development doc test'
