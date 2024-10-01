@@ -773,14 +773,11 @@ check_branch_age() {
   # Find the most recent common commit
   local common_commit=$(git merge-base HEAD origin/main)
  
-  # Get the date of the most recent common commit
-  local common_commit_date=$(git show -s --date=format:'%Y-%m-%d' --format=%cd "${common_commit}")
-
-  # Convert date to Unix time
-  local common_commit_unix_time=$(date -j -f "%Y-%m-%d" "$common_commit_date" +"%s")
+  # Get the date (as UNIX timestamp) of the most recent common commit
+  local common_commit_date=$(git show -s --format=%ct "${common_commit}")
 
   # Calculate age in days
-  local age_in_days=$((($(date +%s) - $common_commit_unix_time) / 86400 ))
+  local age_in_days=$((($(date +%s) - $common_commit_date) / 86400 ))
  
   if [[ $age_in_days -le 7 ]]; then
     echo
