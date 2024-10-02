@@ -150,4 +150,4 @@ EXPOSE 443
 USER app
 
 # The keys here are getting mapped in from a secret in the deployment.
-CMD ["bundle", "config"]
+CMD ["bundle", "exec", "rackup", "config.ru", "--host", "ssl://0.0.0.0:3000?key=/app/keys/tls.key&cert=/app/keys/tls.crt"]
