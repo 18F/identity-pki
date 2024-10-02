@@ -150,4 +150,4 @@ EXPOSE 443
 USER app
 
 # The keys here are getting mapped in from a secret in the deployment.
-CMD ["bundle", "check"]
+CMD ["bundle", "config"]
