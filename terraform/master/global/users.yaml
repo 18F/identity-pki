@@ -950,6 +950,15 @@ users:
     - lg-public
     - Agnes
     - lg-people-platform|reporter
+  page.levendis:
+    gitlab_groups:
+      - appdev
+      - lg-all
+      - lg-people
+      - Katherine
+      - Ursula
+      - Product
+      - pm
   philip.burke:
     gitlab_groups:
     - antifraud
