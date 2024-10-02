@@ -130,7 +130,7 @@ RUN mkdir -p ${RAILS_ROOT}/keys; chmod -R 0755 ${RAILS_ROOT}/keys; \
 COPY --chmod=644 ./k8files/newrelic.yml ./config/newrelic.yml
 
 # set bundler up
-RUN bundle config build.nokogiri --use-system-libraries
+RUN bundle config set --local frozen 'true'
 RUN bundle config set --local deployment 'true'
 RUN bundle config set --local path $BUNDLE_PATH
 RUN bundle config set --local without 'deploy development doc test'
