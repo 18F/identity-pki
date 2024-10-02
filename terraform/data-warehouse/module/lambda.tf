@@ -56,19 +56,44 @@ resource "aws_s3_bucket_notification" "s3_trigger_to_lambdas" {
 }
 
 module "db_consumption_alerts" {
-  source = "github.com/18F/identity-terraform//lambda_alerts?ref=54aa8c603736993da0b4e7e93a64d749e95f4907"
+  source = "github.com/18F/identity-terraform//lambda_alerts?ref=a4dfd80b0e40a96d2a0c7c09262f84d2ea3d9104"
   #source = "../../../../identity-terraform/lambda_alerts"
 
   enabled              = 1
   function_name        = aws_lambda_function.db_consumption.function_name
   alarm_actions        = local.low_priority_alarm_actions
+  ok_actions           = local.low_priority_alarm_actions
   error_rate_threshold = 0 # percent
   error_rate_operator  = "GreaterThanThreshold"
   datapoints_to_alarm  = 1
   evaluation_periods   = 5
   insights_enabled     = true
   duration_setting     = aws_lambda_function.db_consumption.timeout
-  runbook              = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
+  runbook              = local.data_warehouse_lambda_alerts_runbooks
+
+  error_rate_alarm_name_override   = "${var.env_name}-analytics-lambda-dbConsumption-errorDetected"
+  memory_usage_alarm_name_override = "${var.env_name}-analytics-lambda-dbConsumption-memoryUsageHigh"
+  duration_alarm_name_override     = "${var.env_name}-analytics-lambda-dbConsumption-durationLong"
+  memory_usage_threshold           = var.data_warehouse_memory_usage_threshold
+  duration_threshold               = var.data_warehouse_duration_threshold
+
+  error_rate_alarm_description = <<EOM
+One or more errors were detected running the ${aws_lambda_function.db_consumption.function_name} lambda function.
+
+${local.data_warehouse_lambda_alerts_runbooks}
+EOM
+
+  memory_usage_alarm_description = <<EOM
+The memory used by the ${aws_lambda_function.db_consumption.function_name} lambda function, exceeded ${var.data_warehouse_memory_usage_threshold}% of the ${aws_lambda_function.db_consumption.memory_size} MB limit configured.
+
+${local.data_warehouse_lambda_alerts_runbooks}
+EOM
+
+  duration_alarm_description = <<EOM
+The runtime of the ${aws_lambda_function.db_consumption.function_name} lambda function exceeded ${var.data_warehouse_duration_threshold}% of the ${aws_lambda_function.db_consumption.timeout / 60} minute limit configured.
+
+${local.data_warehouse_lambda_alerts_runbooks}
+EOM
 }
 
 resource "aws_lambda_permission" "db_consumption_allow_s3_events" {

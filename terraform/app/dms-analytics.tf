@@ -245,8 +245,7 @@ resource "aws_s3_bucket_replication_configuration" "to_analytics" {
 
 resource "aws_cloudwatch_metric_alarm" "s3_replication_failed_operations_analytics" {
   count               = var.enable_dms_analytics ? 1 : 0
-  alarm_name          = "${var.env_name}-idp-s3-toAnalyticsAccount-replicationFailedAlarm"
-  alarm_description   = "Alarm when S3 replication operations fail in analytics export bucket."
+  alarm_name          = "${var.env_name}-idp-s3-toAnalyticsAccount-replicationFailed"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = "OperationsFailedReplication"
@@ -255,6 +254,11 @@ resource "aws_cloudwatch_metric_alarm" "s3_replication_failed_operations_analyti
   statistic           = "Sum"
   threshold           = 1
   treat_missing_data  = "notBreaching"
+  alarm_description   = <<EOM
+The S3 replication failed for the "login-gov-analytics-export" bucket.
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#s3-replication-alerts
+EOM
 
   dimensions = {
     BucketName  = aws_s3_bucket.analytics_export[count.index].id
@@ -262,6 +266,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_replication_failed_operations_analyti
   }
 
   alarm_actions = local.low_priority_dw_alarm_actions
+  ok_actions    = local.low_priority_dw_alarm_actions
 
   actions_enabled = true
 }

@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "reporting_worker_alive_alarm" {
-  alarm_name                = "${var.env_name}-ReportingWorkers-Alive"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-healthCheckerJob-notAlive"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "6"
   datapoints_to_alarm       = "6"
@@ -11,16 +11,17 @@ resource "aws_cloudwatch_metric_alarm" "reporting_worker_alive_alarm" {
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-This alarm is executed when no worker jobs have run for 6 minutes
+No background jobs have run for 6 minutes in the app - "Reporting Rails."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
 
 # There should be no failures, so alert on any failure
 resource "aws_cloudwatch_metric_alarm" "reporting_worker_failure_alarm" {
-  alarm_name                = "${var.env_name}-ReportingWorkers-Failure"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-workerJobs-failed"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -32,15 +33,16 @@ resource "aws_cloudwatch_metric_alarm" "reporting_worker_failure_alarm" {
   treat_missing_data        = "missing"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-This alarm is executed when a worker job fails
+One or more errors were raised in the background job(s) of the app - "Reporting Rails."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "data_freshness_out_of_range_alarm" {
-  alarm_name                = "${var.env_name}-DataFreshness-OutOfRange-Alarm"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-dataFreshnessJob-outOfRange"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -52,16 +54,16 @@ resource "aws_cloudwatch_metric_alarm" "data_freshness_out_of_range_alarm" {
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-This alarm is executed if the data freshness is out of range.
-This indicates that the production table are not being updated as expected.
+One or more of the production tables are expected to have newer data from the last update.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "log_column_extractor_failure_alarm" {
-  alarm_name                = "${var.env_name}-LogColumnExtractor-failure-Alarm"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-logsColumnExtractorJob-failed"
   comparison_operator       = "LessThanThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -73,16 +75,17 @@ resource "aws_cloudwatch_metric_alarm" "log_column_extractor_failure_alarm" {
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-This alarm is if the log message "LogsColumnExtractorJob: Query executed successfully" is not found in the production worker log group within the specified period.
-This indicates that the production and events table are not being updated as expected.
+The message "LogsColumnExtractorJob: Query executed successfully" has NOT been found in the log group "production.log" since the last update.
+The production and/or events table may not have been updated.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
-  alarm_name                = "${var.env_name}-DuplicateRowChecker-Alert"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-duplicateRowCheckerJob-duplicateRowDetected"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -94,15 +97,16 @@ resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-  This alarm is executed when duplicate rows have been identified in the table.
+Duplicate rows were identified in one or more of the data warehouse tables.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "pii_row_checker_alert" {
-  alarm_name                = "${var.env_name}-PiiRowChecker-Alert"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-piiRowCheckerJob-piiDataDetected"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -114,15 +118,16 @@ resource "aws_cloudwatch_metric_alarm" "pii_row_checker_alert" {
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-  This alarm is executed when pii pattern have been identified in the table.
+A PII pattern was detected in one or more of the data warehouse tables.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
 
 resource "aws_cloudwatch_metric_alarm" "unexpected_redshift_user_alert" {
-  alarm_name                = "${var.env_name}-analytics-ReportingRailsJob-UnexpectedRedshiftUserDetected"
+  alarm_name                = "${var.env_name}-analytics-reportingRails-redshiftUnexpectedUserDetectionJob-unexpectedUserCreated"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "1"
   datapoints_to_alarm       = "1"
@@ -134,10 +139,10 @@ resource "aws_cloudwatch_metric_alarm" "unexpected_redshift_user_alert" {
   treat_missing_data        = "notBreaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
   alarm_description         = <<EOM
-  This alarm is triggered when a local user in Redshift has been created outside of the automated user sync script
-  or if the associated reporting rails job encounters an error.
+One or more local users were created in Redshift outside of the user sync script - "redshift_sync.rb."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }

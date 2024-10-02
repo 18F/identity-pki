@@ -781,6 +781,8 @@ locals {
     ],
     local.vpc_endpoints_no_proxy_hosts
   ))
+
+  data_warehouse_lambda_alerts_runbooks = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
 }
 
 # These variables are used to toggle whether certain services are enabled.
@@ -1776,4 +1778,16 @@ variable "transform_cw_export_memory_size" {
   description = "Defines the amount of memory in MB the transform_cw_export lambda can use at runtime"
   type        = number
   default     = 128
+}
+
+variable "data_warehouse_memory_usage_threshold" {
+  type        = number
+  description = "The threshold memory utilization (as a percentage) for triggering an alert"
+  default     = 90
+}
+
+variable "data_warehouse_duration_threshold" {
+  type        = number
+  description = "The duration threshold (as a percentage) for triggering an alert"
+  default     = 80
 }

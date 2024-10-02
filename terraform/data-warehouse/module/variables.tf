@@ -61,6 +61,7 @@ locals {
     var.high_priority_sns_hook,
     local.moderate_priority_alarm_actions
   ]) : local.moderate_priority_alarm_actions
+  data_warehouse_lambda_alerts_runbooks = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
 }
 
 variable "allowed_analytics_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
@@ -518,4 +519,16 @@ variable "rails_ami_analytics_sandbox_uw2" {
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts in the analytics-sandbox account
 EOM
+}
+
+variable "data_warehouse_memory_usage_threshold" {
+  type        = number
+  description = "The threshold memory utilization (as a percentage) for triggering an alert"
+  default     = 90
+}
+
+variable "data_warehouse_duration_threshold" {
+  type        = number
+  description = "The duration threshold (as a percentage) for triggering an alert"
+  default     = 80
 }
