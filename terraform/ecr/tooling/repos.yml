@@ -122,6 +122,9 @@ repos:
   cloudfoundry_cd:
     name: "cloudfoundry/cd"
     <<: *all_write_template
+  identity_fakeserver_ci:
+    name: "identity_fakeserver/ci"
+    <<: *all_write_template
   identity_idp:
     name: "identity-idp/idp"
     <<: *all_write_template
