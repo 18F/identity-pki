@@ -56,7 +56,10 @@ resource "aws_iam_policy" "redshift_s3_policy" {
           "s3:Put*",
           "s3:*",
         ],
-        Resource = "${aws_s3_bucket.analytics_import.arn}",
+        Resource = [
+          "${aws_s3_bucket.analytics_import.arn}",
+          "${aws_s3_bucket.analytics_import.arn}/*",
+        ]
       },
       {
         Effect = "Allow",
