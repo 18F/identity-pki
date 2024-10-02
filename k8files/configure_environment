@@ -94,8 +94,5 @@ sudo rm -f /app/config/puma/production.rbtempd
 # Start nginx
 sudo -E -u root nginx
 
-bundle config
-bundle check
-
 # Start Passenger
 bundle exec puma
