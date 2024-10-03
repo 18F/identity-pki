@@ -30,10 +30,16 @@ def lambda_handler(event, context):
         for shift in shifts:
             if len(shift["ContactIds"]) > 0:
                 if compare_times(now, shift["StartTime"]):
+                    logger.info(
+                        f"{now}: Shift change for {shift['ContactIds'][0]} at {shift['StartTime']}"
+                    )
                     send_to_slack(
                         rotation["Name"], shift["ContactIds"][0].split("/")[1], "ON"
                     )
                 elif compare_times(now, shift["EndTime"]):
+                    logger.info(
+                        f"{now}: Shift change for {shift['ContactIds'][0]} at {shift['StartTime']}"
+                    )
                     send_to_slack(
                         rotation["Name"], shift["ContactIds"][0].split("/")[1], "OFF"
                     )
@@ -51,7 +57,7 @@ def compare_times(a, b):
 
 
 def send_to_slack(rotation_name, contact_name, status):
-    sns.publish(
+    return sns.publish(
         TargetArn=os.environ["SNS_CHANNEL"],
         Message=json.dumps(
             {

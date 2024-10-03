@@ -135,7 +135,7 @@ module "incident_manager_shift_lambda_alerts" {
 resource "aws_cloudwatch_event_rule" "trigger_schedule" {
   name                = "incident-manager-shift"
   description         = "Trigger AWS Lambda monitoring Incident Manager shift changes"
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = "cron(* * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "trigger_lambda" {
