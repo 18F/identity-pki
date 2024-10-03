@@ -727,6 +727,7 @@ locals {
           "lambda:GetEventSourceMapping*",
           "lambda:GetFunction*",
           "lambda:GetPolicy",
+          "lambda:ListTags",
           "lambda:ListVersionsByFunction*",
           "lambda:PublishVersion",
           "lambda:PutFunctionConcurrency",

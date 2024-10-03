@@ -120,7 +120,8 @@ data "aws_iam_policy_document" "prismacloud-policy" {
       "lambda:GetLayerVersion",
       "ssm:GetParameter",
       "securityhub:BatchImportFindings",
-      "lambda:GetFunction"
+      "lambda:GetFunction",
+      "lambda:ListTags"
     ]
     resources = ["*"]
   }
