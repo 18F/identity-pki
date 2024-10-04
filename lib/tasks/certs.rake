@@ -104,7 +104,7 @@ namespace :certs do
     input = raw_input == 'ALL' ? 0...matching_certs.length : raw_input.split(',').map(&:to_i)
     puts ''
 
-    return if input.blank?
+    exit 0 if input.blank?
 
     Array.wrap(matching_certs.values_at(*input)).each do |matching_cert|
       path = Pathname.new("./config/certs") + matching_cert.pem_filename
