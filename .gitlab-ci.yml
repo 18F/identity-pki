@@ -614,11 +614,10 @@ ecr-scan:
 deploy_eks:
   trigger:
     project: lg-public/identity-eks-control
-    # TODO change back to main
-    branch: lrappaport/deploy-pivcac
+    branch: main
   stage: deploy_eks
   variables:
     APP: pivcac
     IMAGE_TAG: $CI_COMMIT_SHA
-  # rules:
-  #   - if: $CI_COMMIT_BRANCH == "main"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
