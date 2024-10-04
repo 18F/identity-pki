@@ -65,13 +65,13 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "log_column_extractor_failure_alarm" {
   alarm_name                = "${var.env_name}-analytics-reportingRails-logsColumnExtractorJob-failed"
   comparison_operator       = "LessThanThreshold"
-  evaluation_periods        = "1"
+  evaluation_periods        = "24"
   datapoints_to_alarm       = "1"
   metric_name               = "log-column-extractor-failure"
   namespace                 = "${var.env_name}/reporting-production"
-  period                    = "86400" # Updated to 24 hours (86400 seconds)
+  period                    = "3600" # Updated to 1 hours (86400 seconds max)
   statistic                 = "Sum"
-  threshold                 = "1"
+  threshold                 = "2"
   treat_missing_data        = "breaching"
   insufficient_data_actions = []
   alarm_actions             = local.low_priority_alarm_actions
