@@ -58,7 +58,14 @@ cloudtrail/event-details-for-user-in-env:
     # Uncomment to limit events to creating, updating, or deleting
     #| filter eventName like /(?i)Create|New|Register|Modify|Update|Delete|Deregister|Destroy|Disable/
 
-
-
-
-
+email/sends-complaints-bounces-by-domain:
+  logs:
+    - /aws/lambda/SESAllEvents_Lambda
+  query: |
+    # mail.commonHeaders.to is the domain name
+    fields @timestamp, complaint.complaintFeedbackType, mail.commonHeaders.subject, mail.commonHeaders.to,
+           (eventType = 'Complaint') as complaint, (eventType = 'Delivery') as delivery,
+           (eventType = 'Bounce') as bounce, @message
+    | filter eventType in ['Complaint', 'Delivery', 'Bounce']
+    | stats sum(delivery) as deliveries, sum(complaint) as complaints, sum(bounce) as bounces by mail.commonHeaders.to, mail.commonHeaders.subject
+    | sort complaints desc, bounces desc, deliveries desc
