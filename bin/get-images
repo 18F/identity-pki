@@ -234,6 +234,8 @@ if [[ $(env | grep 'AWS_VAULT=') ]]; then
   raise "Cannot run with an active AWS_VAULT session; clear the session and try again!"
 fi
 
+verify_clean_working_directory
+
 verify_root_repo
 
 declare {AWS_PROFILE,AV_PROFILE,TODAY_DATE}=

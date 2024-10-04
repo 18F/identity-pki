@@ -197,6 +197,12 @@ verify_tf_dir_and_env() {
   fi
 }
 
+verify_clean_working_directory() {
+  if [ -n "$(git status --porcelain)" ]; then
+    raise "Untracked/modified files found; please clean your working directory and try again!"
+  fi
+}
+
 # send a notification in Slack, pulling appropriate key(s) from bucket to do so
 slack_notify() {
   local AWS_ACCT_NUM TF_ENV AWS_REGION SLACK_ICON SLACK_USER SLACK_EMOJI PRE_TEXT TEXT TF_TYPE KEYS SLACK_CHANNEL
@@ -769,16 +775,16 @@ confirm_or_exit() {
 check_branch_age() {
   # Git fetch to find most recent common commit
   git fetch --tags
- 
+
   # Find the most recent common commit
   local common_commit=$(git merge-base HEAD origin/main)
- 
+
   # Get the date (as UNIX timestamp) of the most recent common commit
   local common_commit_date=$(git show -s --format=%ct "${common_commit}")
 
   # Calculate age in days
   local age_in_days=$((($(date +%s) - $common_commit_date) / 86400 ))
- 
+
   if [[ $age_in_days -le 7 ]]; then
     echo
     echo_green "Git branch is less than 7 days old"
@@ -787,7 +793,7 @@ check_branch_age() {
       echo
       echo_yellow "Git repository is $age_in_days days old. Please update your branch or set DEPLOY_OLD_BRANCH=1"
       exit 1
-    else 
+    else
       echo
       echo_yellow "Git repository is $age_in_days days old. Deploying anyway"
     fi
