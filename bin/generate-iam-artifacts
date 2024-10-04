@@ -59,14 +59,16 @@ json_query="[ .Roles[] | del(.AssumeRolePolicyDocument, .Path, .CreateDate, .Max
 # Filter out roles listed in list_of_envs that are not in the target environment
 filtered_to_environment=$(echo "$unfiltered_list_of_roles" | jq "${json_query[@]}")
 
-echo "${filtered_to_environment}" > "/tmp/$target_env-env-iam-roles.txt"
+# Create directory to store iam role artifacts
+DIRECTORY="./role-permissions"
+rm -rf $DIRECTORY
+mkdir $DIRECTORY
+
+# Create csv file with overview of roles
+echo "${filtered_to_environment}" | jq -r '(map(keys) | add | unique) as $cols | map(. as $row | $cols | map($row[.])) as $rows | $cols, $rows[] | @csv' > "$DIRECTORY/$target_env-env-iam-roles-overview.csv"
 
 # shellcheck disable=SC2207
-roles_to_check=($(jq -r '.[].RoleName' "/tmp/$target_env-env-iam-roles.txt"))
-
-# Create directory to store iam role artifacts
-rm -rf ./role-permissions
-mkdir ./role-permissions
+roles_to_check=($(echo "$filtered_to_environment" | jq '.[].RoleName' | tr -d '"'))
 
 for role in "${roles_to_check[@]}" ;
 do
