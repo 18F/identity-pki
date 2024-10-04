@@ -12,6 +12,7 @@ module "start_cw_export_task_alerts" {
   datapoints_to_alarm  = 1
   evaluation_periods   = 5
   insights_enabled     = true
+  treat_missing_data   = "notBreaching"
   duration_setting     = aws_lambda_function.start_cw_export_task[count.index].timeout
   runbook              = local.data_warehouse_lambda_alerts_runbooks
 
@@ -54,6 +55,7 @@ module "transform_cw_export_alerts" {
   datapoints_to_alarm  = 1
   evaluation_periods   = 5
   insights_enabled     = true
+  treat_missing_data   = "notBreaching"
   duration_setting     = aws_lambda_function.transform_cw_export[count.index].timeout
   runbook              = local.data_warehouse_lambda_alerts_runbooks
 
@@ -96,6 +98,7 @@ module "start_dms_task_alerts" {
   datapoints_to_alarm  = 1
   evaluation_periods   = 5
   insights_enabled     = true
+  treat_missing_data   = "notBreaching"
   duration_setting     = aws_lambda_function.start_dms_task[count.index].timeout
   runbook              = local.data_warehouse_lambda_alerts_runbooks
 

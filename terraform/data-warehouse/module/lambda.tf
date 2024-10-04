@@ -68,6 +68,7 @@ module "db_consumption_alerts" {
   datapoints_to_alarm  = 1
   evaluation_periods   = 5
   insights_enabled     = true
+  treat_missing_data   = "notBreaching"
   duration_setting     = aws_lambda_function.db_consumption.timeout
   runbook              = local.data_warehouse_lambda_alerts_runbooks
 
