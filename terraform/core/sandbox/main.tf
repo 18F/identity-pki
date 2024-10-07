@@ -35,9 +35,11 @@ module "main" {
 
   # TODO - Remove the need for these.  Set to the same as prod
   # for now to ensure we control the target
-  static_cloudfront_name       = "db1mat7gaslfp.cloudfront.net"
-  developers_cloudfront_name   = "d26qb7on2m22yd.cloudfront.net"
-  google_site_verification_txt = "04tWvC2fxF-q9hhizYUTD5vR_DqnpgpeRdN-Sy5hifo" # associated with peter.chen@gsa.gov
+  static_cloudfront_name     = "db1mat7gaslfp.cloudfront.net"
+  developers_cloudfront_name = "d26qb7on2m22yd.cloudfront.net"
+  google_site_verification_txt = [
+    "04tWvC2fxF-q9hhizYUTD5vR_DqnpgpeRdN-Sy5hifo", # associated with peter.chen@gsa.gov
+  ]
   prod_records = [
     {
       type = "NS",

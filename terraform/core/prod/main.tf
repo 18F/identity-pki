@@ -191,10 +191,13 @@ module "main" {
     "20211006" = "active"
   }
 
-  static_cloudfront_name       = "db1mat7gaslfp.cloudfront.net"
-  developers_cloudfront_name   = "d26qb7on2m22yd.cloudfront.net"
-  google_site_verification_txt = "BFBgpQv37mEYU_cLzUJpctEHAqOeEBw5Drd_V9FLwn0" # associated with peter.chen@gsa.gov
-  #google_site_verification_txt = "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0" # associated with zachary.margolis@gsa.gov
+  static_cloudfront_name     = "db1mat7gaslfp.cloudfront.net"
+  developers_cloudfront_name = "d26qb7on2m22yd.cloudfront.net"
+  google_site_verification_txt = [
+    "BFBgpQv37mEYU_cLzUJpctEHAqOeEBw5Drd_V9FLwn0", # associated with peter.chen@gsa.gov
+    "XpAHhjdX8tbSoncavYqzKuquO0ystD12VzLmXR10CK0", # associated with zachary.margolis@gsa.gov
+    "QPBBLzcO9Dvub-8izoybOkAfZa_WPzWzKasAfUd-sJY", # associated with matt.hinz@gsa.gov
+  ]
 
   mx_provider               = "google-g-suite"
   mta_sts_report_mailboxes  = ["tls.reports@gsa.gov", "tls-reports@login.gov"]

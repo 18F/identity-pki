@@ -16,9 +16,11 @@ variable "cloudfront_zone_id" {
 }
 
 variable "google_site_verification_txt" {
-  description = "Google site verification text to put in TXT record"
-  default     = ""
+  description = "List of Google site verification text to put in TXT record"
+  type        = list(any)
+  default     = []
 }
+
 
 variable "zendesk_verification_txt" {
   description = "Zendesk verification text to put in TXT record"
@@ -59,10 +61,10 @@ locals {
         {
           "name" = "",
           "ttl"  = "900",
-          "records" = [
-            "google-site-verification=${var.google_site_verification_txt}",
-            "v=spf1 include:amazonses.com include:_spf.google.com include:mail.zendesk.com ~all"
-          ],
+          "records" = concat(
+            [for site_verification in var.google_site_verification_txt : "google-site-verification=${site_verification}"],
+            ["v=spf1 include:amazonses.com include:_spf.google.com include:mail.zendesk.com ~all"]
+          ),
         },
         {
           "name"    = "mail.",
@@ -84,7 +86,7 @@ locals {
           "ttl"     = "900",
           "records" = ["${var.zendesk_verification_txt}"],
         }
-      ]
+      ],
     },
     {
       type = "MX",
