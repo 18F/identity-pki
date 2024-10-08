@@ -24,7 +24,7 @@ locals {
   reporting_production_filters = {
     reporting_log_column_extractor_failure = {
       name         = "log-column-extractor-failure"
-      pattern      = "{ $.job = \"LogsColumnExtractorJob\" && $.message = \"Query executed successfully\" }"
+      pattern      = "{ ($.job = \"LogsColumnExtractorJob\") && ($.success is FALSE) }"
       metric_value = 1
     },
     duplicate_row_checker_metric_filter = {
