@@ -49,6 +49,7 @@ users:
     - lg-public
     - login-security|owner
     - Security|owner
+    - lg-people|maintainer
   alex.kritikos:
     ec2_username:
     - akrito
