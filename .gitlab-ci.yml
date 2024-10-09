@@ -344,7 +344,7 @@ stop-review-app:
   script:
     - export CONTEXT=$(kubectl config get-contexts | grep reviewapp | awk '{print $1}' | head -1)
     - kubectl config use-context "$CONTEXT"
-    - helm uninstall --namespace review-apps $CI_ENVIRONMENT_SLUG
+    - kubectl delete application $CI_ENVIRONMENT_SLUG -n argocd
   stage: review
   image:
     name: dtzar/helm-kubectl:latest

@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: 'git@gitlab.login.gov:lg-public/identity-eks-control.git'
-    targetRevision: sshelton/update-reviewapp
+    targetRevision: main
     path: cluster-reviewapp/envs/reviewapps
     kustomize:
       namePrefix: "{{ENVIRONMENT}}-"
@@ -21,6 +21,67 @@ spec:
         - target:
             kind: ConfigMap
             name: idp-config
+          patch: |-
+            - op: add
+              path: /data/ASSET_HOST
+              value: "https://{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/DASHBOARD_URL
+              value: "https://{{ENVIRONMENT}}-dashboard.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/DOMAIN_NAME
+              value: "{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/KUBERNETES_REVIEW_APP
+              value: "true"
+            - op: add
+              path: /data/POSTGRES_HOST
+              value: "{{ENVIRONMENT}}-idp-pg.review-apps"
+            - op: add
+              path: /data/POSTGRES_NAME
+              value: "idp"
+            - op: add
+              path: /data/POSTGRES_SSLMODE
+              value: "prefer"
+            - op: add
+              path: /data/LOGIN_ENV
+              value: "{{ENVIRONMENT}}"
+            - op: add
+              path: /data/LOGIN_HOST_ROLE
+              value: "idp"
+            - op: add
+              path: /data/LOGIN_SKIP_REMOTE_CONFIG
+              value: "true"
+            - op: add
+              path: /data/PIV_CAC_SERVICE_URL
+              value: "https://{{ENVIRONMENT}}.pivcac.reviewapps.identitysandbox.gov/"
+            - op: add
+              path: /data/PIV_CAC_VERIFY_TOKEN_URL
+              value: "https://{{ENVIRONMENT}}.pivcac.reviewapps.identitysandbox.gov/"
+            - op: add
+              path: /data/NEW_RELIC_LOG
+              value: "stdout"
+            - op: add
+              path: /data/PIDFILE
+              value: "/dev/null"
+            - op: add
+              path: /data/ENABLE_BOOTSNAP
+              value: "false"
+            - op: add
+              path: /data/BOOTSNAP_READONLY
+              value: "true"
+            - op: add
+              path: /data/REDIS_URL
+              value: "redis://{{ENVIRONMENT}}-redis.review-apps:6379"
+            - op: add
+              path: /data/REDIS_THROTTLE_URL
+              value: "redis://{{ENVIRONMENT}}-redis.review-apps:6379/1"
+            - op: add
+              path: /data/REDIS_IRS_ATTEMPTS_API_URL
+              value: "redis://{{ENVIRONMENT}}-redis.review-apps:6379/2"
+        - target:
+            kind: ConfigMap
+            name: idp-config-dbsetup
           patch: |-
             - op: add
               path: /data/ASSET_HOST
@@ -117,10 +178,75 @@ spec:
             - op: add
               path: /data/DOMAIN_NAME
               value: "{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
+        - target:
+            kind: ConfigMap
+            name: worker-config-dbsetup
+          patch: |-
+            - op: add
+              path: /data/DASHBOARD_URL
+              value: "https://{{ENVIRONMENT}}-dashboard.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/KUBERNETES_REVIEW_APP
+              value: "true"
+            - op: add
+              path: /data/POSTGRES_SSLMODE
+              value: "prefer"
+            - op: add
+              path: /data/POSTGRES_NAME
+              value: "idp"
+            - op: add
+              path: /data/POSTGRES_HOST
+              value: "{{ENVIRONMENT}}-idp-pg.review-apps"
+            - op: add
+              path: /data/LOGIN_ENV
+              value: "{{ENVIRONMENT}}"
+            - op: add
+              path: /data/LOGIN_HOST_ROLE
+              value: "worker"
+            - op: add
+              path: /data/LOGIN_SKIP_REMOTE_CONFIG
+              value: "true"
+            - op: add
+              path: /data/PIV_CAC_SERVICE_URL
+              value: "https://{{ENVIRONMENT}}.pivcac.reviewapps.identitysandbox.gov/"
+            - op: add
+              path: /data/PIV_CAC_VERIFY_TOKEN_URL
+              value: "https://{{ENVIRONMENT}}.pivcac.reviewapps.identitysandbox.gov/"
+            - op: add
+              path: /data/DOMAIN_NAME
+              value: "{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
         # Patch ConfigMap for PIVCAC
         - target:
             kind: ConfigMap
             name: pivcac-config
+          patch: |-
+            - op: add
+              path: /data/KUBERNETES_REVIEW_APP
+              value: "true"
+            - op: add
+              path: /data/CLIENT_CERT_S3_BUCKET
+              value: "login-gov-pivcac-public-cert-reviewapps.894947205914-us-west-2"
+            - op: add
+              path: /data/POSTGRES_NAME
+              value: "identity_pki_production"
+            - op: add
+              path: /data/POSTGRES_SSLMODE
+              value: "prefer"
+            - op: add
+              path: /data/POSTGRES_HOST
+              value: "{{ENVIRONMENT}}-pivcac-pg.review-apps"
+            - op: add
+              path: /data/PIDFILE
+              value: "/dev/null"
+            - op: add
+              path: /data/IDP_HOST
+              value: "{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/DOMAIN_NAME
+              value: "{{ENVIRONMENT}}.pivcac.reviewapps.identitysandbox.gov"
+        - target:
+            kind: ConfigMap
+            name: pivcac-config-dbsetup
           patch: |-
             - op: add
               path: /data/KUBERNETES_REVIEW_APP
@@ -181,6 +307,40 @@ spec:
             - op: add
               path: /data/DOMAIN_NAME
               value: "https://{{ENVIRONMENT}}-dashboard.reviewapps.identitysandbox.gov"
+        - target:
+            kind: ConfigMap
+            name: dashboard-config-dbsetup
+          patch: |-
+            - op: add
+              path: /data/KUBERNETES_REVIEW_APP
+              value: "true"
+            - op: add
+              path: /data/POSTGRES_NAME
+              value: "dashboard"
+            - op: add
+              path: /data/POSTGRES_HOST
+              value: "{{ENVIRONMENT}}-dashboard-pg.review-apps"
+            - op: add
+              path: /data/POSTGRES_SSLMODE
+              value: "prefer"
+            - op: add
+              path: /data/NEW_RELIC_ENABLED
+              value: "false"
+            - op: add
+              path: /data/SAML_SP_ISSUER
+              value: "https://{{ENVIRONMENT}}-dashboard.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/IDP_URL
+              value: "https://{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/IDP_SP_URL
+              value: "https://{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/POST_LOGOUT_URL
+              value: "https://{{ENVIRONMENT}}-dashboard.reviewapps.identitysandbox.gov"
+            - op: add
+              path: /data/DOMAIN_NAME
+              value: "https://{{ENVIRONMENT}}-dashboard.reviewapps.identitysandbox.gov"
         # Patch ConfigMap for Dashboard service_providers.yml
         - target:
             kind: ConfigMap
@@ -210,6 +370,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-idp/review:{{IDP_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         - target:
             kind: Job
             name: migrate-database
@@ -217,6 +380,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-idp/review:{{IDP_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         - target:
             kind: Job
             name: seed-database
@@ -224,6 +390,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-idp/review:{{IDP_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         # Patch dashboard database setup jobs
         - target:
             kind: Job
@@ -232,6 +401,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         - target:
             kind: Job
             name: migrate-dashboard-database
@@ -239,6 +411,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         - target:
             kind: Job
             name: seed-dashboard-database
@@ -246,6 +421,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         # Patch pivcac database jobs/update crl CronJob
         - target:
             kind: Job
@@ -254,6 +432,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-pivcac/pivcac:{{PIVCAC_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         - target:
             kind: Job
             name: migrate-pivcac-database
@@ -261,6 +442,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-pivcac/pivcac:{{PIVCAC_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         - target:
             kind: CronJob
             name: update-pivcac-crls
@@ -268,6 +452,9 @@ spec:
             - op: replace
               path: /spec/jobTemplate/spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-pivcac/pivcac:{{PIVCAC_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/jobTemplate/spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         # Patch IDP image
         - target:
             kind: Rollout
@@ -277,11 +464,8 @@ spec:
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-idp/review:{{IDP_CONTAINER_TAG}}
             - op: replace
-              path: /spec/strategy/canary/analysis/args/0/value
-              value: {{ENVIRONMENT}}-idp_reviewapps_svc_3000
-            - op: replace
-              path: /spec/strategy/canary/steps/2/analysis/args/0/value
-              value: {{ENVIRONMENT}}-idp_reviewapps_svc_3000
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         # Patch Worker Image
         - target:
             kind: Deployment
@@ -290,6 +474,9 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-idp/review:{{IDP_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
         # Patch PIVCAC Image
         - target:
             kind: Deployment
@@ -301,6 +488,12 @@ spec:
             - op: replace
               path: /spec/template/spec/containers/1/image
               value: {{ECR_REGISTRY}}/identity-pivcac/nginx:{{PIVCAC_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
+            - op: replace
+              path: /spec/template/spec/containers/1/imagePullPolicy
+              value: Always
         # Patch Dashboard Image
         - target:
             kind: Deployment
@@ -312,6 +505,12 @@ spec:
             - op: replace
               path: /spec/template/spec/initContainers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/containers/0/imagePullPolicy
+              value: Always
+            - op: replace
+              path: /spec/template/spec/initContainers/0/imagePullPolicy
+              value: Always
         # Patch in lower pod number in IDP HPA
         - target:
             kind: HorizontalPodAutoscaler
@@ -334,6 +533,9 @@ spec:
             - op: replace
               path: /spec/rules/0/host
               value: {{ENVIRONMENT}}.reviewapps.identitysandbox.gov
+            - op: replace
+              path: /spec/rules/0/http/paths/0/backend/service/port/name
+              value: https
         - target:
             kind: Ingress
             name: dashboard
