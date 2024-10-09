@@ -785,9 +785,9 @@ check_branch_age() {
   # Calculate age in days
   local age_in_days=$((($(date +%s) - $common_commit_date) / 86400 ))
 
-  if [[ $age_in_days -le 7 ]]; then
+  if [[ $age_in_days -le 10 ]]; then
     echo
-    echo_green "Git branch is less than 7 days old"
+    echo_green "Git branch is less than 10 days old"
   else
     if [ -z "${DEPLOY_OLD_BRANCH+x}" ]; then
       echo
