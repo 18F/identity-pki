@@ -5,7 +5,6 @@ set -eu
 
 . "$(dirname "$0")/lib/common.sh"
 
-REVIEWERS=()
 declare GL_REV_GROUP GL_DATA GL_REV_USERS
 
 verify_gitlab_apps() {
@@ -40,7 +39,7 @@ get_glab_user() {
 get_glab_group() {
   local GROUP_TO_CHECK=$1
   echo ${GL_DATA} | jq -r --arg GL_GROUP "${GROUP_TO_CHECK}" \
-    '.|select(.groups[]|contains($GL_GROUP))|.git_user // .user' |
+    '.|select(.groups as $GROUPS|$GL_GROUP|IN($GROUPS[]))|.git_user // .user' |
     tr '\n' ',' | sed -E 's/,$/\n/'
 }
 
@@ -50,6 +49,7 @@ sanitize_glab_mr_description() {
 }
 
 create_reviewer_list() {
+  REVIEWERS=()
   if [[ ! -z ${GL_REV_GROUP} ]]; then
     REVIEWERS+=($(get_glab_group ${GL_REV_GROUP}))
   fi
