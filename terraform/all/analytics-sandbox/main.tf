@@ -21,13 +21,13 @@ module "main" {
   account_purpose = "data_warehouse"
 
   account_roles_map = {
-    iam_analytics_enabled      = true
+    iam_analytics_enabled      = false
     iam_auto_terraform_enabled = true
     iam_billing_enabled        = false
     iam_dwuser_enabled         = true
     iam_dwadmin_enabled        = true
     iam_fraudops_enabled       = false
-    iam_power_enabled          = true
+    iam_power_enabled          = false
     iam_readonly_enabled       = false
     iam_reports_enabled        = false # No reports buckets defined yet
     iam_socadmin_enabled       = true
