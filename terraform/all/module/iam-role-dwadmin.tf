@@ -1,3 +1,15 @@
+data "aws_iam_policy" "query_editor_full_access" {
+  arn = "arn:aws:iam::aws:policy/AmazonRedshiftQueryEditorV2FullAccess"
+}
+
+locals {
+  dwadmin_dns_policies = var.dnssec_zone_exists ? [data.aws_iam_policy.dnssec_disable_prevent[0].name] : []
+  dwadmin_additional_policies = [
+    data.aws_iam_policy.query_editor_full_access.name,
+  ]
+  dwadmin_custom_iam_policies = flatten([local.dwadmin_dns_policies, local.dwadmin_additional_policies])
+}
+
 module "dwadmin-assumerole" {
   source = "github.com/18F/identity-terraform//iam_assumerole?ref=5aa7231e4a3a91a9f4869311fbbaada99a72062b"
   #source = "../../../../identity-terraform/iam_assumerole"
@@ -5,7 +17,7 @@ module "dwadmin-assumerole" {
   role_name                       = "DWAdmin"
   enabled                         = contains(local.enabled_roles, "iam_dwadmin_enabled")
   master_assumerole_policy        = data.aws_iam_policy_document.master_account_assumerole.json
-  custom_iam_policies             = var.dnssec_zone_exists ? [data.aws_iam_policy.dnssec_disable_prevent[0].name] : []
+  custom_iam_policies             = local.dwadmin_custom_iam_policies
   permissions_boundary_policy_arn = aws_iam_policy.permissions_boundary.arn
 
   iam_policies = [
