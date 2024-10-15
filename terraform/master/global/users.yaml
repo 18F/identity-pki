@@ -306,19 +306,6 @@ users:
     - lg-all
     - lg-public
     - Agnes|owner
-  david.dsilva:
-    aws_groups:
-    - analytics
-    - dwuser
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
-    - Joy
-    git_username:
-    - daviddsilvanava
-    email:
-    - david.dsilva@gsa.gov
   davida.marion:
     aws_groups:
     - apponcall
