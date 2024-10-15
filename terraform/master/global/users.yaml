@@ -398,7 +398,7 @@ users:
     - Ursula|reporter
   hannah.keaton:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     ec2_username:
     - hkeaton
     gitlab_groups:
