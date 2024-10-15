@@ -1258,7 +1258,7 @@ users:
     - Mary|owner
     - Radia|owner
     - User Experience|owner
-    - Data Analytics|owner
+    - Evelyn|owner
     - Product|owner
     can_create_group:
     - true
@@ -1306,6 +1306,8 @@ groups:
     description: Appdev annie group
   Joy:
     description: Appdev joy group
+  Evelyn:
+    description: Appdev Evelyn group
   Katherine:
     description: Appdev katherine group
   Melba:
@@ -1324,8 +1326,6 @@ groups:
     description: Platform radia group
   User Experience:
     description: UX Team working space
-  Data Analytics:
-    description: Used to grant maintainer access to lg-people/data-analytics
   Product:
     description: Space for the Product team
 projects:
@@ -1551,10 +1551,6 @@ projects:
         access: developer
       pm:
         access: reporter
-  lg-people/data-analytics:
-    groups:
-      Data Analytics:
-        access: maintainer
   lg-people/Prodct:
     groups:
       pm:
