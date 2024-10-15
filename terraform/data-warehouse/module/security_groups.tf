@@ -811,8 +811,8 @@ resource "aws_security_group" "rds_endpoint" {
 }
 
 resource "aws_security_group" "redshift" {
-  name        = "${var.name}-redshift-security-group-${var.env_name}"
-  description = "allow GSA to get to redshift"
+  name        = "${var.name}-redshift-${var.env_name}"
+  description = "Analytics host and S3 access for Redshift"
   vpc_id      = aws_vpc.analytics_vpc.id
 
   ingress {

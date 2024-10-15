@@ -27,4 +27,5 @@ module "data_warehouse" {
   use_spot_instances                      = 1
   autoscaling_time_zone                   = "America/New_York"
   autoscaling_schedule_name               = "dailyzero_normal"
+  enable_portforwarding_ssm_commands      = true
 }

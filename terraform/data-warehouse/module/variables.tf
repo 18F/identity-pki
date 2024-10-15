@@ -532,3 +532,9 @@ variable "data_warehouse_duration_threshold" {
   description = "The duration threshold (as a percentage) for triggering an alert"
   default     = 80
 }
+
+variable "enable_portforwarding_ssm_commands" {
+  type        = bool
+  description = "Allows local connections to Redshift via SSM in an environment"
+  default     = false
+}

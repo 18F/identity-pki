@@ -25,6 +25,7 @@ module "data_warehouse" {
   additional_moderate_priority_sns_topics = ["arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-data-warehouse-otherevents"]
   use_spot_instances                      = 1
   autoscaling_schedule_name               = "nozero_normal"
+  enable_portforwarding_ssm_commands      = true
 }
 
 
