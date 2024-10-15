@@ -586,7 +586,7 @@ users:
     - true
   jt.taylor:
     aws_groups:
-    - fraudopsnonprod
+    - fraudops
     ec2_username:
     - jtaylor
     gitlab_groups:
