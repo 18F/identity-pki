@@ -80,8 +80,11 @@ TASKS=(
   "4_local_branch"
 )
 
-# always start from main
+# always start from main, with a full pull/fetch rotation for good measure
 run git checkout main
+run git pull origin main
+run git fetch
+run git pull origin main
 if [[ ! -z $(git log origin/main..main) ]]; then
   echo_red "Local 'main' branch not up to date with remote 'origin/main' branch."
   raise "Bring local branch up to date and try again!"
