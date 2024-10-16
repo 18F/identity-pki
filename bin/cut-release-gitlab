@@ -95,7 +95,8 @@ OLD_RELEASE=$((${NEW_RELEASE} - 1))
 POST_RELEASE="pre-$((${NEW_RELEASE} + 1))"
 
 # make sure an MR for NEW_RELEASE doesn't already exist (merged or not)
-NEW_VERSION_MR=$(glab mr ls -A --search "Release v${NEW_RELEASE}" -F json | jq -r '.[].state')
+NEW_VERSION_MR=$(glab mr ls -A --search "Release v${NEW_RELEASE}" -F json |
+                jq -r '.[].state' | sort -u)
 if [[ ! -z ${NEW_VERSION_MR} ]] && [[ ${NEW_VERSION_MR} != 'closed' ]]; then
   echo_red "Existing MR for Release v${NEW_RELEASE} found with status '${NEW_VERSION_MR}'."
   raise "Verify release number in VERSION.txt and try again!"
