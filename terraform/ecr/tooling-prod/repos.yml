@@ -314,3 +314,26 @@ repos:
   kube-state-metrics:
     name: "kubernetes/kube-state-metrics/kube-state-metrics"
     <<: *readonly_template
+  prometheus_webhook:
+    name: "quay/prometheus-operator/admission-webhook"
+    <<: *readonly_template
+  prometheus_operator:
+    name: "quay/prometheus-operator/prometheus-operator"
+    <<: *readonly_template
+  # grafana
+  grafana:
+    name: "docker-hub/grafana/grafana"
+    <<: *readonly_template
+  curl:
+    name: "docker-hub/curlimages/curl"
+    <<: *readonly_template
+  grafana_image_renderer:
+    name: "docker-hub/grafana/grafana-image-renderer"
+    <<: *readonly_template
+  kiwigrid_sidecar:
+    name: "quay/kiwigrid/k8s-sidecar"
+    <<: *readonly_template
+  # thanos
+  thanos:
+    name: "quay/thanos/thanos"
+    <<: *readonly_template
