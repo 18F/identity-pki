@@ -29,6 +29,7 @@ module Cloudlib
       drop_off_report_config
       gpo_designated_receiver_pii
       hmac_fingerprinter_key_queue
+      mfa_report_config
       openid_connect_redirect_issuer_override_map
       openid_connect_redirect_uuid_override_map
       phone_carrier_registration_blocklist_array
