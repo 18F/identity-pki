@@ -9,7 +9,6 @@ data "aws_iam_policy_document" "redshift_kms" {
       type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
-        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/PowerUser",
         aws_iam_role.redshift_role.arn
       ]
     }
