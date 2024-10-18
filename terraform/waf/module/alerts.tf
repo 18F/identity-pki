@@ -76,7 +76,7 @@ Service: ${data.aws_arn.resources[each.value].service}
 Account: ${data.aws_arn.resources[each.value].account}
 Region: ${data.aws_arn.resources[each.value].region}
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Denial-of-Service#aws-shield
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Denial-of-Service-(DoS-or-DDoS)#aws-shield
 EOM
   alarm_actions       = var.ddos_alert_actions
   dimensions = {

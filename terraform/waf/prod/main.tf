@@ -32,7 +32,7 @@ module "main" {
   }
 
   waf_alert_actions  = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
-  ddos_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-events"]
+  ddos_alert_actions = ["arn:aws:sns:us-west-2:555546682965:slack-alarms"]
 
   aws_shield_resources = {
     cloudfront = [
