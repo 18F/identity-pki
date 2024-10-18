@@ -44,7 +44,6 @@ module "main" {
     "DWAdmin"           = [{ "*" = ["*"] }],
     "DWUser"            = [{ "*" = ["*"] }],
     "FullAdministrator" = [{ "*" = ["*"] }],
-    "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
     #"FraudOps"          = [],     # must fill in if uncommenting
   }
@@ -53,7 +52,6 @@ module "main" {
     "DWAdmin"           = [{ "*" = ["*"] }],
     "DWUser"            = [{ "*" = ["*"] }],
     "FullAdministrator" = [{ "*" = ["*"] }],
-    "PowerUser"         = [{ "*" = ["*"] }],
     "Terraform"         = [{ "*" = ["*"] }],
     #"FraudOps"          = [],     # must fill in if uncommenting
   }

@@ -1349,6 +1349,7 @@ locals {
           "redshift:DescribeLoggingStatus",
           "redshift:EnableLogging",
           "redshift:ModifyClusterParameterGroup",
+          "redshift:ModifyCluster"
         ]
         resources = [
           "*",
