@@ -383,6 +383,7 @@ users:
   goutham.kommanaboyina:
     gitlab_groups:
     - Ursula|reporter
+    - dashboard-admins|maintainer
   hannah.keaton:
     aws_groups:
     - fraudops
