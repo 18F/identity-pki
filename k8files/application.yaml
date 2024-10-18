@@ -81,6 +81,9 @@ spec:
             - op: add
               path: /data/REDIS_IRS_ATTEMPTS_API_URL
               value: "redis://{{ENVIRONMENT}}-redis.review-apps:6379/2"
+            - op: add
+              path: /data/RAILS_OFFLINE
+              value: "true"
         - target:
             kind: ConfigMap
             name: idp-config-dbsetup
@@ -142,6 +145,9 @@ spec:
             - op: add
               path: /data/REDIS_IRS_ATTEMPTS_API_URL
               value: "redis://{{ENVIRONMENT}}-redis.review-apps:6379/2"
+            - op: add
+              path: /data/RAILS_OFFLINE
+              value: "true"
         # Patch ConfigMap for Worker
         - target:
             kind: ConfigMap
