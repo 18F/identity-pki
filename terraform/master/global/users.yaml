@@ -211,16 +211,6 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
-  bobby.blair:
-    aws_groups:
-    - devopsnonprod
-    ec2_username:
-    - bblair
-    gitlab_groups:
-    - devops
-    - lg-all
-    - lg-public
-    - Radia
   bruce.blackman:
     aws_groups:
     - fraudops
@@ -941,13 +931,13 @@ users:
     - lg-people-platform|reporter
   page.levendis:
     gitlab_groups:
-      - appdev
-      - lg-all
-      - lg-people
-      - Katherine
-      - Ursula
-      - Product
-      - pm
+    - appdev
+    - lg-all
+    - lg-people
+    - Katherine
+    - Ursula
+    - Product
+    - pm
   philip.burke:
     gitlab_groups:
     - antifraud
