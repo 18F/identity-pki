@@ -970,6 +970,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - dashboard-admins|maintainer
   rebecca.wright:
     aws_groups:
     - fraudops
