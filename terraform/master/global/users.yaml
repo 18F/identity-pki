@@ -328,6 +328,7 @@ users:
     - lg-all
     - lg-public
     - Ursula
+    - dashboard-admins|maintainer
   douglas.price:
     aws_groups:
     - apponcall
