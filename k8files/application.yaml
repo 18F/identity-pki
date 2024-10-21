@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: 'git@gitlab.login.gov:lg-public/identity-eks-control.git'
     targetRevision: sshelton/enable-dev-mode
-    path: cluster-reviewapp/envs/reviewapps
+    path: main
     kustomize:
       namePrefix: "{{ENVIRONMENT}}-"
       commonLabels:
@@ -89,7 +89,7 @@ spec:
               value: "true"
             - op: add
               path: /data/LOGIN_ENV
-              value: "review-app"
+              value: {{ENVIRONMENT}}
             - op: add
               path: /data/LOGIN_DOMAIN
               value: "identitysandbox.gov"
@@ -162,7 +162,7 @@ spec:
               value: "true"
             - op: add
               path: /data/LOGIN_ENV
-              value: "review-app"
+              value: {{ENVIRONMENT}}
             - op: add
               path: /data/LOGIN_DOMAIN
               value: "identitysandbox.gov"
