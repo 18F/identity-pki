@@ -163,7 +163,7 @@ module Cloudlib
         info = asg_instance_info.fetch(i.instance_id)
         uptime_hours = ((Time.now - i.launch_time) / 3600.0).round(1)
         if index == desired_capacity
-          log.info('To scale in:')
+          log.info('To remove:')
         end
         log.info([
           i.instance_id, i.image_id, i.launch_time, "(#{uptime_hours} hrs ago)",
@@ -236,9 +236,17 @@ module Cloudlib
       log.info("#{asg_name} desired count: #{asg.desired_capacity}")
       log.info("#{asg_name} running count: #{asg.instances.count}")
 
+      scheduled_actions = get_autoscaling_scheduled_actions(asg_name)
+      recycle_scheduled_actions = scheduled_actions.filter do |x|
+        [DelayedScheduleActionName, RecycleScheduledActionName].include?(x.name)
+      end
       to_scale_in = find_instances_to_scale_in(asg, asg.desired_capacity, oldest_first: oldest_first)
 
-      if to_scale_in.empty?
+      if to_scale_in.empty? && recycle_scheduled_actions.count > 0
+        last_action = recycle_scheduled_actions.sort_by { |x| x.start_time }.last
+        log.info("The recycle is still in progress. Instances can be scaled in after #{last_action.start_time.localtime.strftime('%F %I:%M %p %z')}")
+        return
+      elsif to_scale_in.empty?
         log.info("No instances require removal of scale-in protection")
         return
       end
