@@ -227,6 +227,14 @@ execute 'deploy build-post-config step' do
   not_if { artifacts_unzipped.call }
 end
 
+execute 'build robots.txt' do
+  cwd '/srv/idp/releases/chef'
+  command 'bundle exec bin/copy_robots_file'
+  user node['login_dot_gov']['system_user']
+  group node['login_dot_gov']['system_user']
+  ignore_failure true
+end
+
 execute 'newrelic log deploy' do
   cwd '/srv/idp/releases/chef'
   command 'bundle exec rails newrelic:deployment'
