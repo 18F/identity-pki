@@ -80,6 +80,9 @@ repos:
     <<: *all_write_template
   identity_idp_review_cache:
     name: "identity-idp/review/cache"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_idp:
     name: "identity-idp/idp"
@@ -89,6 +92,9 @@ repos:
     <<: *all_write_template
   identity_idp_cache:
     name: "identity-idp/idp/cache"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_pivcac_review:
     name: "identity-pivcac/review"
@@ -98,18 +104,33 @@ repos:
     <<: *all_write_template
   identity_pivcac_review_cache:
     name: "identity-pivcac/review/cache"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_pivcac:
     name: "identity-pivcac/pivcac"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_pivcac_nginx:
     name: "identity-pivcac/nginx"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_pivcac_cache:
     name: "identity-pivcac/pivcac/cache"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   identity_configmaploader:
     name: "identity-configmaploader/configmaploader"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   gitlab_dast:
     name: "gitlab/dast"
@@ -122,6 +143,9 @@ repos:
     <<: *all_write_template
   identity_dashboard_review_cache:
     name: "identity-dashboard/review/cache"
+    lifecycle_policy_settings: {
+      days: 40
+    }
     <<: *all_write_template
   dashboard_ci:
     name: "dashboard/ci"
