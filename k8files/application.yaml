@@ -10,8 +10,8 @@ spec:
   project: default
   source:
     repoURL: 'git@gitlab.login.gov:lg-public/identity-eks-control.git'
-    targetRevision: sshelton/enable-dev-mode
-    path: main
+    targetRevision: main
+    path: cluster-reviewapp/envs/reviewapps
     kustomize:
       namePrefix: "{{ENVIRONMENT}}-"
       commonLabels:
