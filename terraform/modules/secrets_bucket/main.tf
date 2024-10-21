@@ -85,20 +85,19 @@ data "aws_iam_policy_document" "s3_secure_connections" {
   }
 }
 
-resource "aws_s3_bucket_logging" "secrets" {
-  bucket = aws_s3_bucket.secrets.id
-
-  target_bucket = var.logs_bucket
-  target_prefix = "${var.bucket_name}/"
+moved {
+  from = aws_s3_bucket_logging.secrets
+  to   = module.secrets_bucket_config.aws_s3_bucket_logging.access_logging
 }
 
 module "secrets_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
-  #source = "../../../../identity-terraform/s3_config"
+  source = "github.com/18F/identity-terraform//s3_config?ref=88438f7586c277c0a85995e90efbbc9db563502d"
+  #source     = "../../../../identity-terraform/s3_config"
   depends_on = [aws_s3_bucket.secrets]
 
   bucket_name_prefix   = var.bucket_name_prefix
   bucket_name          = var.secrets_bucket_type
   region               = var.region
   inventory_bucket_arn = local.inventory_bucket_arn
+  logging_bucket_id    = var.logs_bucket
 }
