@@ -44,11 +44,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "config_recorder" 
   }
 }
 
-resource "aws_s3_bucket_logging" "config_recorder" {
-  bucket = aws_s3_bucket.config_recorder.id
-
-  target_bucket = module.tf_state_uw2.s3_access_log_bucket
-  target_prefix = "${local.config_recorder_s3_bucket_name}/"
+moved {
+  from = aws_s3_bucket_logging.config_recorder
+  to   = module.config_bucket_config.aws_s3_bucket_logging.access_logging
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "config_recorder" {
@@ -79,11 +77,12 @@ resource "aws_s3_bucket_lifecycle_configuration" "config_recorder" {
 }
 
 module "config_bucket_config" {
-  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  source = "github.com/18F/identity-terraform//s3_config?ref=88438f7586c277c0a85995e90efbbc9db563502d"
   #source = "../../../../identity-terraform/s3_config"
 
   bucket_name_override = aws_s3_bucket.config_recorder.id
   inventory_bucket_arn = module.tf_state_uw2.inventory_bucket_arn
+  logging_bucket_id    = module.tf_state_uw2.s3_access_log_bucket
 }
 
 resource "aws_s3_bucket_policy" "config_recorder" {
