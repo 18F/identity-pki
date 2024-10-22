@@ -90,8 +90,8 @@ module "main" {
     ],
     "devopsnonprod" = [
       { "Analytics" = ["Sandbox", "Prod"] },
-      { "FullAdministrator" = ["Sandbox"] },
-      { "Terraform" = ["Sandbox"] }
+      { "FullAdministrator" = ["Sandbox", "DataWarehouseSandbox"] },
+      { "Terraform" = ["Sandbox", "DataWarehouseSandbox"] }
     ],
     "dwusernonprod" = [
       { "DWUser" = ["DataWarehouseSandbox"] },
