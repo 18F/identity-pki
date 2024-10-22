@@ -134,6 +134,17 @@ data "aws_iam_policy_document" "ssm_command_access" {
       "*"
     ]
   }
+
+  statement {
+    sid    = "${each.key}BlockAWSManagedDocuments"
+    effect = "Deny"
+    actions = [
+      "ssm:StartSession"
+    ]
+    resources = [
+      "arn:aws:ssm:${var.region}::document/AWS-*"
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "ssm_command_access" {
