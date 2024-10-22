@@ -69,21 +69,24 @@ resource "aws_redshift_cluster" "redshift" {
   vpc_security_group_ids              = [aws_security_group.redshift.id]
   skip_final_snapshot                 = true
   automated_snapshot_retention_period = 30
-  logging {
-    enable               = true
-    log_destination_type = "cloudwatch"
-    log_exports = [
-      "connectionlog",
-      "userlog",
-      "useractivitylog"
-    ]
-  }
 
+  depends_on = [
+    module.redshift_credentials
+  ]
+}
+
+resource "aws_redshift_logging" "redshift" {
+  cluster_identifier   = aws_redshift_cluster.redshift.id
+  log_destination_type = "cloudwatch"
+  log_exports = [
+    "connectionlog",
+    "userlog",
+    "useractivitylog"
+  ]
   depends_on = [
     aws_cloudwatch_log_group.redshift_logs["connectionlog"],
     aws_cloudwatch_log_group.redshift_logs["useractivitylog"],
-    aws_cloudwatch_log_group.redshift_logs["userlog"],
-    module.redshift_credentials
+    aws_cloudwatch_log_group.redshift_logs["userlog"]
   ]
 }
 
@@ -109,21 +112,24 @@ resource "aws_redshift_cluster" "dr_redshift" {
   vpc_security_group_ids              = [aws_security_group.redshift.id]
   skip_final_snapshot                 = true
   automated_snapshot_retention_period = 30
-  logging {
-    enable               = true
-    log_destination_type = "cloudwatch"
-    log_exports = [
-      "connectionlog",
-      "userlog",
-      "useractivitylog"
-    ]
-  }
 
   depends_on = [
-    aws_cloudwatch_log_group.redshift_logs["connectionlog"],
-    aws_cloudwatch_log_group.redshift_logs["useractivitylog"],
-    aws_cloudwatch_log_group.redshift_logs["userlog"],
     module.redshift_credentials
   ]
 }
 
+resource "aws_redshift_logging" "dr_redshift" {
+  count                = var.dr_restore_redshift_dw && (var.dr_redshift_snapshot_identifier != "") ? 1 : 0
+  cluster_identifier   = aws_redshift_cluster.dr_redshift[count.index].id
+  log_destination_type = "cloudwatch"
+  log_exports = [
+    "connectionlog",
+    "userlog",
+    "useractivitylog"
+  ]
+  depends_on = [
+    aws_cloudwatch_log_group.redshift_logs["connectionlog"],
+    aws_cloudwatch_log_group.redshift_logs["useractivitylog"],
+    aws_cloudwatch_log_group.redshift_logs["userlog"]
+  ]
+}
