@@ -207,25 +207,3 @@ resource "aws_cloudtrail" "cloudtrail" {
     aws_cloudwatch_log_group.cloudtrail_default
   ]
 }
-
-resource "aws_cloudwatch_event_rule" "cloudtrail_logging_disabled" {
-  name          = "cloudtrail-logging-disabled"
-  description   = "Cloudtrail Logging Disabled"
-  event_pattern = <<EOF
-{
-  "detail-type": ["AWS API Call via CloudTrail"],
-  "source": ["aws.cloudtrail"],
-  "detail": {
-    "eventSource": ["cloudtrail.amazonaws.com"],
-    "eventName": ["DeleteTrail", "StopLogging"]
-  }
-}
-EOF
-}
-
-resource "aws_cloudwatch_event_target" "cloudtrail_logging_disabled" {
-  rule      = aws_cloudwatch_event_rule.cloudtrail_logging_disabled.name
-  target_id = "SendToSlack"
-  arn       = aws_sns_topic.slack_usw2["events"].arn
-}
-
