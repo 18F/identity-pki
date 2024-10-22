@@ -361,3 +361,10 @@ repos:
   thanos:
     name: "quay/thanos/thanos"
     <<: *readonly_template
+  # velero
+  velero:
+    name: "docker-hub/velero/velero"
+    <<: *readonly_template
+  velero-plugin-for-aws:
+    name: "docker-hub/velero/velero-plugin-for-aws"
+    <<: *readonly_template
