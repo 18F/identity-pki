@@ -982,6 +982,16 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+  robinette.brown:
+    aws_groups:
+    - fraudopsnonprod
+    ec2_username:
+    - robbrown
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    - login-fraud|maintainer
   ryan.d.brown:
     aws_groups:
     - devops
