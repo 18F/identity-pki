@@ -10,7 +10,7 @@ spec:
   project: default
   source:
     repoURL: 'git@gitlab.login.gov:lg-public/identity-eks-control.git'
-    targetRevision: sshelton/fix-pivcac-integration
+    targetRevision: main
     path: cluster-reviewapp/envs/reviewapps
     kustomize:
       namePrefix: "{{ENVIRONMENT}}-"
@@ -85,14 +85,11 @@ spec:
               path: /data/RAILS_OFFLINE
               value: "true"
             - op: add
-              path: /data/RAILS_ENV
-              value: "development"
-            - op: add
               path: /data/LOGIN_DATACENTER
               value: "true"
             - op: add
               path: /data/LOGIN_ENV
-              value: {{ENVIRONMENT}}
+              value: "review-app"
             - op: add
               path: /data/LOGIN_DOMAIN
               value: "identitysandbox.gov"
@@ -161,14 +158,11 @@ spec:
               path: /data/RAILS_OFFLINE
               value: "true"
             - op: add
-              path: /data/RAILS_ENV
-              value: "development"
-            - op: add
               path: /data/LOGIN_DATACENTER
               value: "true"
             - op: add
               path: /data/LOGIN_ENV
-              value: {{ENVIRONMENT}}
+              value: "review-app"
             - op: add
               path: /data/LOGIN_DOMAIN
               value: "identitysandbox.gov"
@@ -210,9 +204,6 @@ spec:
             - op: add
               path: /data/DOMAIN_NAME
               value: "{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
-            - op: add
-              path: /data/RAILS_ENV
-              value: "development"
         - target:
             kind: ConfigMap
             name: worker-config-dbsetup
@@ -250,9 +241,6 @@ spec:
             - op: add
               path: /data/DOMAIN_NAME
               value: "{{ENVIRONMENT}}.reviewapps.identitysandbox.gov"
-            - op: add
-              path: /data/RAILS_ENV
-              value: "development"
         # Patch ConfigMap for PIVCAC
         - target:
             kind: ConfigMap
