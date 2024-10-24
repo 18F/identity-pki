@@ -161,10 +161,32 @@ locals {
       command = ["tail -f {{ logpath }}"]
     }
   }
+
+  # this is only ever needed in the prod account/environment, but is created here
+  # (in terraform/app) so the rest of the ssm module infra can be connected to it
+  ssm_portforward_cmds = var.env_name == "prod" ? {
+    "nessus-port-fwd" = {
+      description = "Document to start port forwarding session over Session Manager to Nessus host"
+      parameters = [
+        {
+          name        = "portNumber"
+          type        = "String"
+          default     = "8834"
+          description = "(Optional) Port number of the Nessus server on the instance"
+        },
+        {
+          name        = "localPortNumber"
+          type        = "String"
+          default     = "8834"
+          description = "(Optional) Port number on local machine to forward traffic to"
+        },
+      ]
+    }
+  } : {}
 }
 
 module "ssm_uw2" {
-  source = "github.com/18F/identity-terraform//ssm?ref=8f71136f23cb01cc09d86d68f7403d1fe8498ea4"
+  source = "github.com/18F/identity-terraform//ssm?ref=995040426241ec92a1eccb391d32574ad5fc41be"
   #source = "../../../identity-terraform/ssm"
 
   bucket_name_prefix = "login-gov"
@@ -173,6 +195,7 @@ module "ssm_uw2" {
 
   ssm_doc_map             = local.ssm_docs
   ssm_interactive_cmd_map = local.ssm_interactive_cmds
+  ssm_portforward_cmd_map = local.ssm_portforward_cmds
   ssm_cmd_doc_map = (
     var.enable_loadtesting ? merge(local.locust_cmds, local.ssm_cmds) : local.ssm_cmds
   )
@@ -180,7 +203,7 @@ module "ssm_uw2" {
 
 module "ssm_ue1" {
   count  = var.enable_us_east_1_infra ? 1 : 0
-  source = "github.com/18F/identity-terraform//ssm?ref=8f71136f23cb01cc09d86d68f7403d1fe8498ea4"
+  source = "github.com/18F/identity-terraform//ssm?ref=995040426241ec92a1eccb391d32574ad5fc41be"
   #source = "../../../identity-terraform/ssm"
   providers = {
     aws = aws.use1
@@ -192,6 +215,7 @@ module "ssm_ue1" {
 
   ssm_doc_map             = local.ssm_docs
   ssm_interactive_cmd_map = local.ssm_interactive_cmds
+  ssm_portforward_cmd_map = local.ssm_portforward_cmds
   ssm_cmd_doc_map = (
     var.enable_loadtesting ? merge(local.locust_cmds, local.ssm_cmds) : local.ssm_cmds
   )

@@ -11,16 +11,23 @@ def log
   Cloudlib.cli_log
 end
 
-def ssm_instance(instance:, document:)
+def ssm_instance(instance:, document:, doc_env:, cli_timeout:)
   log.info("SSM session to #{Cloudlib::EC2.instance_label(instance)}")
-  single = Cloudlib::SSM::Single.new(instance: instance, document: document)
+  single = Cloudlib::SSM::Single.new(
+    instance: instance,
+    document: document,
+    doc_env: doc_env,
+    cli_timeout: cli_timeout
+  )
   single.ssm_session_exec
 end
 
 def main(args)
   options = {
     pick_strategy: nil,
-    document: 'default'
+    document: 'default',
+    doc_env: nil,
+    cli_timeout: 60,
   }
 
   basename = File.basename($0)
@@ -29,25 +36,33 @@ def main(args)
     opts.banner = <<-EOM
 usage: #{basename} [OPTIONS] HOST [COMMAND]
 
-Open SSM session to an individual EC2 instance. HOST may be specified by EC2
-Instance ID or by EC2 instance "Name" tag.
+Start an SSM session on an individual EC2 instance, using the
+environment-specific 'DOC_ENV-ssm-document-DOCUMENT' SSM document,
+where DOC_ENV defaults to the VPC name, and DOCUMENT defaults to 'default'.
 
-Sessions are opened as the "ssm-user"
+Interactive sessions require the corresponding AWS profile
+(defined in ~/.aws/config) to have a SSMSessionRunAs session tag
+corresponding to a valid user on the target instance (created in the
+identity-devops-private repo, under chef/data_bags/users), e.g.:
 
-When there are multiple instances found with the same name tag (like
+    session_tags = SSMSessionRunAs=username
+
+HOST may be specified by EC2 Instance ID or by EC2 instance "Name" tag.
+When there are multiple instances found with the same Name tag (like
 asg-dev-idp), an interactive prompt will appear by default. There are
 several options to choose systematically: --newest, --oldest, --any.
 
 Examples:
 
-    # SSM to a specific instance
-    #{basename} i-abcd1234
-
     # SSM to an interactively selected auto scaled IDP instance by name tag
     #{basename} asg-dev-idp
 
-    # SSM to an interactively selected server in dev
-    #{basename} -P 'asg-dev-*'
+    # SSM to a specific instance using the 'int-ssm-document-sudo' SSM document
+    #{basename} -e int -d sudo i-abcd1234
+
+    # SSM to an interactively selected server in dev using the 'dev-ssm-document-tail-cw' SSM document
+    #{basename} -d tail-cw -P 'asg-dev-*'
+
 
 Options:
     EOM
@@ -77,13 +92,23 @@ Options:
       options[:pick_strategy] = :oldest
     end
 
+    opts.on('-P', '--prompt', 'Pick server interactively if ambiguous') do
+      options[:pick_strategy] = :prompt
+    end
+
     opts.on('-d', '--document DOCUMENT',
-      'Use custom SSM document; defaults to ssm-document-default in app environments') do |doc|
+      'Use custom "document" string as part of SSM document name') do |doc|
       options[:document] = doc
     end
 
-    opts.on('-P', '--prompt', 'Pick server interactively if ambiguous') do
-      options[:pick_strategy] = :prompt
+    opts.on('-e', '--env ENVIRONMENT',
+      'Use custom "env" string instead of VPC_NAME as part of SSM document name') do |doc_env|
+      options[:doc_env] = doc_env
+    end
+
+    opts.on('-t', '--timeout TIMEOUT',
+      'Specify custom value for --cli-read-timeout and --cli-read-timeout flags') do |timeout|
+      options[:cli_timeout] = timeout
     end
 
     opts.on('-p', '--aws-profile PROFILE', 'Set AWS_PROFILE env variable') do |val|
@@ -113,7 +138,12 @@ Options:
     pick_strategy: options.fetch(:pick_strategy),
   )
 
-  ssm_instance(instance: instance, document: options[:document])
+  ssm_instance(
+    instance: instance,
+    document: options[:document],
+    doc_env: options[:doc_env],
+    cli_timeout: options[:cli_timeout]
+  )
 end
 
 if __FILE__ == $0

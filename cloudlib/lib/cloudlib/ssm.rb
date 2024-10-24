@@ -23,15 +23,17 @@ module Cloudlib
     # instance.
     class Single
 
-      attr_reader :cl, :instance, :document, :parameters
+      attr_reader :cl, :instance, :document, :ssm_env, :parameters
 
       # @param [String] instance_id
       # @param [Aws::EC2::Instance] instance
       # @param [String] document
+      # @param [String] doc_env
       # @param [Hash,nil] parameters
-      def initialize(instance_id: nil, instance: nil, document: nil, parameters: nil)
+      def initialize(instance_id: nil, instance: nil, document: nil, doc_env: nil, parameters: nil, cli_timeout: 60)
         @document = document
         @parameters = parameters
+        @cli_timeout = cli_timeout
 
         if (instance_id && instance) || (!instance_id && !instance)
           raise ArgumentError.new('must pass one of instance_id or instance')
@@ -53,6 +55,13 @@ module Cloudlib
         end
 
         @cl = SSM.ec2lib_for_vpc(@instance.vpc_id)
+
+        if doc_env
+          @ssm_env = doc_env
+        else
+          @ssm_env = @cl.env
+        end
+
       end
 
       def log
@@ -72,7 +81,9 @@ module Cloudlib
           'ssm',
           'start-session',
           '--target', instance.instance_id,
-          '--document', "#{@cl.env}-ssm-document-#{@document}",
+          '--document', "#{@ssm_env}-ssm-document-#{@document}",
+          '--cli-read-timeout', @cli_timeout.to_s,
+          '--cli-connect-timeout', @cli_timeout.to_s,
         ]
         cmd += ['--parameters', parameters.to_json] if parameters
         log.debug('exec: ' + cmd.inspect)
@@ -87,7 +98,7 @@ module Cloudlib
       def ssm_send_command(show_progress_bar: false, raise_on_failure: true)
         ssm_client = Aws::SSM::Client.new
 
-        document_name = "#{@cl.env}-ssm-cmd-#{@document}"
+        document_name = "#{@ssm_env}-ssm-cmd-#{@document}"
 
         cmd = [
           'aws',
