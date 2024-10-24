@@ -888,6 +888,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - design-system-developers
     - User Experience|maintainer
   nick.soutouras:
     aws_groups:
@@ -1223,6 +1224,7 @@ users:
     - lg-people-platform|owner
     - lg-people-appdev|owner
     - dashboard-admins|owner
+    - design-system-developers|owner
     - user-experience-admins|owner
     - Ada|owner
     - Annie|owner
@@ -1267,6 +1269,8 @@ groups:
       related to our day-to-day and long-term work.
   lg-people-appdev:
     description: Working area for Login.gov Appdev teams.
+  design-system-developers:
+    description: Users who need to be added as Developers to the identity-design-system repo.
   dashboard-admins:
     description: users who need to be added as maintainers to the identity-dashboard
       repo.
@@ -1410,6 +1414,8 @@ projects:
         access: developer
       pm:
         access: reporter
+      design-system-developers:
+        access: developer
   lg-public/identity-eks-control:
     groups:
       devops:
