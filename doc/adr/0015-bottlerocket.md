@@ -58,6 +58,29 @@ up and be fully available including all daemonset pods and kuma service meshes.
 If the pod coming up doesn't need a service mesh, this can be even faster,
 between 30-60 seconds.
 
+### Shared responsibility model
+
+https://aws.github.io/aws-eks-best-practices/security/docs/#understanding-the-shared-responsibility-model
+
+For EKS, Amazon has 3 options for worker nodes. In order of increasing customer
+responsibility, they are Fargate, Managed Node Groups, and Self Managed Workers.
+
+For Fargate, Amazon takes all the steps in securing the underlying
+infrastructure. However, Fargate is not available to us due to not being
+Fedramped.
+
+For managed node groups, Amazon keeps the underlying AMI up to date and
+configured, as long as we keep the node groups up to date. This means we want to
+be sure to have auto updating to stay up to date in this regard.
+
+For self managed nodes, everything related to worker nodes is under the
+customer's responsibility with no assistance from Amazon.A
+
+For these reasons, managed node groups make the most sense. As long as we keep
+the AMI up to date and don't do any configuration of the user data, the launch
+templates, or change the AMI, it's all configured by Amazon with the defaults.
+This is often referred to internally as "breaking the seal".
+
 ## Decision
 
 We will use Bottlerocket. Furthermore, we will use the Bottlerocket update
@@ -76,6 +99,18 @@ periodically because otherwise nodes will come up, be updated, and reboot,
 adding extra churn onto the cluster that can be eliminated by updating the
 initial image the worker nodes boot into.
 
+Major updates with breaking changes, such as kernel versions, are tied to EKS
+releases and new variants. These are tested in lower environments before being
+rolled out to higher environments, just like EKS upgrades that happen 2-3 times
+a year.
+
+Minor updates during a given variant and EKS release
+are limited to security updates.
+
+https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md#update-policy
+
+https://bottlerocket.dev/en/os/1.22.x/version-information/variants/
+
 ### Security features
 
 * Automated updates (see above)
@@ -86,6 +121,15 @@ initial image the worker nodes boot into.
 * Secure boot
 
 Source: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+
+### Read only root filesystem
+
+Bottlerocket uses a read only root filesystem. Additionally, dm-verity to verify
+the filesystem and if somehow it's changed despite being read only, will
+automatically reboot. Additionally, when run on AWS, secure boot is enabled by
+default so if the boot image is further tampered with, it will refuse to boot.
+
+Source: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md#immutable-rootfs-backed-by-dm-verity
 
 ### Security responsibilities
 
@@ -108,11 +152,27 @@ enabled by default, or audited with kyverno and falco.
 
 Source: https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_GUIDANCE.md
 
-### Security benchmarks
+### Security benchmarks, host scanning
 
 Out of the box, Bottlerocket passes CIS benchmarks for k8s level 2 and Bottlerocket level 1
 
 (benchmarks run via SSM, temporarily enabled to get these reports)
+
+For a more robust solution, we can either run a privileged pod manually, or run
+a cronjob that runs these reports and exports them somewhere for recordkeeping
+such as S3 or other compliance software.
+
+If we need CIS level 2, we should first think carefully about how that would
+improve our security posture when everything on these systems already runs
+inside containers. If it's still necessary, this would "break the seal" (see
+shared responsibility model above) and require us to build and configure our own
+AMI.
+
+Things to think about with CIS level 2 include the limitations already in place
+if a container jailbreak exploit does exist in the wild. There is no shell
+installed on the host OS so not much can be done in that regard. If an attacker
+attempts to modify the root filesystem, dm-verity will automatically reboot the
+system (see above, read-only root filesystem).
 
 ```
 [ssm-user@control]$ apiclient report cis-k8s -l 2
@@ -186,6 +246,26 @@ Total checks:    15
 Compliance check result: PASS
 ```
 
+### Security agents
+
+We hope that we can make better use of open source software such as Falco with
+this solution. Ideally we can get Falco to produce the needed data and send it
+to GSA SOC or whereever else this data is needed.
+
+Agents that require host access do not work on Bottlerocket by design as
+Bottlerocket lacks a package manager and everything must run in a container.
+
+Some agents exist that can be run inside the cluster as a daemonset. One example
+(not sure which GSA IT uses) is Prisma Cloud. However, many of these agents are
+difficult to integrate with our gitops approach because they often require you
+to generate a bespoke helm chart and install it with secrets. Additionally they
+take up extra resources for daemonsets, requiring larger instances and more
+spend.
+
+We hope that we can integrate with existing SOC solutions using Falco and avoid
+having to install agents, but it remains to be seen what will happen in this
+regard yet.
+
 ### Shared concerns
 
 Both options change the way IMDS works for improved security posture. The big
@@ -202,3 +282,17 @@ https://docs.aws.amazon.com/whitepapers/latest/security-practices-multi-tenant-s
 ## Alternatives Considered
 
 We looked at Amazon Linux 2023 as well, but decided to go with Bottlerocket instead.
+
+## References
+
+https://aws.github.io/aws-eks-best-practices/security/docs/#understanding-the-shared-responsibility-https
+
+https://d1.awsstatic.com/whitepapers/compliance/Architecting_Amazon_EKS_and_Bottlerocket_for_PCI_DSS_Compliance.pdf
+
+https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md
+
+https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_GUIDANCE.md
+
+https://github.com/bottlerocket-os/bottlerocket/blob/develop/SECURITY_FEATURES.md#update-policy
+
+https://bottlerocket.dev/en/os/1.22.x/version-information/variants/
