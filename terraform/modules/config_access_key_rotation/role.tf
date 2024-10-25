@@ -21,6 +21,7 @@ moved {
 
 resource "aws_iam_role" "config_access_key_rotation" {
   name               = "${var.config_access_key_rotation_name}-lambda-role"
+  description        = "Allows AWS Lambda to rotate access keys for an IAM user"
   path               = "/"
   assume_role_policy = data.aws_iam_policy_document.assume_lambda_service.json
 }
@@ -134,6 +135,7 @@ data "aws_iam_policy_document" "identity_policy_allowing_lambda_assumeRole" {
 }
 
 resource "aws_iam_role" "assumeRole_lambda" {
+  description        = "Allows access to AWS IAM access keys."
   assume_role_policy = data.aws_iam_policy_document.trust_policy_allowing_lambda_assumeRole.json
 }
 

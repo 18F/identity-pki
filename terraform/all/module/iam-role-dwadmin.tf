@@ -11,10 +11,11 @@ locals {
 }
 
 module "dwadmin-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=5aa7231e4a3a91a9f4869311fbbaada99a72062b"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=995040426241ec92a1eccb391d32574ad5fc41be"
   #source = "../../../../identity-terraform/iam_assumerole"
 
   role_name                       = "DWAdmin"
+  role_description                = "Allows developers to access the Analytics account and data warehouse with elevated privilages."
   enabled                         = contains(local.enabled_roles, "iam_dwadmin_enabled")
   master_assumerole_policy        = data.aws_iam_policy_document.master_account_assumerole.json
   custom_iam_policies             = local.dwadmin_custom_iam_policies

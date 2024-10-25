@@ -2,8 +2,8 @@
 # an RDS DB instance. It's just a role to wrap the AWS managed policy
 # "AmazonRDSEnhancedMonitoringRole".
 resource "aws_iam_role" "rds-monitoring-role" {
-  name = "rds-monitoring-role"
-
+  name               = "rds-monitoring-role"
+  description        = "Allows AWS CloudWatch access to enable enhanced monitoring for a RDS instance."
   assume_role_policy = <<EOF
 {
     "Version": "2012-10-17",

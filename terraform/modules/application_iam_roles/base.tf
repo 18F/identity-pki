@@ -12,6 +12,7 @@
 # iam_roles, so if your instance needs other permissions you can't use this.
 resource "aws_iam_role" "base-permissions" {
   name               = "${var.env_name}-base-permissions"
+  description        = "Enables the minimum permissions every instance should have for service discovery and citadel to work."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 
@@ -93,6 +94,7 @@ data "aws_iam_policy_document" "auto_eip_policy" {
 # between iam_instance_profiles and iam_roles.
 resource "aws_iam_role" "citadel-client" {
   name               = "${var.env_name}-citadel-client"
+  description        = "Allows instances to download configuration and secret data from AWS S3 buckets."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 
@@ -105,6 +107,7 @@ resource "aws_iam_role_policy" "citadel-client" {
 
 resource "aws_iam_role" "flow_role" {
   name               = "${var.env_name}_flow_role"
+  description        = "Allows VPC Flow Logs to publish logs to AWS CloudWatch."
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -160,6 +163,7 @@ EOF
 # iam_roles, so if your instance needs other permissions you can't use this.
 resource "aws_iam_role" "service-discovery" {
   name               = "${var.env_name}-service-discovery"
+  description        = "Enables the minimum permissions every instance should have for service discovery to work."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 
@@ -184,6 +188,7 @@ resource "aws_iam_role_policy" "service-discovery-describe_instances" {
 # config changes there from the infrastructure.
 resource "aws_iam_role" "application-secrets" {
   name               = "${var.env_name}-application-secrets"
+  description        = "Allows retrieval of application secrets from AWS S3."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 

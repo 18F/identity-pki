@@ -1,8 +1,9 @@
 module "socadmin-assumerole" {
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=5aa7231e4a3a91a9f4869311fbbaada99a72062b"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=995040426241ec92a1eccb391d32574ad5fc41be"
   #source = "../../../../identity-terraform/iam_assumerole"
 
   role_name                       = "SOCAdministrator"
+  role_description                = "An administor like role that allows access to several AWS services to support SOC audits."
   enabled                         = contains(local.enabled_roles, "iam_socadmin_enabled")
   master_assumerole_policy        = data.aws_iam_policy_document.master_account_assumerole.json
   custom_iam_policies             = var.dnssec_zone_exists ? [data.aws_iam_policy.dnssec_disable_prevent[0].name] : []

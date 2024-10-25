@@ -1,5 +1,6 @@
 resource "aws_iam_role" "analytics" {
   name               = "${var.env_name}_analytics_iam_role"
+  description        = "Enables multiple permissions needed for the identity-reporting-rails application to run on the analytics host."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 

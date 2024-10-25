@@ -52,6 +52,7 @@ resource "aws_cloudwatch_log_group" "flow" {
 
 resource "aws_iam_role" "flow" {
   name               = "imagebuild_flow_role"
+  description        = "Allows VPC Flow Logs to publish logs to AWS CloudWatch."
   assume_role_policy = data.aws_iam_policy_document.flow_logs_assumable.json
 }
 

@@ -1,5 +1,6 @@
 resource "aws_iam_role" "obproxy" {
   name               = "${var.env_name}_obproxy_iam_role"
+  description        = "Enables multiple permissions needed for the analytics outbound proxy host."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 

@@ -166,6 +166,7 @@ resource "aws_cloudwatch_log_group" "cloudtrail_default" {
 
 resource "aws_iam_role" "cloudtrail_cloudwatch_logs" {
   name               = "CloudTrail_CloudWatchLogs_Role"
+  description        = "Allows AWS CloudTrail to have access to cloudwatch logs."
   assume_role_policy = data.aws_iam_policy_document.cloudtrail_assume_role.json
 }
 

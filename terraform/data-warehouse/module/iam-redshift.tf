@@ -37,6 +37,7 @@ data "aws_iam_policy" "insights" {
 
 resource "aws_iam_role" "redshift_role" {
   name               = "${var.env_name}-redshift-iam-role"
+  description        = "Allows AWS Redshift to access AWS S3 resources."
   assume_role_policy = data.aws_iam_policy_document.redshift_policy_document.json
 }
 

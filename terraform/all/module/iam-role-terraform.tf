@@ -10,10 +10,11 @@ module "terraform-assumerole" {
     }
   }
 
-  source = "github.com/18F/identity-terraform//iam_assumerole?ref=5aa7231e4a3a91a9f4869311fbbaada99a72062b"
+  source = "github.com/18F/identity-terraform//iam_assumerole?ref=995040426241ec92a1eccb391d32574ad5fc41be"
   #source = "../../../../identity-terraform/iam_assumerole"
 
   role_name                       = each.key
+  role_description                = "Enables multiple permissions needed to deploy resources to an AWS account for a user or tool such as gitlab."
   enabled                         = contains(local.enabled_roles, each.value["enable"])
   master_assumerole_policy        = each.value["policy"]
   custom_iam_policies             = var.dnssec_zone_exists ? [data.aws_iam_policy.dnssec_disable_prevent[0].name] : []

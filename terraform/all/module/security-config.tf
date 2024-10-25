@@ -167,6 +167,7 @@ resource "aws_config_configuration_recorder" "default" {
 
 resource "aws_iam_role" "config_recorder" {
   name               = "config-role-${var.region}"
+  description        = "Allows AWS Config to record configuration changes across resources in the account."
   assume_role_policy = data.aws_iam_policy_document.config_recorder_assume.json
 }
 

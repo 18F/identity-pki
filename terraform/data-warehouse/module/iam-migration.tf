@@ -1,5 +1,6 @@
 resource "aws_iam_role" "migration" {
   name               = "${var.env_name}_migration_iam_role"
+  description        = "Enables multiple permissions needed for the identity-reporting-rails application to run on the analytics migration host."
   assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
 }
 

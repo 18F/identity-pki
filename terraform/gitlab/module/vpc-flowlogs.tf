@@ -10,6 +10,7 @@ resource "aws_flow_log" "flow_log" {
 
 resource "aws_iam_role" "flow_role" {
   name               = "${var.env_name}_flow_role"
+  description        = "Allows VPC Flow Logs to publish logs to AWS CloudWatch."
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",

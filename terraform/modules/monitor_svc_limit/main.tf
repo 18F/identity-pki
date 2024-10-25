@@ -125,6 +125,7 @@ resource "aws_lambda_function" "ta_refresher_lambda" {
 
 resource "aws_iam_role" "ta_refresher_lambda" {
   name_prefix        = "${var.refresher_lambda}-role"
+  description        = "Allows the trustedadvisor-check-refresher Lambda function to write to cloudwatch."
   assume_role_policy = data.aws_iam_policy_document.ta_refresher_lambda_assume.json
 }
 
@@ -182,6 +183,7 @@ resource "aws_lambda_function" "ta_monitor_lambda" {
 
 resource "aws_iam_role" "ta_monitor_lambda" {
   name_prefix        = "${var.monitor_lambda}-rule"
+  description        = "Allows the trustedadvisor-check-monitor Lambda function to write to cloudwatch and SNS."
   assume_role_policy = data.aws_iam_policy_document.ta_monitor_lambda_assume.json
 }
 

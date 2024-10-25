@@ -1,5 +1,6 @@
 resource "aws_iam_role" "codepipeline" {
   name               = local.codepipeline_role_name
+  description        = "Allows AWS CodePipeline in the imagebuild pipeline to start a build via AWS CodeBuild and access AWS S3 resources."
   assume_role_policy = data.aws_iam_policy_document.codepipeline.json
 
   inline_policy {
@@ -51,6 +52,7 @@ resource "aws_iam_role" "codepipeline" {
 
 resource "aws_iam_role" "codebuild" {
   name               = local.codebuild_role_name
+  description        = "Allows AWS CodeBuild in the imagebuild pipeline to perform specific actions and access resources such as AWS S3 or CloudWatch."
   assume_role_policy = data.aws_iam_policy_document.codebuild.json
 
   managed_policy_arns = []
@@ -430,6 +432,7 @@ resource "aws_iam_role" "codebuild" {
 
 resource "aws_iam_role" "packer" {
   name               = local.packer_role_name
+  description        = "Allows AWS CodeBuild in the imagebuild pipeline to generate AMIs using HashiCorp Packer."
   assume_role_policy = data.aws_iam_policy_document.packer.json
 
   inline_policy {
@@ -526,6 +529,7 @@ resource "aws_iam_role" "packer" {
 
 resource "aws_iam_role" "cloudwatch_events" {
   name               = "${var.name}-${data.aws_region.current.name}-${var.env_name}-cloudwatch-events"
+  description        = "Allows AWS CloudWatch events to trigger the execution of the imagebuild pipeline via AWS CodePipeline."
   assume_role_policy = data.aws_iam_policy_document.cloudwatch_events.json
 
   inline_policy {

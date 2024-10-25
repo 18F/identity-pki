@@ -95,7 +95,8 @@ resource "aws_iam_policy" "lambda_to_s3" {
 }
 
 resource "aws_iam_role" "db_consumption" {
-  name = "${var.env_name}_db_consumption"
+  name        = "${var.env_name}_db_consumption"
+  description = "Enables the minimal permissions needed for the AWS Lambda db consumption function to update AWS Redshift tables from csv files written to AWS S3."
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [

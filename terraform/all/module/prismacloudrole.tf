@@ -1,5 +1,6 @@
 resource "aws_iam_role" "PrismaCloud-connect-role" {
   name               = "PrismaCloudRole"
+  description        = "Allows the PrismaCloud cloud security application to access several AWS resources."
   assume_role_policy = data.aws_iam_policy_document.PrismaCloud-trust.json
 }
 resource "aws_iam_policy" "PrismaCloud-connect-policy" {

@@ -65,6 +65,7 @@ data "aws_iam_policy_document" "ami_cleanup_lambda" {
 
 resource "aws_iam_role" "lambda_ami_cleanup" {
   name_prefix        = "lambda_ami_cleanup"
+  description        = "Allows the AWS Lambda ami_cleanup function to remove old or unused AMIs."
   assume_role_policy = data.aws_iam_policy_document.ami_cleanup_lambda_assume.json
 }
 

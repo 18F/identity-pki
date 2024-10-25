@@ -30,6 +30,7 @@ resource "aws_iam_role_policy" "cloudwatch_logs_policy" {
 
 resource "aws_iam_role" "cloudwatch_logs_role" {
   name               = "${var.env_name}-soc_cloudwatch_logs_role"
+  description        = "A service role for sending CloudWatch logs to the SOC."
   assume_role_policy = data.aws_iam_policy_document.cloudwatch_logs_assume_role.json
 
   lifecycle {

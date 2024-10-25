@@ -18,9 +18,9 @@ data "aws_kms_key" "rds_alias" {
 # Monitoring
 
 resource "aws_iam_role" "rds_monitoring" {
-  count = var.monitoring_role == "" ? 1 : 0 # create if not importing
-  name  = "rds-monitoring-role"
-
+  count              = var.monitoring_role == "" ? 1 : 0 # create if not importing
+  name               = "rds-monitoring-role"
+  description        = "Allows AWS CloudWatch access to enable enhanced monitoring for a RDS instance."
   assume_role_policy = <<EOF
 {
     "Version": "2012-10-17",
