@@ -287,6 +287,15 @@ users:
     - ConnorPMcCarthy
     ec2_username:
     - cmccarthy
+  courtney.rothwell:
+    aws_groups:
+    - fraudops
+    gitlab_groups:
+    - antifraud
+    - lg-all
+    - lg-public
+    ec2_username:
+    - crothwell
   david.a.zimmerman:
     aws_groups:
     - analytics
