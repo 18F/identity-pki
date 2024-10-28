@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# This script refreshes Gitlab Runner Auto Scaling Groups
+# Should be run against tooling-prod, tooling-sandbox, and sandbox
+#
+
+usage() {
+cat << EOF  
+Usage: ./$0 [-hae] [[environment_name]
+Refreshes env-runner and runner pool Auto Scaling Groups
+
+-h,                         Display help
+-a,                         Refresh all env-runner and runner pool auto scaling groups in the account for the current region
+-e [environment_name]       Refresh all env-runner and runner pool auto scaling groups in the named environment for the current region
+EOF
+}
+
+[ $# -eq 0 ] && usage
+
+debug=0
+jq="jq --exit-status --raw-output"
+
+aws_account_info_json=$(aws sts get-caller-identity)
+
+if [[ $debug -ne 0 || ! $debug ]]; then
+  echo "echo $aws_account_info_json" 1>&2
+fi
+
+aws_account_number=$(echo "$aws_account_info_json" | $jq .Account)
+rv="$?"
+
+if [[ $rv -ne 0 || ! $aws_account_number ]]; then
+  echo "$pkg: failed to parse output for aws_account_number" 1>&2
+  exit 1
+fi
+
+aws_current_region=$(aws configure get region)
+
+while getopts ":hae:" arg; do
+  case $arg in
+  a) 
+    echo "This will refresh all env-runner and runner pool autoscaling groups for account ${aws_account_number} in region ${aws_current_region}"
+    read -r -p "Are you sure? [Y/N] " response
+    case "$response" in [yY][eE][sS]|[yY])
+      aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"pool$\"))" | while read line ; do
+        aws autoscaling start-instance-refresh --auto-scaling-group-name "$line" --preferences '{"SkipMatching":false}'
+        echo "Refreshing -> $line"
+      done
+      aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"env-runner$\"))" | while read line ; do
+        aws autoscaling start-instance-refresh --auto-scaling-group-name "$line" --preferences '{"SkipMatching":false}'
+        echo "Refreshing -> $line"
+      done
+        ;;
+      *)
+        echo "cancelled..."
+        ;;
+    esac
+    ;;
+  e) 
+    ENV_NAME=${OPTARG}
+    echo "This will refresh all env-runner and runner pool autoscaling groups for environment ${ENV_NAME} in account ${aws_account_number} in region ${aws_current_region}"
+    read -r -p "Are you sure? [Y/N] " response
+    case "$response" in [yY][eE][sS]|[yY])
+      aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\")) | select(test(\"pool$\"))" | while read line ; do
+        aws autoscaling start-instance-refresh --auto-scaling-group-name "$line" --preferences '{"SkipMatching":false}'
+        echo "Refreshing -> $line"
+      done
+      aws autoscaling describe-auto-scaling-groups | jq -r ".AutoScalingGroups[] | .AutoScalingGroupName | select(test(\"^${ENV_NAME}-\")) | select(test(\"env-runner$\"))" | while read line ; do
+        aws autoscaling start-instance-refresh --auto-scaling-group-name "$line" --preferences '{"SkipMatching":false}'
+        echo "Refreshing -> $line"
+      done
+        ;;
+      *)
+        echo "cancelled..."
+        ;;
+    esac
+    ;;
+  h | *) # Display help.
+    usage
+    exit 0
+    ;;
+  esac
+done
