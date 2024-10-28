@@ -27,7 +27,7 @@ locals {
       },
     ],
     # BigInt: Set logical replication for change data capture (cdc)
-    (var.enable_dms_migration || var.enable_dms_analytics) ? [{
+    (var.enable_dms_migration || var.enable_dms_analytics || var.enable_logical_replication) ? [{
       name   = "rds.logical_replication",
       value  = "1",
       method = "pending-reboot"
@@ -188,6 +188,15 @@ variable "enable_dms_analytics" {
   description = <<EOM
 Enables creation of resources necessary for loading idp data
 into the data analytics platform.
+EOM
+  type        = bool
+  default     = false
+}
+
+variable "enable_logical_replication" {
+  description = <<EOM
+Enables rds.logical_replication without creating the resources
+for bigint migrations or the data warehouse.
 EOM
   type        = bool
   default     = false
