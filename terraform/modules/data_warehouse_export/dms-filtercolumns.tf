@@ -1,15 +1,15 @@
 locals {
-  transformation_rules = yamldecode(file("./dms-filter-columns-transformation-rules.yml"))
-  selection_rules      = yamldecode(file("./dms-filter-columns-selection-rules.yml"))
+  transformation_rules = yamldecode(file("${path.module}/dms-filter-columns-transformation-rules.yml"))
+  selection_rules      = yamldecode(file("${path.module}/dms-filter-columns-selection-rules.yml"))
 }
 
 resource "aws_dms_replication_task" "filtercolumns" {
-  count                    = var.enable_dms_analytics ? 1 : 0
+
   migration_type           = "full-load"
-  replication_instance_arn = module.dms[count.index].dms_replication_instance_arn
+  replication_instance_arn = var.dms.dms_replication_instance_arn
   replication_task_id      = "${var.env_name}-filter-columns-task"
-  source_endpoint_arn      = module.dms[count.index].dms_source_endpoint_arn
-  target_endpoint_arn      = aws_dms_s3_endpoint.analytics_export[0].endpoint_arn
+  source_endpoint_arn      = var.dms.dms_source_endpoint_arn
+  target_endpoint_arn      = aws_dms_s3_endpoint.analytics_export.endpoint_arn
   replication_task_settings = jsonencode(
     {
       "Logging" : {

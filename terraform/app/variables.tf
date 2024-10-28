@@ -781,8 +781,6 @@ locals {
     ],
     local.vpc_endpoints_no_proxy_hosts
   ))
-
-  data_warehouse_lambda_alerts_runbooks = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
 }
 
 # These variables are used to toggle whether certain services are enabled.
