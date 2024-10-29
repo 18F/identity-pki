@@ -338,6 +338,12 @@ repos:
   kube-state-metrics:
     name: "kubernetes/kube-state-metrics/kube-state-metrics"
     <<: *readonly_template
+  automated_offboarding:
+    name: "interrupts/automated_offboarding"
+    <<: *all_write_template
+  automated_offboarding_blessed:
+    name: "interrupts/automated_offboarding/blessed"
+    <<: *all_write_template
   prometheus_webhook:
     name: "quay/prometheus-operator/admission-webhook"
     <<: *readonly_template
@@ -361,6 +367,12 @@ repos:
   thanos:
     name: "quay/thanos/thanos"
     <<: *readonly_template
+  automated_offboarding:
+    name: "interrupts/automated_offboarding"
+    <<: *all_write_template
+  automated_offboarding_blessed:
+    name: "interrupts/automated_offboarding/blessed"
+    <<: *all_write_template
   # velero
   velero:
     name: "docker-hub/velero/velero"

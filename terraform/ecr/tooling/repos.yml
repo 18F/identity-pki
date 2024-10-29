@@ -158,3 +158,6 @@ repos:
   kyvernoreports:
     name: "kyverno/reports-controller"
     <<: *all_write_template
+  automated_offboarding:
+    name: "interrupts/automated_offboarding"
+    <<: *all_write_template
