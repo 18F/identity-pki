@@ -486,7 +486,7 @@ variable "send_cw_to_soc" {
 
 variable "soc_destination_arn" {
   type    = string
-  default = "arn:aws:logs:us-east-1:752281881774:destination:elp-gitlab-lg" #Pointing to  SOC arn. Please check before deploying
+  default = "arn:aws:logs:us-west-2:752281881774:destination:elp-os-lg" #Pointing to  SOC arn. Please check before deploying
 }
 
 variable "ubuntu_os_version_string" {
