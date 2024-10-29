@@ -1556,7 +1556,9 @@ oncall_teams:
         - jonathan.hooper
         - mitchell.henke
         - matt.hinz
-        - zach.margolis
+        - matt.wagner
+        - vraj.mohan
+        - jack.cody
       appdev_secondary:
         name: AppDev Secondary
         handoff_day: MON
@@ -1569,7 +1571,9 @@ oncall_teams:
         - jonathan.hooper
         - mitchell.henke
         - matt.hinz
-        - zach.margolis
+        - matt.wagner
+        - vraj.mohan
+        - jack.cody
         - amir.reavis-bey
   platform:
     rotations:
