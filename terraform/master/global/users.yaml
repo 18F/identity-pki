@@ -452,6 +452,8 @@ users:
     - lg-all
     - lg-public
     - Annie
+    oncaller:
+    - true
   jeff.bordogna:
     aws_groups:
     - analytics
@@ -795,6 +797,8 @@ users:
     - lg-all
     - lg-public
     - Ada
+    oncaller:
+    - true
   mercedez.palmer:
     aws_groups:
     - fraudopsnonprod
@@ -1213,6 +1217,8 @@ users:
     - lg-all
     - lg-public
     - Melba|developer
+    oncaller:
+    - true
   william.birdsall:
     aws_groups:
     - apponcall
@@ -1237,8 +1243,6 @@ users:
     - lg-public
     - Agnes
     - lg-people-platform|reporter
-    oncaller:
-    - true
   root:
     # Note: Gitlab Machine User - don't specify aws_groups for these
     email:
