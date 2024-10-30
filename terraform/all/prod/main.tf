@@ -152,10 +152,3 @@ module "main" {
   #logarchive_acct_id = "429506220995" # login-logarchive-prod account ID
   #logarchive_use1_enabled = true      # archive log groups in us-east-1
 }
-
-# This should be removed after 1 release
-import {
-  to = module.main.aws_cloudformation_stack.fn_cloudtrail_old
-  id = "Detect-if-CloudTrail-is-disabled"
-}
-# end of previous statement

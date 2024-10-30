@@ -204,13 +204,6 @@ module "image_signing" {
   ]
 }
 
-# This should be removed after 1 release
-import {
-  to = module.main.aws_cloudformation_stack.fn_cloudtrail_old
-  id = "Detect-if-CloudTrail-is-disabled"
-}
-# end of previous statement
-
 import {
   to = module.image_signing.aws_kms_key.this
   id = "98d4b5bd-8a5d-42be-9cd2-777e1af0a6f2"

@@ -2,27 +2,6 @@ locals {
   cloudtrail_responder_sns_topic = aws_sns_topic.slack_usw2["otherevents"].arn
 }
 
-## This section is to capture the cloudformation stack and removes associated resources"
-# This resources should be removed after 1 release.
-resource "aws_cloudformation_stack" "fn_cloudtrail_old" {
-  name = "Detect-if-CloudTrail-is-disabled"
-
-  template_body = jsonencode(
-    {
-      Parameters = {}
-      Resources = {
-        OldSNSTopic = {
-          Type = "AWS::SNS::Topic"
-          Properties = {
-            TopicName : "CTResponder"
-          }
-        }
-      }
-    }
-  )
-}
-# End of previous statement.
-
 data "aws_iam_policy_document" "cloudtrail_responder" {
   statement {
     sid    = "CTResponderModifyTrail"
