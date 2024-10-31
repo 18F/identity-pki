@@ -237,7 +237,7 @@ end
 # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539
 # XXX If ever we figure out our concurrency issues, we can go back to 2 or more.
 execute 'update_runner_concurrency' do
-  command 'sed -i "s/^concurrent = .*/concurrent = 1/" /etc/gitlab-runner/config.toml'
+  command "sed -i \"s/^concurrent = .*/concurrent = #{node['identity_gitlab']['concurrency']}/\" /etc/gitlab-runner/config.toml"
   notifies :run, 'execute[reload_runner]', :immediately
 end
 

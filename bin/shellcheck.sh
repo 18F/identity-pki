@@ -62,8 +62,6 @@ to_fix=(
   dockerfiles/env_stop.sh
   dockerfiles/env_test.sh
   dockerfiles/gitlab_test.sh
-  dockerfiles/terraform_apply.sh
-  dockerfiles/terraform_plan.sh
   kitchen/cookbooks/identity-locust/files/default/id-locust
   terraform/app/recycle.sh
   terraform/gitlab/asg-disable.sh

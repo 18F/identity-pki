@@ -131,6 +131,9 @@ repos:
   terraform_apply:
     name: "cd/terraform_apply"
     <<: *all_write_template
+  terraform_common:
+    name: "cd/terraform_common"
+    <<: *all_write_template
   identity_idp_cache:
     name: "identity-idp/idp/cache"
     <<: *all_write_template

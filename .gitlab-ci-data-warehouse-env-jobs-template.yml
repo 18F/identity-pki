@@ -1,0 +1,128 @@
+---
+stages:
+  - deploy
+  - refresh
+  - test
+  - post_deploy
+
+terraform_apply:
+  environment:
+    name: ${ENV_NAME}-analytics
+  resource_group: ${ENV_NAME}-analytics
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+    TERRAFORM_DIR: data-warehouse
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/devops_terraform_apply/blessed@sha256:7e799c299c2bfd0a7e10f15770193ae1bbb22546a3655ee24cae0f1fd8cb276e
+  stage: deploy
+  artifacts:
+    name: "$CI_ENVIRONMENT_NAME-$CI_COMMIT_SHA"
+    paths:
+      - terraform.plan
+      - plan.txt
+    expire_in: 1 year
+    reports:
+      terraform: plan.json
+  script:
+    - echo "Somebody set us up the deploy" ; exit 1
+
+refresh_outboundproxies:
+  needs:
+    - job: terraform_apply
+      artifacts: false
+  environment:
+    action: access
+    name: ${ENV_NAME}-analytics
+  variables:
+    CI_ASG_TARGET: ${ENV_NAME}-outboundproxy
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/asg_refresh/blessed@sha256:cdba63db545081666a98f7e46459a7585bd6ccdbe53daa53bf8bea9727ca5814
+  stage: refresh
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1
+
+launch_migration:
+  needs:
+    - job: terraform_apply
+      artifacts: false
+  environment:
+    action: access
+    name: ${ENV_NAME}-analytics
+  variables:
+    CI_ASG_TARGET: ${ENV_NAME}-migration
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/launch_migration/blessed@sha256:00dcb40ff9f912e6adbd5bda8f19ceacc2d71817447655492f59166a9c043e37
+  stage: refresh
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1
+
+refresh_analytics:
+  needs:
+    - job: terraform_apply
+      artifacts: false
+  when: delayed
+  start_in: 5 minutes
+  environment:
+    action: access
+    name: ${ENV_NAME}-analytics
+  variables:
+    CI_ASG_TARGET: ${ENV_NAME}-analytics
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/asg_refresh/blessed@sha256:cdba63db545081666a98f7e46459a7585bd6ccdbe53daa53bf8bea9727ca5814
+  stage: refresh
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1
+
+refresh_env_runner_outboundproxy:
+  environment:
+    action: access
+    name: ${ENV_NAME}-analytics
+  variables:
+    CI_ASG_TARGET: ${ENV_NAME}-analytics-env-runner-obproxy
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/asg_refresh/blessed@sha256:cdba63db545081666a98f7e46459a7585bd6ccdbe53daa53bf8bea9727ca5814
+  stage: post_deploy
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1
+
+refresh_env_runner:
+  needs: ["refresh_env_runner_outboundproxy"]
+  environment:
+    action: access
+    name: ${ENV_NAME}-analytics
+  allow_failure: true
+  variables:
+    CI_ASG_TARGET: ${ENV_NAME}-gitlab-analytics-env-runner
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/asg_refresh/blessed@sha256:cdba63db545081666a98f7e46459a7585bd6ccdbe53daa53bf8bea9727ca5814
+  stage: post_deploy
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1
+
+terraform_plan_verify:
+  environment:
+    action: access
+    name: ${ENV_NAME}-analytics
+  variables:
+    GIT_SUBMODULE_STRATEGY: normal
+    TERRAFORM_DIR: data-warehouse
+  resource_group: ${ENV_NAME}-analytics
+  tags:
+    - ${ENV_NAME}-analytics-env-runner
+  image:
+    name: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/cd/devops_terraform_plan_verify/blessed@sha256:d5c36102254de8536828a0d2d8b7488b59965dde49354e8451b0af1491094d51
+  stage: test
+  script:
+    - echo "Somebody set us up the post_deploy" ; exit 1

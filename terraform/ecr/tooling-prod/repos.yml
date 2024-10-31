@@ -74,9 +74,7 @@ repos:
     <<: *all_write_template
   identity_idp_review:
     name: "identity-idp/review"
-    lifecycle_policy_settings: {
-      days: 10
-    }
+    lifecycle_policy_settings: { days: 10 }
     <<: *all_write_template
   identity_idp_review_cache:
     name: "identity-idp/review/cache"
@@ -86,9 +84,7 @@ repos:
     <<: *all_write_template
   identity_idp:
     name: "identity-idp/idp"
-    lifecycle_policy_settings: {
-      days: 40
-    }
+    lifecycle_policy_settings: { days: 40 }
     <<: *all_write_template
   identity_idp_cache:
     name: "identity-idp/idp/cache"
@@ -98,9 +94,7 @@ repos:
     <<: *all_write_template
   identity_pivcac_review:
     name: "identity-pivcac/review"
-    lifecycle_policy_settings: {
-      days: 40
-    }
+    lifecycle_policy_settings: { days: 40 }
     <<: *all_write_template
   identity_pivcac_review_cache:
     name: "identity-pivcac/review/cache"
@@ -137,15 +131,37 @@ repos:
     <<: *all_write_template
   identity_dashboard_review:
     name: "identity-dashboard/review"
-    lifecycle_policy_settings: {
-      days: 40
-    }
+    lifecycle_policy_settings: { days: 40 }
     <<: *all_write_template
   identity_dashboard_review_cache:
     name: "identity-dashboard/review/cache"
     lifecycle_policy_settings: {
       days: 40
     }
+    <<: *all_write_template
+  devops_terraform_apply:
+    name: "cd/devops_terraform_apply"
+    <<: *all_write_template
+  devops_terraform_apply_blessed:
+    name: "cd/devops_terraform_apply/blessed"
+    <<: *all_write_template
+  devops_terraform_plan_verify:
+    name: "cd/devops_terraform_plan_verify"
+    <<: *all_write_template
+  devops_terraform_plan_verify_blessed:
+    name: "cd/devops_terraform_plan_verify/blessed"
+    <<: *all_write_template
+  asg_refresh:
+    name: "cd/asg_refresh"
+    <<: *all_write_template
+  asg_refresh_blessed:
+    name: "cd/asg_refresh/blessed"
+    <<: *all_write_template
+  launch_migration:
+    name: "cd/launch_migration"
+    <<: *all_write_template
+  launch_migration_blessed:
+    name: "cd/launch_migration/blessed"
     <<: *all_write_template
   dashboard_ci:
     name: "dashboard/ci"

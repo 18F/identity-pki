@@ -45,6 +45,10 @@ variables:
   TEST_IMAGE_DIGEST: "sha256:9ad8c0ad616f4c69c992bc79144373f24149ba41de47f66e7e0ceafd7a81c0b8"
   GITDEPLOY_IMAGE_DIGEST: "sha256:8b049df87c3f980d68c16fe4455f01eabe7efc54c6ec2fc911165a6fbbe00aee"
   GITTEST_IMAGE_DIGEST: "sha256:496cef18198a857a2c5b6c349d60652ba5ca473e088571247f9fb501879e0ec3"
+  DEVOPS_TERRAFORM_APPLY_IMAGE_DIGEST: "sha256:7e799c299c2bfd0a7e10f15770193ae1bbb22546a3655ee24cae0f1fd8cb276e"
+  DEVOPS_TERRAFORM_PLAN_VERIFY_IMAGE_DIGEST: "sha256:d5c36102254de8536828a0d2d8b7488b59965dde49354e8451b0af1491094d51"
+  ASG_REFRESH_IMAGE_DIGEST: "sha256:cdba63db545081666a98f7e46459a7585bd6ccdbe53daa53bf8bea9727ca5814"
+  LAUNCH_MIGRATION_IMAGE_DIGEST: "sha256:00dcb40ff9f912e6adbd5bda8f19ceacc2d71817447655492f59166a9c043e37"
   NESSUS_URL: "https://44.230.151.136:8834"
 
 .nessus_scan:
@@ -527,9 +531,33 @@ variables:
       --dockerfile "${CI_PROJECT_DIR}/dockerfiles/${dockerfile}"
       --destination "${ECR_REGISTRY}/${ecr_repo}:latest"
       --destination "${ECR_REGISTRY}/${ecr_repo}:${CI_COMMIT_TAG}"
-      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}" --build-arg "ecr_registry=${ECR_REGISTRY}"
 
 # Build images by providing a dockerfile (in dockerfiles/) and a destination ECR repo
+
+build_devops_terraform_apply_container:
+  extends: .build_template
+  variables:
+    dockerfile: devops_terraform_apply.Dockerfile
+    ecr_repo: cd/devops_terraform_apply
+
+build_asg_refresh_container:
+  extends: .build_template
+  variables:
+    dockerfile: asg_refresh.Dockerfile
+    ecr_repo: cd/asg_refresh
+
+build_launch_migration_container:
+  extends: .build_template
+  variables:
+    dockerfile: launch_migration.Dockerfile
+    ecr_repo: cd/launch_migration
+
+build_devops_terraform_plan_verify_container:
+  extends: .build_template
+  variables:
+    dockerfile: devops_terraform_plan_verify.Dockerfile
+    ecr_repo: cd/devops_terraform_plan_verify
 
 build_gitlab_deploy_container:
   extends: .build_template
@@ -639,7 +667,8 @@ env-agnes:
   extends: .include_idp_jobs_template
   variables:
     ENV_NAME: agnes
-    branch: "main"
+    branch: "dw-release/v1.0-SIA-Lock"
+    DATA_WAREHOUSE_ENABLED: true
 
 env-joy:
   extends: .include_idp_jobs_template
@@ -658,6 +687,28 @@ env-henrydrich:
   variables:
     ENV_NAME: henrydrich
     branch: "stages/henrydrich"
+    DATA_WAREHOUSE_ENABLED: true
+
+env-cnattrass:
+  extends: .include_idp_jobs_template
+  variables:
+    ENV_NAME: cnattrass
+    branch: "stages/cnattrass"
+    DATA_WAREHOUSE_ENABLED: true
+
+env-sdondeti:
+  extends: .include_idp_jobs_template
+  variables:
+    ENV_NAME: sdondeti
+    branch: "stages/sdondeti"
+    DATA_WAREHOUSE_ENABLED: true
+
+env-biraneseck:
+  extends: .include_idp_jobs_template
+  variables:
+    ENV_NAME: biraneseck
+    branch: "stages/biraneseck"
+    DATA_WAREHOUSE_ENABLED: true
 
 env-akrito:
   extends: .include_idp_jobs_template
@@ -1032,6 +1083,7 @@ test_unallowed_image_alpha:
 
 test_images_exist:
   stage: pre_deploy_test
+  needs: []
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event"'
       changes:
@@ -1045,6 +1097,10 @@ test_images_exist:
     - aws ecr describe-images --repository-name cd/env_test/blessed --image-ids imageDigest=$TEST_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/gitlab_deploy/blessed --image-ids imageDigest=$GITDEPLOY_IMAGE_DIGEST
     - aws ecr describe-images --repository-name cd/gitlab_test/blessed --image-ids imageDigest=$GITTEST_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/devops_terraform_apply/blessed --image-ids imageDigest=$DEVOPS_TERRAFORM_APPLY_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/asg_refresh/blessed --image-ids imageDigest=$ASG_REFRESH_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/launch_migration/blessed --image-ids imageDigest=$LAUNCH_MIGRATION_IMAGE_DIGEST
+    - aws ecr describe-images --repository-name cd/devops_terraform_plan_verify/blessed --image-ids imageDigest=$DEVOPS_TERRAFORM_PLAN_VERIFY_IMAGE_DIGEST
 
 shellcheck:
   stage: test

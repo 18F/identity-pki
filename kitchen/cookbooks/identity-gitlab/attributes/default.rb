@@ -24,3 +24,6 @@ default['identity_gitlab']['production_aws_account_id'] = '217680906704'
 
 # turn on user sync cron if this is true
 default['identity_gitlab']['user_sync_cron_enable'] = true
+
+# Runner Concurrency
+default['identity_gitlab']['concurrency'] = 1

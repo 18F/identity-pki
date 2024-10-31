@@ -27,4 +27,6 @@ module "data_warehouse" {
   use_spot_instances                      = 1
   autoscaling_schedule_name               = "dailyzero_normal"
   enable_portforwarding_ssm_commands      = true
+  gitlab_enabled                          = true
+  gitlab_runner_enabled                   = true
 }

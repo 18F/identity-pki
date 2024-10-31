@@ -97,7 +97,7 @@ run_allowed_image:
   artifacts:
     paths:
       - "*.txt"
-    
+
 run_unallowed_image:
   environment:
     action: verify
@@ -127,3 +127,13 @@ test_unallowed_image:
   script:
     - test ! -f unallowed.txt
     - test -f allowed.txt
+
+data_warehouse:
+  stage: deploy
+  rules:
+    - if: '$DATA_WAREHOUSE_ENABLED == "true"'
+  variables:
+    ENV_NAME: ${ENV_NAME}
+    branch: ${branch}
+  trigger:
+    include: .gitlab-ci-data-warehouse-env-jobs-template.yml

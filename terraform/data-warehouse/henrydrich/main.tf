@@ -19,6 +19,7 @@ terraform {
 module "data_warehouse" {
   source                                  = "../module"
   env_name                                = "henrydrich"
+  bootstrap_main_git_ref_default          = "stages/henrydrich"
   slack_events_sns_hook_arn               = "arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-otherevents"
   slack_alarms_sns_hook_arn               = "arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-otherevents"
   additional_low_priority_sns_topics      = ["arn:aws:sns:us-west-2:${data.aws_caller_identity.current.account_id}:slack-data-warehouse-otherevents"]
@@ -27,4 +28,6 @@ module "data_warehouse" {
   autoscaling_time_zone                   = "America/New_York"
   autoscaling_schedule_name               = "dailyzero_normal"
   enable_portforwarding_ssm_commands      = true
+  gitlab_enabled                          = true
+  gitlab_runner_enabled                   = true
 }

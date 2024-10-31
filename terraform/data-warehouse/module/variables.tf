@@ -13,6 +13,8 @@ locals {
   bootstrap_main_git_ref_default = var.bootstrap_main_git_ref_default != "" ? (
   var.bootstrap_main_git_ref_default) : "main"
 
+  account_default_ami_id = var.base_ami_analytics_sandbox_uw2
+
   github_ipv4_cidr_blocks = sort(data.github_ip_ranges.meta.git_ipv4)
   network_zones           = toset(keys(local.network_layout[var.region][var.env_type]._zones))
   default_endpoint_security_group_ids = [
@@ -207,6 +209,11 @@ variable "instance_type_migration" {
 }
 
 variable "instance_type_outboundproxy" {
+  type    = string
+  default = "t3.medium"
+}
+
+variable "instance_type_env_runner" {
   type    = string
   default = "t3.medium"
 }
@@ -537,4 +544,52 @@ variable "enable_portforwarding_ssm_commands" {
   type        = bool
   description = "Allows local connections to Redshift via SSM in an environment"
   default     = false
+}
+
+# Gitlab variables
+
+variable "gitlab_enabled" {
+  description = "whether to turn on the privatelink to gitlab so that systems can git clone and so on"
+  type        = bool
+  default     = false
+}
+
+variable "gitlab_servicename" {
+  description = "the service_name of the gitlab privatelink"
+  type        = string
+  default     = "com.amazonaws.vpce.us-west-2.vpce-svc-0270024908d73003b"
+}
+
+variable "gitlab_hostname" {
+  description = "name to write into the internal dns zone"
+  type        = string
+  default     = "gitlab.login.gov"
+}
+
+variable "gitlab_runner_enabled" {
+  description = "whether to turn on a gitlab runner for this environment"
+  type        = bool
+  default     = false
+}
+
+variable "gitlab_configbucket" {
+  description = "should be used to override where the gitlab server's config bucket is so that the runner knows where to get the runner token"
+  type        = string
+  default     = "login-gov-production-gitlabconfig-217680906704-us-west-2"
+}
+
+variable "gitlab_ecr_repo_accountid" {
+  description = "the AWS account ID where it's gitlab lives, so it knows what ECR to pull from"
+  type        = string
+  default     = "217680906704" # prod
+
+  validation {
+    condition     = length(var.gitlab_ecr_repo_accountid) == 12
+    error_message = "The Gitlab ECR repository account id is invalid"
+  }
+}
+
+variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
+  type    = string
+  default = "172.16.35.192/27"
 }

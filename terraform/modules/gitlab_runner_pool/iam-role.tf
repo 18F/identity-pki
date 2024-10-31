@@ -262,7 +262,10 @@ resource "aws_iam_role_policy" "gitlab-runner-describe-instances" {
               {
                   "Sid": "AllowDescribeInstancesIntegrationTest",
                   "Effect": "Allow",
-                  "Action": "ec2:DescribeInstances",
+                  "Action": [
+                      "ec2:DescribeInstances",
+                      "autoscaling:DescribeAutoScalingInstances"
+                  ],
                   "Resource": "*"
               }
           ]
@@ -517,7 +520,8 @@ locals {
     "AutoTerraform3",
     "AutoTerraform4",
     "AutoTerraform5",
-    "AutoTerraform6"
+    "AutoTerraform6",
+    "AutoTerraform7"
   ]) : []
 }
 resource "aws_iam_role_policy_attachment" "AutoTerraform" {

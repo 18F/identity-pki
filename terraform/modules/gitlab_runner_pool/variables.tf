@@ -230,6 +230,12 @@ variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
   default = "172.16.32.0/22"
 }
 
+variable "app_cidr_block" {
+  type        = string
+  description = "CIDR block for secondary block defined in network_layout"
+  default     = "100.106.0.0/16"
+}
+
 variable "gitlab_runner_pool_name" {
   description = "The name of the Runner Pool"
   type        = string

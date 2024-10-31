@@ -30,7 +30,7 @@ module "repos" {
   for_each = local.repos
   source   = "../module-ecr-repo"
 
-  readonly_accountids        = ["555546682965", "894947205914", "034795980528"] # prod and sandbox and tooling-sandbox
+  readonly_accountids        = ["555546682965", "894947205914", "034795980528", "487317109730"] # prod and sandbox and tooling-sandbox and data-warehouse-sandbox
   prod_accountid             = "555546682965"
   ecr_repo_name              = each.value.name
   lifecycle_policies_enabled = can(each.value.lifecycle_policies_enabled) ? each.value.lifecycle_policies_enabled : true

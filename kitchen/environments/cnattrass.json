@@ -7,9 +7,10 @@
     "login_dot_gov": {
       "deploy_branch_default": "main",
       "allow_unsafe_migrations": true
+    },
+    "identity_gitlab": {
+      "concurrency": 5
     }
   },
-  "override_attributes": {
-
-  }
+  "override_attributes": {}
 }

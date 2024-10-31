@@ -16,13 +16,16 @@ IMAGES="
 	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/env_test@sha256:XXX
 	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy@sha256:XXX
 	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test@sha256:XXX
+	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_apply@sha256:XXX
+	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_plan_verify@sha256:XXX
+	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/asg_refresh@sha256:XXX
+	217680906704.dkr.ecr.us-west-2.amazonaws.com/cd/launch_migration@sha256:XXX
 "
 
-for i in $IMAGES ; do
-	BLESSED=$(echo "$i" | sed 's/@sha256.*/\/blessed/')
-	crane copy "$i" "$BLESSED"
+for i in $IMAGES; do
+  BLESSED=$(echo "$i" | sed 's/@sha256.*/\/blessed/')
+  crane copy "$i" "$BLESSED"
 
-	BLESSEDIMG=$(echo "$i" | sed 's/@sha256/\/blessed@sha256/')
-	bin/sign_image.sh "$BLESSEDIMG"
+  BLESSEDIMG=$(echo "$i" | sed 's/@sha256/\/blessed@sha256/')
+  bin/sign_image.sh "$BLESSEDIMG"
 done
-

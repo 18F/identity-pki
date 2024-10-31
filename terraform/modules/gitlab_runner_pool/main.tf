@@ -9,6 +9,7 @@ module "outbound_proxy_net" {
   vpc_id                  = var.aws_vpc
   s3_prefix_list_id       = var.s3_prefix_list_id
   vpc_cidr_block          = var.vpc_cidr_block
+  app_cidr_block          = var.app_cidr_block
 }
 
 module "outbound_proxy" {
