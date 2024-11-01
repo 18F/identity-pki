@@ -49,7 +49,7 @@ users:
     - lg-public
     - login-security|owner
     - Security|owner
-    - lg-people|maintainer
+    - lg-teams|maintainer
   alex.kritikos:
     ec2_username:
     - akrito
@@ -927,7 +927,7 @@ users:
     - pm
     - devops|owner
     - lg-all
-    - lg-people|owner
+    - lg-teams|owner
     - lg-public
     - Mary
     - Radia
@@ -973,7 +973,7 @@ users:
     gitlab_groups:
     - appdev
     - lg-all
-    - lg-people
+    - lg-teams
     - Katherine
     - Ursula
     - Product
@@ -1204,7 +1204,7 @@ users:
     gitlab_groups:
     - devops
     - lg-all
-    - lg-people
+    - lg-teams
     - lg-public
     - Radia
   vraj.mohan:
@@ -1251,7 +1251,7 @@ users:
     - bots|owner
     - lg|owner
     - lg-all|owner
-    - lg-people|owner
+    - lg-teams|owner
     - lg-public|owner
     - devops|owner
     - appdev|owner
@@ -1297,16 +1297,15 @@ groups:
   lg-all:
     description: Place where anybody can create projects, and they are visible to
       everybody with an account.
-  lg-people:
-    description: Gitlab group for product focused people
+  lg-teams:
+    description: Gitlab group for Sprint and Discipline teams
   lg-public:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
   lg-people-platform:
-    description: Working area for Login.gov Platform teams. Tracks projects and issues
-      related to our day-to-day and long-term work.
+    description: Legacy platform space
   lg-people-appdev:
-    description: Working area for Login.gov Appdev teams.
+    description: Legacy appdev space
   design-system-developers:
     description: Users who need to be added as Developers to the identity-design-system repo.
   dashboard-admins:
@@ -1470,7 +1469,7 @@ projects:
         access: developer
       pm:
         access: reporter
-  lg-people/lg-people-appdev:
+  lg-teams/lg-people-appdev:
     groups:
       devops:
         access: maintainer
@@ -1486,7 +1485,7 @@ projects:
         access: maintainer
       pm:
         access: developer
-  lg-people/platform/interrupts:
+  lg-teams/platform/interrupts:
     groups:
       devops:
         access: maintainer
@@ -1574,7 +1573,7 @@ projects:
         access: developer
       pm:
         access: reporter
-  lg-people/Prodct:
+  lg-teams/Product:
     groups:
       pm:
         access: owner
