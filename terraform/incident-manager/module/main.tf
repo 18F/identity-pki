@@ -9,6 +9,12 @@ locals {
 data "aws_caller_identity" "current" {
 }
 
+resource "aws_ssm_parameter" "maintenance_mode" {
+  name  = "/incident-manager/maintenance-mode"
+  type  = "String"
+  value = "false"
+}
+
 resource "aws_ssmincidents_replication_set" "incident_manager_regions" {
   region {
     name = "us-west-2"

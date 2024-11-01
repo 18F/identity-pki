@@ -49,6 +49,7 @@ data "aws_iam_policy_document" "lambda_access" {
     sid    = "SSMAccess"
     effect = "Allow"
     actions = [
+      "ssm:GetParameter",
       "ssm-contacts:List*",
       "ssm-contacts:DescribeEngagement",
       "ssm-contacts:DescribePage",

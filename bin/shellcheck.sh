@@ -28,6 +28,7 @@ to_fix=(
   bin/enable-autotf
   bin/follow-images
   bin/get-images
+  bin/incident-manager/maintenance-mode
   bin/kms-matching-toggle
   bin/kms-matching.sh
   bin/lambda-utilities/lint.sh

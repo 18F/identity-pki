@@ -1,0 +1,82 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BASEPATH="$(dirname "$0")/.."
+. "${BASEPATH}/lib/common.sh"
+
+usage() {
+  cat >&2 << EOM
+
+Usage: ${0} [ACTION]
+
+Flags:
+  -h                     : Display help
+
+Must be run with \`aws-vault\`, whether in a session or with \`exec\`!
+
+EOM
+}
+
+help_me() {
+    cat >&2 << EOM
+For turning on/off pages from AWS Incident Manager during maintenance windows.
+
+Examples:
+
+Turning off paging: ${0} off
+Turning on paging: ${0} on
+EOM
+  usage
+  exit 0
+}
+
+while getopts h opt
+do
+  case $opt in
+    h) help_me                       ;;
+    *) usage && exit 1               ;;
+  esac
+done
+
+[[ $(env | grep 'AWS_VAULT=') ]] || raise 'Must be run with aws-vault!'
+
+ACTION="${1:-}"
+REAL_ACCOUNT_ID="$(ave -r aws sts get-caller-identity --output text --query 'Account')"
+ACCOUNT_ALIAS=$(ave -r aws iam list-account-aliases --output text --query "AccountAliases")
+SLACK_MESSAGE="\
+*INCIDENT MANAGER*: Maintenance mode is ${ACTION} for ${ACCOUNT_ALIAS}\n \
+@login-devops-oncall"
+
+if [[ "$ACTION" == 'on' ]] ; then
+  MODE="true"
+elif [[ "$ACTION" == 'off' ]] ; then
+  MODE="false"
+else
+  raise "Please supply an argument of 'on' or 'off'"
+fi
+
+if prompt_yn "Are you sure you want to turn maintenance mode ${ACTION} for ${ACCOUNT_ALIAS}?"; then
+  echo_yellow "Turning ${ACTION} maintenance mode"
+
+  ave -r aws ssm put-parameter \
+      --name "/incident-manager/maintenance-mode" \
+      --type "String" \
+      --value "$MODE" \
+      --overwrite
+
+  slack_notify \
+      -n "${REAL_ACCOUNT_ID}" \
+      -t "${ACCOUNT_ALIAS}" \
+      -r "us-west-2" \
+      -i "" \
+      -u "AWS Incident Manager" \
+      -e ":login-dot-gov:" \
+      -p "" \
+      -m "${SLACK_MESSAGE}" \
+      -y "1" \
+      -c "login-events"
+
+fi
+
+

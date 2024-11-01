@@ -7,53 +7,56 @@ from datetime import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+ssm = boto3.client("ssm")
 incident_manager = boto3.client("ssm-incidents")
 contacts_manager = boto3.client("ssm-contacts")
 
 
 def lambda_handler(event, context):
     logger.info(event)
+    if ssm.get_parameter(Name="/incident-manager/maintenance-mode")["Parameter"]["Value"] == "false":
+        if event["source"] == "aws.cloudwatch":
+            match event["alarmData"]["state"]["value"]:
+                case "ALARM":
+                    logger.info("ALARM")
+                    open_incident(
+                        response_plan_arn=os.environ["RESPONSE_PLAN_ARN"],
+                        title=f"{os.environ['RESPONSE_PLAN_TEAM']} Response Plan [{event['alarmData']['alarmName']}]",
+                        raw_data=json.dumps(event),
+                        source=f"lambda.{event['source']}",
+                        timestamp=event["time"],
+                        arn="",
+                        description=event.get("configuration", {}).get(
+                            "description", ""
+                        ),
+                        reason=event.get("alarmData", {})
+                        .get("state", {})
+                        .get("reason", ""),
+                        data=event.get("alarmData", {})
+                        .get("state", {})
+                        .get("reasonData", ""),
+                    )
+                case "OK":
+                    logger.info("OK")
+                    close_incident(
+                        title=f"Platform Response Plan [{event['alarmData']['alarmName']}]",
+                    )
 
-    if event["source"] == "aws.cloudwatch":
-        match event["alarmData"]["state"]["value"]:
-            case "ALARM":
-                logger.info("ALARM")
-                open_incident(
-                    response_plan_arn=os.environ["RESPONSE_PLAN_ARN"],
-                    title=f"{os.environ['RESPONSE_PLAN_TEAM']} Response Plan [{event['alarmData']['alarmName']}]",
-                    raw_data=json.dumps(event),
-                    source=f"lambda.{event['source']}",
-                    timestamp=event["time"],
-                    arn="",
-                    description=event.get("configuration", {}).get("description", ""),
-                    reason=event.get("alarmData", {})
-                    .get("state", {})
-                    .get("reason", ""),
-                    data=event.get("alarmData", {})
-                    .get("state", {})
-                    .get("reasonData", ""),
-                )
-            case "OK":
-                logger.info("OK")
-                close_incident(
-                    title=f"Platform Response Plan [{event['alarmData']['alarmName']}]",
-                )
+                case _:
+                    logger.info("Unknown alarm status")
 
-            case _:
-                logger.info("Unknown alarm status")
-
-    else:
-        open_incident(
-            response_plan_arn=os.environ["RESPONSE_PLAN_ARN"],
-            title=f"{os.environ['RESPONSE_PLAN_TEAM']} Response Plan [{event['detail']['alarmName']}]",
-            raw_data=json.dumps(event),
-            source=f"lambda.{event['source']}",
-            timestamp=event["time"],
-            arn="",
-            description="",
-            reason=event["detail"]["state"]["reason"],
-            data=event["detail"]["state"]["reasonData"],
-        )
+        else:
+            open_incident(
+                response_plan_arn=os.environ["RESPONSE_PLAN_ARN"],
+                title=f"{os.environ['RESPONSE_PLAN_TEAM']} Response Plan [{event['detail']['alarmName']}]",
+                raw_data=json.dumps(event),
+                source=f"lambda.{event['source']}",
+                timestamp=event["time"],
+                arn="",
+                description="",
+                reason=event["detail"]["state"]["reason"],
+                data=event["detail"]["state"]["reasonData"],
+            )
 
 
 def list_open_incidents(title):
