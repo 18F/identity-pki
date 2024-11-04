@@ -77,6 +77,27 @@ if [[ $rv -ne 0 || ! $stop_image_digest ]]; then
   exit 1
 fi
 
+asg_refresh_digest=$(sed -n -e '/^[ ]*ASG_REFRESH_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2 | cut -c 8-)
+rv="$?"
+if [[ $rv -ne 0 || ! $asg_refresh_digest ]]; then
+  echo "$pkg: failed to parse output for asg_refresh_digest" 1>&2
+  exit 1
+fi
+
+terraform_apply_image_digest=$(sed -n -e '/^[ ]*DEVOPS_TERRAFORM_APPLY_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2 | cut -c 8-)
+rv="$?"
+if [[ $rv -ne 0 || ! $terraform_apply_image_digest ]]; then
+  echo "$pkg: failed to parse output for terraform_apply_image_digest" 1>&2
+  exit 1
+fi
+
+terraform_plan_image_digest=$(sed -n -e '/^[ ]*DEVOPS_TERRAFORM_PLAN_VERIFY_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2 | cut -c 8-)
+rv="$?"
+if [[ $rv -ne 0 || ! $terraform_plan_image_digest ]]; then
+  echo "$pkg: failed to parse output for terraform_plan_image_digest" 1>&2
+  exit 1
+fi
+
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com
 
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key" ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed@sha256:${deploy_image_digest}
@@ -84,3 +105,6 @@ cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_sign
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key" ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy/blessed@sha256:${gitdeploy_image_digest}
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test/blessed@sha256:${gittest_image_digest}
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop/blessed@sha256:${stop_image_digest}
+cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key" ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/asg_refresh/blessed@sha256:${asg_refresh_digest}
+cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_apply/blessed@sha256:${terraform_apply_image_digest}
+cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_plan_verify/blessed@sha256:${terraform_plan_image_digest}

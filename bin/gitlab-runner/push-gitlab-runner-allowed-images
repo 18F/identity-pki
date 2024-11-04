@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Uses Gitlab image SHAs from .gitlab-ci.yml to docker tag images and docker push them to other accounts
-# Should be run against tooling-sandbox
+# Should be run against tooling-prod
 
 debug=0
 
@@ -16,7 +16,6 @@ if [[ $debug -ne 0 || ! $debug ]]; then
   echo "echo $aws_account_info_json" 1>&2
 fi
 
-tooling_prod_account_number=217680906704
 aws_account_number=$(echo "$aws_account_info_json" | $jq .Account)
 rv="$?"
 if [[ $rv -ne 0 || ! $aws_account_number ]]; then
@@ -71,10 +70,34 @@ if [[ $rv -ne 0 || ! $stop_image_digest ]]; then
   exit 1
 fi
 
+asg_refresh_digest=$(sed -n -e '/^[ ]*ASG_REFRESH_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2)
+rv="$?"
+if [[ $rv -ne 0 || ! $asg_refresh_digest ]]; then
+  echo "$pkg: failed to parse output for asg_refresh_digest" 1>&2
+  exit 1
+fi
+
+terraform_apply_image_digest=$(sed -n -e '/^[ ]*DEVOPS_TERRAFORM_APPLY_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2)
+rv="$?"
+if [[ $rv -ne 0 || ! $terraform_apply_image_digest ]]; then
+  echo "$pkg: failed to parse output for terraform_apply_image_digest" 1>&2
+  exit 1
+fi
+
+terraform_plan_image_digest=$(sed -n -e '/^[ ]*DEVOPS_TERRAFORM_PLAN_VERIFY_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2)
+rv="$?"
+if [[ $rv -ne 0 || ! $terraform_plan_image_digest ]]; then
+  echo "$pkg: failed to parse output for terraform_plan_image_digest" 1>&2
+  exit 1
+fi
+
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com
 
-crane copy ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@${deploy_image_digest} ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed@${deploy_image_digest}
-crane copy ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy@${gitdeploy_image_digest} ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy/blessed@${gitdeploy_image_digest}
-crane copy ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test@${gittest_image_digest} ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test/blessed@${gittest_image_digest}
-crane copy ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop@${stop_image_digest} ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop/blessed@${stop_image_digest}
-crane copy ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_test@${test_image_digest} ${tooling_prod_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_test/blessed@${test_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy@${deploy_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed@${deploy_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy@${gitdeploy_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_deploy/blessed@${gitdeploy_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test@${gittest_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/gitlab_test/blessed@${gittest_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop@${stop_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_stop/blessed@${stop_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_test@${test_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_test/blessed@${test_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/asg_refresh@${asg_refresh_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/asg_refresh/blessed@${asg_refresh_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_apply@${terraform_apply_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_apply/blessed@${terraform_apply_image_digest}
+crane copy ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_plan_verify@${terraform_plan_image_digest} ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_plan_verify/blessed@${terraform_plan_image_digest}
