@@ -153,7 +153,7 @@ EOM
 resource "aws_cloudwatch_metric_alarm" "s3_replication_failed_operations_analytics" {
 
   alarm_name          = "${var.env_name}-idp-s3-toAnalyticsAccount-replicationFailed"
-  comparison_operator = "GreaterThanThreshold"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = 1
   metric_name         = "OperationsFailedReplication"
   namespace           = "AWS/S3"
@@ -168,8 +168,11 @@ Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Wareh
 EOM
 
   dimensions = {
-    BucketName  = aws_s3_bucket.analytics_export.id
-    StorageType = "AllStorageTypes"
+    RuleId            = aws_s3_bucket_replication_configuration.to_analytics.rule[0].id
+    BucketName        = aws_s3_bucket.analytics_export.id
+    SourceBucket      = aws_s3_bucket.analytics_export.id
+    DestinationBucket = split(":", local.analytics_import_arn)[5]
+    StorageType       = "AllStorageTypes"
   }
 
   alarm_actions = var.low_priority_dw_alarm_actions
