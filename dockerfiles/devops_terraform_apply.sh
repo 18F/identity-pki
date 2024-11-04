@@ -24,7 +24,7 @@ PRIVATE_REPO_DIR="$CI_PROJECT_DIR/identity-devops-private"
 
 # Check for valid Terraform Directories
 case $TERRAFORM_DIR in
-all | core | data-warehouse | ecr | gitlab | imagebuild | logarchive | master | sms | tooling | waf) echo Terraform directory is set to "$TERRAFORM_DIR" ;;
+all | app | core | data-warehouse | ecr | gitlab | imagebuild | logarchive | master | sms | tooling | waf) echo Terraform directory is set to "$TERRAFORM_DIR" ;;
 *)
   echo Terraform directory is set to "$TERRAFORM_DIR", which is not allowed
   exit 1
