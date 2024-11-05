@@ -33,3 +33,12 @@ resource "aws_route53_record" "c_sp" {
   type    = "CNAME"
   zone_id = var.route53_id
 }
+
+resource "aws_route53_record" "portal" {
+  count   = var.apps_enabled
+  name    = "portal.${var.env_name}.${var.root_domain}"
+  records = [aws_route53_record.c_dash[count.index].name]
+  ttl     = "300"
+  type    = "CNAME"
+  zone_id = var.route53_id
+}

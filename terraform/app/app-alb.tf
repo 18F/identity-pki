@@ -33,6 +33,7 @@ locals {
   app_alternative_names = [
     "app.${var.env_name}.${var.root_domain}",
     "dashboard.${var.env_name}.${var.root_domain}",
+    "portal.${var.env_name}.${var.root_domain}"
   ]
 
 }
