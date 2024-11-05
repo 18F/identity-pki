@@ -127,10 +127,15 @@ done
 # all providers passed in as arguments must exist in versions.tf
 if ! [[ -z "$@" ]] ; then
   for PROVIDER in "$@" ; do
-    if [[ ! $(echo "${ALL_PROVIDERS[@]}" | grep $PROVIDER) ]] ; then
+    FOUND_PROVIDER=$(echo "${ALL_PROVIDERS[@]}" | grep $PROVIDER)
+    if [[ -z ${FOUND_PROVIDER} ]] ; then
       raise "Provider ${PROVIDER} not found in versions.tf file!"
+    elif [[ $(echo "${FOUND_PROVIDER}" | wc -l | tr -d ' ') -gt 1 ]] ; then
+      echo_red "More than 1 provider found matching '${PROVIDER}':" && echo
+      echo_red "${FOUND_PROVIDER}"
+      echo && raise "Verify provider name and try again!"
     else
-      PROVIDER_LIST+=($(echo "${PROVIDER}" | sed -E 's/\//\\\//g'))
+      PROVIDER_LIST+=($(echo "${FOUND_PROVIDER}" | sed -E 's/\//\\\//g'))
     fi
   done
 else
@@ -140,13 +145,17 @@ fi
 echo_green "Will check and attempt to update the following providers:"
 for PROVIDER in "${PROVIDER_LIST[@]:-}" ; do
   echo "- $(dsl ${PROVIDER})"
-  sed -i '' -E "/$PROVIDER/{n;s/( version = \")/\1\>\= /;}" "${GIT_DIR}/versions.tf"
 done
 echo
+if ! prompt_yn "Continue?" ; then
+  echo_yellow "Stopping."
+  exit
+fi
 
 # find new provider versions from registry and update version.tf values,
 echo_green "Finding new provider versions..."
 for PROVIDER in "${PROVIDER_LIST[@]}" ; do
+  sed -i '' -E "/$PROVIDER/{n;s/( version = \")/\1\>\= /;}" "${GIT_DIR}/versions.tf"
   OLD_VERSION=$(grep -A1 "source  = \"${PROVIDER}\"" "${GIT_DIR}/versions.tf" |
     tail -n+2 | sed -E 's/.+\"\>\= ([0-9\.]+)\"/\1/;s/\./\\\./g')
   NEW_VERSION=$(curl -s "https://registry.terraform.io/v1/providers/$(dsl ${PROVIDER})" |

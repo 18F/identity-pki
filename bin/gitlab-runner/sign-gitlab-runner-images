@@ -23,7 +23,7 @@ if [[ $rv -ne 0 || ! $aws_account_number ]]; then
   exit 1
 fi
 
-aws_current_region=$(aws configure get region)
+aws_current_region=$(env | grep AWS_REGION | awk -F'=' '{print $NF}')
 
 if [[ $debug -ne 0 || ! $debug ]]; then
   echo "echo $aws_current_region" 1>&2
@@ -98,6 +98,13 @@ if [[ $rv -ne 0 || ! $terraform_plan_image_digest ]]; then
   exit 1
 fi
 
+launch_migration_image_digest=$(sed -n -e '/^[ ]*LAUNCH_MIGRATION_IMAGE_DIGEST/p' .gitlab-ci.yml | cut -d'"' -f2 | cut -c 8-)
+rv="$?"
+if [[ $rv -ne 0 || ! $launch_migration_image_digest ]]; then
+  echo "$pkg: failed to parse output for launch_migration_image_digest" 1>&2
+  exit 1
+fi
+
 aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com
 
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key" ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/env_deploy/blessed@sha256:${deploy_image_digest}
@@ -108,3 +115,4 @@ cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_sign
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key" ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/asg_refresh/blessed@sha256:${asg_refresh_digest}
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_apply/blessed@sha256:${terraform_apply_image_digest}
 cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/devops_terraform_plan_verify/blessed@sha256:${terraform_plan_image_digest}
+cosign sign --tlog-upload=false --key "awskms:///alias/image_signing_cosign_signature_key"  ${aws_account_number}.dkr.ecr.us-west-2.amazonaws.com/cd/launch_migration/blessed@sha256:${launch_migration_image_digest}

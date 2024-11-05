@@ -1,212 +1,236 @@
+data "aws_iam_policy_document" "obproxy_assume" {
+  statement {
+    sid = "allowVPC"
+    actions = [
+      "sts:AssumeRole",
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "obproxy" {
   count       = var.external_role == "" ? 1 : 0
   name_prefix = var.use_prefix ? "${var.env_name}_obproxy_iam_role" : null
   name        = var.use_prefix ? null : "${var.env_name}_obproxy_iam_role"
 
-  assume_role_policy = <<-EOM
-    {
-      "Version": "2012-10-17",
-      "Statement": [
-        {
-          "Action": "sts:AssumeRole",
-          "Principal": {
-            "Service": "ec2.amazonaws.com"
-          },
-          "Effect": "Allow",
-          "Sid": "allowVPC"
-        }
+  assume_role_policy = data.aws_iam_policy_document.obproxy_assume.json
+}
+
+data "aws_iam_policy_document" "obproxy_auto_eip" {
+  statement {
+    sid    = "AllowEIPDescribeAndAssociate"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeAddresses",
+      "ec2:AssociateAddress"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "obproxy_certificates" {
+  statement {
+    sid    = "AllowCertificatesBucketIntegrationTest"
+    effect = "Allow"
+    actions = [
+      "s3:*",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
+      "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "obproxy_cloudwatch_agent" {
+  statement {
+    sid    = "allowCloudWatchAgent"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeVolumes",
+      "ec2:DescribeTags",
+      "cloudwatch:PutMetricData"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "obproxy_cloudwatch_logs" {
+  statement {
+    sid    = "allowCloudWatch"
+    effect = "Allow"
+    actions = [
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams",
+      "logs:DescribeLogGroups",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup"
+    ]
+    resources = [
+      "arn:aws:logs:*:*:*"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "obproxy_describe_instances" {
+  statement {
+    sid    = "AllowDescribeInstancesIntegrationTest"
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeInstances",
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "obproxy_secrets" {
+  statement {
+    sid    = "AllowBucketAndObjects"
+    effect = "Allow"
+    actions = [
+      "s3:List*",
+      "s3:Get*"
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/*",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/"
+    ]
+  }
+  statement {
+    sid    = "AllowRootAndTopListing"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:delimiter"
+      values = [
+        "/"
       ]
     }
-  EOM
-
-  inline_policy {
-    name   = "${var.env_name}-obproxy-auto-eip"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "AllowEIPDescribeAndAssociate",
-                "Effect": "Allow",
-                "Action": [
-                    "ec2:DescribeAddresses",
-                    "ec2:AssociateAddress"
-                ],
-                "Resource": "*"
-            }
-        ]
+    condition {
+      test     = "StringEquals"
+      variable = "s3:prefix"
+      values = [
+        "",
+        "common/",
+        "${var.env_name}/"
+      ]
     }
-    EOM
   }
-
-  inline_policy {
-    name   = "${var.env_name}-obproxy-certificates"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "AllowCertificatesBucketIntegrationTest",
-                "Effect": "Allow",
-                "Action": "s3:*",
-                "Resource": [
-                  "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/",
-                  "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/*"
-                ]
-            }
-        ]
+  statement {
+    sid    = "AllowSubListing"
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
+    ]
+    condition {
+      test     = "StringLike"
+      variable = "s3:prefix"
+      values = [
+        "common/",
+        "${var.env_name}/*"
+      ]
     }
-    EOM
   }
+  statement {
+    sid    = "AllowCompleteLifecycleHook"
+    effect = "Allow"
+    actions = [
+      "autoscaling:RecordLifecycleActionHeartbeat",
+      "autoscaling:CompleteLifecycleAction"
+    ]
+    resources = [
+      "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/${var.env_name}-*"
+    ]
+  }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-obproxy-cloudwatch-agent"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "allowCloudWatchAgent",
-                "Effect": "Allow",
-                "Action": [
-                    "ec2:DescribeVolumes",
-                    "ec2:DescribeTags",
-                    "cloudwatch:PutMetricData"
-                ],
-                "Resource": "*"
-            }
-        ]
-    }
-    EOM
+# allow all instances to send a dying SNS notice
+data "aws_iam_policy_document" "obproxy_sns_publish_alerts" {
+  statement {
+    sid    = "allowSNSPublish"
+    effect = "Allow"
+    actions = [
+      "SNS:Publish",
+    ]
+    resources = [
+      "${var.slack_events_sns_hook_arn}"
+    ]
   }
+}
 
-  inline_policy {
-    name   = "${var.env_name}-obproxy-cloudwatch-logs"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "allowCloudWatch",
-                "Effect": "Allow",
-                "Action": [
-                    "logs:PutLogEvents",
-                    "logs:DescribeLogStreams",
-                    "logs:DescribeLogGroups",
-                    "logs:CreateLogStream",
-                    "logs:CreateLogGroup"
-                ],
-                "Resource": "arn:aws:logs:*:*:*"
-            }
-        ]
-    }
-    EOM
-  }
+resource "aws_iam_role_policy" "obproxy_auto_eip" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-auto-eip"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_auto_eip.json
+}
 
-  inline_policy {
-    name   = "${var.env_name}-obproxy-describe_instances"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "AllowDescribeInstancesIntegrationTest",
-                "Effect": "Allow",
-                "Action": "ec2:DescribeInstances",
-                "Resource": "*"
-            }
-        ]
-    }
-    EOM
-  }
+resource "aws_iam_role_policy" "obproxy_certificates" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-certificates"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_certificates.json
+}
 
-  inline_policy {
-    name   = "${var.env_name}-obproxy-secrets"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "AllowBucketAndObjects",
-                "Effect": "Allow",
-                "Action": [
-                    "s3:List*",
-                    "s3:Get*"
-                ],
-                "Resource": [
-                    "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/*",
-                    "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/common/",
-                    "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/*",
-                    "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/"
-                ]
-            },
-            {
-                "Sid": "AllowRootAndTopListing",
-                "Effect": "Allow",
-                "Action": "s3:ListBucket",
-                "Resource": "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
-                "Condition": {
-                    "StringEquals": {
-                        "s3:delimiter": [
-                            "/"
-                        ],
-                        "s3:prefix": [
-                            "",
-                            "common/",
-                            "${var.env_name}/"
-                        ]
-                    }
-                }
-            },
-            {
-                "Sid": "AllowSubListing",
-                "Effect": "Allow",
-                "Action": "s3:ListBucket",
-                "Resource": "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-*",
-                "Condition": {
-                    "StringLike": {
-                        "s3:prefix": [
-                            "common/",
-                            "${var.env_name}/*"
-                        ]
-                    }
-                }
-            },
-            {
-                "Sid": "AllowCompleteLifecycleHook",
-                "Effect": "Allow",
-                "Action": [
-                    "autoscaling:RecordLifecycleActionHeartbeat",
-                    "autoscaling:CompleteLifecycleAction"
-                ],
-                "Resource": "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/${var.env_name}-*"
-            }
-        ]
-    }
-    EOM
-  }
+resource "aws_iam_role_policy" "obproxy_cloudwatch_agent" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-cloudwatch-agent"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_cloudwatch_agent.json
+}
 
-  # allow all instances to send a dying SNS notice
-  inline_policy {
-    name   = "${var.env_name}-obproxy-sns-publish-alerts"
-    policy = <<-EOM
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Sid": "allowSNSPublish",
-                "Effect": "Allow",
-                "Action": "SNS:Publish",
-                "Resource": "${var.slack_events_sns_hook_arn}"
-            }
-        ]
-    }
-    EOM
-  }
+resource "aws_iam_role_policy" "obproxy_cloudwatch_logs" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-cloudwatch-logs"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_cloudwatch_logs.json
+}
 
-  # allow SSM access via documents / key generation + usage
-  inline_policy {
-    name   = "${var.env_name}-obproxy-ssm-access"
-    policy = var.ssm_access_policy
-  }
+resource "aws_iam_role_policy" "obproxy_describe_instances" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-describe_instances"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_describe_instances.json
+}
+
+resource "aws_iam_role_policy" "obproxy_secrets" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-secrets"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_secrets.json
+}
+
+resource "aws_iam_role_policy" "obproxy_sns_publish_alerts" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-sns-publish-alerts"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = data.aws_iam_policy_document.obproxy_sns_publish_alerts.json
+}
+
+# allow SSM access via documents / key generation + usage
+resource "aws_iam_role_policy" "obproxy_ssm_access" {
+  count  = var.external_role == "" ? 1 : 0
+  name   = "${var.env_name}-obproxy-ssm-access"
+  role   = aws_iam_role.obproxy[count.index].name
+  policy = var.ssm_access_policy
 }

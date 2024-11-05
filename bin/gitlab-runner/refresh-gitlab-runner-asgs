@@ -34,7 +34,7 @@ if [[ $rv -ne 0 || ! $aws_account_number ]]; then
   exit 1
 fi
 
-aws_current_region=$(aws configure get region)
+aws_current_region=$(env | grep AWS_REGION | awk -F'=' '{print $NF}')
 
 while getopts ":hae:" arg; do
   case $arg in

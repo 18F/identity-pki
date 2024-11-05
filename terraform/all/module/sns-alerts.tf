@@ -75,17 +75,25 @@ resource "aws_iam_policy" "slack_SNS_Feedback_policy" {
 }
 
 resource "aws_iam_role" "slack_SNSFailureFeedback" {
-  name                = "slack_SNSFailureFeedback"
-  description         = "Allows AWS SNS to write to CloudWatch on failed events."
-  assume_role_policy  = data.aws_iam_policy_document.sns_assume_role_policy.json
-  managed_policy_arns = [aws_iam_policy.slack_SNS_Feedback_policy.arn]
+  name               = "slack_SNSFailureFeedback"
+  description        = "Allows AWS SNS to write to CloudWatch on failed events."
+  assume_role_policy = data.aws_iam_policy_document.sns_assume_role_policy.json
 }
 
 resource "aws_iam_role" "slack_SNSSuccessFeedback" {
-  name                = "slack_SNSSuccessFeedback"
-  description         = "Allows AWS SNS to write to CloudWatch on successful events."
-  assume_role_policy  = data.aws_iam_policy_document.sns_assume_role_policy.json
-  managed_policy_arns = [aws_iam_policy.slack_SNS_Feedback_policy.arn]
+  name               = "slack_SNSSuccessFeedback"
+  description        = "Allows AWS SNS to write to CloudWatch on successful events."
+  assume_role_policy = data.aws_iam_policy_document.sns_assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "slack_SNSFailureFeedback" {
+  role_name   = aws_iam_role.slack_SNSFailureFeedback.name
+  policy_arns = [aws_iam_policy.slack_SNS_Feedback_policy.arn]
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "slack_SNSSuccessFeedback" {
+  role_name   = aws_iam_role.slack_SNSSuccessFeedback.name
+  policy_arns = [aws_iam_policy.slack_SNS_Feedback_policy.arn]
 }
 
 ## Terraform providers cannot be generated, so we need a separate block for each region,
