@@ -1,0 +1,62 @@
+#!/bin/bash
+
+#### Restart Puma web servers on IDP instances and GoodJob on worker instances to reload config without provisioning new instances.
+# This should not be used in prod.
+
+set -euo pipefail
+
+. "$(dirname "$0")/lib/common.sh"
+
+usage() {
+    cat >&2 << EOM
+
+This script will reload application configuration (application.yml) by
+restarting Puma servers on idp instances and GoodJob processes on worker
+instances in an environment. This should not be used in prod, the script
+will error out if prod is specified.
+
+Usage: ${0} -e TF_ENV
+
+Environment flags:
+  -e TF_ENV : Environment to use
+
+
+Example:
+
+./bin/idp-config-reload -e mhenke
+
+EOM
+}
+
+verify_root_repo
+declare TF_ENV=
+while getopts e: OPT
+do
+  case $OPT in
+    e) TF_ENV="${OPTARG}"    ;;
+    *) usage && exit 1       ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [[ -z ${TF_ENV} ]] ; then
+  if [[ -z "$*" ]] ; then
+    raise 'TF_ENV not specified'
+  else
+    TF_ENV="$*"
+  fi
+fi
+
+ACCOUNT='sandbox'
+if [[ -z ${TF_ENV} ]] ; then
+  raise 'TF_ENV and/or default of GSA_USERNAME not set or specified'
+elif [[ "${TF_ENV}" =~ (prod) ]] ; then
+  raise 'exiting because environment is prod and this should not be used in prod'
+elif [[ "${TF_ENV}" =~ (staging|dm) ]] ; then
+  ACCOUNT='prod'
+fi
+
+get_iam 'app' "${ACCOUNT}" 'PowerUser'
+
+ave bin/ssm-command -d puma-restart -r idp -e "${TF_ENV}"
+ave bin/ssm-command -d work-restart -r worker -e "${TF_ENV}"
