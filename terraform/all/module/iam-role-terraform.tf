@@ -469,6 +469,7 @@ locals {
           "elasticloadbalancing:DescribeTargetGroups",
           "elasticloadbalancing:DescribeTargetHealth",
           "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:ModifyListenerAttributes",
           "elasticloadbalancing:ModifyLoadBalancerAttributes",
           "elasticloadbalancing:ModifyRule",
           "elasticloadbalancing:ModifyTargetGroup",
