@@ -84,6 +84,10 @@ def lambda_users
       'schemas' => ['idp', 'logs'],
       'user_name' => "IAMR:#{env_name}_db_consumption",
     },
+    {
+      'schemas' => ['idp', 'logs'],
+      'user_name' => "IAMR:#{env_name}_stale_data_check",
+    },
   ]
 end
 

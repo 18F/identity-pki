@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_ip_ranges" "s3_cidr_blocks" {
   regions  = [var.region]
   services = ["s3"]

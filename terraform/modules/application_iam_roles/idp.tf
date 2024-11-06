@@ -161,3 +161,10 @@ resource "aws_iam_role_policy" "idp-xray-publish" {
   role   = aws_iam_role.idp.id
   policy = data.aws_iam_policy_document.xray-publish-policy.json
 }
+
+resource "aws_iam_role_policy" "s3_idp_analytics_export" {
+  name   = "${var.env_name}-s3-idp-analytics-export"
+  role   = aws_iam_role.idp.id
+  policy = data.aws_iam_policy_document.s3_idp_analytics_export_policy.json
+
+}

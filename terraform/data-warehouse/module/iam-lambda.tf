@@ -112,6 +112,24 @@ resource "aws_iam_role" "db_consumption" {
   })
 }
 
+resource "aws_iam_role" "stale_data_check" {
+  name        = "${var.env_name}_stale_data_check"
+  description = "Enables the minimal permissions needed for the AWS Lambda stale data check function to validate the freshness of data in AWS Redshift."
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_iam_policy" "db_consumption_lambda_to_cloudwatch" {
   name = "${var.env_name}_db_consumption_lambda_to_cloudwatch"
   policy = jsonencode({
@@ -126,6 +144,26 @@ resource "aws_iam_policy" "db_consumption_lambda_to_cloudwatch" {
         ]
         Resource = [
           "${aws_cloudwatch_log_group.db_consumption.arn}:*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "stale_data_check_to_cloudwatch" {
+  name = "${var.env_name}_stale_data_check_to_cloudwatch"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudwatchLogs"
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ]
+        Resource = [
+          "${aws_cloudwatch_log_group.stale_data_check.arn}:*"
         ]
       }
     ]
@@ -152,3 +190,22 @@ resource "aws_iam_role_policy_attachment" "db_consumption_insights" {
   policy_arn = data.aws_iam_policy.insights.arn
 }
 
+resource "aws_iam_role_policy_attachment" "stale_data_check_redshift" {
+  role       = aws_iam_role.stale_data_check.id
+  policy_arn = aws_iam_policy.lambda_to_redshift.arn
+}
+
+resource "aws_iam_role_policy_attachment" "stale_data_check_s3" {
+  role       = aws_iam_role.stale_data_check.id
+  policy_arn = aws_iam_policy.lambda_to_s3.arn
+}
+
+resource "aws_iam_role_policy_attachment" "stale_data_check_cloudwatch" {
+  role       = aws_iam_role.stale_data_check.id
+  policy_arn = aws_iam_policy.stale_data_check_to_cloudwatch.arn
+}
+
+resource "aws_iam_role_policy_attachment" "stale_data_check_insights" {
+  role       = aws_iam_role.stale_data_check.id
+  policy_arn = data.aws_iam_policy.insights.arn
+}

@@ -71,6 +71,21 @@ data "aws_iam_policy_document" "allow_export_tasks" {
       values   = ["false"]
     }
   }
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.env_name}_idp_iam_role"]
+    }
+    actions = [
+      "s3:PutObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      aws_s3_bucket.analytics_export.arn,
+      "${aws_s3_bucket.analytics_export.arn}/*"
+    ]
+  }
 }
 
 data "aws_iam_policy_document" "replication" {

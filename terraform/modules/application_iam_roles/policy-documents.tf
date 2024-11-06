@@ -721,3 +721,18 @@ data "aws_iam_policy_document" "ssm_kms_key_ue1" {
     ]
   }
 }
+
+data "aws_iam_policy_document" "s3_idp_analytics_export_policy" {
+  statement {
+    sid = "AppAccessToS3IdpAnalyticsExport"
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:PutObject",
+    ]
+    resources = [
+      "arn:aws:s3:::login-gov-analytics-export-${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/table_summary_stats/*",
+      "arn:aws:s3:::login-gov-analytics-export-${data.aws_caller_identity.current.account_id}-${var.region}/${var.env_name}/table_summary_stats",
+    ]
+  }
+}
