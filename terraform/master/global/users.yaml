@@ -443,6 +443,16 @@ users:
     gitlab_groups:
     - lg-all
     - lg-public
+  jabari.myles:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - Evelyn|maintainer
+    - lg-teams|reporter
+    ec2_username:
+    - jmyles
   jack.cody:
     aws_groups:
     - apponcall
@@ -1309,7 +1319,8 @@ groups:
   lg-people-appdev:
     description: Legacy appdev space
   design-system-developers:
-    description: Users who need to be added as Developers to the identity-design-system repo.
+    description: Users who need to be added as Developers to the identity-design-system
+      repo.
   dashboard-admins:
     description: users who need to be added as maintainers to the identity-dashboard
       repo.
