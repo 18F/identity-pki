@@ -345,6 +345,7 @@ locals {
           "ec2:DescribeSecurityGroups",
           "ec2:DescribeSecurityGroupRules",
           "ec2:DescribeSubnets",
+          "ec2:DescribeTags",
           "ec2:DescribeVolume*",
           "ec2:DescribeVpcAttribute",
           "ec2:DescribeVpcClassicLink",
