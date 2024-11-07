@@ -294,6 +294,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - login-fraud|maintainer
     ec2_username:
     - crothwell
   david.a.zimmerman:
