@@ -465,6 +465,16 @@ users:
     - Annie
     oncaller:
     - true
+  jason.miao:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - Evelyn|maintainer
+    - lg-teams|reporter
+    ec2_username:
+    - jmiao
   jeff.bordogna:
     aws_groups:
     - analytics
