@@ -252,3 +252,34 @@ data "aws_iam_policy_document" "start_cw_export_task" {
   }
 }
 
+data "aws_iam_policy_document" "column_compare_task_policies" {
+
+  statement {
+    sid    = "AllowLambdaAccess"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:ListBucket",
+      "s3:ListObjectsV2",
+    ]
+
+    resources = [
+      aws_s3_bucket.idp_dw_tasks.arn,
+      "${aws_s3_bucket.idp_dw_tasks.arn}/*"
+
+    ]
+  }
+
+  statement {
+    sid    = "AllowDmsAccess"
+    effect = "Allow"
+    actions = [
+      "dms:DescribeReplicationTasks"
+    ]
+
+    resources = [
+      "arn:aws:dms:${var.region}:${var.account_id}:*:*"
+    ]
+  }
+}

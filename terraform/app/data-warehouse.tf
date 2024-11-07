@@ -20,7 +20,7 @@ module "data_warehouse_export" {
   inventory_bucket_arn                  = local.inventory_bucket_arn
   lambda_insights_version               = var.lambda_insights_version
   dms                                   = module.dms[0]
-
+  cloudwatch_retention_days             = local.retention_days
 }
 
 moved {

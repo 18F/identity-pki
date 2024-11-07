@@ -114,3 +114,56 @@ resource "aws_s3_bucket_replication_configuration" "to_analytics" {
   }
 }
 
+resource "aws_s3_bucket" "idp_dw_tasks" {
+  bucket = join("-", [
+    "login-gov-idp-dw-tasks-${var.env_name}",
+    "${var.account_id}-${var.region}"
+  ])
+}
+
+module "idp_dw_tasks_bucket_config" {
+  source = "github.com/18F/identity-terraform//s3_config?ref=6cdd1037f2d1b14315cc8c59b889f4be557b9c17"
+  #source = "../../../identity-terraform/s3_config"
+  depends_on = [aws_s3_bucket.idp_dw_tasks]
+
+  bucket_name_override = aws_s3_bucket.idp_dw_tasks.id
+  region               = var.region
+  inventory_bucket_arn = var.inventory_bucket_arn
+}
+
+resource "aws_s3_bucket_versioning" "idp_dw_tasks" {
+  bucket = aws_s3_bucket.idp_dw_tasks.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_ownership_controls" "idp_dw_tasks" {
+
+  bucket = aws_s3_bucket.idp_dw_tasks.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_lambda_permission" "allow_s3_invoke" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = module.column_compare_task.lambda_arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_bucket.idp_dw_tasks.arn
+}
+
+resource "aws_s3_bucket_notification" "trigger_compare_task" {
+  bucket = aws_s3_bucket.idp_dw_tasks.id
+
+  lambda_function {
+    lambda_function_arn = module.column_compare_task.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "daily-sensitive-column-job/"
+    filter_suffix       = ".json"
+  }
+
+  depends_on = [aws_lambda_permission.allow_s3_invoke]
+}

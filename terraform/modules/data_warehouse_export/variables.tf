@@ -23,9 +23,7 @@ locals {
   ]
 
   data_warehouse_lambda_alerts_runbooks = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
-
 }
-
 
 variable "env_name" {
   type        = string
@@ -144,5 +142,8 @@ variable "dms" {
   description = "Information about the DMS instane"
 }
 
-
-
+variable "cloudwatch_retention_days" {
+  type        = string
+  default     = 2192
+  description = "Determines the number of days to retain CloudWatch Logs"
+}

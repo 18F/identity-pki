@@ -181,3 +181,47 @@ EOM
   actions_enabled = true
 }
 
+resource "aws_cloudwatch_metric_alarm" "sensitive_column_compare_alarm" {
+
+  alarm_name                = "${var.env_name}-idp-dms-columnCompareTask-sensitive-errorDetected"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = 1
+  datapoints_to_alarm       = 1
+  metric_name               = aws_cloudwatch_log_metric_filter.dms_sensitive_column_compare_metric.metric_transformation[0].name
+  namespace                 = aws_cloudwatch_log_metric_filter.dms_sensitive_column_compare_metric.metric_transformation[0].namespace
+  period                    = 1800 # 30 minute period
+  statistic                 = "Sum"
+  threshold                 = 1
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = var.low_priority_dw_alarm_actions
+  ok_actions                = var.low_priority_dw_alarm_actions
+  alarm_description         = <<EOM
+One or more errors occurred running the Colum Compare Task - "${module.column_compare_task.function_name}."
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#dms-column-compare-task-alerts
+EOM
+}
+
+resource "aws_cloudwatch_metric_alarm" "nonsensitive_column_compare_alarm" {
+
+  alarm_name                = "${var.env_name}-idp-dms-columnCompareTask-nonsensitive-errorDetected"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = 1
+  datapoints_to_alarm       = 1
+  metric_name               = aws_cloudwatch_log_metric_filter.dms_nonsensitive_column_compare_metric.metric_transformation[0].name
+  namespace                 = aws_cloudwatch_log_metric_filter.dms_nonsensitive_column_compare_metric.metric_transformation[0].namespace
+  period                    = 1800 # 30 minute period
+  statistic                 = "Sum"
+  threshold                 = 1
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = var.low_priority_dw_alarm_actions
+  ok_actions                = var.low_priority_dw_alarm_actions
+  alarm_description         = <<EOM
+One or more errors occurred running the Colum Compare Task - "${module.column_compare_task.function_name}."
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#dms-task-failure-alerts
+EOM
+}
+

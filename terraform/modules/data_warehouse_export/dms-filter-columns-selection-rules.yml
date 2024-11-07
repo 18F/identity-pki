@@ -112,3 +112,12 @@
 - schema: public
   table:  suspended_emails
   action: include
+- schema: public
+  table:  doc_auth_logs
+  action: include
+- schema: public
+  table: sp_upgraded_biometric_profiles
+  action: include
+- schema: public
+  table:  socure_reason_codes
+  action: include

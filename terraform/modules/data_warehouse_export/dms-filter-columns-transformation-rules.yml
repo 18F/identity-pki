@@ -13,8 +13,6 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
-    - name: session_uuid
-      datatype: string
     - name: uuid
       datatype: string
     - name: verified_attributes
@@ -610,8 +608,6 @@
       datatype: string
     - name: accepted_terms_at
       datatype: datetime
-    - name: encrypted_recovery_code_digest_generated_at
-      datatype: datetime
     - name: suspended_at
       datatype: datetime
     - name: reinstated_at
@@ -776,6 +772,198 @@
       datatype: integer
     - name: email_address_id
       datatype: bigint
+    - name: created_at
+      datatype: datetime
+    - name: updated_at
+      datatype: datetime
+
+- table: sp_upgraded_biometric_profiles
+  schema: public
+  include_columns:
+    - name: upgraded_at
+      datatype: datetime 
+    - name: user_id
+      datatype: bigint 
+    - name: idv_level
+      datatype: string 
+    - name: issuer
+      datatype: string 
+    - name: created_at
+      datatype: datetime 
+    - name: updated_at
+      datatype: datetime 
+
+- table: doc_auth_logs
+  schema: public
+  include_columns:
+    - name: user_id
+      datatype: integer 
+    - name: welcome_view_at
+      datatype: datetime 
+    - name: welcome_view_count
+      datatype: integer 
+    - name: upload_view_at
+      datatype: datetime 
+    - name: upload_view_count
+      datatype: integer 
+    - name: link_sent_view_at
+      datatype: datetime 
+    - name: link_sent_view_count
+      datatype: integer 
+    - name: front_image_view_at
+      datatype: datetime 
+    - name: front_image_view_count
+      datatype: integer 
+    - name: front_image_submit_count
+      datatype: integer 
+    - name: front_image_error_count
+      datatype: integer 
+    - name: back_image_view_at
+      datatype: datetime 
+    - name: back_image_view_count
+      datatype: integer 
+    - name: back_image_submit_count
+      datatype: integer 
+    - name: back_image_error_count
+      datatype: integer 
+    - name: mobile_front_image_view_at
+      datatype: datetime 
+    - name: mobile_front_image_view_count
+      datatype: integer 
+    - name: mobile_back_image_view_at
+      datatype: datetime 
+    - name: mobile_back_image_view_count
+      datatype: integer 
+    - name: ssn_view_at
+      datatype: datetime 
+    - name: ssn_view_count
+      datatype: integer 
+    - name: verify_view_at
+      datatype: datetime 
+    - name: verify_view_count
+      datatype: integer 
+    - name: verify_submit_count
+      datatype: integer 
+    - name: verify_error_count
+      datatype: integer 
+    - name: verify_phone_view_at
+      datatype: datetime 
+    - name: verify_phone_view_count
+      datatype: integer 
+    - name: usps_address_view_at
+      datatype: datetime 
+    - name: usps_address_view_count
+      datatype: integer 
+    - name: encrypt_view_at
+      datatype: datetime 
+    - name: encrypt_view_count
+      datatype: integer 
+    - name: verified_view_at
+      datatype: datetime 
+    - name: verified_view_count
+      datatype: integer 
+    - name: created_at
+      datatype: datetime 
+    - name: updated_at
+      datatype: datetime 
+    - name: mobile_front_image_submit_count
+      datatype: integer 
+    - name: mobile_front_image_error_count
+      datatype: integer 
+    - name: mobile_back_image_submit_count
+      datatype: integer 
+    - name: mobile_back_image_error_count
+      datatype: integer 
+    - name: usps_letter_sent_submit_count
+      datatype: integer 
+    - name: usps_letter_sent_error_count
+      datatype: integer 
+    - name: capture_mobile_back_image_view_at
+      datatype: datetime 
+    - name: capture_mobile_back_image_view_count
+      datatype: integer 
+    - name: capture_complete_view_at
+      datatype: datetime 
+    - name: capture_complete_view_count
+      datatype: integer 
+    - name: capture_mobile_back_image_submit_count
+      datatype: integer 
+    - name: capture_mobile_back_image_error_count
+      datatype: integer 
+    - name: no_sp_session_started_at
+      datatype: datetime 
+    - name: choose_method_view_at
+      datatype: datetime 
+    - name: choose_method_view_count
+      datatype: integer 
+    - name: present_cac_view_at
+      datatype: datetime 
+    - name: present_cac_view_count
+      datatype: integer 
+    - name: present_cac_submit_count
+      datatype: integer 
+    - name: present_cac_error_count
+      datatype: integer 
+    - name: enter_info_view_at
+      datatype: datetime 
+    - name: enter_info_view_count
+      datatype: integer 
+    - name: success_view_at
+      datatype: datetime 
+    - name: success_view_count
+      datatype: integer 
+    - name: selfie_view_count
+      datatype: integer 
+    - name: selfie_submit_count
+      datatype: integer 
+    - name: selfie_error_count
+      datatype: integer 
+    - name: issuer
+      datatype: string 
+    - name: last_document_error
+      datatype: string
+    - name: document_capture_view_at
+      datatype: datetime
+    - name: document_capture_view_count
+      datatype: integer 
+    - name: document_capture_submit_count
+      datatype: integer 
+    - name: document_capture_error_count
+      datatype: integer 
+    - name: agreement_view_at
+      datatype: datetime 
+    - name: agreement_view_count
+      datatype: integer 
+    - name: state
+      datatype: string 
+    - name: verify_submit_at
+      datatype: datetime
+    - name: verify_phone_submit_count
+      datatype: integer 
+    - name: verify_phone_submit_at
+      datatype: datetime 
+    - name: document_capture_submit_at
+      datatype: datetime 
+    - name: back_image_submit_at
+      datatype: datetime 
+    - name: capture_mobile_back_image_submit_at
+      datatype: datetime 
+    - name: mobile_back_image_submit_at
+      datatype: datetime 
+
+- table: socure_reason_codes
+  schema: public
+  include_columns:
+    - name: code
+      datatype: string
+    - name: group
+      datatype: string
+    - name: description
+      datatype: text
+    - name: added_at
+      datatype: datetime
+    - name: deactivated_at
+      datatype: datetime
     - name: created_at
       datatype: datetime
     - name: updated_at
