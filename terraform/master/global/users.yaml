@@ -871,6 +871,7 @@ users:
     aws_groups:
     - appdev
     - prodreadonly
+    - fraudops
     ec2_username:
     - mbelyamani
     gitlab_groups:
