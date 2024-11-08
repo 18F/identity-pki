@@ -374,6 +374,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - Evelyn|maintainer
   fred.agyepongyeboah:
     aws_groups:
     - soc
@@ -423,6 +424,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - Evelyn|maintainer
   howard.miller:
     aws_groups:
     - appdev
@@ -983,12 +985,14 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - Evelyn|maintainer
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
     - lg-all
     - lg-public
     - Joy
+    - Evelyn|maintainer
   osman.latif:
     aws_groups:
     - apponcall
@@ -1119,6 +1123,7 @@ users:
     - sevans
     gitlab_groups:
     - pm
+    - Evelyn|owner
   stacey.mainero:
     aws_groups:
     - fraudopsnonprod
