@@ -649,6 +649,16 @@ users:
     - Radia
     oncaller:
     - true
+  kalea.sebesta:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - Evelyn|maintainer
+    - lg-teams|reporter
+    ec2_username:
+    - ksebesta
   keith.e.williams:
     aws_groups:
     - apponcall
