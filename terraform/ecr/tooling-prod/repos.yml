@@ -86,6 +86,10 @@ repos:
     name: "identity-idp/idp"
     lifecycle_policy_settings: { days: 40 }
     <<: *all_write_template
+  identity_idp_nginx:
+    name: "identity-idp/nginx"
+    lifecycle_policy_settings: { days: 40 } 
+    <<: *all_write_template
   identity_idp_cache:
     name: "identity-idp/idp/cache"
     lifecycle_policy_settings: {
