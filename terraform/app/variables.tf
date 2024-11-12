@@ -110,7 +110,7 @@ variable "elasticache_redis_ratelimit_num_cache_clusters" {
 variable "elasticache_redis_engine_version" {
   type        = string
   description = "Engine version used for redis elasticache. Changes may incur downtime."
-  default     = "7.0"
+  default     = "7.1"
 }
 
 variable "elasticache_redis_encrypt_at_rest" {

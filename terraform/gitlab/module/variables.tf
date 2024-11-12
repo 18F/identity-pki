@@ -338,7 +338,7 @@ variable "elasticache_redis_node_type" {
 
 variable "elasticache_redis_engine_version" {
   description = "Engine version used for redis elasticache. Changes may incur downtime."
-  default     = "6.x"
+  default     = "7.1"
 }
 
 variable "elasticache_redis_parameter_group_name" {
