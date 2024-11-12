@@ -14,7 +14,7 @@ terraform-fmt:
 
 # Scanning top level modules to avoid extreme duplication
 tfsec-check-soft:
-  image: aquasec/tfsec-ci:v1.26.3
+  image: aquasec/tfsec-ci:v1.28
   script:
     - tfsec --no-color --soft-fail terraform/$TFDIR
   rules:
@@ -36,7 +36,7 @@ tfsec-check-soft:
 
 # Add folders that should be vuln free and STAY THAT WAY
 tfsec-check-enforce:
-  image: aquasec/tfsec-ci:v1.26.3
+  image: aquasec/tfsec-ci:v1.28
   script:
     - tfsec --no-color terraform/$TFDIR
   rules:
