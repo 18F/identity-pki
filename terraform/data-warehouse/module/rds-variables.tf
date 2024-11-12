@@ -76,7 +76,7 @@ variable "rds_engine" {
 variable "rds_engine_version" {
   type        = string
   description = "Version number (e.g. ##.#) of rds_engine to use in us-west-2"
-  default     = "13.12"
+  default     = "16.4"
 }
 
 variable "rds_instance_class" {

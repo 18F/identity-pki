@@ -82,13 +82,13 @@ variable "rds_engine" {
 variable "rds_engine_version_uw2" {
   type        = string
   description = "Version number (e.g. ##.#) of rds_engine to use in us-west-2"
-  default     = "13.12"
+  default     = "16.4"
 }
 
 variable "rds_engine_version_ue1" {
   type        = string
   description = "Version number (e.g. ##.#) of rds_engine to use in us-east-1"
-  default     = "13.12"
+  default     = "16.4"
 }
 
 variable "rds_instance_class" {
@@ -281,7 +281,7 @@ variable "dashboard_aurora_pgroup" {
 Name of the default parameter group for the dashboard Aurora DB cluster/instance(s);
 should match main number of var.rds_engine_version
 EOM
-  default     = "default.aurora-postgresql13"
+  default     = "default.aurora-postgresql16"
 }
 
 variable "dashboard_cluster_instances" {
@@ -320,7 +320,7 @@ EOM
 variable "rds_engine_version_worker" {
   type        = string
   description = "db_engine to use for worker Aurora DB cluster"
-  default     = "13.12"
+  default     = "16.4"
 }
 
 variable "rds_instance_class_worker" {

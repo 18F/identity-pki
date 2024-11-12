@@ -61,7 +61,7 @@ variable "db_engine" {
 variable "db_engine_version" {
   type        = string
   description = "Version number (e.g. ##.#) of db_engine to use"
-  default     = "13.9"
+  default     = "16.4"
 }
 
 variable "db_port" {
