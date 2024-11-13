@@ -515,14 +515,14 @@ variable "dr_redshift_snapshot_identifier" {
 }
 
 variable "base_ami_analytics_sandbox_uw2" {
-  default     = "ami-0d70dd6bd52d14339" # 2024-11-05 Ubuntu 20.04
+  default     = "ami-0978c6291f64f1da6" # 2024-11-13 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the analytics-sandbox account
 EOM
 }
 
 variable "rails_ami_analytics_sandbox_uw2" {
-  default     = "ami-06d706cac45130f05" # 2024-11-05 Ubuntu 20.04
+  default     = "ami-07f2c84976fdc3757" # 2024-11-13 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts in the analytics-sandbox account
 EOM

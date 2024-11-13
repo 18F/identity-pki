@@ -109,15 +109,7 @@ get_ami_info() {
   done
 }
 
-data_table() {
-  NUM_COLS=$(echo "${DATA[@]}" | sed -E 's/\| \|/\|\n\|/g' | awk '{print NF}' | sort -nu | tail -n 1)
-  HEADERS="|ACCOUNT ID DATE ROLE VERSION REGION|"
-  echo
-  echo_cyan "$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
-    sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
-    sed -E 's/(Ubuntu)-/\1 /g')"
-  echo
-
+broken_pipeline_check() {
   if [[ ${#BAD_IMAGE_DATA[@]} -gt 0 ]]; then
     echo_yellow "One or more AMIs built from 'main' is >1 day old:"
     echo
@@ -127,10 +119,25 @@ data_table() {
     done
     echo
     echo_yellow "This suggests that one or more pipelines may be failing to build correctly."
-    echo_yellow "Verify status of the associated pipeline(s) before creating an AMI PR!"
     echo
-    if [[ "${TASK_LIST[@]}" =~ 'open' ]]; then exit 0; fi
+    if [[ "${TASK_LIST[@]}" =~ (open|update) ]]; then
+      if ! prompt_yn "Continue updating file(s) and/or opening an MR?" ; then
+        echo_yellow "Stopping."
+        exit 0
+      fi
+    fi
   fi
+}
+
+data_table() {
+  NUM_COLS=$(echo "${DATA[@]}" | sed -E 's/\| \|/\|\n\|/g' | awk '{print NF}' | sort -nu | tail -n 1)
+  HEADERS="|ACCOUNT ID DATE ROLE VERSION REGION|"
+  echo
+  echo_cyan "$(mdout "${HEADERS}\n$(echo "|$(printf "%${NUM_COLS}s" |
+    sed 's/ /----- |/g')")\n$(echo "${DATA[@]}" | sed -E 's/\| +\|/\|\n\|/g')" |
+    sed -E 's/(Ubuntu)-/\1 /g')"
+  echo
+  broken_pipeline_check
 }
 
 update_vars() {
@@ -233,8 +240,6 @@ verify_day() {
 if [[ $(env | grep 'AWS_VAULT=') ]]; then
   raise "Cannot run with an active AWS_VAULT session; clear the session and try again!"
 fi
-
-verify_clean_working_directory
 
 verify_root_repo
 
