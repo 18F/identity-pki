@@ -72,16 +72,6 @@ repos:
   tf_deploy:
     name: "cd/tf_deploy"
     <<: *all_write_template
-  identity_idp_review:
-    name: "identity-idp/review"
-    lifecycle_policy_settings: { days: 10 }
-    <<: *all_write_template
-  identity_idp_review_cache:
-    name: "identity-idp/review/cache"
-    lifecycle_policy_settings: {
-      days: 40
-    }
-    <<: *all_write_template
   identity_idp:
     name: "identity-idp/idp"
     lifecycle_policy_settings: { days: 40 }
