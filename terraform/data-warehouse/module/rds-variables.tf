@@ -25,6 +25,10 @@ locals {
         name  = "max_standby_streaming_delay",
         value = "30000"
       },
+      {
+        name  = "password_encryption",
+        value = "md5"
+      }
     ],
   ])
 
