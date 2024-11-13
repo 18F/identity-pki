@@ -264,6 +264,10 @@ repos:
   fluent-bit:
     name: "docker-hub/fluent/fluent-bit"
     <<: *readonly_template
+  # haproxy-ingress
+  haproxy-ingress:
+    name: "docker-hub/haproxytech/kubernetes-ingress"
+    <<: *readonly_template
   # ingress-nginx
   ingress-nginx:
     name: "kubernetes/ingress-nginx/controller"
@@ -372,6 +376,10 @@ repos:
     <<: *readonly_template
   kiwigrid_sidecar:
     name: "quay/kiwigrid/k8s-sidecar"
+    <<: *readonly_template
+  # reloader
+  reloader:
+    name: "github/stakater/reloader"
     <<: *readonly_template
   # thanos
   thanos:
