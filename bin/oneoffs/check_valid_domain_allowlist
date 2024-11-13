@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'uri'
+
+def usage
+  STDERR.puts "usage: #{$0} FILE_GLOB"
+  STDERR.puts "ex: #{$0} kitchen/files/*.erb"
+end
+
+def main(args)
+  if ARGV.empty?
+    usage
+    exit 1
+  end
+
+  if %w[-h --help].include?(ARGV.first)
+    usage
+    exit
+  end
+
+  if ARGV.length > 1
+    STDERR.puts "Only one argument expected"
+    usage
+  end
+
+  file_glob = ARGV[0]
+
+  files = Dir.glob(file_glob).filter do |x|
+    File.file?(x)
+  end
+
+  invalid_files = files.reduce({}) do |invalid_files, file_path|
+    file_lines = File.read(file_path).strip.split("\n")
+    file_lines = file_lines.select do |x|
+      x.start_with?(/[a-zA-z0-9]/) && !x.include?('<%')
+    end
+
+    file_lines.each do |file_line|
+      uri = URI(file_line)
+      # a domain without host/path parses into a URI where the host is in the path attribute
+      invalid_domain = !uri.scheme.nil? ||
+        uri.path != file_line ||
+        !uri.host.nil?
+
+      if invalid_domain
+        invalid_files[file_path] ||= []
+        invalid_files[file_path] << file_line
+      end
+    end
+
+    invalid_files
+  end
+
+  if invalid_files.empty?
+    exit 0
+  else
+    STDERR.puts "Invalid domains found in the following domain allowlist files:"
+    invalid_files.each do |file_path, file_lines|
+      STDERR.puts "#{file_path}: #{file_lines.join(' ')}"
+    end
+    exit 1
+  end
+end
+
+main(ARGV) if File.expand_path(__FILE__) == File.expand_path($0)

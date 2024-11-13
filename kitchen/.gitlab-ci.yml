@@ -12,3 +12,8 @@ check_valid_json_chef:
   image: cimg/ruby:3.3
   script:
     - ./bin/oneoffs/check_valid_json_chef
+
+check_domain_allowlists:
+  image: cimg/ruby:3.3
+  script:
+    - ./bin/oneoffs/check_valid_domain_allowlist 'kitchen/cookbooks/identity-outboundproxy/templates/**/*domain*list*'
