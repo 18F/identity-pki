@@ -102,6 +102,11 @@ users:
     - pm
     - Katherine
     - lg-people-platform|reporter
+  ambuj.neupane:
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - Evelyn
   amir.reavis-bey:
     aws_groups:
     - apponcall
