@@ -186,7 +186,7 @@ EOM
 variable "dms_engine_version" {
   description = "Engine version of the DMS replication instance."
   type        = string
-  default     = "3.5.2"
+  default     = "3.5.3"
 }
 
 variable "enable_dms_analytics" {
