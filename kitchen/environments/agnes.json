@@ -6,7 +6,8 @@
   "default_attributes": {
     "login_dot_gov": {
       "deploy_branch_default": "main",
-      "allow_unsafe_migrations": true
+      "allow_unsafe_migrations": true,
+      "nginx_limit_connections": false
     }
   },
   "override_attributes": {
