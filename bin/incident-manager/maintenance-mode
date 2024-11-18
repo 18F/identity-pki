@@ -56,6 +56,12 @@ else
   raise "Please supply an argument of 'on' or 'off'"
 fi
 
+if [[ "$AWS_VAULT" =~ "prod" ]] ; then
+  SLACK_CHANNEL="login-alarms"
+else
+  SLACK_CHANNEL="login-otherevents"
+fi
+
 if prompt_yn "Are you sure you want to turn maintenance mode ${ACTION} for ${ACCOUNT_ALIAS}?"; then
   echo_yellow "Turning ${ACTION} maintenance mode"
 
@@ -75,7 +81,7 @@ if prompt_yn "Are you sure you want to turn maintenance mode ${ACTION} for ${ACC
       -p "" \
       -m "${SLACK_MESSAGE}" \
       -y "1" \
-      -c "login-events"
+      -c "${SLACK_CHANNEL}"
 
 fi
 
