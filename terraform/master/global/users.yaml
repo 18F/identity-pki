@@ -960,11 +960,12 @@ users:
     gitlab_groups:
     - pm
     - devops|owner
-    - lg-all
     - lg-teams|owner
+    - lg-roles|owner
     - lg-public
     - Mary
     - Radia
+    - lg-all
   nitesh.nagpal:
     aws_groups:
     - fraudops
@@ -1316,6 +1317,7 @@ users:
     - User Experience|owner
     - Evelyn|owner
     - Product|owner
+    - lg-roles|owner
     can_create_group:
     - true
 groups:
@@ -1336,6 +1338,8 @@ groups:
       everybody with an account.
   lg-teams:
     description: Gitlab group for Sprint and Discipline teams
+  lg-roles: 
+    description: This space is only used for role assignment and access.  Do not create issues/projects/code here.  
   lg-public:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
