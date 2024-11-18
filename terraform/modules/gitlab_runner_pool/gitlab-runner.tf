@@ -50,7 +50,7 @@ module "gitlab_runner_launch_template" {
   instance_type             = var.instance_type_gitlab_runner
   use_spot_instances        = var.use_spot_instances
   iam_instance_profile_name = aws_iam_instance_profile.gitlab_runner.name
-  security_group_ids        = [aws_security_group.gitlab_runner.id, aws_security_group.gitlab_runner_2.id, var.base_security_group_id]
+  security_group_ids        = concat([aws_security_group.gitlab_runner.id, var.base_security_group_id], [for group in aws_security_group.gitlab_runner_ec2_access : group.id])
 
   # Allow containers to access the metadata service
   metadata_response_hop_limit = 2

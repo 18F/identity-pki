@@ -3,6 +3,14 @@ data "aws_ip_ranges" "ec2_argo" {
   services = ["ec2"]
 }
 
+locals {
+  security_group_max_rules = 120
+
+  chunked_result = { for index, chunk in chunklist(
+    data.aws_ip_ranges.ec2_argo.cidr_blocks, local.security_group_max_rules
+  ) : index => chunk }
+}
+
 resource "aws_security_group" "gitlab_runner" {
   description = "gitlab runner security group"
 
@@ -72,9 +80,15 @@ resource "aws_security_group" "gitlab_runner" {
   vpc_id = var.aws_vpc
 }
 
+moved {
+  from = aws_security_group.gitlab_runner_2
+  to   = aws_security_group.gitlab_runner_ec2_access[0]
+}
+
 # first security group ran out of rules so expand to another SG
-resource "aws_security_group" "gitlab_runner_2" {
-  description = "gitlab runner security group 2"
+resource "aws_security_group" "gitlab_runner_ec2_access" {
+  for_each    = local.chunked_result
+  description = "gitlab runner security group argo access"
 
   # argo load balancers are managed by aws and the ip addresses could be
   # anything, this is the least obtrusive way we could find to do this without
@@ -84,14 +98,14 @@ resource "aws_security_group" "gitlab_runner_2" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = data.aws_ip_ranges.ec2_argo.cidr_blocks
+    cidr_blocks = each.value
     description = "Allow connection to ec2 (argocd)"
   }
 
-  name_prefix = "${var.name}-gitlabrunner2-${var.env_name}"
+  name_prefix = "${var.name}-gitlabrunner${each.key + 2}-${var.env_name}"
 
   tags = {
-    Name = "${var.name}-gitlab_runner_security_group2-${var.env_name}"
+    Name = "${var.name}-gitlab_runner_security_group${each.key + 2}-${var.env_name}"
     role = "gitlab"
   }
 
