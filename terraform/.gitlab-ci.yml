@@ -10,46 +10,90 @@ terraform-fmt:
   rules:
     - !reference [.merge_request, rules]
     - changes:
-        - terraform/**/*
+      - terraform/**/*
 
 # Scanning top level modules to avoid extreme duplication
-tfsec-check-soft:
-  image: aquasec/tfsec-ci:v1.28
+kics-check-soft:
+  image:
+    name: checkmarx/kics:v2.1.3
+    entrypoint: [""]
   script:
-    - tfsec --no-color --soft-fail terraform/$TFDIR
+    - kics scan --no-progress -p terraform/$TFDIR -o terraform/$TFDIR --output-name kics-results --report-formats glsast --ignore-on-exit results
   rules:
     - !reference [.merge_request, rules]
     - changes:
-        - terraform/$TFDIR/**/*
+      - terraform/$TFDIR/**/*
+  artifacts:
+    reports:
+      sast: terraform/$TFDIR/gl-sast-kics-results.json
   parallel:
     matrix:
       - TFDIR:
-          - all/module
-          - app
-          - core/module
-          - gitlab/module
-          - modules
-          - sms/module
-          - tooling/module
-          - waf/module
-          - data-warehouse/module
+        - app
+        - gitlab/module
+        - modules
+        - sms/module
+        - data-warehouse/module
 
 # Add folders that should be vuln free and STAY THAT WAY
-tfsec-check-enforce:
-  image: aquasec/tfsec-ci:v1.28
+kics-check-enforce-critical:
+  image:
+    name: checkmarx/kics:v2.1.3
+    entrypoint: [""]
   script:
-    - tfsec --no-color terraform/$TFDIR
+    - kics scan --no-progress -p terraform/$TFDIR -o terraform/$TFDIR --output-name kics-results --report-formats glsast --fail-on critical
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+      - terraform/$TFDIR/**/*
+  artifacts:
+    reports:
+      sast: terraform/$TFDIR/gl-sast-kics-results.json
+  parallel:
+    matrix:
+      - TFDIR:
+        - core/module
+        - all/module
+
+kics-check-enforce-high:
+  image:
+    name: checkmarx/kics:v2.1.3
+    entrypoint: [""]
+  script:
+    - kics scan --no-progress -p terraform/$TFDIR -o terraform/$TFDIR --output-name kics-results --report-formats glsast --fail-on critical,high
+  rules:
+    - !reference [.merge_request, rules]
+    - changes:
+      - terraform/$TFDIR/**/*
+  artifacts:
+    reports:
+      sast: terraform/$TFDIR/gl-sast-kics-results.json
+  parallel:
+    matrix:
+      - TFDIR:
+        - tooling/module
+        - waf/module
+
+kics-check-enforce-medium:
+  image:
+    name: checkmarx/kics:v2.1.3
+    entrypoint: [""]
+  script:
+    - kics scan --no-progress -p terraform/$TFDIR -o terraform/$TFDIR --output-name kics-results --report-formats glsast --fail-on critical,high,medium
   rules:
     - !reference [.merge_request, rules]
     - changes:
         - terraform/$TFDIR/**/*
+  artifacts:
+    reports:
+      sast: terraform/$TFDIR/gl-sast-kics-results.json
   parallel:
     matrix:
       - TFDIR:
-          - imagebuild/module
-          - master/module
-          - tooling/module-gitlabpipeline
-          - tooling/module-pipeline
+        - tooling/module-gitlabpipeline
+        - imagebuild/module
+        - master/module
+        - tooling/module-pipeline
 
 users-yaml-validation:
   image: "$ECR_REGISTRY/ecr-public/docker/library/golang"
@@ -69,7 +113,7 @@ lambda-unit-tests:
   rules:
     - !reference [.merge_request, rules]
     - changes:
-        - terraform/**/*
+      - terraform/**/*
   coverage: '/TOTAL.* (100\%|\d\d\%)$/'
   artifacts:
     paths:
@@ -88,4 +132,4 @@ lambda-lint:
   rules:
     - !reference [.merge_request, rules]
     - changes:
-        - terraform/**/*
+      - terraform/**/*
