@@ -121,3 +121,9 @@
 - schema: public
   table:  socure_reason_codes
   action: include
+- schema: public
+  table:  disposable_email_domains
+  action: include
+- schema: public
+  table:  federal_email_domains
+  action: include

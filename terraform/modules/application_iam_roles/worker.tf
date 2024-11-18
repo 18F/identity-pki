@@ -127,3 +127,15 @@ resource "aws_iam_role_policy" "worker-pinpoint-assumerole" {
 EOM
 
 }
+
+resource "aws_iam_role_policy" "worker-s3-dw-tasks" {
+  name   = "${var.env_name}-worker-s3-dw-tasks"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.puts_json_to_idp_dw_s3.json
+}
+
+resource "aws_iam_role_policy" "worker-s3-analytics-export" {
+  name   = "${var.env_name}-worker-s3-analytics-export"
+  role   = aws_iam_role.worker.id
+  policy = data.aws_iam_policy_document.s3_idp_analytics_export_policy.json
+}

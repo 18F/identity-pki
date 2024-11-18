@@ -31,6 +31,16 @@
       datatype: integer
     - name: requested_aal_value
       datatype: text
+    - name: acr_values
+      datatype: string
+    - name: email_address_id
+      datatype: bigint
+    - name: ial
+      datatype: integer
+    - name: scope
+      datatype: string
+    - name: vtr
+      datatype: string
 
 - table: iaa_orders
   schema: public
@@ -99,6 +109,12 @@
       datatype: boolean
     - name: notification_sent_at
       datatype: datetime
+    - name: last_batch_claimed_at
+      datatype: datetime
+    - name: doc_auth_result
+      datatype: string
+    - name: sponsor_id
+      datatype: string
 
 - table: account_reset_requests
   schema: public
@@ -145,6 +161,8 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
+    - name: name
+      datatype: string
 
 - table: backup_code_configurations
   schema: public
@@ -161,6 +179,8 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
+    - name: salted_code_fingerprint
+      datatype: string
 
 - table: deleted_users
   schema: public
@@ -220,6 +240,12 @@
       datatype: datetime
     - name: ocr_confirmation_pending
       datatype: boolean
+    - name: socure_docv_transaction_token
+      datatype: string
+    - name: socure_docv_capture_app_url
+      datatype: string
+    - name: last_doc_auth_result
+      datatype: string
 
 - table: email_addresses
   schema: public
@@ -238,6 +264,8 @@
       datatype: datetime
     - name: last_sign_in_at
       datatype: datetime
+    - name: email_fingerprint
+      datatype: string
 
 - table: events
   schema: public
@@ -382,6 +410,13 @@
       datatype: datetime
     - name: fraud_pending_reason
       datatype: integer
+    - name: gpo_verification_expired_at
+      datatype: datetime
+    - name: idv_level
+      datatype: integer
+    - name: in_person_verification_pending_at
+      datatype: datetime
+
 
 - table: phone_configurations
   schema: public
@@ -429,6 +464,10 @@
     - name: updated_at
       datatype: datetime
     - name: x509_issuer
+      datatype: string
+    - name: name
+      datatype: string
+    - name: x509_dn_uuid
       datatype: string
 
 - table: proofing_components
@@ -550,6 +589,12 @@
       datatype: datetime
     - name: billable
       datatype: boolean
+    - name: profile_id
+      datatype: bigint
+    - name: profile_requested_issuer
+      datatype: string
+    - name: profile_verified_at
+      datatype: datetime
 
 - table: usps_confirmation_codes
   schema: public
@@ -564,6 +609,8 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
+    - name: reminder_sent_at
+      datatype: datetime
 
 - table: usps_confirmations
   schema: public
@@ -574,6 +621,10 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
+    - name: entry
+      datatype: text
+    - name: entry_multi_region
+      datatype: text
 
 - table: users
   schema: public
@@ -611,6 +662,16 @@
     - name: suspended_at
       datatype: datetime
     - name: reinstated_at
+      datatype: datetime
+    - name: password_compromised_checked_at
+      datatype: datetime
+    - name: piv_cac_recommended_dismissed_at
+      datatype: datetime
+    - name: second_mfa_reminder_dismissed_at
+      datatype: datetime
+    - name: sign_in_new_device_at
+      datatype: datetime
+    - name: webauthn_platform_recommended_dismissed_at
       datatype: datetime
 
 - table: partner_accounts
@@ -738,6 +799,10 @@
       datatype: boolean
     - name: in_person_proofing_enabled
       datatype: boolean
+    - name: certs
+      datatype: string
+    - name: signature
+      datatype: string
 
 - table: agencies
   schema: public
@@ -764,6 +829,16 @@
       datatype: boolean
     - name: transports
       datatype: string
+    - name: aaguid
+      datatype: string
+    - name: authenticator_data_flags
+      datatype: jsonb
+    - name: credential_id
+      datatype: text
+    - name: credential_public_key
+      datatype: text
+    - name: name
+      datatype: string
 
 - table: suspended_emails
   schema: public
@@ -776,6 +851,8 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
+    - name: digested_base_email
+      datatype: string
 
 - table: sp_upgraded_biometric_profiles
   schema: public
@@ -968,3 +1045,15 @@
       datatype: datetime
     - name: updated_at
       datatype: datetime
+
+- table: disposable_email_domains
+  schema: public
+  include_columns:
+    - name: name
+      datatype: text
+
+- table: federal_email_domains
+  schema: public
+  include_columns:
+    - name: name
+      datatype: text
