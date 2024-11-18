@@ -857,6 +857,8 @@
 - table: sp_upgraded_biometric_profiles
   schema: public
   include_columns:
+    - name: id
+      datatype: integer
     - name: upgraded_at
       datatype: datetime 
     - name: user_id
@@ -873,6 +875,8 @@
 - table: doc_auth_logs
   schema: public
   include_columns:
+    - name: id
+      datatype: integer
     - name: user_id
       datatype: integer 
     - name: welcome_view_at
@@ -1031,6 +1035,8 @@
 - table: socure_reason_codes
   schema: public
   include_columns:
+    - name: id
+      datatype: integer
     - name: code
       datatype: string
     - name: group
@@ -1049,11 +1055,15 @@
 - table: disposable_email_domains
   schema: public
   include_columns:
+    - name: id
+      datatype: integer
     - name: name
       datatype: text
 
 - table: federal_email_domains
   schema: public
   include_columns:
+    - name: id
+      datatype: integer
     - name: name
       datatype: text

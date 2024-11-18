@@ -19,6 +19,11 @@ locals {
       name         = "unexpected-redshift-user"
       pattern      = "{ $.name = \"RedshiftUnexpectedUserDetectionJob\" && ($.unexpected_users_detected = \"*\" || $.error = \"*\") }"
       metric_value = 1
+    },
+    reporting_worker_redshift_schema_updater_failure = {
+      name         = "redshift-schema-updater-failure"
+      pattern      = "{ $.name = \"RedshiftSchemaUpdater\" && $.error = \"*\" }"
+      metric_value = 1
     }
   }
   reporting_production_filters = {

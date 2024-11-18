@@ -146,3 +146,24 @@ One or more local users were created in Redshift outside of the user sync script
 Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
 EOM
 }
+
+resource "aws_cloudwatch_metric_alarm" "redshift_schema_updater_alert" {
+  alarm_name                = "${var.env_name}-analytics-reportingRails-redshiftSchemaUpdaterJob-failed"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "1"
+  datapoints_to_alarm       = "1"
+  metric_name               = "redshift-schema-updater-failure"
+  namespace                 = "${var.env_name}/reporting-worker"
+  period                    = "300"
+  statistic                 = "Sum"
+  threshold                 = "1"
+  treat_missing_data        = "notBreaching"
+  insufficient_data_actions = []
+  alarm_actions             = local.low_priority_alarm_actions
+  ok_actions                = local.low_priority_alarm_actions
+  alarm_description         = <<EOM
+The RedshiftSchemaUpdater job has failed. This may imply the Data Warehouse has missing pending migrations that failed to run.
+
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+EOM
+}
