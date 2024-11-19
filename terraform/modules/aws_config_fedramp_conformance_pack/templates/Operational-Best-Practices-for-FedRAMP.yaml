@@ -137,6 +137,16 @@ Resources:
         Owner: AWS
         SourceIdentifier: ALB_HTTP_TO_HTTPS_REDIRECTION_CHECK
     Type: AWS::Config::ConfigRule
+  AlbDropInvalidHeaderCheck:
+    Properties:
+      ConfigRuleName: alb-http-drop-invalid-header-enabled
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::ElasticLoadBalancingV2::LoadBalancer
+      Source:
+        Owner: AWS
+        SourceIdentifier: ALB_HTTP_DROP_INVALID_HEADER_ENABLED
+    Type: AWS::Config::ConfigRule
   AlbWafEnabled:
     Properties:
       ConfigRuleName: alb-waf-enabled
