@@ -58,7 +58,7 @@ EOM
 resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
   name           = "LimitExceededErrorMessage"
   log_group_name = "CloudTrail/DefaultLogGroup"
-  pattern        = "{ (($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\")) && $.userIdentity.arn != \"*PrismaCloudRole/redlock*\" }"
+  pattern        = "{ (($.errorCode = \"*LimitExceeded\") || ($.errorCode = \"LimitExceededException\")) && (($.userIdentity.arn != \"*PrismaCloudRole/redlock*\") && ($.userIdentity.arn != \"*AWSConfig-Describe*\")) }"
   metric_transformation {
     name       = "LimitExceededErrorMessage"
     namespace  = "CloudTrailMetrics/APIThrottling"
@@ -69,7 +69,7 @@ resource "aws_cloudwatch_log_metric_filter" "api_throttling" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "api_throttling" {
-  alarm_name          = "svc_limit_exceeded_error_message"
+  alarm_name          = "${var.iam_account_alias}-AWS-ServiceLimitExceeded"
   alarm_description   = <<EOM
 LimitExceeded messages found in CloudTrail - AWS API rate limiting occurring
 Account: ${data.aws_caller_identity.current.account_id}
