@@ -498,20 +498,30 @@ func getExistingMembers(gitc GitlabClientIface) (map[string]map[string]*gitlab.A
 
 func getExistingProjects(gitc GitlabClientIface) (map[string]*gitlab.Project, error) {
 	projectMap := map[string]*gitlab.Project{}
-	projects, _, err := gitc.ListProjects(
-		&gitlab.ListProjectsOptions{
-			ListOptions: gitlab.ListOptions{
-				PerPage: 100,
-			},
+	opt := &gitlab.ListProjectsOptions{
+		ListOptions: gitlab.ListOptions{
+			PerPage: 100,
 		},
-	)
-	if err != nil {
-		return nil, err
 	}
+	for {
+		projects, resp, err := gitc.ListProjects(opt)
+		if err != nil {
+			return nil, err
+		}
 
-	for _, project := range projects {
-		projectMap[project.PathWithNamespace] = project
-	}
+		for _, project := range projects {
+			projectMap[project.PathWithNamespace] = project
+		}
+		if resp !=nil {
+			if resp.NextPage == 0 {
+				break
+			}
+			opt.Page = resp.NextPage
+		}
+    }
+
+    slog.Debug(fmt.Sprintf("getExistingProjects: Total Projects are  %d", len(projectMap)))
+
 	return projectMap, nil
 }
 

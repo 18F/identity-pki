@@ -355,6 +355,13 @@ func TestGitlabCache(t *testing.T) {
 				PerPage: 100,
 			},
 		},
+	).
+	Return(
+		[]*gitlab.Project{},
+		&gitlab.Response{
+			NextPage: 0,
+		},
+		nil,
 	)
 	// Test pagination. Empty pages are OK.
 	mockClient.EXPECT().
