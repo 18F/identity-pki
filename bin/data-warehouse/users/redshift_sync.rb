@@ -57,6 +57,7 @@ def user_groups
           'schema_name' => 'logs',
           'schema_privileges' => 'USAGE',
           'table_privileges' => 'SELECT',
+          'restricted_tables' => ['unextracted_events', 'unextracted_production'],
         },
       ],
     },
@@ -203,7 +204,7 @@ def create_user_group(user_group)
 
   schema_privileges = user_group['schemas'].map do |schema|
     create_user_group_privileges(user_group['name'], schema['schema_name'], schema['schema_privileges'],
-                                 schema['table_privileges'])
+                                 schema['table_privileges'], schema.fetch('restricted_tables', []))
   end
 
   sql = <<~SQL
@@ -214,11 +215,19 @@ def create_user_group(user_group)
   query_succeded?(execute_query(sql)['id'])
 end
 
-def create_user_group_privileges(group_name, schema_name, schema_privileges, table_privileges)
-  <<~SQL
+def create_user_group_privileges(group_name, schema_name, schema_privileges, table_privileges, restricted_tables = [])
+  sql = <<~SQL
     GRANT #{schema_privileges} ON SCHEMA #{schema_name} TO GROUP #{group_name};
     GRANT #{table_privileges} ON ALL TABLES IN SCHEMA #{schema_name} TO GROUP #{group_name};
   SQL
+
+  restricted_tables.each do |table|
+    sql += <<~SQL
+      REVOKE ALL PRIVILEGES ON TABLE #{schema_name}.#{table} FROM GROUP #{group_name};
+    SQL
+  end
+
+  sql
 end
 
 def create_users
