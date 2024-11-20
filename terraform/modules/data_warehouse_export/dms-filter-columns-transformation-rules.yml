@@ -801,6 +801,7 @@
       datatype: boolean
     - name: certs
       datatype: string
+      limit: 42000
     - name: signature
       datatype: string
 
@@ -837,6 +838,7 @@
       datatype: text
     - name: credential_public_key
       datatype: text
+      limit: 512
     - name: name
       datatype: string
 
