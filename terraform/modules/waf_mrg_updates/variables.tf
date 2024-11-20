@@ -18,7 +18,7 @@ variable "lambda_timeout" {
 
 variable "lambda_runtime" {
   type        = string
-  default     = "python3.9"
+  default     = "python3.12"
   description = "Runtime for Lambda"
 }
 

@@ -61,7 +61,7 @@ No requirements.
 | <a name="input_cloudwatch_retention_days"></a> [cloudwatch\_retention\_days](#input\_cloudwatch\_retention\_days) | Number of days to retain CloudWatch Logs for the Lambda function.<br>Defaults to 0 (never expire). | `number` | `0` | no |
 | <a name="input_config_access_key_rotation_code"></a> [config\_access\_key\_rotation\_code](#input\_config\_access\_key\_rotation\_code) | Path of the compressed lambda source code. Relative to module path. | `string` | `"config-access-key-rotation.zip"` | no |
 | <a name="input_config_access_key_rotation_name"></a> [config\_access\_key\_rotation\_name](#input\_config\_access\_key\_rotation\_name) | Name of the Config access key rotation, used to name other resources | `string` | `"cfg-access-key-rotation"` | no |
-| <a name="input_lambda_runtime"></a> [lambda\_runtime](#input\_lambda\_runtime) | Runtime for Lambda | `string` | `"python3.9"` | no |
+| <a name="input_lambda_runtime"></a> [lambda\_runtime](#input\_lambda\_runtime) | Runtime for Lambda | `string` | `"python3.12"` | no |
 | <a name="input_lambda_timeout"></a> [lambda\_timeout](#input\_lambda\_timeout) | Timeout Value for Lambda | `number` | `"900"` | no |
 | <a name="input_schedule"></a> [schedule](#input\_schedule) | Cron expression for cloudwatch event rule schedule | `string` | `"cron(0 22 * * ? *)"` | no |
 

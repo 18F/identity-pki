@@ -36,30 +36,32 @@ if [[ " $@ " =~ [[:space:]]--xml[[:space:]] ]]; then
   xml=true
 fi
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 ROOT_DIR=$(git rev-parse --show-toplevel)
 
 cd "$SCRIPT_DIR"
-python3.9 -m venv env
+python3.12 -m venv env
 . env/bin/activate
-pip install -r requirements.txt > /dev/null
+pip install -r requirements.txt >/dev/null
 
 cd "$ROOT_DIR"
 
-runner="python3.9"
+runner="python3.12"
 if $coverage; then
   runner="coverage run"
 fi
 
-unittest="pytest"
+unittest="pytest --color=yes"
 if $xml; then
   mkdir -p tmp
   unittest="$unittest --junitxml=tmp/unittest.xml"
 fi
 
-$runner -m $unittest $(
+exec 3>&1
+output=$($runner -m $unittest $(
   git ls-files $ROOT_DIR --full-name -- | grep '_test.py'
-)
+) | tee /dev/fd/3)
+exec 3>&-
 
 if $coverage; then
   coverage report | grep 'TOTAL'
@@ -70,3 +72,6 @@ if $coverage; then
   fi
 fi
 
+if [[ $output == *"warnings"* ]]; then
+  exit 64
+fi

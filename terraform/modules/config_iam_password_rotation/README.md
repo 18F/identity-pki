@@ -11,7 +11,7 @@ This module monitors the IAM User's password used for Console Login. It performs
 
 ## AWS Resources 
 It creates the following AWS Resources:
- 1. [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) with runtime "python3.9", with an IAM role with limited permissions to Cloudwatch Logs, SES, IAM.
+ 1. [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) with runtime "python3.12", with an IAM role with limited permissions to Cloudwatch Logs, SES, IAM.
 2. [Event Rule](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/Create-CloudWatch-Events-Rule.html)
 
 

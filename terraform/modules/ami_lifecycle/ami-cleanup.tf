@@ -102,7 +102,7 @@ resource "aws_lambda_function" "ami_cleanup" {
   description      = "Lambda function to remove old or unused AMIs"
   role             = aws_iam_role.lambda_ami_cleanup.arn
   handler          = "ami_cleanup.lambda_handler"
-  runtime          = "python3.9"
+  runtime          = "python3.12"
   timeout          = 300
   source_code_hash = module.ami_cleanup_function_code.zip_output_base64sha256
   publish          = false

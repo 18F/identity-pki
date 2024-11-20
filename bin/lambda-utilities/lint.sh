@@ -26,7 +26,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ROOT_DIR=$(git rev-parse --show-toplevel)
 
 cd "$SCRIPT_DIR"
-python3.9 -m venv env
+python3.12 -m venv env
 . env/bin/activate
 pip install -r requirements.txt > /dev/null
 

@@ -28,7 +28,7 @@ resource "aws_lambda_function" "db_consumption" {
   description      = ""
   role             = aws_iam_role.db_consumption.arn
   handler          = "db_consumption.lambda_handler"
-  runtime          = "python3.9"
+  runtime          = "python3.12"
   timeout          = 900 # in seconds, 15 minutes
   source_code_hash = module.db_consumption_code.zip_output_base64sha256
 

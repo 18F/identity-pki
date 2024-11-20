@@ -96,7 +96,6 @@ def send_message(eventDetails):
     sns_response = sns.publish(
         TopicArn=sns_topic,
         Message=message,
-        MessageStructure="string",
     )
 
     logger.debug(sns_response)

@@ -24,7 +24,7 @@ resource "aws_lambda_function" "logarchive_kinesis" {
   description                    = "Function to send Kinesis logarchive data to S3"
   role                           = aws_iam_role.logarchive_kinesis_lambda.arn
   handler                        = "logarchive_kinesis.lambda_handler"
-  runtime                        = "python3.9"
+  runtime                        = "python3.12"
   timeout                        = 900
   memory_size                    = 1024
   reserved_concurrent_executions = 900

@@ -62,7 +62,7 @@ variables:
       when: never
     - if: $CI_COMMIT_BRANCH == $branch
   image:
-    name: python:3.9.17
+    name: python:3.12
     entrypoint: [""]
   before_script:
     - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64

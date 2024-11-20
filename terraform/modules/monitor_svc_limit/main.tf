@@ -115,7 +115,7 @@ resource "aws_lambda_function" "ta_refresher_lambda" {
   description      = "Refreshes the Trusted Advisor check"
   role             = aws_iam_role.ta_refresher_lambda.arn
   handler          = "ta_refresher.lambda_handler"
-  runtime          = "python3.9"
+  runtime          = "python3.12"
   timeout          = var.lambda_timeout
   source_code_hash = module.ta_refresher_function_code.zip_output_base64sha256
   publish          = false
@@ -168,7 +168,7 @@ resource "aws_lambda_function" "ta_monitor_lambda" {
   description      = "Lambda function monitoring Trusted Advisor"
   role             = aws_iam_role.ta_monitor_lambda.arn
   handler          = "ta_monitor.lambda_handler"
-  runtime          = "python3.9"
+  runtime          = "python3.12"
   timeout          = var.lambda_timeout
   source_code_hash = module.ta_monitor_function_code.zip_output_base64sha256
   publish          = false

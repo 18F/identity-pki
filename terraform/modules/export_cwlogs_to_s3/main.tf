@@ -7,7 +7,7 @@ resource "aws_lambda_function" "lambdafunction" {
   function_name = "export-ses-logs-to-s3"
   role          = aws_iam_role.lambda_export_to_s3_role.arn
   handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.9"
+  runtime       = "python3.12"
   description   = "Lambda exporting cloudwatch logs to S3"
   timeout       = "300"
 

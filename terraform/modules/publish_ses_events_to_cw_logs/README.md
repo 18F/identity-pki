@@ -9,7 +9,7 @@ This module allows to capture event data that Amazon SES publishes to Amazon SNS
 
 ## AWS Resources
 It creates the following AWS Resources:
-1. [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) with runtime "python3.9", with an IAM role with limited permissions to Cloudwatch Logs, Support.
+1. [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) with runtime "python3.12", with an IAM role with limited permissions to Cloudwatch Logs, Support.
 2. [SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html)
 3. [Cloudwatch Logs](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/WhatIsCloudWatchLogs.html)
 4. [SNS](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)

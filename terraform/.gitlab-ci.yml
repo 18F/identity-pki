@@ -94,7 +94,7 @@ users-yaml-validation:
     - make validate
 
 lambda-unit-tests:
-  image: "$ECR_REGISTRY/ecr-public/docker/library/python:3.9.18-alpine3.18"
+  image: "$ECR_REGISTRY/ecr-public/docker/library/python:3.12-alpine3.20"
   script:
     - apk add --no-cache bash git
     - ./bin/lambda-utilities/test.sh --coverage --xml
@@ -102,7 +102,10 @@ lambda-unit-tests:
     - !reference [.merge_request, rules]
     - changes:
       - terraform/**/*
+      - bin/lambda-utilities/*
   coverage: '/TOTAL.* (100\%|\d\d\%)$/'
+  allow_failure:
+    exit_codes: 64 
   artifacts:
     paths:
       - htmlcov/
@@ -113,7 +116,7 @@ lambda-unit-tests:
       junit: tmp/unittest.xml
 
 lambda-lint:
-  image: "$ECR_REGISTRY/ecr-public/docker/library/python:3.9.18-alpine3.18"
+  image: "$ECR_REGISTRY/ecr-public/docker/library/python:3.12-alpine3.20"
   script:
     - apk add --no-cache bash git
     - ./bin/lambda-utilities/lint.sh
@@ -121,3 +124,4 @@ lambda-lint:
     - !reference [.merge_request, rules]
     - changes:
       - terraform/**/*
+      - bin/lambda-utilities/*

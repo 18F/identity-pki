@@ -214,7 +214,7 @@ resource "aws_lambda_function" "pinpoint_event_logger" {
   description      = "Pinpoint Kinesis to CloudWatch Logging Function"
   filename         = module.lambda_zip.zip_output_path
   source_code_hash = module.lambda_zip.zip_output_base64sha256
-  runtime          = "python3.9"
+  runtime          = "python3.12"
   handler          = "pinpoint_event_logger.lambda_handler"
   timeout          = 600
   memory_size      = 4096
