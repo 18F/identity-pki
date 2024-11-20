@@ -24,7 +24,7 @@ resource "aws_iam_policy" "lambda_to_redshift" {
         ]
         Resource = [
           # This constructs the specific database ARN that the lambda is allowed to access.
-          # When a data resource or provider specific implementation is available, we should migrate to that. 
+          # When a data resource or provider specific implementation is available, we should migrate to that.
           "${replace(aws_redshift_cluster.redshift.arn, ":cluster:", ":dbname:")}/${aws_redshift_cluster.redshift.database_name}"
         ]
         Condition = {

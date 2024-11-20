@@ -593,3 +593,28 @@ variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
   type    = string
   default = "172.16.35.192/27"
 }
+
+variable "redshift_alarm_threshold_cpu_high" {
+  type        = number
+  description = "Alert Threshhold for Redshift cpu utilization"
+  default     = 70
+}
+
+variable "redshift_alarm_threshold_cpu_critical" {
+  type        = number
+  description = "Critical Alert Threshhold for Redshift cpu utilization"
+  default     = 80
+}
+
+variable "redshift_alarm_threshold_diskspace_high" {
+  type        = number
+  description = "Alert Threshhold for Redshift disk space"
+  default     = 70
+}
+
+variable "redshift_alarm_threshold_diskspace_critical" {
+  type        = number
+  description = "Critical Alert Threshhold for Redshift disk space"
+  default     = 80
+}
+
