@@ -23,9 +23,6 @@ kics-check-soft:
     - !reference [.merge_request, rules]
     - changes:
       - terraform/$TFDIR/**/*
-  artifacts:
-    reports:
-      sast: terraform/$TFDIR/gl-sast-kics-results.json
   parallel:
     matrix:
       - TFDIR:
@@ -46,9 +43,6 @@ kics-check-enforce-critical:
     - !reference [.merge_request, rules]
     - changes:
       - terraform/$TFDIR/**/*
-  artifacts:
-    reports:
-      sast: terraform/$TFDIR/gl-sast-kics-results.json
   parallel:
     matrix:
       - TFDIR:
@@ -65,9 +59,6 @@ kics-check-enforce-high:
     - !reference [.merge_request, rules]
     - changes:
       - terraform/$TFDIR/**/*
-  artifacts:
-    reports:
-      sast: terraform/$TFDIR/gl-sast-kics-results.json
   parallel:
     matrix:
       - TFDIR:
@@ -84,9 +75,6 @@ kics-check-enforce-medium:
     - !reference [.merge_request, rules]
     - changes:
         - terraform/$TFDIR/**/*
-  artifacts:
-    reports:
-      sast: terraform/$TFDIR/gl-sast-kics-results.json
   parallel:
     matrix:
       - TFDIR:
