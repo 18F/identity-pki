@@ -199,7 +199,7 @@ resource "aws_cloudwatch_metric_alarm" "sensitive_column_compare_alarm" {
   alarm_description         = <<EOM
 One or more errors occurred running the Colum Compare Task - "${module.column_compare_task.function_name}."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#dms-column-compare-task-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#dms-task-failure-alerts
 EOM
 }
 

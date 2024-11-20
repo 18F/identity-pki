@@ -15,7 +15,7 @@ resource "aws_cloudwatch_metric_alarm" "reporting_worker_alive_alarm" {
   alarm_description         = <<EOM
 No background jobs have run for 6 minutes in the app - "Reporting Rails."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-workers-alerts
 EOM
 }
 
@@ -37,7 +37,7 @@ resource "aws_cloudwatch_metric_alarm" "reporting_worker_failure_alarm" {
   alarm_description         = <<EOM
 One or more errors were raised in the background job(s) of the app - "Reporting Rails."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-workers-alerts
 EOM
 }
 
@@ -58,7 +58,7 @@ resource "aws_cloudwatch_metric_alarm" "data_freshness_out_of_range_alarm" {
   alarm_description         = <<EOM
 One or more of the production tables are expected to have newer data from the last update.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-workers-alerts
 EOM
 }
 
@@ -80,7 +80,7 @@ resource "aws_cloudwatch_metric_alarm" "log_column_extractor_failure_alarm" {
 The message "LogsColumnExtractorJob: Query executed successfully" has NOT been found in the log group "production.log" since the last update.
 The production and/or events table may not have been updated.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-production-alerts
 EOM
 }
 
@@ -101,7 +101,7 @@ resource "aws_cloudwatch_metric_alarm" "duplicate_row_checker_alert" {
   alarm_description         = <<EOM
 Duplicate rows were identified in one or more of the data warehouse tables.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-production-alerts
 EOM
 }
 
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_metric_alarm" "pii_row_checker_alert" {
   alarm_description         = <<EOM
 A PII pattern was detected in one or more of the data warehouse tables.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-production-alerts
 EOM
 }
 
@@ -143,7 +143,7 @@ resource "aws_cloudwatch_metric_alarm" "unexpected_redshift_user_alert" {
   alarm_description         = <<EOM
 One or more local users were created in Redshift outside of the user sync script - "redshift_sync.rb."
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-workers-alerts
 EOM
 }
 
@@ -164,6 +164,6 @@ resource "aws_cloudwatch_metric_alarm" "redshift_schema_updater_alert" {
   alarm_description         = <<EOM
 The RedshiftSchemaUpdater job has failed. This may imply the Data Warehouse has missing pending migrations that failed to run.
 
-Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#workers-alerts
+Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#analytics-workers-alerts
 EOM
 }

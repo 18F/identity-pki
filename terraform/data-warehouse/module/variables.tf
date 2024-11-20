@@ -63,7 +63,7 @@ locals {
     var.high_priority_sns_hook,
     local.moderate_priority_alarm_actions
   ]) : local.moderate_priority_alarm_actions
-  data_warehouse_lambda_alerts_runbooks = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#lambda-alerts"
+  data_warehouse_lambda_alerts_runbooks = "Runbook: https://gitlab.login.gov/lg/identity-devops/-/wikis/Runbook:-Data-Warehouse-Alerts-Troubleshooting#standard-lambda-alerts"
 }
 
 variable "allowed_analytics_cidr_blocks_v4" { # 159.142.0.0 - 159.142.255.255
