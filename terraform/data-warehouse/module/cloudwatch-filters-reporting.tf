@@ -1,3 +1,6 @@
+# The CLoudWatch Unauthorized Access Alarm Missing alert should be managed at the account level instead of individual environments.
+# kics-scan disable=4c18a45b-4ab1-4790-9f83-399ac695f1e5
+
 locals {
   reporting_worker_filters = {
     reporting_worker_perform_success = {

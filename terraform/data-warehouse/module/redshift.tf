@@ -1,3 +1,6 @@
+# Disabling Redshift Cluster Logging Disabled warning. KICS isn't aware of the new resource type.
+# kics-scan disable=15ffbacc-fa42-4f6f-a57d-2feac7365caa
+
 module "redshift_credentials" {
   source = "../../modules/secrets_manager_secret"
 
@@ -8,6 +11,8 @@ module "redshift_credentials" {
   secret_string = jsonencode(
     {
       username = var.redshift_username
+      # This module replaces the string with a random password and is a false positive.
+      # kics-scan ignore-line
       password = "generateRandomPassword"
     }
   )

@@ -30,7 +30,6 @@ kics-check-soft:
         - gitlab/module
         - modules
         - sms/module
-        - data-warehouse/module
 
 # Add folders that should be vuln free and STAY THAT WAY
 kics-check-enforce-critical:
@@ -64,6 +63,7 @@ kics-check-enforce-high:
       - TFDIR:
         - tooling/module
         - waf/module
+        - data-warehouse/module
 
 kics-check-enforce-medium:
   image:

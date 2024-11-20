@@ -1,3 +1,6 @@
+# S3 Buckets are disabling HTTP requests. Disabling kics warning.
+# kics-scan disable=4bc4dd4c-7d8d-405e-a0fb-57fa4c31b4d9
+
 resource "aws_s3_bucket" "analytics_import" {
   bucket = join("-", [
     "login-gov-redshift-import-${var.env_name}",
@@ -308,24 +311,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "analytics_logs" {
 
 data "aws_iam_policy_document" "bucket_policy_json" {
   statement {
-    actions = [
-      "s3:GetBucketAcl",
-      "s3:PutObject",
-    ]
-
-    resources = [
-      aws_s3_bucket.analytics_logs.arn,
-      "${aws_s3_bucket.analytics_logs.arn}/*"
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        aws_iam_role.redshift_role.arn,
-      ]
-    }
-  }
-  statement {
     principals {
       type        = "*"
       identifiers = ["*"]
@@ -342,6 +327,24 @@ data "aws_iam_policy_document" "bucket_policy_json" {
       test     = "Bool"
       values   = ["false"]
       variable = "aws:SecureTransport"
+    }
+  }
+  statement {
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:PutObject",
+    ]
+    effect = "Allow"
+    resources = [
+      aws_s3_bucket.analytics_logs.arn,
+      "${aws_s3_bucket.analytics_logs.arn}/*"
+    ]
+
+    principals {
+      type = "AWS"
+      identifiers = [
+        aws_iam_role.redshift_role.arn,
+      ]
     }
   }
 }
