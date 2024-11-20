@@ -633,17 +633,19 @@ build_env_test_container:
 #     - build_pivcac_ci_container
 
 # Run nessus scan after environment deploy and import to Security report dashboard
-nessus_scan_dev_environment:
-  extends: .nessus_scan
-  variables:
-    scan_env: dev
-    branch: "main" # Needs to match the branch variable in env-scanners and be the default branch to avoid errors in Gitlab and import scan results correctly
+# Disabled due to errors. These jobs should be reviewed and updated.
+#nessus_scan_dev_environment:
+#  extends: .nessus_scan
+#  variables:
+#    scan_env: dev
+#    branch: "main" # Needs to match the branch variable in env-scanners and be the default branch to avoid errors in Gitlab and import scan results correctly
 
-nessus_scan_gitstaging_environment:
-  extends: .nessus_scan
-  variables:
-    scan_env: "gitlab staging"
-    branch: "main"
+# Disabled due to errors. These jobs should be reviewed and updated.
+#nessus_scan_gitstaging_environment:
+#  extends: .nessus_scan
+#  variables:
+#    scan_env: "gitlab staging"
+#    branch: "main"
 
 # IDP environments and their jobs
 .include_idp_jobs_template:
