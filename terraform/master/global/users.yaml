@@ -662,6 +662,7 @@ users:
     gitlab_groups:
     - lg-all
     - lg-public
+    - lg-teams|maintainer
     - Evelyn|maintainer
     ec2_username:
     - ksebesta
