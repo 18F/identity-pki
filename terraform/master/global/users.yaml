@@ -750,7 +750,8 @@ users:
     - appdev
     - lg-all
     - lg-public
-    - Melba|maintainer
+    - Ada
+    - Melba
   laurie.cole:
     aws_groups:
     - analytics
