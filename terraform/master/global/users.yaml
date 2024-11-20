@@ -731,6 +731,16 @@ users:
     - kgreen
     gitlab_groups:
     - lg-public
+  kolawole.oseni:
+    aws_groups:
+    - analytics
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - Evelyn|maintainer
+    - lg-teams|reporter
+    ec2_username:
+    - koseni
   lauren.george:
     aws_groups:
     - apponcall
