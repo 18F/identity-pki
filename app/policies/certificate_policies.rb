@@ -31,10 +31,8 @@ class CertificatePolicies
   end
 
   def matched_policy_oids
-    mapping = PolicyMappingService.new(@certificate).call
     expected_policies = required_policies
-    cert_policies = policies.map { |policy| mapping[policy] }
-    (cert_policies & expected_policies)
+    (mapped_policies & expected_policies)
   end
 
   def mapped_policies
