@@ -87,24 +87,6 @@ data "aws_iam_policy_document" "auto_eip_policy" {
   }
 }
 
-# TODO
-# Role that instances can use to access stuff in citadel. Add this as the role
-# for an aws_iam_instance_profile. Note that terraform < 0.9 has a "roles"
-# attribute on aws_iam_instance_profile even though there is a 1:1 mapping
-# between iam_instance_profiles and iam_roles.
-resource "aws_iam_role" "citadel-client" {
-  name               = "${var.env_name}-citadel-client"
-  description        = "Allows instances to download configuration and secret data from AWS S3 buckets."
-  assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
-}
-
-# Role policy that associates it with the secrets_role_policy
-resource "aws_iam_role_policy" "citadel-client" {
-  name   = "${var.env_name}-citadel-client"
-  role   = aws_iam_role.citadel-client.id
-  policy = data.aws_iam_policy_document.secrets_role_policy.json
-}
-
 resource "aws_iam_role" "flow_role" {
   name               = "${var.env_name}_flow_role"
   description        = "Allows VPC Flow Logs to publish logs to AWS CloudWatch."
