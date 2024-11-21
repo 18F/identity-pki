@@ -23,19 +23,23 @@ variable "idp_static_bucket_cross_account_access" {
 }
 
 variable "gitlab_subnet_cidr_block" { # 172.16.35.192 - 172.16.35.223
+  type    = string
   default = "172.16.35.192/27"
 }
 
 variable "vpc_cidr_block" { # 172.16.32.0   - 172.16.35.255
+  type    = string
   default = "172.16.32.0/22"
 }
 
 # proxy settings
 variable "proxy_server" {
+  type    = string
   default = "obproxy.login.gov.internal"
 }
 
 variable "proxy_port" {
+  type    = string
   default = "3128"
 }
 
@@ -50,14 +54,17 @@ variable "proxy_enabled_roles" {
 
 variable "identity_sms_aws_account_id" {
   description = "Account ID of the AWS account used for Pinpoint and SMS sending (identity-sms-*)"
+  type        = string
 }
 
 variable "identity_sms_iam_role_name_idp" {
   description = "IAM role assumed by the IDP for cross-account access into the above identity-sms-* account."
+  type        = string
   default     = "idp-pinpoint"
 }
 
 variable "route53_id" {
+  type = string
 }
 
 variable "apps_enabled" {
@@ -182,11 +189,13 @@ variable "elasticache_redis_alarm_threshold_network" {
 # prod/test environment flags
 variable "asg_prevent_auto_terminate" {
   description = "Whether to protect auto scaled instances from automatic termination"
+  type        = number
   default     = 0
 }
 
 variable "enable_deletion_protection" {
   description = "Whether to protect against API deletion of certain resources"
+  type        = number
   default     = 0
 }
 
@@ -211,6 +220,7 @@ variable "chef_download_url" {
 
   #default = "https://packages.chef.io/files/stable/chef/13.8.5/ubuntu/16.04/chef_13.8.5-1_amd64.deb"
   # Assume chef will be installed already in the AMI
+  type    = string
   default = ""
 }
 
@@ -219,13 +229,16 @@ variable "chef_download_sha256" {
 
   #default = "ce0ff3baf39c8c13ed474104928e7e4568a4997a1d5797cae2b2ba3ee001e3a8"
   # Assume chef will be installed already in the AMI
+  type    = string
   default = ""
 }
 
 variable "client" {
+  type = string
 }
 
 variable "env_name" {
+  type = string
 }
 
 variable "env_type" {
@@ -242,34 +255,42 @@ variable "env_type" {
 }
 
 variable "instance_type_app" {
+  type    = string
   default = "t3.small"
 }
 
 variable "instance_type_idp" {
+  type    = string
   default = "t3.medium"
 }
 
 variable "instance_type_env_runner" {
+  type    = string
   default = "t3.medium"
 }
 
 variable "instance_type_migration" {
+  type    = string
   default = "t3.medium"
 }
 
 variable "instance_type_outboundproxy" {
+  type    = string
   default = "t3.medium"
 }
 
 variable "instance_type_pivcac" {
+  type    = string
   default = "t3.medium"
 }
 
 variable "instance_type_worker" {
+  type    = string
   default = "t3.medium"
 }
 
 variable "instance_type_locust" {
+  type    = string
   default = "t3.medium"
 }
 
@@ -358,29 +379,31 @@ EOM
 }
 
 variable "name" {
+  type    = string
   default = "login"
 }
 
 variable "region" {
+  type    = string
   default = "us-west-2"
 }
 
 variable "fisma_tag" {
+  type    = string
   default = "Q-LG"
 }
 
-variable "availability_zones" {
-  default = ["us-west-2a", "us-west-2b", "us-west-2c"]
-}
-
 variable "version_info_bucket" {
+  type = string
 }
 
 variable "version_info_region" {
+  type = string
 }
 
 variable "root_domain" {
   description = "DNS domain to use as the root domain, e.g. login.gov"
+  type        = string
 }
 
 # Automatic recycling and/or zeroing-out of Auto Scaling Groups on scheduled basis
@@ -403,126 +426,155 @@ EOM
 
 # Auto scaling group desired counts
 variable "asg_idp_min" {
+  type    = number
   default = 1
 }
 
 variable "asg_idp_desired" {
+  type    = number
   default = 1
 }
 
 variable "asg_idp_max" {
+  type    = number
   default = 8
 }
 
 variable "asg_app_min" {
+  type    = number
   default = 0
 }
 
 variable "asg_app_desired" {
+  type    = number
   default = 0
 }
 
 variable "asg_app_max" {
+  type    = number
   default = 8
 }
 
 variable "asg_migration_min" {
+  type    = number
   default = 0
 }
 
 variable "asg_migration_desired" {
+  type    = number
   default = 0
 }
 
 variable "asg_migration_max" {
+  type    = number
   default = 8
 }
 
 variable "asg_pivcac_min" {
+  type    = number
   default = 1
 }
 
 variable "asg_pivcac_desired" {
+  type    = number
   default = 2
 }
 
 variable "asg_pivcac_max" {
+  type    = number
   default = 4
 }
 
 variable "asg_outboundproxy_desired" {
+  type    = number
   default = 1
 }
 
 variable "asg_outboundproxy_min" {
+  type    = number
   default = 1
 }
 
 variable "asg_outboundproxy_max" {
+  type    = number
   default = 9
 }
 
 variable "asg_worker_min" {
+  type    = number
   default = 1
 }
 
 variable "asg_worker_desired" {
+  type    = number
   default = 1
 }
 
 variable "asg_worker_max" {
+  type    = number
   default = 8
 }
 
 # Enables worker alarms
 variable "idp_worker_alarms_enabled" {
+  type        = number
   default     = 1
   description = "Whether to set up alarms for IDP workers"
 }
 
 variable "idp_external_service_alarms_enabled" {
+  type        = number
   default     = 0
   description = "Whether to set up alarms for IDP external services"
 }
 
 variable "cdn_public_reporting_data_alarms_enabled" {
+  type        = number
   default     = 0
   description = "Whether to enable alarms for the Public Reporting Data CDN"
 }
 
 variable "cdn_idp_static_assets_cloudwatch_alarms_enabled" {
+  type        = number
   default     = 0
   description = "Whether to enable cloudwatch alarms for the IDP static assets CDN"
 }
 
 variable "cdn_idp_static_assets_newrelic_alarms_enabled" {
+  type        = number
   default     = 0
   description = "Whether to enable newrelic alarms for the IDP static assets CDN"
 }
 
 variable "cdn_idp_static_assets_alert_threshold" {
+  type        = number
   default     = 5
   description = "Threshold for percentage of failed CDN asset requests. Can be noisy in low-volume environments."
 }
 
 variable "idp_cpu_autoscaling_enabled" {
+  type    = number
   default = 1
 }
 
 variable "idp_cpu_autoscaling_disable_scale_in" { # we're not ready for auto scale-in yet
+  type    = number
   default = 1
 }
 
 variable "idp_cpu_autoscaling_target" {
+  type    = number
   default = 40
 }
 
 variable "worker_cpu_autoscaling_enabled" {
+  type = number
   # Off by default due to extreme burstiness of report jobs
   default = 0
 }
 
 variable "worker_cpu_autoscaling_target" {
+  type = number
   # Allow workers higher CPU saturation if CPU autoscaling is on
   default = 90
 }
@@ -530,6 +582,7 @@ variable "worker_cpu_autoscaling_target" {
 # Several variables used by the modules/bootstrap/ module for running
 # provision.sh to clone git repos and run chef.
 variable "bootstrap_main_git_ref_default" {
+  type        = string
   default     = ""
   description = <<EOM
 Git ref in identity-devops for provision.sh to check out. If set, this
@@ -546,26 +599,31 @@ variable "bootstrap_main_git_ref_map" {
 }
 
 variable "bootstrap_main_s3_ssh_key_url" {
+  type        = string
   default     = ""
   description = "S3 path to find an SSH key for cloning identity-devops, overrides the default value in locals if set."
 }
 
 variable "bootstrap_main_git_clone_url" {
+  type        = string
   default     = "git@github.com:18F/identity-devops"
   description = "URL for provision.sh to use to clone identity-devops"
 }
 
 variable "bootstrap_private_git_ref" {
+  type        = string
   default     = "main"
   description = "Git ref in identity-devops-private for provision.sh to check out."
 }
 
 variable "bootstrap_private_s3_ssh_key_url" {
+  type        = string
   default     = ""
   description = "S3 path to find an SSH key for cloning identity-devops-private, overrides the default value in locals if set."
 }
 
 variable "bootstrap_private_git_clone_url" {
+  type        = string
   default     = "git@github.com:18F/identity-devops-private"
   description = "URL for provision.sh to use to clone identity-devops-private"
 }
@@ -577,6 +635,7 @@ variable "bootstrap_private_git_clone_url" {
 #### us-west-2
 
 variable "base_ami_sandbox_uw2" {
+  type        = string
   default     = "ami-02c718a05cd2a27ef" # 2024-11-19 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
@@ -584,6 +643,7 @@ EOM
 }
 
 variable "base_ami_prod_uw2" {
+  type        = string
   default     = "ami-0aa97560403ad2da2" # 2024-11-19 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'base' hosts (outboundproxy) in the prod account
@@ -591,6 +651,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_uw2" {
+  type        = string
   default     = "ami-012b2d6f2f2e399fa" # 2024-11-19 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
@@ -598,6 +659,7 @@ EOM
 }
 
 variable "rails_ami_prod_uw2" {
+  type        = string
   default     = "ami-097edf041657d921e" # 2024-11-19 Ubuntu 20.04
   description = <<EOM
 us-west-2 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
@@ -620,6 +682,7 @@ variable "ami_id_map_uw2" {
 ##### us-east-1
 
 variable "base_ami_sandbox_ue1" {
+  type        = string
   default     = "ami-08d8dfb50d8dac440" # 2024-11-19 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the sandbox account
@@ -627,6 +690,7 @@ EOM
 }
 
 variable "base_ami_prod_ue1" {
+  type        = string
   default     = "" # 2023-07-11 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'base' hosts (outboundproxy) in the prod account
@@ -634,6 +698,7 @@ EOM
 }
 
 variable "rails_ami_sandbox_ue1" {
+  type        = string
   default     = "ami-06914ad9d06c53399" # 2024-11-19 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the sandbox account
@@ -641,6 +706,7 @@ EOM
 }
 
 variable "rails_ami_prod_ue1" {
+  type        = string
   default     = "" # 2023-07-11 Ubuntu 20.04
   description = <<EOM
 us-east-1 AMI ID for 'rails' hosts (IdP/PIVCAC servers) in the prod account
@@ -665,31 +731,36 @@ EOM
 
 variable "high_priority_sns_hook" {
   description = "ARN of SNS topic for high-priority pages"
+  type        = string
 }
 
 variable "high_priority_sns_hook_use1" {
   description = "ARN of SNS topic for high-priority pages in US-East-1"
+  type        = string
 }
 
 variable "page_devops" {
-  default     = 0
   description = "Whether to page for high-priority Cloudwatch alarms"
+  type        = number
+  default     = 0
 }
 
 variable "in_person_slack_alarms_sns_hook" {
-  default     = ""
   description = <<EOM
 ARN of SNS topic for low to medium priority in-person proofing alarms.
 Falls back to slack_events_sns_hook_arn if not set.
 EOM
+  type        = string
+  default     = ""
 }
 
 variable "doc_auth_slack_alarms_sns_hook" {
-  default     = ""
   description = <<EOM
 ARN of SNS topic for low to medium priority in-person doc auth proofing alarms.
 Falls back to slack_events_sns_hook_arn if not set.
 EOM
+  type        = string
+  default     = ""
 }
 
 locals {
@@ -791,8 +862,9 @@ locals {
 # See: https://blog.gruntwork.io/terraform-tips-tricks-loops-if-statements-and-gotchas-f739bbae55f9
 
 variable "alb_http_port_80_enabled" {
-  default     = 1
   description = "Whether to have ALB listen on HTTP port 80 (not just HTTPS 443)"
+  type        = number
+  default     = 1
 }
 
 variable "idp_health_uri" {
@@ -805,6 +877,7 @@ variable "idp_health_uri" {
 
 variable "app_secrets_bucket_name_prefix" {
   description = "Base name for the bucket that contains application secrets"
+  type        = string
   default     = "login-gov-app-secrets"
 }
 
@@ -819,38 +892,46 @@ variable "outbound_subnets" {
 
 variable "nessusserver_ip" {
   description = "Nessus server's public IP"
+  type        = string
 }
 
 # This is useful for granting a foreign environment's idp role access to this environment's KMS key
 variable "db_restore_role_arns" {
   default     = []
+  type        = list(string)
   description = "Name of role used to restore db data to another env (e.g. arn:aws:iam::555546682965:role/dm_idp_iam_role)"
 }
 
 variable "slack_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack"
+  type        = string
 }
 
 variable "slack_events_sns_hook_arn_use1" {
   description = "ARN of SNS topic that will notify the #login-events/#login-otherevents channels in Slack from US-East-1"
+  type        = string
 }
 
 variable "slack_dw_events_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #login-data-warehouse-otherevents/#login-data-warehouse-events channels in Slack"
+  type        = string
   default     = ""
 }
 
 variable "slack_alarms_sns_hook_arn" {
   description = "ARN of SNS topic that will notify the #login-alarms channel in Slack"
+  type        = string
 }
 
 variable "slack_alarms_sns_hook_arn_use1" {
   description = "ARN of SNS topic that will notify the #login-alarms channel in Slack from US-East-1"
+  type        = string
 }
 
 # KMS Event Matching settings
 variable "kms_log_kinesis_shards" {
   description = "Number of shards to provision in Kinesis datastream for kms logging"
+  type        = number
   default     = 1
 }
 
@@ -918,14 +999,17 @@ variable "kms_log_cw_processor_storage_size" {
 
 variable "newrelic_alerts_enabled" {
   description = "turn on common newrelic alerting services.  Required if any other newrelic stuff is enabled."
+  type        = number
   default     = 0
 }
 variable "staticsite_newrelic_alerts_enabled" {
   description = "this should only be set in the prod environment, as it creates monitors for the static site"
+  type        = number
   default     = 0
 }
 variable "idp_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert on idp problems"
+  type        = number
   default     = 0
 }
 
@@ -937,37 +1021,44 @@ variable "new_relic_pager_alerts_enabled" {
 }
 variable "idp_in_person_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert on in-person proofing idp problems"
+  type        = number
   default     = 0
 }
 
 variable "idp_doc_auth_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to enable in-person proofing doc auth alerting"
+  type        = number
   default     = 0
 }
 
 variable "idp_no_healthy_hosts_alarm_enabled" {
   description = "set this to 1 if you want to a high alert when there are no healthy IDP hosts"
+  type        = number
   default     = 0
 }
 
 variable "idp_proofing_javascript_error_new_relic_alerts_enabled" {
   description = "set this to 1 if you want to enable proofing javascript error alerting"
+  type        = number
   default     = 0
 }
 
 variable "idp_enduser_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert on enduser idp problems"
+  type        = number
   default     = 0
 }
 
 variable "dashboard_newrelic_alerts_enabled" {
   description = "set this to 1 if you want to alert during business hours on dashboard problems"
+  type        = number
   default     = 0
 }
 
 ## CloudWatch Alarm Defaults
 variable "pivcac_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
+  type        = number
   default     = 5
 }
 
@@ -985,11 +1076,13 @@ variable "proofing_low_alert_threshold" {
 
 variable "proofing_pageview_duration_alert_threshold" {
   description = "If pageviews in proofing are too slow, we alert"
+  type        = number
   default     = 10
 }
 
 variable "sms_error_rate_alert_threshold" {
   description = "If more than this number of SMS attempts error in a minute, we alert"
+  type        = number
   default     = 1
 }
 
@@ -1013,11 +1106,13 @@ variable "sms_mfa_low_success_alert_critical_threshold" {
 
 variable "sms_send_rate_alert_threshold" {
   description = "If more than this number of SMS deliveries is exeeded in a minute, we alert"
+  type        = number
   default     = 100
 }
 
 variable "sms_high_retry_percentage_threshold" {
   description = "If more than this percentage of SMS retries, send alert"
+  type        = number
   default     = 0
 }
 
@@ -1035,20 +1130,24 @@ variable "user_registration_low_alert_threshold" {
 
 variable "voice_error_rate_alert_threshold" {
   description = "If more than this number of voice attempts error in a minute, we alert"
+  type        = number
   default     = 1
 }
 variable "voice_send_rate_alert_threshold" {
   description = "If more than this number of voice OTP deliveries is exeeded in a minute, we alert"
+  type        = number
   default     = 10
 }
 
 variable "web_low_traffic_alert_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we alert"
+  type        = number
   default     = 10
 }
 
 variable "web_low_traffic_warn_threshold" {
   description = "If the number of queries in 5 minutes falls below this number, we warn"
+  type        = number
   default     = 20
 }
 
@@ -1058,6 +1157,7 @@ variable "keep_legacy_bucket" {
 Whether or not to preserve the login-gov-ENV-logs bucket.
 Should only be set to 'true' in upper environments.
 EOM
+  type        = bool
   default     = false
 }
 
@@ -1067,6 +1167,7 @@ Whether or not to preserve the login-gov-log-cache-ENV bucket, previously used
 with the send_logs_to_s3 module/cw-kinesis-s3-idp-events Subscription Filter.
 Should only be set to 'true' in upper environments.
 EOM
+  type        = bool
   default     = false
 }
 
@@ -1074,6 +1175,7 @@ EOM
 
 variable "idv_high_proofing_resolution_result_missing_threshold" {
   description = "Threshold of how many events need to occur within the period to trigger the alert"
+  type        = number
   default     = 3
 }
 
@@ -1152,6 +1254,7 @@ variable "external_service_alarms" {
 
 variable "tf_slack_channel" {
   description = "Slack channel to send events to."
+  type        = string
   default     = "#login-personal-events"
 }
 
@@ -1200,11 +1303,13 @@ variable "gitlab_enabled" {
 
 variable "gitlab_servicename" {
   description = "the service_name of the gitlab privatelink"
+  type        = string
   default     = ""
 }
 
 variable "gitlab_hostname" {
   description = "name to write into the internal dns zone"
+  type        = string
   default     = "gitlab"
 }
 
@@ -1216,11 +1321,13 @@ variable "gitlab_runner_enabled" {
 
 variable "gitlab_configbucket" {
   description = "should be used to override where the gitlab server's config bucket is so that the runner knows where to get the runner token"
+  type        = string
   default     = ""
 }
 
 variable "gitlab_ecr_repo_accountid" {
   description = "the AWS account ID where it's gitlab lives, so it knows what ECR to pull from"
+  type        = string
   default     = "217680906704" # prod
 }
 
@@ -1284,10 +1391,12 @@ variable "sli_interesting_latency_threshold" {
 
 variable "low_memory_alert_enabled" {
   description = "set this to 1 if you want to alert on low memory alert in New Relic"
+  type        = number
   default     = 0
 }
 
 variable "memory_free_threshold_byte" {
+  type        = string
   description = "Low memory threshold in bytes for New Relic"
   default     = "524288000" #500 MB
 }
@@ -1326,6 +1435,7 @@ variable "allowed_usps_status_update_source_email_addresses" {
 
 variable "privatedir" {
   description = "where identity-devops-private lives.  Used for the version_info.sh script"
+  type        = string
   default     = ""
 }
 
@@ -1522,14 +1632,17 @@ variable "enable_loadtesting" {
 }
 
 variable "asg_locust_worker_desired" {
+  type    = number
   default = 0
 }
 
 variable "asg_locust_leader_desired" {
+  type    = number
   default = 0
 }
 
 variable "asg_locust_worker_max" {
+  type    = number
   default = 8
 }
 
@@ -1541,11 +1654,13 @@ variable "use_lor_algorithm" {
 
 variable "cloudfront_http_version" {
   description = "Http version supported by Cloudfront distribution. Valid values are either http2 or http2and3"
+  type        = string
   default     = "http2and3"
 }
 
 variable "sli_uninteresting_uris" {
   description = "Uninteresting URIs that may dilute an SLI due to their high frequency and relatively cheap cost."
+  type        = list(string)
   default = [
     "/api/health",
     "/apple-touch-icon.png",
@@ -1665,8 +1780,9 @@ variable "enable_us_east_1_vpc" {
 }
 
 variable "us_east_1_vpc_cidr_block" { # 172.17.32.0   - 172.17.35.255
-  default     = "172.17.32.0/22"
   description = "Primary CIDR for the new vpc in us-east-1 region"
+  type        = string
+  default     = "172.17.32.0/22"
 }
 
 variable "enable_all_vpc_endpoints" {
