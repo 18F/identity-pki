@@ -37,6 +37,11 @@ class CertificatePolicies
     (cert_policies & expected_policies)
   end
 
+  def mapped_policies
+    mapping = PolicyMappingService.new(@certificate).call
+    policies.map { |policy| mapping[policy] }
+  end
+
   def policies
     (get_extension('certificatePolicies') || '').split(/\n/).map do |line|
       line.sub(/^Policy:\s+/, '')

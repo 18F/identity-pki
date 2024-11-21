@@ -24,6 +24,10 @@ class Certificate
     Certificate.revocation_status?(self) { OcspService.new(self).call.revoked? }
   end
 
+  def mapped_policies
+    @cert_policies.mapped_policies
+  end
+
   def self.revocation_status?(certificate, &block)
     @revocation_cache ||= MiniCache::Store.new
     key = [certificate.issuer, certificate.subject, certificate.serial].map(&:to_s).inspect
