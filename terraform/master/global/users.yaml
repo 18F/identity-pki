@@ -996,6 +996,8 @@ users:
   obinna.ebbis:
     aws_groups:
     - appdev
+    - dwadminnonprod
+    - dwuser
     ec2_username:
     - oebbis
     gitlab_groups:
