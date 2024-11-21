@@ -118,7 +118,6 @@ data "aws_iam_policy_document" "flow_policy" {
   statement {
     effect = "Allow"
     actions = [
-      "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogGroups",
