@@ -279,6 +279,16 @@ users:
     - lg-all
     - Agnes
     - lg-people-platform|reporter
+  concorde.habineza:
+    aws_groups:
+    - devopsnonprod
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - devops
+    - Radia|maintainer
+    ec2_username:
+    - chabineza
   connor.mccarthy:
     aws_groups:
     - devops
