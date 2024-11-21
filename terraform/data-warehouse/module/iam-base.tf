@@ -131,37 +131,6 @@ data "aws_iam_policy_document" "flow_policy" {
   }
 }
 
-# Role that represents the minimum permissions every instance should have for
-# service discovery to work:
-#
-# - Self signed certs bucket access.
-# - Describe instances permission.
-#
-# Add this as the role for an aws_iam_instance_profile.
-#
-# Note that terraform < 0.9 has a "roles" attribute on aws_iam_instance_profile
-# even though there is a 1:1 mapping between iam_instance_profiles and
-# iam_roles, so if your instance needs other permissions you can't use this.
-resource "aws_iam_role" "service-discovery" {
-  name               = "${var.env_name}-service-discovery"
-  description        = "Enables the minimum permissions every instance should have for service discovery to work."
-  assume_role_policy = data.aws_iam_policy_document.assume_role_from_vpc.json
-}
-
-# Role policy that associates it with the certificates_role_policy
-resource "aws_iam_role_policy" "service-discovery-certificates" {
-  name   = "${var.env_name}-service-discovery-certificates"
-  role   = aws_iam_role.service-discovery.id
-  policy = data.aws_iam_policy_document.certificates_role_policy.json
-}
-
-# Role policy that associates it with the describe_instances_role_policy
-resource "aws_iam_role_policy" "service-discovery-describe_instances" {
-  name   = "${var.env_name}-service-discovery-describe_instances"
-  role   = aws_iam_role.service-discovery.id
-  policy = data.aws_iam_policy_document.describe_instances_role_policy.json
-}
-
 # Role that allows for download of application secrets from the application
 # secrets.
 #
