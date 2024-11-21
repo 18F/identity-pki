@@ -398,6 +398,11 @@ users:
     gitlab_groups:
     - login-security|maintainer
     - Security|maintainer
+  gerardo.cruz-ortiz:
+    gitlab_groups:
+    - lg-all
+    - lg-public
+    - Evelyn
   gina.yamada:
     aws_groups:
     - apponcall
