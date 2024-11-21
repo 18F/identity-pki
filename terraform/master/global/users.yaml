@@ -373,6 +373,8 @@ users:
   eric.dimeo:
     aws_groups:
     - appdev
+    - dwadminnonprod
+    - dwuser
     ec2_username:
     - edimeo
     gitlab_groups:
