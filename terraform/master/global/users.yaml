@@ -10,6 +10,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-teams
   abir.shukla:
     aws_groups:
     - apponcall
@@ -20,6 +21,7 @@ users:
     - lg-all
     - lg-public
     - Timnit
+    - lg-teams
   adalis.morales:
     aws_groups:
     - analytics
@@ -28,6 +30,7 @@ users:
     - amorales
     gitlab_groups:
     - lg-public
+    - lg-teams|developer
   akhlaq.khan:
     aws_groups:
     - analytics
@@ -37,6 +40,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - lg-teams
   alex.herrick:
     aws_groups:
     - secops
@@ -70,6 +74,7 @@ users:
     - lg-public
     - Mary
     - Radia
+    - lg-teams
     oncaller:
     - true
   alexander.bradley:
@@ -80,6 +85,7 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - lg-teams
     ec2_username:
     - theabrad
   alexander.lai:
@@ -92,6 +98,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   allison.rosenberg:
     aws_groups:
     - analytics
@@ -102,11 +109,13 @@ users:
     - pm
     - Katherine
     - lg-people-platform|reporter
+    - lg-teams
   ambuj.neupane:
     gitlab_groups:
     - lg-all
     - lg-public
     - Evelyn
+    - lg-teams
   amir.reavis-bey:
     aws_groups:
     - apponcall
@@ -117,6 +126,7 @@ users:
     - lg-all
     - lg-public
     - Timnit
+    - lg-teams
     oncaller:
     - true
   andrew.duthie:
@@ -129,6 +139,7 @@ users:
     - lg-all
     - lg-public
     - Katherine
+    - lg-teams
   andrew.farkas:
     aws_groups:
     - apponcall
@@ -139,6 +150,7 @@ users:
     - lg-all
     - lg-public
     - Ursula
+    - lg-teams
     email:
     - aj.farkas@gsa.gov
   andrew.hsieh:
@@ -151,6 +163,7 @@ users:
     - lg-public
     - Timnit
     - User Experience|maintainer
+    - lg-teams
   andrew.mcdaniel:
     aws_groups:
     - fraudops
@@ -161,6 +174,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   annie.hirshman:
     aws_groups:
     - analytics
@@ -168,6 +182,7 @@ users:
     gitlab_groups:
     - user-experience-admins|reporter
     - Ada
+    - lg-teams
   anthony.barbara:
     aws_groups:
     - secops
@@ -180,6 +195,7 @@ users:
     - lg-public
     - login-security|maintainer
     - Security|maintainer
+    - lg-teams
   birane.seck:
     aws_groups:
     - apponcall
@@ -191,6 +207,7 @@ users:
     - lg-public
     - Agnes
     - lg-people-platform|reporter
+    - lg-teams
     ec2_username:
     - biraneseck
   blaine.duncanson:
@@ -203,6 +220,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   bruce.blackman:
     aws_groups:
     - fraudops
@@ -211,6 +229,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
     ec2_username:
     - bblackman
   cale.rubenstein:
@@ -228,6 +247,7 @@ users:
     - lg-public
     - Joy
     - lg-people-platform|reporter
+    - lg-teams
   charles.hazen:
     aws_groups:
     - analytics
@@ -237,6 +257,7 @@ users:
     gitlab_groups:
     - pm
     - Katherine
+    - lg-teams
   chatema.hilliard:
     aws_groups:
     - fraudopsnonprod
@@ -247,6 +268,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   chris.manger:
     aws_groups:
     - finops
@@ -266,6 +288,7 @@ users:
     - lg-all
     - Agnes
     - lg-people-platform|reporter
+    - lg-teams
   concorde.habineza:
     aws_groups:
     - devopsnonprod
@@ -274,6 +297,7 @@ users:
     - lg-public
     - devops
     - Radia|maintainer
+    - lg-teams
     ec2_username:
     - chabineza
   connor.mccarthy:
@@ -285,6 +309,7 @@ users:
     - lg-all
     - lg-public
     - Mary
+    - lg-teams
     git_username:
     - ConnorPMcCarthy
     ec2_username:
@@ -297,6 +322,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
     ec2_username:
     - crothwell
   david.a.zimmerman:
@@ -308,6 +334,7 @@ users:
     - lg-all
     - lg-public
     - Agnes|owner
+    - lg-teams
   davida.marion:
     aws_groups:
     - apponcall
@@ -318,6 +345,7 @@ users:
     - lg-all
     - lg-public
     - Melba|owner
+    - lg-teams
     oncaller:
     - true
   devin.cassidy:
@@ -330,6 +358,7 @@ users:
     - devops
     - login-security|maintainer
     - Security|maintainer
+    - lg-teams
   devon.johnson:
     aws_groups:
     - supporteng
@@ -341,6 +370,7 @@ users:
     - lg-public
     - Ursula
     - dashboard-admins|maintainer
+    - lg-teams
   douglas.price:
     aws_groups:
     - apponcall
@@ -352,11 +382,13 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - lg-teams
   dustin.spiehler:
     aws_groups:
     - finops
     gitlab_groups:
     - lg-public
+    - lg-teams
   eileen.mcfarland:
     aws_groups:
     - apponcall
@@ -367,6 +399,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   eric.dimeo:
     aws_groups:
     - appdev
@@ -379,17 +412,20 @@ users:
     - lg-all
     - lg-public
     - Evelyn|maintainer
+    - lg-teams
   fred.agyepongyeboah:
     aws_groups:
     - soc
     gitlab_groups:
     - login-security|maintainer
     - Security|maintainer
+    - lg-teams
   gerardo.cruz-ortiz:
     gitlab_groups:
     - lg-all
     - lg-public
     - Evelyn
+    - lg-teams
   gina.yamada:
     aws_groups:
     - apponcall
@@ -400,10 +436,12 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   goutham.kommanaboyina:
     gitlab_groups:
     - Ursula|reporter
     - dashboard-admins|maintainer
+    - lg-teams
   hannah.keaton:
     aws_groups:
     - fraudops
@@ -414,6 +452,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   henry.richardson:
     aws_groups:
     - devops
@@ -426,6 +465,7 @@ users:
     - lg-all
     - lg-public
     - Radia
+    - lg-teams
   hetabahen.thakkar:
     aws_groups:
     - analytics
@@ -434,6 +474,7 @@ users:
     - lg-all
     - lg-public
     - Evelyn|maintainer
+    - lg-teams
   howard.miller:
     aws_groups:
     - appdev
@@ -444,16 +485,19 @@ users:
     - lg-all
     - lg-public
     - Ursula
+    - lg-teams
   ifeoma.elekwachi:
     gitlab_groups:
     - antifraud
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   isaac.arasato:
     gitlab_groups:
     - lg-all
     - lg-public
+    - lg-teams
   jabari.myles:
     aws_groups:
     - analytics
@@ -474,6 +518,7 @@ users:
     - lg-all
     - lg-public
     - Annie
+    - lg-teams
     oncaller:
     - true
   jason.miao:
@@ -494,6 +539,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - lg-teams
   jeffrey.golden:
     aws_groups:
     - fraudops
@@ -502,6 +548,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
     ec2_username:
     - jgolden
   jeffrey.holden:
@@ -513,6 +560,7 @@ users:
     - lg-all
     - lg-public
     - Ursula
+    - lg-teams
   jennifer.verdeyen:
     aws_groups:
     - apponcall
@@ -523,6 +571,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   jeremy.curcio:
     aws_groups:
     - apponcall
@@ -531,6 +580,7 @@ users:
     - lg-all
     - lg-public
     - Ursula
+    - lg-teams
     ec2_username:
     - jcurcio
   jessica.dembe:
@@ -543,6 +593,7 @@ users:
     - lg-all
     - lg-public
     - Katherine
+    - lg-teams
   jia.gu:
     aws_groups:
     - analytics
@@ -553,12 +604,14 @@ users:
     - lg-public
     - Katherine
     - User Experience|maintainer
+    - lg-teams
   jillian.harrigan:
     gitlab_groups:
     - antifraud
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
     aws_groups:
     - fraudops
     ec2_username:
@@ -569,6 +622,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   john.maxwell:
     aws_groups:
     - apponcall
@@ -579,6 +633,7 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - lg-teams
   john.saile:
     aws_groups:
     - fraudops
@@ -589,6 +644,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   jonathan.hooper:
     aws_groups:
     - apponcall
@@ -603,6 +659,7 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - lg-teams
     oncaller:
     - true
   jonathan.pirro:
@@ -618,6 +675,7 @@ users:
     - lg-all
     - lg-public
     - Radia
+    - lg-teams
     git_username:
     - bleachbyte
     oncaller:
@@ -632,18 +690,21 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   jude.uwazie:
     gitlab_groups:
     - antifraud
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   julia.solorzano-gsa:
     gitlab_groups:
     - appdev
     - lg-all
     - lg-public
     - User Experience|maintainer
+    - lg-teams
   justin.grevich:
     aws_groups:
     - devops
@@ -658,6 +719,7 @@ users:
     - lg-all
     - lg-public
     - Radia
+    - lg-teams
     oncaller:
     - true
   kalea.sebesta:
@@ -680,6 +742,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   kellery.greene:
     aws_groups:
     - fraudopsnonprod
@@ -690,6 +753,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   kelli.ho:
     aws_groups:
     - analytics
@@ -699,6 +763,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   ken.myers:
     aws_groups:
     - analytics
@@ -707,6 +772,7 @@ users:
     - kmyers
     gitlab_groups:
     - lg-public
+    - lg-teams
     email:
     - kenneth.myers@gsa.gov
   kevin.masters:
@@ -719,6 +785,7 @@ users:
     - lg-all
     - lg-public
     - Katherine
+    - lg-teams
   kevin.peoples:
     aws_groups:
     - analytics
@@ -728,6 +795,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   kirsten.a.green:
     aws_groups:
     - analytics
@@ -736,6 +804,7 @@ users:
     - kgreen
     gitlab_groups:
     - lg-public
+    - lg-teams
   kolawole.oseni:
     aws_groups:
     - analytics
@@ -757,6 +826,7 @@ users:
     - lg-public
     - Ada
     - Melba
+    - lg-teams
   laurie.cole:
     aws_groups:
     - analytics
@@ -765,6 +835,7 @@ users:
     - lcole
     gitlab_groups:
     - lg-public
+    - lg-teams
   lily.rappaport:
     aws_groups:
     - devops
@@ -776,6 +847,7 @@ users:
     - lg-all
     - lg-public
     - Mary
+    - lg-teams
   louise.hoffman:
     aws_groups:
     - fraudops
@@ -786,11 +858,13 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   luigi.ray-montanez:
     aws_groups:
     - appdev
     gitlab_groups:
     - appdev
+    - lg-teams
     ec2_username:
     - lrmontanez
   luis.matos:
@@ -804,6 +878,7 @@ users:
     - lg-public
     - Agnes
     - lg-people-platform|reporter
+    - lg-teams
   malick.diarra:
     aws_groups:
     - apponcall
@@ -814,6 +889,7 @@ users:
     - lg-all
     - lg-public
     - Katherine
+    - lg-teams
   marc.kananda:
     aws_groups:
     - secops
@@ -826,6 +902,7 @@ users:
     - lg-public|developer
     - login-security|maintainer
     - Security|maintainer
+    - lg-teams
     email:
     - m.kananda@gsa.gov
   matt.hinz:
@@ -838,6 +915,7 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - lg-teams
     oncaller:
     - true
   matt.wagner:
@@ -850,6 +928,7 @@ users:
     - lg-all
     - lg-public
     - Ada
+    - lg-teams
     oncaller:
     - true
   mercedez.palmer:
@@ -863,6 +942,7 @@ users:
     - lg-public
     - Joy
     - login-fraud|maintainer
+    - lg-teams
   micah.saul:
     aws_groups:
     - appdev
@@ -870,6 +950,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-teams
   michael.ambroselli:
     aws_groups:
     - apponcall
@@ -881,6 +962,7 @@ users:
     - lg-public
     - Ursula
     - dashboard-admins|maintainer
+    - lg-teams
   michael.fay:
     aws_groups:
     - finops
@@ -897,6 +979,7 @@ users:
     - lg-all
     - lg-public
     - Radia
+    - lg-teams
     git_username:
     - mww59
     oncaller:
@@ -917,6 +1000,7 @@ users:
     - lg-public
     - Mary|reporter
     - Radia|reporter
+    - lg-teams
     oncaller:
     - true
   moncef.belyamani:
@@ -930,6 +1014,7 @@ users:
     - appdev
     - lg-all
     - lg-public
+    - lg-teams
   mostyn.griffith:
     aws_groups:
     - appdev
@@ -940,6 +1025,7 @@ users:
     - lg-all
     - lg-public
     - Katherine
+    - lg-teams
   nadya.primak:
     aws_groups:
     - apponcall
@@ -951,6 +1037,7 @@ users:
     - lg-public
     - Ursula
     - dashboard-admins|maintainer
+    - lg-teams
   nicholas.willey:
     aws_groups:
     - secops
@@ -963,6 +1050,7 @@ users:
     - lg-public
     - login-security|owner
     - Security|owner
+    - lg-teams
   nick.ng:
     aws_groups:
     - analytics
@@ -973,6 +1061,7 @@ users:
     - lg-public
     - design-system-developers
     - User Experience|maintainer
+    - lg-teams
   nick.soutouras:
     aws_groups:
     - analytics
@@ -997,6 +1086,7 @@ users:
     - lg-public
     - login-fraud|maintainer
     - Product|owner
+    - lg-teams
   obinna.ebbis:
     aws_groups:
     - appdev
@@ -1009,6 +1099,7 @@ users:
     - lg-all
     - lg-public
     - Evelyn|maintainer
+    - lg-teams
   olayemisi.ogunshina:
     gitlab_groups:
     - pm
@@ -1028,6 +1119,7 @@ users:
     - lg-public
     - Agnes
     - lg-people-platform|reporter
+    - lg-teams
   page.levendis:
     gitlab_groups:
     - appdev
@@ -1036,13 +1128,13 @@ users:
     - Katherine
     - Ursula
     - Product
-    - pm
   philip.burke:
     gitlab_groups:
     - antifraud
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   princess.ojiaku:
     aws_groups:
     - analytics
@@ -1053,6 +1145,7 @@ users:
     - lg-public
     - Ada
     - User Experience|maintainer
+    - lg-teams
   project_21_bot:
     name:
     - Github CI
@@ -1070,6 +1163,7 @@ users:
     - lg-all
     - lg-public
     - dashboard-admins|maintainer
+    - lg-teams
   rebecca.wright:
     aws_groups:
     - fraudops
@@ -1080,6 +1174,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   robinette.brown:
     aws_groups:
     - fraudopsnonprod
@@ -1090,6 +1185,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   ryan.d.brown:
     aws_groups:
     - devops
@@ -1101,6 +1197,7 @@ users:
     - lg-all
     - lg-public
     - Radia
+    - lg-teams
   samatha.dondeti:
     aws_groups:
     - apponcall
@@ -1112,6 +1209,7 @@ users:
     - lg-public
     - Agnes
     - lg-people-platform|reporter
+    - lg-teams
     ec2_username:
     - sdondeti
   samy.orellana:
@@ -1124,6 +1222,7 @@ users:
     - devops
     - login-security|maintainer
     - Security|maintainer
+    - lg-teams
   shane.chesnutt:
     aws_groups:
     - apponcall
@@ -1134,6 +1233,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   shqiponja.hoxhaocumarez:
     aws_groups:
     - analytics
@@ -1147,6 +1247,7 @@ users:
     gitlab_groups:
     - pm
     - Evelyn|owner
+    - lg-teams
   stacey.mainero:
     aws_groups:
     - fraudopsnonprod
@@ -1157,6 +1258,7 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
+    - lg-teams
   stephen.shelton:
     aws_groups:
     - devops
@@ -1168,6 +1270,7 @@ users:
     - lg-all
     - lg-public
     - Mary
+    - lg-teams
   stesha.marcon:
     aws_groups:
     - analytics
@@ -1183,6 +1286,7 @@ users:
     - lg-all
     - lg-public
     - Mary
+    - lg-teams
   sumi.thaiveettil:
     aws_groups:
     - analytics
@@ -1190,6 +1294,7 @@ users:
     - pm
     - lg-all
     - lg-public
+    - lg-teams
   tahinee.felixmarin:
     aws_groups:
     - analytics
@@ -1201,12 +1306,14 @@ users:
     - Ada
     - Timnit
     - Product
+    - lg-teams
   tiffanyj.andrews:
     gitlab_groups:
     - pm
     - lg-all
     - lg-public
     - Product|owner
+    - lg-teams
     aws_groups:
     - analytics
     - dwuser
@@ -1221,6 +1328,7 @@ users:
     - lg-public
     - login-security|developer
     - Security|maintainer
+    - lg-teams
   timothy.spencer:
     aws_groups:
     - devops
@@ -1234,6 +1342,7 @@ users:
     - lg-all
     - lg-public
     - Mary
+    - lg-teams
   trevor.cornpropst:
     email:
     - trevor.cornpropst@gsa.gov
@@ -1247,6 +1356,7 @@ users:
     - lg-public
     - login-security|maintainer
     - Security|maintainer
+    - lg-teams
   ulises.gomez:
     aws_groups:
     - fraudops
@@ -1256,6 +1366,7 @@ users:
     - antifraud
     - lg-all
     - lg-public
+    - lg-teams
   vishal.parekh:
     aws_groups:
     - devopsnonprod
@@ -1267,6 +1378,7 @@ users:
     - lg-teams
     - lg-public
     - Radia
+    - lg-teams
   vraj.mohan:
     aws_groups:
     - apponcall
@@ -1277,6 +1389,7 @@ users:
     - lg-all
     - lg-public
     - Melba|developer
+    - lg-teams
     oncaller:
     - true
   william.birdsall:
@@ -1289,6 +1402,7 @@ users:
     - lg-all
     - lg-public
     - Joy
+    - lg-teams
   zach.margolis:
     ec2_username:
     - zmargolis
@@ -1302,7 +1416,7 @@ users:
     - lg-all
     - lg-public
     - Agnes
-    - lg-people-platform|reporter
+    - lg-teams
   root:
     # Note: Gitlab Machine User - don't specify aws_groups for these
     email:
