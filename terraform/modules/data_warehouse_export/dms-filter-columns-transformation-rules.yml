@@ -623,6 +623,7 @@
       datatype: datetime
     - name: entry
       datatype: text
+      limit: 2048
     - name: entry_multi_region
       datatype: text
 
@@ -838,7 +839,7 @@
       datatype: text
     - name: credential_public_key
       datatype: text
-      limit: 512
+      limit: 2048
     - name: name
       datatype: string
 
