@@ -318,23 +318,6 @@ data "aws_iam_policy_document" "sns-publish-alerts-policy" {
   }
 }
 
-# Allow publishing traces to X-Ray
-data "aws_iam_policy_document" "xray-publish-policy" {
-  statement {
-    sid = "allowXRayPublish"
-    actions = [
-      "xray:PutTraceSegments",
-      "xray:PutTelemetryRecords",
-      "xray:GetSamplingRules",
-      "xray:GetSamplingTargets",
-      "xray:GetSamplingStatisticSummaries"
-    ]
-    resources = [
-      "*",
-    ]
-  }
-}
-
 # Allow Tagging EC2 instances
 data "aws_iam_policy_document" "ec2-tags" {
   statement {

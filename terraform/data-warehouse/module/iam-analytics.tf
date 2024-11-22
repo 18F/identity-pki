@@ -76,13 +76,6 @@ resource "aws_iam_role_policy" "analytics-ec2-tags" {
   policy = data.aws_iam_policy_document.ec2-tags.json
 }
 
-# Allow publishing traces to X-Ray
-resource "aws_iam_role_policy" "analytics-xray-publish" {
-  name   = "${var.env_name}-analytics-xray-publish"
-  role   = aws_iam_role.analytics.id
-  policy = data.aws_iam_policy_document.xray-publish-policy.json
-}
-
 resource "aws_iam_instance_profile" "analytics" {
   name_prefix = "${var.env_name}_analytics_instance_profile"
   role        = aws_iam_role.analytics.name
