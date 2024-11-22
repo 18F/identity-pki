@@ -49,13 +49,6 @@ resource "aws_iam_role_policy" "base-permissions-cloudwatch-agent" {
   policy = data.aws_iam_policy_document.cloudwatch-agent.json
 }
 
-# allow all the base instances to grab an EIP
-resource "aws_iam_role_policy" "base-permissions-auto-eip" {
-  name   = "${var.env_name}-base-permissions-auto-eip"
-  role   = aws_iam_role.base-permissions.id
-  policy = data.aws_iam_policy_document.auto_eip_policy.json
-}
-
 # allow all instances to send a dying SNS notice
 resource "aws_iam_role_policy" "base-permissions-sns-publish-alerts" {
   name   = "${var.env_name}-base-permissions-sns-publish-alerts"
@@ -69,22 +62,6 @@ resource "aws_iam_role_policy" "base-permissions-transfer-utility" {
   name   = "${var.env_name}-base-permissions-transfer-utility"
   role   = aws_iam_role.base-permissions.id
   policy = data.aws_iam_policy_document.transfer_utility_policy.json
-}
-
-# Policy allowing EC2 instances to describe and associate EIPs. This allows
-# instances in an ASG to automatically grab an existing static IP address.
-data "aws_iam_policy_document" "auto_eip_policy" {
-  statement {
-    sid    = "AllowEIPDescribeAndAssociate"
-    effect = "Allow"
-    actions = [
-      "ec2:DescribeAddresses",
-      "ec2:AssociateAddress",
-    ]
-    resources = [
-      "*",
-    ]
-  }
 }
 
 resource "aws_iam_role" "flow_role" {

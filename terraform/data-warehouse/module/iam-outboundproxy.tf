@@ -34,12 +34,6 @@ resource "aws_iam_role_policy" "obproxy-cloudwatch-agent" {
   policy = data.aws_iam_policy_document.cloudwatch-agent.json
 }
 
-resource "aws_iam_role_policy" "obproxy-auto-eip" {
-  name   = "${var.env_name}-obproxy-auto-eip"
-  role   = aws_iam_role.obproxy.id
-  policy = data.aws_iam_policy_document.auto_eip_policy.json
-}
-
 resource "aws_iam_role_policy" "obproxy-ssm-access" {
   name   = "${var.env_name}-obproxy-ssm-access"
   role   = aws_iam_role.obproxy.id
