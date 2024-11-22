@@ -741,6 +741,7 @@ env-scanners:
   variables:
     ENV_NAME: scanners
     branch: "stages/stable"
+    DATA_WAREHOUSE_ENABLED: true
 
 env-aduth:
   extends: .include_idp_jobs_template

@@ -22,4 +22,6 @@ module "data_warehouse" {
   additional_moderate_priority_sns_topics = ["arn:aws:sns:us-west-2:${local.account_id}:slack-data-warehouse-otherevents"]
   use_spot_instances                      = 1
   autoscaling_schedule_name               = "nozero_normal"
+  gitlab_enabled                          = true
+  gitlab_runner_enabled                   = true
 }
