@@ -1353,6 +1353,7 @@ locals {
           "redshift:DescribeClusterSubnetGroups",
           "redshift:DescribeClusters",
           "redshift:DescribeLoggingStatus",
+          "redshift:DisableLogging",
           "redshift:EnableLogging",
           "redshift:ModifyClusterParameterGroup",
           "redshift:ModifyCluster"
