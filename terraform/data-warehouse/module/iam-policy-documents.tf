@@ -18,8 +18,28 @@ data "aws_iam_policy_document" "secrets_role_policy" {
     sid    = "AllowBucketAndObjects"
     effect = "Allow"
     actions = [
-      "s3:Get*",
-      "s3:List*",
+      "s3:GetAccelerateConfiguration",
+      "s3:GetAccess*",
+      "s3:GetAccountPublicAccessBlock",
+      "s3:GetAnalyticsConfiguration",
+      "s3:GetBucket*",
+      "s3:GetDataAccess",
+      "s3:GetIntelligentTieringConfiguration",
+      "s3:GetInventoryConfiguration",
+      "s3:GetJobTagging",
+      "s3:GetLifecycleConfiguration",
+      "s3:GetMetricsConfiguration",
+      "s3:GetMulti*",
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectLegalHold",
+      "s3:GetObjectRetention",
+      "s3:GetObjectTagging",
+      "s3:GetObjectTorrent",
+      "s3:GetObjectVersion*",
+      "s3:GetReplicationConfiguration",
+      "s3:GetStorage*",
+      "s3:List*"
     ]
 
     resources = [
@@ -81,7 +101,6 @@ data "aws_iam_policy_document" "secrets_role_policy" {
     effect = "Allow"
     actions = [
       "autoscaling:CompleteLifecycleAction",
-      "autoscaling:RecordLifecycleActionHeartbeat",
     ]
     resources = [
       "arn:aws:autoscaling:*:*:autoScalingGroup:*:autoScalingGroupName/${var.env_name}-*",
@@ -109,7 +128,45 @@ data "aws_iam_policy_document" "certificates_role_policy" {
     sid    = "AllowCertificatesBucketIntegrationTest"
     effect = "Allow"
     actions = [
-      "s3:*",
+      "s3:AbortMultipartUpload",
+      "s3:AssociateAccessGrantsIdentityCenter",
+      "s3:BypassGovernanceRetention",
+      "s3:Create*",
+      "s3:Delete*",
+      "s3:Describe*",
+      "s3:DissociateAccessGrantsIdentityCenter",
+      "s3:GetAccelerateConfiguration",
+      "s3:GetAccess*",
+      "s3:GetAccountPublicAccessBlock",
+      "s3:GetAnalyticsConfiguration",
+      "s3:GetBucket*",
+      "s3:GetDataAccess",
+      "s3:GetIntelligentTieringConfiguration",
+      "s3:GetInventoryConfiguration",
+      "s3:GetJobTagging",
+      "s3:GetLifecycleConfiguration",
+      "s3:GetMetricsConfiguration",
+      "s3:GetMulti*",
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectLegalHold",
+      "s3:GetObjectRetention",
+      "s3:GetObjectTagging",
+      "s3:GetObjectTorrent",
+      "s3:GetObjectVersion*",
+      "s3:GetReplicationConfiguration",
+      "s3:GetStorage*",
+      "s3:InitiateReplication",
+      "s3:List*",
+      "s3:ObjectOwnerOverrideToBucketOwner",
+      "s3:PauseReplication",
+      "s3:Put*",
+      "s3:Replicate*",
+      "s3:RestoreObject",
+      "s3:SubmitMultiRegionAccessPointRoutes",
+      "s3:TagResource",
+      "s3:UntagResource",
+      "s3:Update*"
     ]
     resources = [
       "arn:aws:s3:::login-gov.internal-certs.${data.aws_caller_identity.current.account_id}-*/${var.env_name}/",
@@ -125,9 +182,45 @@ data "aws_iam_policy_document" "application_secrets_role_policy" {
     sid    = "AllowApplicationSecretsBucket${var.env_name}"
     effect = "Allow"
     actions = [
-      # TODO: ROLE-AUDIT-XXX https://github.com/18F/identity-devops/issues/1563
-      # pretty sure this should only grant read, not s3:*
-      "s3:*",
+      "s3:AbortMultipartUpload",
+      "s3:AssociateAccessGrantsIdentityCenter",
+      "s3:BypassGovernanceRetention",
+      "s3:Create*",
+      "s3:Delete*",
+      "s3:Describe*",
+      "s3:DissociateAccessGrantsIdentityCenter",
+      "s3:GetAccelerateConfiguration",
+      "s3:GetAccess*",
+      "s3:GetAccountPublicAccessBlock",
+      "s3:GetAnalyticsConfiguration",
+      "s3:GetBucket*",
+      "s3:GetDataAccess",
+      "s3:GetIntelligentTieringConfiguration",
+      "s3:GetInventoryConfiguration",
+      "s3:GetJobTagging",
+      "s3:GetLifecycleConfiguration",
+      "s3:GetMetricsConfiguration",
+      "s3:GetMulti*",
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectLegalHold",
+      "s3:GetObjectRetention",
+      "s3:GetObjectTagging",
+      "s3:GetObjectTorrent",
+      "s3:GetObjectVersion*",
+      "s3:GetReplicationConfiguration",
+      "s3:GetStorage*",
+      "s3:InitiateReplication",
+      "s3:List*",
+      "s3:ObjectOwnerOverrideToBucketOwner",
+      "s3:PauseReplication",
+      "s3:Put*",
+      "s3:Replicate*",
+      "s3:RestoreObject",
+      "s3:SubmitMultiRegionAccessPointRoutes",
+      "s3:TagResource",
+      "s3:UntagResource",
+      "s3:Update*"
     ]
     resources = [
       "arn:aws:s3:::login-gov.app-secrets-*-${data.aws_caller_identity.current.account_id}/${var.env_name}/",
@@ -141,7 +234,6 @@ data "aws_iam_policy_document" "application_secrets_secrets_manager_role_policy"
     sid    = "AllowApplicationSecretsSecretsManager${var.env_name}"
     effect = "Allow"
     actions = [
-      "secretsmanager:DescribeSecret",
       "secretsmanager:GetSecretValue",
     ]
     resources = [
@@ -186,11 +278,8 @@ data "aws_iam_policy_document" "cloudwatch-logs" {
   statement {
     sid = "allowCloudWatch"
     actions = [
-      "logs:CreateLogGroup",
       "logs:CreateLogStream",
       "logs:PutLogEvents",
-      "logs:DescribeLogStreams",
-      "logs:DescribeLogGroups",
     ]
     resources = [
       "arn:aws:logs:*:*:*",
@@ -206,7 +295,6 @@ data "aws_iam_policy_document" "cloudwatch-agent" {
     sid = "allowCloudWatchAgent"
     actions = [
       "cloudwatch:PutMetricData",
-      "ec2:DescribeVolumes",
       "ec2:DescribeTags",
     ]
     resources = [
