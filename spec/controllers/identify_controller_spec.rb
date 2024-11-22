@@ -152,6 +152,7 @@ RSpec.describe IdentifyController, type: :controller do
               certificate_chain_signing_key_ids: [cert.signing_key_id],
               issuer: cert.issuer.to_s,
               valid_policies: true,
+              mapped_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
               valid: true,
               error: nil,
               openssl_valid: false,
@@ -361,12 +362,14 @@ RSpec.describe IdentifyController, type: :controller do
             @request.headers['X-Client-Cert'] = CGI.escape(root_cert.to_pem)
             expect(CertificateLoggerService).to receive(:log_certificate)
             expect(Rails.logger).to receive(:info).with(/GET/).once
+
             expect(Rails.logger).to receive(:info).with({
               name: 'Certificate Processed',
               signing_key_id: cert.key_id,
               key_id: cert.key_id,
               certificate_chain_signing_key_ids: [cert.signing_key_id],
               valid_policies: false,
+              mapped_policy_oids: {},
               valid: false,
               error: 'self-signed cert',
               openssl_valid: false,
