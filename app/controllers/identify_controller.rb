@@ -113,6 +113,7 @@ class IdentifyController < ApplicationController
       certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
       valid_policies: cert.valid_policies?,
+      mapped_policy_oids: cert.mapped_policies.map { |oid| [oid, true] }.to_h,
       valid: valid,
       error: !valid ? validation_result : nil,
       openssl_valid: login_certs_openssl_result[:valid],
