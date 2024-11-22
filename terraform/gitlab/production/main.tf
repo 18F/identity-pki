@@ -47,6 +47,7 @@ module "main" {
   rds_allow_major_version_upgrade   = false
   account_runner_accounts_to_access = ["sandbox"]
   asg_gitlab_account_runner_desired = 2
+  instance_type_gitlab              = "r5.2xlarge"
 }
 
 output "gitlab_db_host" {
