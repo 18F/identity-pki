@@ -444,8 +444,29 @@ data "aws_iam_policy_document" "codebuild_packer_s3" {
     sid    = "AllowBucketAndObjects"
     effect = "Allow"
     actions = [
-      "s3:List*",
-      "s3:Get*"
+      "s3:GetAccelerateConfiguration",
+      "s3:GetAccess*",
+      "s3:GetAccountPublicAccessBlock",
+      "s3:GetAnalyticsConfiguration",
+      "s3:GetBucket*",
+      "s3:GetDataAccess",
+      "s3:GetEncryptionConfiguration",
+      "s3:GetIntelligentTieringConfiguration",
+      "s3:GetInventoryConfiguration",
+      "s3:GetJobTagging",
+      "s3:GetLifecycleConfiguration",
+      "s3:GetMetricsConfiguration",
+      "s3:GetMulti*",
+      "s3:GetObject",
+      "s3:GetObjectAcl",
+      "s3:GetObjectLegalHold",
+      "s3:GetObjectRetention",
+      "s3:GetObjectTagging",
+      "s3:GetObjectTorrent",
+      "s3:GetObjectVersion*",
+      "s3:GetReplicationConfiguration",
+      "s3:GetStorage*",
+      "s3:List*"
     ]
     resources = [
       "arn:aws:s3:::login-gov.secrets.${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}/common/*",
