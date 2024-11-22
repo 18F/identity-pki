@@ -180,19 +180,6 @@ users:
     - lg-public
     - login-security|maintainer
     - Security|maintainer
-  benjamin.chait:
-    aws_groups:
-    - analytics
-    - dwuser
-    gitlab_groups:
-    - pm
-    - lg-all
-    - lg-public
-    - Timnit
-    git_username:
-    - benjaminchait
-    email:
-    - benjamin.chait@gsa.gov
   birane.seck:
     aws_groups:
     - apponcall
@@ -1373,8 +1360,9 @@ groups:
       everybody with an account.
   lg-teams:
     description: Gitlab group for Sprint and Discipline teams
-  lg-roles: 
-    description: This space is only used for role assignment and access.  Do not create issues/projects/code here.  
+  lg-roles:
+    description: This space is only used for role assignment and access.  Do not create
+      issues/projects/code here.
   lg-public:
     description: Place where anybody can create projects, and they can be accessed
       by the public.
