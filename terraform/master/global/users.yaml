@@ -622,7 +622,9 @@ users:
     - lg-all
     - lg-public
     - login-fraud|maintainer
-  joe.greathead@gsa.gov:
+  joe.greathead:
+    email:
+    - joe.greathead@gsa.gov
     aws_groups:
     - appdev
     gitlab_groups:
