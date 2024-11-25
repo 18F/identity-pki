@@ -398,3 +398,15 @@ repos:
   velero-plugin-for-aws:
     name: "docker-hub/velero/velero-plugin-for-aws"
     <<: *readonly_template
+  crossaccount_terraform_apply:
+    name: "cd/crossaccount_terraform_apply"
+    <<: *all_write_template
+  crossaccount_terraform_apply_blessed:
+    name: "cd/crossaccount_terraform_apply/blessed"
+    <<: *all_write_template
+  crossaccount_terraform_verify:
+    name: "cd/crossaccount_terraform_verify"
+    <<: *all_write_template
+  crossaccount_terraform_verify_blessed:
+    name: "cd/crossaccount_terraform_verify/blessed"
+    <<: *all_write_template
