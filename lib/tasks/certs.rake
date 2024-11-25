@@ -94,7 +94,7 @@ namespace :certs do
       puts "  Issuer: #{matching_cert.issuer}"
       puts "  SHA1 Fingerpint: #{matching_cert.sha1_fingerprint}"
       puts "  Key ID: #{matching_cert.key_id}"
-      puts "  In Certificate Store: #{CertificateStore.instance[matching_cert.key_id].present?}"
+      puts "  In Certificate Store: #{CertificateStore.instance.certificates.find { |x| x.sha1_fingerprint == matching_cert.sha1_fingerprint }.present? }"
     end
 
     puts ''
@@ -232,14 +232,21 @@ namespace :certs do
       exit 1
     end
 
-    login_certificates_missing_in_ficam = login_certificates.map(&:subject) -
-                                          ficam_certificates.map(&:subject)
+    login_certificates_missing_in_ficam = login_certificates.map(&:sha1_fingerprint) -
+                                          ficam_certificates.map(&:sha1_fingerprint)
     if !login_certificates_missing_in_ficam.empty?
+      login_subjects_missing_in_ficam = login_certificates_missing_in_ficam.
+        map do |sha1|
+          cert = store_certificates.find { |cert| cert.sha1_fingerprint == sha1 }
+
+          { cert.subject.to_s => [cert.key_id, cert.issuer.to_s] }
+        end
+
       puts <<~ERROR
         Unexpected certificates in #{IdentityConfig.store.login_certificate_bundle_file} not present in #{IdentityConfig.store.ficam_certificate_bundle_file}
 
         Remove these certificates from #{IdentityConfig.store.certificate_store_directory}:
-        #{login_certificates_missing_in_ficam.map(&:to_s).to_yaml[4...]}
+        #{login_subjects_missing_in_ficam.to_yaml[4...]}
         Then run:
         rake certs:generate_certificate_bundles
       ERROR
