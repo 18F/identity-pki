@@ -1,3 +1,8 @@
+# This conformance pack only focuses on Redshift configurations. Other packs should handle the following checks.
+# Disabling "Config Rule for Encrypted Volumes Disabled" KICS finding.
+# Disabling "High Access Key Rotation Period" KICS finding.
+# Disabling "IAM Access Analyzer Not Enabled" KICS finding.
+# kics-scan disable=1b6322d9-c755-4f8c-b804-32c19250f2d9,800fa019-49dd-421b-9042-7331fdd83fa2,8d29754a-2a18-460d-a1ba-9509f8d359da
 ##################################################################################
 #
 #   Conformance Pack:
