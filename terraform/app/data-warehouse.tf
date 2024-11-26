@@ -21,6 +21,8 @@ module "data_warehouse_export" {
   lambda_insights_version               = var.lambda_insights_version
   dms                                   = module.dms[0]
   cloudwatch_retention_days             = local.retention_days
+  data_warehouse_export_lambda_timeout  = var.data_warehouse_export_lambda_timeout
+  column_compare_task_memory_size       = var.column_compare_task_memory_size
 }
 
 moved {

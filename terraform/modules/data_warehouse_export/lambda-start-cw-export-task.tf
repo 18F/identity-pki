@@ -17,7 +17,7 @@ resource "aws_lambda_function" "start_cw_export_task" {
   role             = aws_iam_role.start_cw_export_task.arn
   handler          = "start_cw_export_task.lambda_handler"
   runtime          = "python3.9"
-  timeout          = 900 # in seconds, 15 minutes
+  timeout          = var.data_warehouse_export_lambda_timeout # in seconds, 15 minutes
 
   layers = [
     local.lambda_insights

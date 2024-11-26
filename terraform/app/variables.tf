@@ -1905,3 +1905,15 @@ variable "data_warehouse_duration_threshold" {
   description = "The duration threshold (as a percentage) for triggering an alert"
   default     = 80
 }
+
+variable "column_compare_task_memory_size" {
+  description = "Defines the amount of memory in MB the column compare task lambda can use at runtime"
+  type        = number
+  default     = 128
+}
+
+variable "data_warehouse_export_lambda_timeout" {
+  description = "The max duration lambda can run"
+  type        = number
+  default     = 900
+}
