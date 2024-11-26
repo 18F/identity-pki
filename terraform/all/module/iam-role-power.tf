@@ -652,16 +652,6 @@ module "poweruser-assumerole" {
           ]
         },
         {
-          sid    = "XRay"
-          effect = "Allow"
-          actions = [
-            "xray:*",
-          ]
-          resources = [
-            "*",
-          ]
-        },
-        {
           sid    = "ECR"
           effect = "Allow"
           actions = [

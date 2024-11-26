@@ -38,6 +38,7 @@ locals {
     var.apps_enabled == 1 ? {
       "dashboard_newrelic_agent" = "srv/dashboard/shared/log/newrelic_agent.log",
       "dashboard_production"     = "srv/dashboard/shared/log/production.log",
+      "dashboard_events"         = "srv/dashboard/shared/log/events.log",
       "dashboard_puma"           = "srv/dashboard/shared/log/puma.log",
       "dashboard_puma_err"       = "srv/dashboard/shared/log/puma_err.log",
     } : {}
