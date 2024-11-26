@@ -1,7 +1,8 @@
 locals {
   cloudwatch_log_groups = merge(
     {
-      "aide_log"                = "var/log/aide/aide.json",
+      "aide_json"               = "var/log/aide/aide.json",
+      "aide_log"                = "var/log/aide/aide.log",
       "amazon_ssm_agent"        = "var/log/amazon/ssm/amazon-ssm-agent.log",
       "amazon_ssm_agent_errors" = "var/log/amazon/ssm/errors.log",
       "apt_history"             = "var/log/apt/history.log",
@@ -13,12 +14,14 @@ locals {
       "kern"                    = "var/log/kern.log",
       "mail"                    = "var/log/mail.log",
       "messages_log"            = "var/log/messages",
+      "nginx_error"             = "var/log/nginx/error.log",
       "nginx_passenger"         = "var/log/nginx/passenger.log",
-      "syslog"                  = "var/log/syslog",
-      "ubuntu_advantage"        = "var/log/ubuntu-advantage.log",
+      "pgbouncer"               = "var/log/postgresql/pgbouncer.log",
       "reporting_newrelic"      = "srv/reporting/shared/log/newrelic_agent.log",
       "reporting_production"    = "srv/reporting/shared/log/production.log",
       "reporting_workers"       = "srv/reporting/shared/log/workers.log",
+      "syslog"                  = "var/log/syslog",
+      "ubuntu_advantage"        = "var/log/ubuntu-advantage.log",
   })
 }
 
