@@ -5,6 +5,8 @@ resource "aws_cloudwatch_log_group" "squid_access_log" {
   tags = {
     environment = var.env_name
   }
+
+  retention_in_days = var.cloudwatch_retention_days
 }
 
 resource "aws_cloudwatch_log_group" "squid_cache_log" {
@@ -14,6 +16,8 @@ resource "aws_cloudwatch_log_group" "squid_cache_log" {
   tags = {
     environment = var.env_name
   }
+
+  retention_in_days = var.cloudwatch_retention_days
 }
 
 # This module creates cloudwatch logs filters that create metrics for squid

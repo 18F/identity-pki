@@ -36,6 +36,12 @@ variable "ami_id_map" {
   default     = {}
 }
 
+variable "cloudwatch_retention_days" {
+  type        = number
+  default     = 0
+  description = "Defines the number of days log groups will be retained."
+}
+
 # Auto scaling group desired counts
 variable "asg_outboundproxy_desired" {
   default = 1
@@ -261,3 +267,4 @@ variable "chef_role" {
   type        = string
   default     = "outboundproxy"
 }
+

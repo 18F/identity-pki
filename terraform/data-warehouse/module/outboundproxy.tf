@@ -47,4 +47,5 @@ module "outbound_proxy" {
   use_prefix                           = false
   use_spot_instances                   = var.use_spot_instances
   vpc_id                               = aws_vpc.analytics_vpc.id
+  cloudwatch_retention_days            = local.logs_retention_days
 }
