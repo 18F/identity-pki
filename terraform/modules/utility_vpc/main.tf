@@ -10,6 +10,17 @@ resource "aws_vpc" "main" {
   }
 }
 
+# Default Security Group created by VPC resource.
+# This security group should not be used by any resources
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.name}-${var.account_name}-${var.region}-default"
+  }
+
+}
+
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
