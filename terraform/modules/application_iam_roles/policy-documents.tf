@@ -114,7 +114,7 @@ resource "aws_iam_role_policy" "migration-idp-secrets-manager" {
         },
         {
             "Effect": "Allow",
-            "Action": "secretsmanager:Get*",
+            "Action": "secretsmanager:GetSecretValue",
             "Resource": [
                 "arn:aws:secretsmanager:*:*:secret:global/common/*",
                 "arn:aws:secretsmanager:*:*:secret:global/idp/*",
@@ -145,7 +145,38 @@ resource "aws_iam_role_policy" "idp-secrets-manager" {
         },
         {
             "Effect": "Allow",
-            "Action": "secretsmanager:Get*",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": [
+                "arn:aws:secretsmanager:*:*:secret:global/common/*",
+                "arn:aws:secretsmanager:*:*:secret:global/idp/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/common/*",
+                "arn:aws:secretsmanager:*:*:secret:${var.env_name}/idp/*"
+            ]
+        }
+    ]
+}
+EOM
+
+}
+
+resource "aws_iam_role_policy" "worker-idp-secrets-manager" {
+  name   = "${var.env_name}-idp-secrets-manager"
+  role   = aws_iam_role.worker.id
+  policy = <<EOM
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:List*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
             "Resource": [
                 "arn:aws:secretsmanager:*:*:secret:global/common/*",
                 "arn:aws:secretsmanager:*:*:secret:global/idp/*",

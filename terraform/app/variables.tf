@@ -1838,6 +1838,29 @@ defined in terraform/app/cloudwatch-log.tf (vs. simply removing them from state)
 EOM
 }
 
+variable "idp_secrets_manager_secrets_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable to create IDP Secrets Manager secrets"
+}
+
+variable "idp_secrets_manager_secrets" {
+  type = map(object({
+    name = string
+    tags = map(string)
+  }))
+  default = {
+    "Database Password" = {
+      name = "database_password",
+      tags = {}
+    }
+  }
+
+  description = <<EOM
+List of secrets to create in Secrets Manager for the IDP
+EOM
+}
+
 variable "logarchive_acct_id" {
   type        = string
   description = <<EOM

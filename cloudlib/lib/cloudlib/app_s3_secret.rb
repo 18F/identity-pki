@@ -1,4 +1,5 @@
 require 'aws-sdk-s3'
+require 'aws-sdk-secretsmanager'
 require 'aws-sdk-sts'
 require 'colorized_string'
 require 'fileutils'
@@ -298,6 +299,10 @@ module Cloudlib
         @s3_client ||= Aws::S3::Client.new
       end
 
+      def secrets_manager_client
+        @secrets_manager_client ||= Aws::SecretsManager::Client.new
+      end
+
       # @return [true, Array(false, Error)]
       def check_file(content)
         extension = File.extname(prefix)
@@ -317,6 +322,7 @@ module Cloudlib
           raise "smart/curly quotes in YAML detected [“”‘’]" if has_smart_quotes
 
           validate_idp_json_keys(parsed['production']) if app == 'idp'
+          validate_secrets_manager_keys(parsed['production']) if app == 'idp'
 
           true
         when '.json'
@@ -338,6 +344,21 @@ module Cloudlib
         end
 
         true
+      end
+
+      def validate_secrets_manager_keys(parsed_content)
+        secret_names = parsed_content.values.filter_map do |value|
+          value.is_a?(Array) && value[0] == 'secrets_manager' && value[1]
+        end
+        return unless secret_names.count > 0
+        aws_secret_list = secrets_manager_client.list_secrets(
+          filters: [{key: 'name', values: secret_names}]
+        ).secret_list.map(&:name)
+
+        missing_from_aws = secret_names - aws_secret_list
+        if missing_from_aws.size > 0
+          raise "Secrets do not exist in Secrets Manager: #{missing_from_aws.join(', ')}"
+        end
       end
     end
 

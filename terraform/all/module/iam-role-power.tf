@@ -817,7 +817,6 @@ module "poweruser-assumerole" {
           actions = [
             "secretsmanager:ListSecrets",
             "secretsmanager:DescribeSecret",
-            "secretsmanager:Get*",
             "secretsmanager:ListSecretVersionIds",
           ]
           resources = [

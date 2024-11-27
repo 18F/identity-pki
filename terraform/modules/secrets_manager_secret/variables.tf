@@ -59,20 +59,39 @@ variable "recovery_window_in_days" {
   default     = 7
 }
 
+# For secrets that will have their values managed outside of terraform, a
+# value of "" or a string that includes "generateRandomPassword" must be used.
+#
+# The literal string "generateRandomPassword" will be replaced with a randomly
+# generated string based on the configured variables. Example:
+#   secret_string       = "my_prefixed_password:generateRandomPassword"
+#   password_length     = 4
+#   exclude_numbers     = true
+#   exclude_punctuation = true
+# will create a secret in SecretsManager with a value like:
+#   "my_prefixed_password:AbCd"
 variable "secret_string" {
   type        = string
   description = "Secret"
   default     = "generateRandomPassword"
 }
 
-variable "replica_regions" {
-  type        = list(any)
-  description = "Regions for secret replication"
-  default     = []
+variable "secret_tags" {
+  description = "The tags to apply to the secret"
+  type        = map(string)
+  default     = {}
 }
 
-variable "replica_key_id" {
+variable "kms_key_id" {
   type        = string
-  description = "Secret"
-  default     = ""
+  description = "KMS key used to encrypt the secret"
+}
+
+variable "replica_regions" {
+  type = list(object({
+    region             = string
+    kms_replica_key_id = string
+  }))
+  description = "List of regions and associated replica keys to replicate to"
+  default     = []
 }

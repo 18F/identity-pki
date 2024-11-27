@@ -12,17 +12,20 @@ data "aws_secretsmanager_random_password" "password" {
 resource "aws_secretsmanager_secret" "secret" {
   name                    = var.secret_name
   recovery_window_in_days = var.recovery_window_in_days
+  kms_key_id              = var.kms_key_id
+  tags                    = var.secret_tags
 
   dynamic "replica" {
     for_each = var.replica_regions
     content {
-      kms_key_id = var.replica_key_id
-      region     = replica.value
+      kms_key_id = replica.value.kms_replica_key_id
+      region     = replica.value.region
     }
   }
 }
 
 resource "aws_secretsmanager_secret_version" "secret" {
+  count         = length(var.secret_string) > 0 ? 1 : 0
   secret_id     = aws_secretsmanager_secret.secret.id
   secret_string = replace(var.secret_string, "generateRandomPassword", data.aws_secretsmanager_random_password.password.random_password)
 
