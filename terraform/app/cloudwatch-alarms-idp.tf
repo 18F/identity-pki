@@ -442,3 +442,24 @@ EOM
 
   alarm_actions = local.moderate_priority_alarm_actions
 }
+
+resource "aws_cloudwatch_metric_alarm" "integration_error" {
+  alarm_name        = "${var.env_name}-alarm-name"
+  alarm_description = "An integration error has been triggered."
+
+  namespace = "${var.env_name}/{namespace}"
+
+  metric_name = "sp-integration-error-present"
+
+  statistic           = "Sum"
+  comparison_operator = "LessThanThreshold"
+  threshold           = 1
+  period              = 60
+  evaluation_periods  = 1
+
+  treat_missing_data = "breaching"
+
+  alarm_actions = local.low_priority_alarm_actions
+  ok_actions    = local.low_priority_alarm_actions
+}
+
