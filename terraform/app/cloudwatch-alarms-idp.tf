@@ -452,12 +452,12 @@ resource "aws_cloudwatch_metric_alarm" "integration_error" {
   metric_name = "sp-integration-error-present"
 
   statistic           = "Sum"
-  comparison_operator = "LessThanThreshold"
+  comparison_operator = "LessThGreaterThanOrEqualToThresholdanThreshold"
   threshold           = 1
   period              = 60
   evaluation_periods  = 1
 
-  treat_missing_data = "breaching"
+  treat_missing_data = "notBreaching"
 
   alarm_actions = local.low_priority_alarm_actions
   ok_actions    = local.low_priority_alarm_actions
