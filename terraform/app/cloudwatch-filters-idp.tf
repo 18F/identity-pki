@@ -558,6 +558,15 @@ locals {
       dimensions   = {}
     },
   }
+
+  idp_integration_filters = {
+    sp_integration_error_present = {
+      name         = 'sp-integration-error-present'
+      pattern      = { ($.name = 'sp_integration_errors_present' ) }
+      metric_value = 1
+      dimensions   = {}
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "idp_external_service" {
@@ -657,5 +666,18 @@ resource "aws_cloudwatch_log_metric_filter" "pii_spill_detector" {
     namespace     = "${var.env_name}/SpillDetectorMetrics"
     value         = "1"
     default_value = "0"
+  }
+}
+
+resource "aws_cloudwatch_log_metric_filter" "idp_integrations" {
+  for_each       = local.idp_integration_filters
+  name           = each.value["name"]
+  pattern        = each.value["pattern"]
+  log_group_name = aws_cloudwatch_log_group.log["idp_events"].name
+  metric_transformation {
+    name       = each.value["name"]
+    namespace  = "${var.env_name}/idp-integrations"
+    value      = each.value["metric_value"]
+    dimensions = each.value["dimensions"]
   }
 }
