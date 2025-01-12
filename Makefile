@@ -6,6 +6,8 @@
 
 CONFIG = config/application.yml
 PORT ?= 8442
+OS := $(shell uname)
+IS_NIXOS := $(shell grep -q NixOS /etc/os-release && echo true)
 
 all: check
 
@@ -41,5 +43,14 @@ lintfix:
 test: $(CONFIG)
 	bundle exec rspec
 
+ifeq ($(OS), Darwin)
 run:
 	foreman start -p $(PORT)
+else ifeq ($(OS), Linux)
+ifeq $(IS_NIXOS), true)
+run:
+	goreman start
+else
+	foreman start -p $(PORT)
+endif
+endif
