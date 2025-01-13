@@ -24,6 +24,7 @@
           mkShell {
             buildInputs = [
               ruby
+              openssl
               yarn
               postgresql.dev
               goreman # Use goreman since nginx launch will fail gracefully and launch Puma, as opposed to when using foreman
