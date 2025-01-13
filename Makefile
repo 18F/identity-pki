@@ -47,9 +47,9 @@ ifeq ($(OS), Darwin)
 run:
 	foreman start -p $(PORT)
 else ifeq ($(OS), Linux)
-ifeq $(IS_NIXOS), true)
+ifeq ($(IS_NIXOS), true)
 run:
-	goreman start
+	goreman -b $(PORT) start
 else
 	foreman start -p $(PORT)
 endif
