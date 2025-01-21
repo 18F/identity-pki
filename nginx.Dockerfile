@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/alpine:3
+FROM public.ecr.aws/docker/library/alpine:3.20
 
 RUN apk add --no-cache jq curl nginx nginx-mod-http-headers-more
 
