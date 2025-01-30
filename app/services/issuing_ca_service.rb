@@ -67,11 +67,23 @@ class IssuingCaService
     if response.kind_of?(Net::HTTPSuccess)
       OpenSSL::PKCS7.new(response.body).certificates || []
     else
-      NewRelic::Agent.notice_error(UnexpectedPKCS7Response.new(response.body))
+      NewRelic::Agent.notice_error(
+        UnexpectedPKCS7Response.new(response.body),
+        custom_params: { issuer_uri: issuer_uri.to_s },
+      )
+
       []
     end
-  rescue OpenSSL::PKCS7::PKCS7Error, ArgumentError, Errno::ECONNREFUSED, Net::ReadTimeout, Net::OpenTimeout => e
-    NewRelic::Agent.notice_error(e)
+  rescue OpenSSL::PKCS7::PKCS7Error,
+         ArgumentError,
+         Errno::ECONNREFUSED,
+         Net::ReadTimeout,
+         Net::OpenTimeout => error
+    NewRelic::Agent.notice_error(
+      error,
+      custom_params: { issuer_uri: issuer_uri.to_s, response_body: response&.body },
+    )
+
     []
   end
 
