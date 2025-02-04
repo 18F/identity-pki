@@ -19,7 +19,7 @@ AllCops:
     - "lib/deploy/*"
     - "node_modules/**/*"
     - "vendor/**/*"
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.3
   TargetRailsVersion: 6.1
   UseCache: true
   DisabledByDefault: true

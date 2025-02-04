@@ -56,11 +56,32 @@ RSpec.describe IssuingCaService do
 
     context 'when there is an HTTP error fetching the certificate' do
       it 'returns nil and logs the error' do
-        stub_request(:get, 'http://example.com').to_return(status: [500, 'Internal Server Error'])
+        stub_request(:get, 'http://example.com/').to_return(
+          status: [500, 'Internal Server Error'],
+          body: 'Internal Server Error',
+        )
 
         certificate = certificates_in_collection(certificate_set, :type, :leaf).first
         expect(NewRelic::Agent).to receive(:notice_error).with(
-          IssuingCaService::UnexpectedPKCS7Response
+          IssuingCaService::UnexpectedPKCS7Response.new('Internal Server Error'),
+          custom_params: { issuer_uri: 'http://example.com/' },
+        )
+        fetched_cert = described_class.fetch_signing_key_for_cert(certificate)
+        expect(fetched_cert).to eq nil
+      end
+    end
+
+    context 'when there is an HTTP timeout fetching the certificate' do
+      it 'returns nil and logs the error' do
+        stub_request(:get, 'http://example.com/').to_timeout
+
+        certificate = certificates_in_collection(certificate_set, :type, :leaf).first
+        expect(NewRelic::Agent).to receive(:notice_error).with(
+          Net::OpenTimeout,
+          custom_params: {
+            issuer_uri: 'http://example.com/',
+            response_body: nil,
+          },
         )
         fetched_cert = described_class.fetch_signing_key_for_cert(certificate)
         expect(fetched_cert).to eq nil
@@ -69,10 +90,16 @@ RSpec.describe IssuingCaService do
 
     context 'when the PKCS7 response is invalid' do
       it 'returns nil and logs the error' do
-        stub_request(:get, 'http://example.com').to_return(body: 'bad pkcs7 response')
+        stub_request(:get, 'http://example.com/').to_return(body: 'bad pkcs7 response')
 
         certificate = certificates_in_collection(certificate_set, :type, :leaf).first
-        expect(NewRelic::Agent).to receive(:notice_error).with(ArgumentError)
+        expect(NewRelic::Agent).to receive(:notice_error).with(
+          ArgumentError,
+          custom_params: {
+            issuer_uri: 'http://example.com/',
+            response_body: 'bad pkcs7 response',
+          },
+        )
         fetched_cert = described_class.fetch_signing_key_for_cert(certificate)
         expect(fetched_cert).to eq nil
       end
