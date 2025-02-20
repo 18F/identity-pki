@@ -1,5 +1,5 @@
 # Use the official Ruby image because the Rails images have been deprecated
-FROM ruby:3.3.6-slim as build
+FROM ruby:3.4.1-slim as build
 
 RUN apt-get update && \
     apt-get install -y \
@@ -46,7 +46,7 @@ RUN mkdir -p /usr/local/share/aws \
 
 
 # Switch to base image
-FROM ruby:3.3.6-slim
+FROM ruby:3.4.1-slim
 WORKDIR /pivcac
 
 RUN apt-get update && \
