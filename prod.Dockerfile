@@ -1,5 +1,5 @@
 # this part builds everything
-FROM ruby:3.3.6-slim-bullseye as builder
+FROM ruby:3.4.1-slim-bullseye as builder
 
 # Set environment variables
 ENV RAILS_ROOT /app
@@ -53,7 +53,7 @@ RUN bundle binstubs --all
 
 #####################################################
 # here is where the actual image gets built
-FROM ruby:3.3.6-slim-bullseye
+FROM ruby:3.4.1-slim-bullseye
 
 SHELL ["/bin/bash", "-c"]
 
@@ -138,7 +138,7 @@ RUN bundle config set --local without 'deploy development doc test'
 # make everything the proper perms after everything is initialized
 RUN chown -R app:app $RAILS_ROOT/tmp && \
     chown -R app:app $RAILS_ROOT/log && \
-    find $RAILS_ROOT -type d | xargs chmod 755
+    find $RAILS_ROOT -type d | xargs -d '\n' chmod 755
 
 # get rid of suid/sgid binaries
 RUN find / -perm /4000 -type f | xargs chmod u-s
