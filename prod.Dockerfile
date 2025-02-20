@@ -1,5 +1,5 @@
 # this part builds everything
-FROM ruby:3.3.6-slim-bullseye as builder
+FROM ruby:3.4.1-slim-bullseye as builder
 
 # Set environment variables
 ENV RAILS_ROOT /app
@@ -53,7 +53,7 @@ RUN bundle binstubs --all
 
 #####################################################
 # here is where the actual image gets built
-FROM ruby:3.3.6-slim-bullseye
+FROM ruby:3.4.1-slim-bullseye
 
 SHELL ["/bin/bash", "-c"]
 
