@@ -7,7 +7,7 @@ variables:
   ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
   IDP_IMAGE_TAG: 'main'
   DASHBOARD_IMAGE_TAG: 'main'
-  PIVCAC_CI_SHA: 'sha256:04f6efe81f49a29ab112faad41e096220af5ffca3b66ea2486e1d1611afff215'
+  PIVCAC_CI_SHA: 'sha256:1a00159ca16e41cd67754ecd89549617b695b1e6126bf83ed358b4a03a7fdce2'
   CI: 'true'
   APPLICATION_MANIFEST: k8files/application.yaml
 
