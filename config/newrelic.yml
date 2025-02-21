@@ -1,6 +1,8 @@
 common: &default_settings
   code_level_metrics:
     enabled: false
+  distributed_tracing:
+    enabled: false
   # Application log forwarding should always be disabled
   application_logging:
     forwarding:
