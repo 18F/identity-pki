@@ -140,7 +140,6 @@ RSpec.describe IdentifyController, type: :controller do
 
             cert = Certificate.new(client_cert)
 
-            expect(CertificateLoggerService).to receive(:log_certificate).once
             expect(Rails.logger).to receive(:info).with(/GET/).once
             expect(Rails.logger).to receive(:info).with(
               'Returning a token for a valid certificate.'
@@ -155,10 +154,6 @@ RSpec.describe IdentifyController, type: :controller do
               mapped_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
               valid: true,
               error: nil,
-              openssl_valid: false,
-              openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
-              ficam_openssl_valid: false,
-              ficam_openssl_errors: 'error 20 at 0 depth lookup: unable to get local issuer certificate',
               matched_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
             }.to_json).once
 
@@ -209,7 +204,6 @@ RSpec.describe IdentifyController, type: :controller do
           it 'returns a token with a uuid and subject' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(false)
             @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
-            expect(CertificateLoggerService).to receive(:log_certificate).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
@@ -372,10 +366,6 @@ RSpec.describe IdentifyController, type: :controller do
               mapped_policy_oids: {},
               valid: false,
               error: 'self-signed cert',
-              openssl_valid: false,
-              openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
-              ficam_openssl_valid: false,
-              ficam_openssl_errors: 'error 18 at 0 depth lookup: self signed certificate, error 26 at 0 depth lookup: unsupported certificate purpose',
             }.to_json).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
