@@ -162,7 +162,7 @@ secret_detection:
       variables:
         SECRET_DETECTION_LOG_OPTIONS: ${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}
   before_script:
-    - apt-get install jq
+    - apt-get install jq -y
   script:
     - |
         echo "running analyzer"
