@@ -141,12 +141,8 @@ check_expiring_certificates:
     - bundle exec rake db:setup --trace
     - bundle exec rake certs:print_expiring[0]
 
-
-include:
-  - template: Security/Secret-Detection.gitlab-ci.yml
-
 secret_detection:
-  stage: scan
+  stage: test
   allow_failure: false
   needs: []
   artifacts:
