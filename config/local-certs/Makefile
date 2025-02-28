@@ -1,6 +1,9 @@
-.PHONY: keychain-import clean
+.PHONY: import-cert clean
 
-all: keychain-import server.crt
+all: import-cert server.crt
+
+OS := $(shell uname)
+IS_NIXOS := $(shell grep -q NixOS /etc/os-release && echo true)
 
 rootCA.key:
 	@echo "==="
@@ -25,10 +28,27 @@ rootCA.pem: rootCA.key
 		-days 1024 \
 		-out $@
 
-keychain-import: rootCA.pem
+ifeq ($(OS), Darwin)
+import-cert: rootCA.pem
+	@echo "Importing certificate on macOS..."
 	security find-certificate -c "identity-pki Development Certificate" >/dev/null 2>/dev/null || \
 		(security import $< -t pub -A)
-	@echo "NOTE: please open Keychain Access and set Trust settings to 'Always Trust' for 'identity-pki Development Certificate'"
+	@echo "NOTE: Please open Keychain Access and set Trust settings to 'Always Trust' for 'identity-pki Development Certificate'"
+else ifeq ($(OS), Linux)
+ifeq ($(IS_NIXOS), true)
+import-cert: rootCA.pem
+	@echo "Please add the certificate in your NixOS configuration:"
+	@echo "  security.pki.certificates = [ ./rootCA.pem ];"
+else
+import-cert: rootCA.pem
+	@echo "Importing certificate on Linux..."
+	@sudo cp -v rootCA.pem /usr/local/share/ca-certificates/identity-pki.pem
+	@sudo update-ca-certificates
+endif
+else
+import-cert:
+	@echo "Unsupported OS: $(OS)"
+endif
 
 server.key: server.csr.cnf
 	openssl req \
@@ -55,8 +75,22 @@ server.crt: server.key
 		-sha256 \
 		-extfile v3.ext
 
-clean:
-	rm -f rootCA.key rootCA.key server.key server.crt
+rm:
+	rm -fv rootCA.key rootCA.key server.key server.crt
+
+ifeq ($(OS), Darwin)
+clean: rm
 	@echo "NOTE: Please open Keychain Access and manually delete 'identity-pki Development Certificate'"
 	# TODO: doesn't seem to remove from the UI when we run this:
 	# 	security delete-certificate -t -c "identity-pki Development Certificate"
+else ifeq ($(OS), Linux)
+ifeq ($(IS_NIXOS), true)
+clean: rm
+	@echo "NOTE: Please remove the certificate from your NixOS configuration:"
+	@echo "  security.pki.certificates = [ ./rootCA.pem ];"
+else
+clean: rm
+	@sudo rm -fv /usr/local/share/ca-certificates/identity-pki.pem
+	@sudo update-ca-certificates
+endif
+endif
