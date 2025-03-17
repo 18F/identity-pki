@@ -75,8 +75,11 @@ class IssuingCaService
       []
     end
   rescue OpenSSL::PKCS7::PKCS7Error,
-         ArgumentError,
-         Errno::ECONNREFUSED,
+         ArgumentError
+
+         [OpenSSL::X509::Certificate.new(response.body)]
+  rescue Errno::ECONNREFUSED,
+         OpenSSL::X509::CertificateError,
          Net::ReadTimeout,
          Net::OpenTimeout => error
     NewRelic::Agent.notice_error(
