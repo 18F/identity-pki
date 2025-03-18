@@ -75,19 +75,21 @@ class IssuingCaService
       []
     end
   rescue OpenSSL::PKCS7::PKCS7Error,
-         ArgumentError
-
-         [OpenSSL::X509::Certificate.new(response.body)]
-  rescue Errno::ECONNREFUSED,
-         OpenSSL::X509::CertificateError,
+         ArgumentError,
+         Errno::ECONNREFUSED,
          Net::ReadTimeout,
          Net::OpenTimeout => error
+
     NewRelic::Agent.notice_error(
       error,
       custom_params: { issuer_uri: issuer_uri.to_s, response_body: response&.body },
     )
-
-    []
+    begin
+      [OpenSSL::X509::Certificate.new(response.body)]
+    rescue OpenSSL::X509::CertificateError,
+           ArgumentError
+      []
+    end
   end
 
   def self.ca_issuer_host_allow_list
