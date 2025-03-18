@@ -85,7 +85,11 @@ class IssuingCaService
       custom_params: { issuer_uri: issuer_uri.to_s, response_body: response&.body },
     )
     begin
-      [OpenSSL::X509::Certificate.new(response.body)]
+      if response.present?
+        [OpenSSL::X509::Certificate.new(response&.body)]
+      else
+        []
+      end
     rescue OpenSSL::X509::CertificateError,
            ArgumentError
       []
