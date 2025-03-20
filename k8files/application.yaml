@@ -458,6 +458,9 @@ spec:
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
             - op: replace
+              path: /spec/template/spec/initContainers/0/image
+              value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
               path: /spec/template/spec/containers/0/imagePullPolicy
               value: Always
         - target:
@@ -468,6 +471,9 @@ spec:
               path: /spec/template/spec/containers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
             - op: replace
+              path: /spec/template/spec/initContainers/0/image
+              value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
               path: /spec/template/spec/containers/0/imagePullPolicy
               value: Always
         - target:
@@ -476,6 +482,9 @@ spec:
           patch: |-
             - op: replace
               path: /spec/template/spec/containers/0/image
+              value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
+            - op: replace
+              path: /spec/template/spec/initContainers/0/image
               value: {{ECR_REGISTRY}}/identity-dashboard/review:{{DASHBOARD_CONTAINER_TAG}}
             - op: replace
               path: /spec/template/spec/containers/0/imagePullPolicy
