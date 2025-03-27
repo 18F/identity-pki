@@ -113,7 +113,7 @@ class Certificate
   end
 
   def signing_key_id
-    get_extension('authorityKeyIdentifier')&.lines&.grep(/\Akeyid:/)&.first
+    get_extension('authorityKeyIdentifier')&.lines&.first
                                            &.sub(/\Akeyid:/, '')&.chomp&.upcase
   end
 
