@@ -308,10 +308,24 @@ RSpec.describe Certificate do
 
     describe '#signing_key_id' do
       it 'handles multiline authorityKeyIdentifier' do
-        # stub multiline aKI
+        # stub multiline authorityKeyIdentifier
         expect(certificate).to receive(:get_extension).with('authorityKeyIdentifier').and_return(
           <<~CERT
             keyid:cf:ab:b1:cf:b3:eb:28:e2:e0:c7:24:75:72:3b:f5:b6:31:18:77:6f
+            DirName:/CN=my test CA
+            serial:89:20:39:72:B8:50:56:5E
+          CERT
+        )
+        expect(certificate.signing_key_id).to eq(
+          'CF:AB:B1:CF:B3:EB:28:E2:E0:C7:24:75:72:3B:F5:B6:31:18:77:6F'
+        )
+      end
+
+      it 'handles multiline authorityKeyIdentifier without keyid prefix' do
+        # stub multiline authorityKeyIdentifier
+        expect(certificate).to receive(:get_extension).with('authorityKeyIdentifier').and_return(
+          <<~CERT
+            cf:ab:b1:cf:b3:eb:28:e2:e0:c7:24:75:72:3b:f5:b6:31:18:77:6f
             DirName:/CN=my test CA
             serial:89:20:39:72:B8:50:56:5E
           CERT
