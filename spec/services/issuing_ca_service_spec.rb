@@ -39,7 +39,7 @@ RSpec.describe IssuingCaService do
 
         expect(fetched_cert1).to eq(signing_cert)
         expect(fetched_cert2).to eq(signing_cert)
-        expect(a_request(:get, "http://example.com")).to have_been_made.once
+        expect(a_request(:get, 'http://example.com')).to have_been_made.once
       end
     end
 
@@ -105,6 +105,20 @@ RSpec.describe IssuingCaService do
       end
     end
 
+    context 'when issuer uri returns x509 certificate' do
+      it 'returns the x509 cert still as a collection' do
+        certificate = certificates_in_collection(certificate_set, :type, :leaf).first
+        signing_cert = certificates_in_collection(certificate_set, :type, :intermediate).first
+
+        stub_request(:get, 'http://example.com').to_return(body: signing_cert.x509_cert.to_der)
+
+        fetched_cert = described_class.fetch_signing_key_for_cert(certificate)
+
+        expect(fetched_cert).to eq(signing_cert)
+        expect(a_request(:get, 'http://example.com')).to have_been_made.once
+      end
+    end
+
     context 'when the certificate does not have and CA Issuer URIs' do
       it 'returns nil' do
         certificate = certificates_in_collection(certificate_set, :type, :leaf).first
@@ -154,7 +168,7 @@ RSpec.describe IssuingCaService do
     pkcs7_bundle = OpenSSL::PKCS7.new
     pkcs7_bundle.type = 'signed'
     pkcs7_bundle.add_certificate(x509_cert)
-    pkcs7_bundle.add_data("")
+    pkcs7_bundle.add_data('')
     pkcs7_bundle
   end
 end
