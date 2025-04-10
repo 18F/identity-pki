@@ -79,12 +79,21 @@ class IssuingCaService
          Errno::ECONNREFUSED,
          Net::ReadTimeout,
          Net::OpenTimeout => error
+
     NewRelic::Agent.notice_error(
       error,
       custom_params: { issuer_uri: issuer_uri.to_s, response_body: response&.body },
     )
-
-    []
+    begin
+      if response.present?
+        [OpenSSL::X509::Certificate.new(response&.body)]
+      else
+        []
+      end
+    rescue OpenSSL::X509::CertificateError,
+           ArgumentError
+      []
+    end
   end
 
   def self.ca_issuer_host_allow_list
