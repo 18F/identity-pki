@@ -1,6 +1,9 @@
 [req]
+default_bits = 4096
+default_md = sha256
 distinguished_name = req_distinguished_name
 prompt = no
+x509_extensions = v3_ca
 
 [ req_distinguished_name ]
 countryName = US
@@ -10,3 +13,9 @@ organizationName = login.gov development
 organizationalUnitName = identity-pki
 emailAddress = noreply@login.gov
 commonName = identity-pki Development Certificate
+
+[v3_ca]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
