@@ -8,7 +8,7 @@ PIV/CAC support for login.gov.
 #### Dependencies
 
 - Ruby 3.2
-- OpenSSL 1.1 (see [troubleshooting notes](#troubleshooting-openssl-or-certificate-validation-errors))
+- OpenSSL
 - [PostgreSQL](http://www.postgresql.org/download/)
 - Nginx
 
@@ -44,23 +44,6 @@ Most of the root certificate management is handled by `bin/setup` but there are 
 
 5. Close the details to save your changes. You'll be prompted to enter your password or PIN to confirm the changes.
 
-#### Troubleshooting OpenSSL or certificate validation errors
-
-Errors commonly occur due to a mismatch in the expected version of OpenSSL:
-
-- Trying to register or authenticate with your PIV locally produces errors saying your certificate is invalid
-- Running certificate Rake tasks produces Ruby errors
-
-If you encounter errors, ensure that you have OpenSSL 1.1 installed, including bindings for your Ruby installation.
-
-To check, run: `ruby -ropenssl -e 'puts OpenSSL::OPENSSL_VERSION'`
-
-If the version is anything other than OpenSSL 1.1, you will need to install OpenSSL 1.1 and reinstall Ruby with the OpenSSL directory pointing to the correct version.
-
-If you have [Homebrew](https://brew.sh/) available and use [`rbenv`](https://github.com/rbenv/rbenv) to manage your Ruby installation, you can run the following command to reinstall the project's version of Ruby with OpenSSL 1.1:
-
-```
-RUBY_CONFIGURE_OPTS=--with-openssl-dir=$(brew --prefix openssl@1.1) rbenv install
 ```
 
 #### Cleaning up the root SSL certificate
