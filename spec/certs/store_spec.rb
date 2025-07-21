@@ -11,8 +11,7 @@ describe 'Certificate store in config/certs' do
               'ocsp.pki.state.gov',
               'nfiocsp.managed.entrust.com',
               'ssp-ocsp.digicert.com',
-              'ocsp.uspto.gov',
-              ]
+              'ocsp.uspto.gov'],
     )
 
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
