@@ -144,6 +144,8 @@ check_expiring_certificates:
 
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
+  - local: .gitlab-ci-rules.yml
+  - local: .gitlab-ci-devenv.yml
 
 secret_detection:
   stage: test
