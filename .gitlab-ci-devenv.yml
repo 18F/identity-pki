@@ -67,5 +67,6 @@ devenv-test:
   rules:
     - !reference [.merge_request, rules]
     - changes:
+      - .ruby-version
       - .gitlab-ci-devenv.yml
       - devenv.*
