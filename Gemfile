@@ -3,9 +3,9 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 3.4'
 
-gem 'rails', '~> 7.1.0'
+gem 'rails', '~> 7.1.5', '>= 7.1.5.2'
 
-gem 'activerecord-import', '>= 1.0.2'
+gem 'activerecord-import', '>= 2.0.0'
 # pod identity requires 3.188.0
 # https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html
 gem 'aws-sdk-core', '>= 3.188.0'
