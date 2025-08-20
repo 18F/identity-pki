@@ -25,9 +25,7 @@ RSpec.describe CertificateLoggerService do
   let(:status) { :valid }
 
   let(:ocsp_responder) do
-    OpenStruct.new(
-      call: OpenStruct.new(revoked?: ocsp_response_status)
-    )
+    double(revoked?: ocsp_response_status)
   end
 
   let(:service_request) do
