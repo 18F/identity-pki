@@ -12,8 +12,8 @@ RSpec.describe IdentifyController, type: :controller do
 
   let(:ocsp_response) { false }
   let(:ocsp_responder) do
-    OpenStruct.new(
-      call: OpenStruct.new(revoked?: ocsp_response)
+    double(
+      call: OcspService::Response.new(revoked?: ocsp_response)
     )
   end
 
