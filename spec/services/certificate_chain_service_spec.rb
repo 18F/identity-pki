@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe CertificateChainService do
-  let(:first_signing_key_id) { '8C:D6:D4:69:A9:E4:85:41:3A:6A:A6:5E:DA:51:1A:17:8D:92:8B:6C' }
+  let(:first_signing_key_id) { +'8C:D6:D4:69:A9:E4:85:41:3A:6A:A6:5E:DA:51:1A:17:8D:92:8B:6C' }
 
   let(:starting_cert) do
     instance_double(Certificate,
