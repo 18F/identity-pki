@@ -7,6 +7,11 @@ class OcspService
 
   OCSP_RESPONSE_CACHE_EXPIRATION = 5.minutes
 
+  Response = Struct.new(
+    :revoked?,
+    keyword_init: true,
+  )
+
   def initialize(subject)
     @subject = subject
     @authority = CertificateAuthority.find_by(key: subject.signing_key_id)
@@ -15,7 +20,7 @@ class OcspService
   end
 
   def call
-    return OpenStruct.new(revoked?: CertificateAuthority.revoked?(subject)) if no_request
+    return Response.new(revoked?: CertificateAuthority.revoked?(subject)) if no_request
 
     # we want to cache the call for a few minutes so we don't hammer on the same request
     OcspService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
