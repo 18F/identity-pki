@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 3.4'
 
-gem 'rails', '~> 7.1.0'
+gem 'rails', '~> 7.2.0'
 
 gem 'activerecord-import', '>= 1.0.2'
 # pod identity requires 3.188.0
@@ -25,7 +25,7 @@ gem 'redacted_struct', '~> 2.0'
 gem 'rgl'
 
 group :development, :test do
-  gem 'bullet', '~> 7.1.2'
+  gem 'bullet', '~> 7.2.0'
   gem 'brakeman', require: false
   gem 'listen'
   gem 'pry-byebug'
