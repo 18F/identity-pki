@@ -1,12 +1,23 @@
 # run in foreground instead of via daemon
 worker_processes 1;
 daemon off;
+pid /tmp/nginx.pid;
 
 events {}
 http {
   upstream rails_upstream {
     server 127.0.0.1:8442;
   }
+
+  client_body_temp_path /tmp/nginx_cache_client_body;
+  proxy_temp_path /tmp/nginx_cache_proxy;
+  fastcgi_temp_path /tmp/nginx_cache_fastcgi;
+  uwsgi_temp_path /tmp/nginx_cache_uwsgi;
+  scgi_temp_path /tmp/nginx_cache_scgi;
+
+  # Specify error and access logs for local development
+  error_log log/nginx/error.log debug;
+  access_log log/nginx/access.log;
 
   server {
     listen  8443 ssl;
