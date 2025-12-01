@@ -113,7 +113,7 @@ class IdentifyController < ApplicationController
       key_id: cert.key_id,
       certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
-      sp_being_accessed: sp_being_accessed
+      sp_being_accessed: sp_being_accessed,
       valid_policies: cert.valid_policies?,
       mapped_policy_oids: cert.mapped_policies.map { |oid| [oid, true] }.to_h,
       valid: valid,
