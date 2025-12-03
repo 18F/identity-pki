@@ -101,7 +101,7 @@ class IdentifyController < ApplicationController
   end
 
   def sp_being_accessed
-    params[:current_sp] || 'None'
+    params[:current_sp].present? ? params[:current_sp] : 'None'
   end
 
   def log_certificate(cert)
