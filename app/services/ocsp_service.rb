@@ -1,5 +1,4 @@
 require 'net/http'
-require 'openssl'
 require 'uri'
 
 class OcspService
