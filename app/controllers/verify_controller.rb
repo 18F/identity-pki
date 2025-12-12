@@ -1,6 +1,5 @@
 require 'base64'
 require 'cgi'
-require 'openssl'
 
 class VerifyController < ApplicationController
   skip_before_action :verify_authenticity_token

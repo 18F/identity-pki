@@ -1,4 +1,3 @@
-require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
