@@ -1,5 +1,4 @@
 require 'base64'
-require 'openssl'
 require 'securerandom'
 
 class PivCac < ApplicationRecord
