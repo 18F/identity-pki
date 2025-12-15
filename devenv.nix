@@ -9,6 +9,7 @@
 {
   # https://devenv.sh/packages/
   packages = with pkgs; [
+    detect-secrets
     git
     glab
     gnumake
@@ -52,5 +53,19 @@
 
   env = {
     BUNDLE_BIN_PATH = ".devenv/state/.bundler/bin";
+  };
+
+  git-hooks.hooks = {
+    detect-secrets = {
+      enable = true;
+      name = "detect-secrets";
+      description = "Detects high entropy strings that are likely to be passwords.";
+      entry = "detect-secrets-hook";
+      language = "python";
+      args = [
+        "--baseline"
+        ".secrets.baseline"
+      ];
+    };
   };
 }
