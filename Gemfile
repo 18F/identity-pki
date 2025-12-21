@@ -9,7 +9,7 @@ gem 'activerecord-import', '>= 1.0.2'
 # pod identity requires 3.188.0
 # https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html
 gem 'aws-sdk-core', '>= 3.188.0'
-gem 'aws-sdk-s3'
+gem 'aws-sdk-s3', '>= 1.208.0'
 gem 'bloomfilter-rb'
 gem 'csv'
 gem 'redis'
