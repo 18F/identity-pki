@@ -137,7 +137,7 @@ check_expiring_certificates:
   script:
     - *bundle_install
     - bundle exec rake db:setup --trace
-    - bundle exec rake certs:print_expiring[0]
+    - bundle exec rake certs:print_expiring
 
 
 include:
