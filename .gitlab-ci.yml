@@ -60,6 +60,8 @@ install:
     - *bundle_install
 
 specs:
+  tags:
+    - test-pool
   stage: test
   cache:
     - <<: *ruby_cache
@@ -147,6 +149,8 @@ include:
   - local: .gitlab-ci-devenv.yml
 
 secret_detection:
+  tags:
+    - test-pool
   stage: test
   allow_failure: false
   needs: []
@@ -182,8 +186,6 @@ secret_detection:
         else
           echo "Artifact $SECRET_DETECTION_REPORT_FILE does not exist. The 'secret-detection' job likely didn't create one. Hence, no evaluation can be performed."
         fi
-
-
 
 build-ci-image:
   stage: build
