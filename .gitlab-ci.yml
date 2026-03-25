@@ -378,7 +378,7 @@ review-app:
     - echo "Address of PIVCAC review app:"
     - echo https://$CI_ENVIRONMENT_SLUG.pivcac.reviewapps.identitysandbox.gov
     - echo "Address of Dashboard review app:"
-    - echo https://$CI_ENVIRONMENT_SLUG-dashboard.reviewapps.identitysandbox.gov
+    - echo https://$CI_ENVIRONMENT_SLUG-portal.reviewapps.identitysandbox.gov
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: https://$CI_ENVIRONMENT_SLUG.pivcac.reviewapp.identitysandbox.gov
