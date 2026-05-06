@@ -53,7 +53,8 @@ RUN apt update; apt upgrade; \
     python3 -m venv /opt/certbot/; \
     /opt/certbot/bin/pip install --upgrade pip; \
     /opt/certbot/bin/pip install certbot certbot_dns_route53; \
-    ln -s /opt/certbot/bin/certbot /usr/local/bin/certbot
+    ln -s /opt/certbot/bin/certbot /usr/local/bin/certbot; \
+    PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python
 
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle.zip"; \
     unzip /awscli-bundle.zip -d/; \
