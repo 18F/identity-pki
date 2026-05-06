@@ -6,7 +6,7 @@ SHELL ["/bin/bash", "-c"]
 ENV RAILS_ROOT /app
 ENV RAILS_ENV production
 ENV BUNDLE_PATH /usr/local/bundle
-ENV NGINX_VERSION 1.22.0
+ENV NGINX_VERSION 1.30.0
 
 # Prevent documentation installation
 RUN echo 'path-exclude=/usr/share/doc/*' > /etc/dpkg/dpkg.cfg.d/00_nodoc && \
@@ -52,7 +52,7 @@ RUN apt update; apt upgrade; \
     apt install -y letsencrypt postgresql-contrib libpq-dev sudo; \
     python3 -m venv /opt/certbot/; \
     /opt/certbot/bin/pip install --upgrade pip; \
-    /opt/certbot/bin/pip install certbot certbot_dns_route53; \
+    /opt/certbot/bin/pip install certbot certbot_dns_route53 pyopenssl; \
     ln -s /opt/certbot/bin/certbot /usr/local/bin/certbot; \
     PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python
 
