@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install -y \
     libpcre3-dev \
     libssl-dev \
     libpq-dev \
+    libyaml-dev \
     patch \
     python3 \
     python3-dev \
