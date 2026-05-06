@@ -1,4 +1,4 @@
-FROM ruby:3.4.1-slim-bullseye
+FROM ruby:3.4.9-slim-bookworm
 
 SHELL ["/bin/bash", "-c"]
 
@@ -25,11 +25,13 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cron \
     curl \
+    gcc \
     gettext-base \
     git-core \
     tar \
     unzip \
     jq \
+    libaugeas-dev \
     libcurl4-openssl-dev \
     libjemalloc-dev \
     libpcre3 \
@@ -38,6 +40,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     patch \
     python3 \
+    python3-dev \
     python3-pip \
     python3-venv \
     util-linux \
@@ -47,8 +50,10 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt update; apt upgrade; \
     apt install -y letsencrypt postgresql-contrib libpq-dev sudo; \
-    PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python; \
-    pip3 install certbot certbot_dns_route53 pyopenssl --upgrade
+    python3 -m venv /opt/certbot/; \
+    /opt/certbot/bin/pip install --upgrade pip; \
+    /opt/certbot/bin/pip install certbot certbot_dns_route53; \
+    ln -s /opt/certbot/bin/certbot /usr/local/bin/certbot
 
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle.zip"; \
     unzip /awscli-bundle.zip -d/; \
