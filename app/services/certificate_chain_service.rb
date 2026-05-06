@@ -23,15 +23,19 @@ class CertificateChainService
   def process_unknown_certs(ca_id, ca_issuer_url, new_certs = [])
     ca_id.upcase!
     ca_cert = get_cert_from_issuer(ca_id, ca_issuer_url)
+    return [] if ca_cert.nil?
+
     process_certificate_chain(ca_cert)
   end
 
   # @return [Array<Certificate>]
   def process_certificate_chain(ca_cert, chain_array = [], step = 0)
+    return chain_array if ca_cert.nil?
+
     chain_array << ca_cert
     issuer_ca_cert = get_cert_from_issuer(ca_cert.signing_key_id, ca_cert.issuer_metadata[:ca_issuer_url])
     step += 1
-    if step <= 6 && !issuer_ca_cert.trusted_root?
+    if step <= 6 && issuer_ca_cert.present? && !issuer_ca_cert.trusted_root?
       process_certificate_chain(issuer_ca_cert, chain_array, step)
     end
     chain_array
@@ -53,12 +57,26 @@ class CertificateChainService
   def get_cert_from_issuer(ca_id, ca_issuer_url)
     STDERR.puts "fetching: #{ca_issuer_url}"
     response = get_response(ca_issuer_url)
-    p7c = OpenSSL::PKCS7.new(response.body)
-    p7c.certificates.each do |issuing_x509_certificate|
+    issuing_certificates = parse_issuing_certificates(response)
+
+    issuing_certificates.each do |issuing_x509_certificate|
       issuing_cert = Certificate.new(issuing_x509_certificate)
       return issuing_cert if issuing_cert.key_id == ca_id
     end
     nil
+  end
+
+  def parse_issuing_certificates(response)
+    return [] unless response.is_a?(Net::HTTPSuccess)
+    puts "response body : #{response.body}"
+    OpenSSL::PKCS7.new(response.body).certificates || []
+  rescue OpenSSL::PKCS7::PKCS7Error,
+         OpenSSL::X509::CertificateError,
+         ArgumentError
+    [OpenSSL::X509::Certificate.new(response.body)]
+  rescue OpenSSL::X509::CertificateError,
+         ArgumentError
+    []
   end
 
   def get_response(url)

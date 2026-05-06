@@ -2,6 +2,11 @@ require 'rails_helper'
 
 RSpec.describe CertificateChainService do
   let(:first_signing_key_id) { +'8C:D6:D4:69:A9:E4:85:41:3A:6A:A6:5E:DA:51:1A:17:8D:92:8B:6C' }
+  let(:certificate_set) do
+    create_certificate_set(
+      root_count: 1, intermediate_count: 1, leaf_count: 1,
+    )
+  end
 
   let(:starting_cert) do
     instance_double(Certificate,
@@ -48,6 +53,21 @@ RSpec.describe CertificateChainService do
       missing = service.missing(starting_cert)
 
       expect(missing).to all(be_kind_of(Certificate))
+    end
+  end
+
+  describe '#get_cert_from_issuer' do
+    it 'parses a DER-encoded x509 response when issuer url does not return PKCS7' do
+      intermediate_cert = certificates_in_collection(certificate_set, :type, :intermediate).first
+      key_id = intermediate_cert.key_id
+      issuer_url = 'http://example.com/DODIDCA_80.cer'
+
+      stub_request(:get, issuer_url).to_return(body: intermediate_cert.x509_cert.to_der)
+
+      fetched_cert = service.send(:get_cert_from_issuer, key_id, issuer_url)
+
+      expect(fetched_cert).to be_a(Certificate)
+      expect(fetched_cert.key_id).to eq(key_id)
     end
   end
 end
