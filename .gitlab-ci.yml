@@ -564,3 +564,10 @@ deploy_eks:
     IMAGE_TAG: $CI_COMMIT_SHA
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+
+# Triggers devops CD to deploy to dev
+trigger_devops:
+  stage: review
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  trigger: lg/identity-devops

@@ -1,4 +1,4 @@
-FROM ruby:3.4.1-slim-bullseye
+FROM ruby:3.4.9-slim-bookworm
 
 SHELL ["/bin/bash", "-c"]
 
@@ -6,7 +6,7 @@ SHELL ["/bin/bash", "-c"]
 ENV RAILS_ROOT /app
 ENV RAILS_ENV production
 ENV BUNDLE_PATH /usr/local/bundle
-ENV NGINX_VERSION 1.22.0
+ENV NGINX_VERSION 1.30.0
 
 # Prevent documentation installation
 RUN echo 'path-exclude=/usr/share/doc/*' > /etc/dpkg/dpkg.cfg.d/00_nodoc && \
@@ -25,19 +25,23 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cron \
     curl \
+    gcc \
     gettext-base \
     git-core \
     tar \
     unzip \
     jq \
+    libaugeas-dev \
     libcurl4-openssl-dev \
     libjemalloc-dev \
     libpcre3 \
     libpcre3-dev \
     libssl-dev \
     libpq-dev \
+    libyaml-dev \
     patch \
     python3 \
+    python3-dev \
     python3-pip \
     python3-venv \
     util-linux \
@@ -47,8 +51,11 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt update; apt upgrade; \
     apt install -y letsencrypt postgresql-contrib libpq-dev sudo; \
-    PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python; \
-    pip3 install certbot certbot_dns_route53 pyopenssl --upgrade
+    python3 -m venv /opt/certbot/; \
+    /opt/certbot/bin/pip install --upgrade pip; \
+    /opt/certbot/bin/pip install certbot certbot_dns_route53 pyopenssl; \
+    ln -s /opt/certbot/bin/certbot /usr/local/bin/certbot; \
+    PYTHON_DIR=`which python3`; ln -s $PYTHON_DIR /usr/bin/python
 
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/awscli-bundle.zip"; \
     unzip /awscli-bundle.zip -d/; \
