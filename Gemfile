@@ -21,7 +21,7 @@ gem 'nokogiri', '>= 1.19.1'
 gem 'pg'
 gem 'pry-rails'
 gem 'puma'
-gem 'rack', '~> 3.2', '>= 3.2.5'
+gem 'rack', '~> 3.2', '>= 3.2.6'
 gem 'bootsnap', '~> 1.0', require: false
 gem 'redacted_struct', '~> 2.0'
 gem 'rgl'
