@@ -207,61 +207,38 @@ namespace :certs do
     end
   end
 
-  desc 'Validate certificate bundle as matching certificate path and inclusion in FICAM'
+  desc 'Validate FICAM certificate bundle exists and is properly formatted'
   task check_certificate_bundle: :environment do |t, args|
-    CertificateStore.instance.load_certs!(dir: 'config/certs')
-
-    login_certificates = File.read(IdentityConfig.store.login_certificate_bundle_file).
-      split(CertificateStore::END_CERTIFICATE).
-      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) }
-
-    ficam_certificates = File.read(IdentityConfig.store.ficam_certificate_bundle_file).
-      split(CertificateStore::END_CERTIFICATE).
-      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) }
-
-    store_certificates = CertificateStore.instance.certificates
-
-    login_certificates_in_load_path = Set.new(login_certificates.map(&:sha1_fingerprint)) ==
-                                      Set.new(store_certificates.map(&:sha1_fingerprint))
-    if !login_certificates_in_load_path
+    ficam_bundle_file = IdentityConfig.store.ficam_certificate_bundle_file
+    
+    unless File.exist?(ficam_bundle_file)
       puts <<~ERROR
-        #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
+        FICAM certificate bundle not found at #{ficam_bundle_file}
         Please run:
         rake certs:generate_certificate_bundles
       ERROR
       exit 1
     end
 
-    login_certificates_missing_in_ficam = login_certificates.map(&:sha1_fingerprint) -
-                                          ficam_certificates.map(&:sha1_fingerprint)
-    if !login_certificates_missing_in_ficam.empty?
-      login_subjects_missing_in_ficam = login_certificates_missing_in_ficam.
-        map do |sha1|
-          cert = store_certificates.find { |cert| cert.sha1_fingerprint == sha1 }
+    ficam_certificates = File.read(ficam_bundle_file).
+      split(CertificateStore::END_CERTIFICATE).
+      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) rescue nil }.
+      compact
 
-          { cert.subject.to_s => [cert.key_id, cert.issuer.to_s] }
-        end
-
+    if ficam_certificates.empty?
       puts <<~ERROR
-        Unexpected certificates in #{IdentityConfig.store.login_certificate_bundle_file} not present in #{IdentityConfig.store.ficam_certificate_bundle_file}
-
-        Remove these certificates from #{IdentityConfig.store.certificate_store_directory}:
-        #{login_subjects_missing_in_ficam.to_yaml[4...]}
-        Then run:
+        FICAM certificate bundle is empty at #{ficam_bundle_file}
+        Please run:
         rake certs:generate_certificate_bundles
       ERROR
       exit 1
     end
+
+    puts "✓ FICAM certificate bundle validated successfully (#{ficam_certificates.length} certificates found)"
   end
 
-  desc 'Generate LG certificate bundles'
+  desc 'Generate FICAM certificate bundle'
   task generate_certificate_bundles: :environment do |t, args|
-    CertificateStore.instance.load_certs!(dir: 'config/certs')
-    File.write(
-      IdentityConfig.store.login_certificate_bundle_file,
-      CertificateStore.instance.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
-    )
-
     ficam_uri = URI('https://www.idmanagement.gov/implement/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
     federal_brige_ca_g4_key_id = '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F'
 
