@@ -25,7 +25,7 @@ http {
 
     ssl_certificate      local-certs/server.crt;
     ssl_certificate_key  local-certs/server.key;
-    ssl_client_certificate cert_bundles/ficam_bundle.pem;
+    ssl_client_certificate cert_bundles/combined_bundle.pem;
     ssl_verify_client optional_no_ca; # on;
     ssl_verify_depth 10;
 
