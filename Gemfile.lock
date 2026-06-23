@@ -140,7 +140,7 @@ GEM
       thor (~> 1.0)
     byebug (12.0.0)
     coderay (1.1.3)
-    concurrent-ruby (1.3.6)
+    concurrent-ruby (1.3.7)
     connection_pool (3.0.2)
     crack (1.0.0)
       bigdecimal
@@ -428,6 +428,7 @@ DEPENDENCIES
   brakeman
   bullet (~> 8.0)
   bundler-audit
+  concurrent-ruby (>= 1.3.7)
   csv
   factory_bot_rails (>= 5.2.0)
   identity-hostdata!
