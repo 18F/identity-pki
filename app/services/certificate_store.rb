@@ -31,6 +31,19 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
         add_pem_file(file)
       end
     end
+
+    load_ficam_certificate_bundle!
+  end
+
+  # Load the FICAM certificate bundle so the intermediate and root CA certs it
+  # contains are available to verify certs in the store (e.g. cross-signed roots)
+  # without committing each intermediate individually to config/certs.
+  def load_ficam_certificate_bundle!
+    bundle_file = IdentityConfig.store.ficam_certificate_bundle_file
+    return if bundle_file.blank?
+
+    bundle_path = Rails.root.join(bundle_file)
+    add_pem_file(bundle_path.to_s) if File.exist?(bundle_path)
   end
 
   def_delegators :@certificates, :[], :count, :empty?, :map

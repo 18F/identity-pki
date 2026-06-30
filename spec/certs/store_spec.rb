@@ -17,6 +17,13 @@ describe 'Certificate store in config/certs' do
     Dir.glob(File.join('config', 'certs', '**', '*.pem')).each do |file|
       CertificateStore.instance.add_pem_file(file)
     end
+
+    # Load the FICAM bundle so the intermediate and root CA certs needed to
+    # verify the certs we maintain in config/certs (e.g. cross-signed roots)
+    # are present in the store.
+    CertificateStore.instance.add_pem_file(
+      File.join('config', 'cert_bundles', 'ficam_bundle.pem'),
+    )
   end
 
   after do
@@ -24,9 +31,13 @@ describe 'Certificate store in config/certs' do
   end
 
   it 'only contains valid certs' do
-    expect(CertificateStore.instance.certificates).to_not be_empty
+    config_certs = Dir.glob(File.join('config', 'certs', '**', '*.pem')).flat_map do |file|
+      CertificateStore.instance.add_pem_file(file)
+    end
 
-    invalid_certs = CertificateStore.instance.certificates.filter do |cert|
+    expect(config_certs).to_not be_empty
+
+    invalid_certs = config_certs.filter do |cert|
       cert.token({})
       !cert.valid?
     end

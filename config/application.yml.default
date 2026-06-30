@@ -68,6 +68,9 @@ test:
   token_encryption_key_pepper_old: 1HkCB/IADCORWlBAUmeM9S+KBBv0eWzxJG8NM6+A1/f7K3KoVpa2HTED4pTNf8DGp834etYxOL+NdjvH88Lk1s5u401Hu3d3nPbnI11nWTfhaBCz6foOfS/3KGBd/8hz
   certificate_store_directory: 'config/test-certs'
   ca_issuer_host_allow_list: 'uri1.example.com,uri2.example.com'
+  # Don't load the production FICAM bundle into the store at boot in tests; specs
+  # that need it (e.g. spec/certs/store_spec.rb) load it explicitly.
+  ficam_certificate_bundle_file: ''
   secret_key_base: test_secret_key_base
 
 
