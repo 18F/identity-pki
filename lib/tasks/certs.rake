@@ -1,6 +1,13 @@
 require 'open3'
 
 namespace :certs do
+  def ficam_bundle_file_path
+    configured = IdentityConfig.store.ficam_certificate_bundle_file
+    return configured if configured.present?
+
+    Rails.root.join('config', 'cert_bundles', 'ficam_bundle.pem').to_s
+  end
+
   desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
     remove_expiring = (ENV['EXPIRING'] == 'true')
@@ -216,7 +223,7 @@ namespace :certs do
 
   desc 'Validate FICAM certificate bundle exists and is properly formatted'
   task check_certificate_bundle: :environment do |t, args|
-    ficam_bundle_file = IdentityConfig.store.ficam_certificate_bundle_file
+    ficam_bundle_file = ficam_bundle_file_path
 
     unless File.exist?(ficam_bundle_file)
       puts <<~ERROR
@@ -280,7 +287,7 @@ namespace :certs do
     end
 
     File.write(
-      IdentityConfig.store.ficam_certificate_bundle_file,
+      ficam_bundle_file_path,
       certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
     )
   end
