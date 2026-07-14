@@ -124,26 +124,6 @@ check_certificate_bundle:
     - bundle exec rake db:setup --trace
     - bundle exec rake certs:check_certificate_bundle
 
-check_expiring_certificates:
-  stage: test
-  cache:
-    - <<: *ruby_cache
-  variables:
-    DOCKER_DB_HOST: db-postgres
-    POSTGRES_DB: identity_idp_test
-    POSTGRES_USER: postgres_user
-    POSTGRES_PASSWORD: postgres_password
-    POSTGRES_HOST_AUTH_METHOD: trust
-    RAILS_ENV: test
-  services:
-    - name: postgres:16.4
-      alias: db-postgres
-      command: ['--fsync=false', '--synchronous_commit=false', '--full_page_writes=false']
-  script:
-    - *bundle_install
-    - bundle exec rake db:setup --trace
-    - bundle exec rake certs:print_expiring
-
 
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
