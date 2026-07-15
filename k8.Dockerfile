@@ -1,4 +1,4 @@
-FROM ruby:3.4.9-slim-bookworm
+FROM public.ecr.aws/docker/library/ruby:3.4.9-slim-bookworm
 
 SHELL ["/bin/bash", "-c"]
 
