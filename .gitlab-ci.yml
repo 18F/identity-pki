@@ -9,6 +9,8 @@ variables:
   IDP_IMAGE_TAG: 'main'
   DASHBOARD_IMAGE_TAG: 'main'
   PIVCAC_CI_SHA: 'sha256:520cec7f553a164606f3489ef613a9e657286a606462be120c51851d9b8cabf9'
+  AWS_CLI_CI_SHA: 'sha256:a5faa1d6b65c5afe675052599027bf46eb02b020ec153deefe4317f109c4bb92'
+  KUBECTL_CI_SHA: 'sha256:96a7d245a74d461925a56e3024d2f027c2a7a822b3e9e0117ec558db42de9c35'
   CI: 'true'
   APPLICATION_MANIFEST: k8files/application.yaml
 
@@ -330,7 +332,8 @@ review-app:
     - job: build-pivcac-image
   resource_group: $CI_ENVIRONMENT_SLUG.pivcac.reviewapp.identitysandbox.gov
   image:
-    name: dtzar/helm-kubectl:latest
+    name: ${ECR_REGISTRY}/docker-hub/alpine/kubectl@${KUBECTL_CI_SHA}
+    entrypoint: ['']
   script:
     - kubectl config get-contexts
     - export CONTEXT=$(kubectl config get-contexts | grep reviewapp | awk '{print $1}' | head -1)
@@ -380,7 +383,8 @@ stop-review-app:
     - kubectl delete application "$CI_ENVIRONMENT_SLUG-db" -n argocd
   stage: review
   image:
-    name: dtzar/helm-kubectl:latest
+    name: ${ECR_REGISTRY}/docker-hub/alpine/kubectl@${KUBECTL_CI_SHA}
+    entrypoint: ['']
   needs:
     - job: review-app
   environment:
@@ -408,7 +412,7 @@ ecr-scan:
   needs:
     - job: build-pivcac-image
   image:
-    name: amazon/aws-cli
+    name: ${ECR_REGISTRY}/ecr-public/aws-cli/aws-cli@${AWS_CLI_CI_SHA}
     entrypoint: [""] 
   before_script:
     - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
