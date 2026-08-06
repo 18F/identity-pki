@@ -1,5 +1,4 @@
 require 'net/http'
-require 'openssl'
 
 class CertificateRevocationListService
   NO_CRL_URL_ERROR = 'No CRL URL'.freeze

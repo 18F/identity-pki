@@ -1,9 +1,7 @@
-require 'openssl'
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
-# :reek:TooManyMethods
-class CertificateStore
+class CertificateStore # rubocop:disable Metrics/ClassLength
   include Singleton
 
   END_CERTIFICATE = "\n-----END CERTIFICATE-----\n".freeze
@@ -24,9 +22,35 @@ class CertificateStore
     instance.reset
   end
 
+  # load all of the files in config/certs
+  def load_certs!(dir: IdentityConfig.store.certificate_store_directory)
+    Dir.chdir(dir) do
+      Dir.glob(File.join('**', '*.pem')).each do |file|
+        next if file == 'all_certs_deploy.pem'
+
+        add_pem_file(file)
+      end
+    end
+
+    load_ficam_certificate_bundle!
+  end
+
+  # Load the FICAM certificate bundle so the intermediate and root CA certs it
+  # contains are available to verify certs in the store (e.g. cross-signed roots)
+  # without committing each intermediate individually to config/certs.
+  def load_ficam_certificate_bundle!
+    bundle_file = IdentityConfig.store.ficam_certificate_bundle_file
+    return if bundle_file.blank?
+
+    bundle_path = Rails.root.join(bundle_file)
+    add_pem_file(bundle_path.to_s) if File.exist?(bundle_path)
+  end
+
   def_delegators :@certificates, :[], :count, :empty?, :map
   def_delegators :certificates, :each, :select
-  def_delegators CertificateStore, :trusted_ca_root_identifiers, :clear_trusted_ca_root_identifiers
+  def_delegators CertificateStore,
+                 :trusted_ca_root_identifiers,
+                 :clear_root_identifiers
 
   def add_pem_file(filename)
     extract_certs(IO.binread(filename)).each(&method(:add_certificate))
@@ -38,7 +62,6 @@ class CertificateStore
     @graph.add_edge(from, to) if from && to
   end
 
-  # :reek:FeatureEnvy
   def store
     OpenSSL::X509::Store.new.tap do |obj|
       obj.purpose = OpenSSL::X509::PURPOSE_ANY
@@ -61,6 +84,7 @@ class CertificateStore
   end
 
   def x509_certificate_chain(cert)
+    alert_on_expired_cert(cert)
     trusted_ca_root_identifiers.each do |cert_root_id|
       sequence = x509_certificate_chain_to_root(cert, cert_root_id)
       return sequence if sequence&.any? && sequence&.all?
@@ -71,6 +95,7 @@ class CertificateStore
   def x509_certificate_chain_to_root(cert, cert_root_id)
     signing_key_id = cert.signing_key_id
     return [] unless signing_key_id
+
     @certificates.values_at(
       *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id)
     )
@@ -93,16 +118,16 @@ class CertificateStore
 
   def self.trusted_ca_root_identifiers
     @trusted_ca_root_identifiers ||=
-      (Figaro.env.trusted_ca_root_identifiers || '').split(',').map(&:strip) - ['']
+      IdentityConfig.store.trusted_ca_root_identifiers.map(&:strip).select(&:present?)
   end
 
-  def self.clear_trusted_ca_root_identifiers
-    @store = @trusted_ca_root_identifiers = nil
+  def self.clear_root_identifiers
+    @store = nil
+    @trusted_ca_root_identifiers = nil
   end
 
   private
 
-  # :reek:DuplicateMethodCall
   def trusted_certificate_ids
     # start with the trusted roots and work down
     trusted = trusted_ca_root_identifiers
@@ -114,7 +139,6 @@ class CertificateStore
     trusted
   end
 
-  # :reek:FeatureEnvy
   def key_ids_signed_by(trusted)
     select do |cert|
       !trusted.include?(cert.key_id) && trusted.include?(cert.signing_key_id) && cert.valid?
@@ -122,11 +146,22 @@ class CertificateStore
   end
 
   def extract_certs(raw)
-    raw.split(END_CERTIFICATE).map(&method(:cert_from_pem)).compact.select(&:ca_capable?)
+    raw.split(END_CERTIFICATE).map do |pem|
+      Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
+    end.compact.select(&:ca_capable?)
   end
 
-  # :reek:UtilityFunction
-  def cert_from_pem(pem)
-    Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
+  def alert_on_expired_cert(cert)
+    return unless Certificate.new(cert).expired?
+
+    NewRelic::Agent.notice_error(
+      <<-STR.squish
+        Certificate Expired:
+        Expiration: #{cert.not_after},
+        Subject: #{cert.subject},
+        Issuer: #{cert.issuer},
+        Key ID: #{cert.key_id}
+      STR
+    )
   end
 end

@@ -1,7 +1,6 @@
 class FinitePolicyMappingDepth
   attr_reader :value
 
-  # :reek:FeatureEnvy
   def initialize(value)
     @value = value.to_i
   end
@@ -14,7 +13,6 @@ class FinitePolicyMappingDepth
     false
   end
 
-  # :reek:FeatureEnvy
   def <=>(other)
     if other.any?
       -1

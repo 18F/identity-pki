@@ -7,76 +7,67 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 2.3
-- [Postgresql](http://www.postgresql.org/download/)
+- Ruby 3.2
+- OpenSSL
+- [PostgreSQL](http://www.postgresql.org/download/)
+- Nginx
 
 #### Setting up and running the app
 
-1. Make sure you have a working development environment with all the
-  [dependencies](#dependencies) installed. On OS X, the easiest way
-  to set up a development environment is by running our [Laptop]
-  script. The script will install all of this project's dependencies.
+Run the following command to set up your local environment:
 
-  If using rbenv, you may need to alias your specific installed ruby
-  version to the more generic version found in the `.ruby-version` file.
-  To do this, use [`rbenv-aliases`](https://github.com/tpope/rbenv-aliases):
+```
+$ make setup
+```
 
-  ```
-  git clone git://github.com/tpope/rbenv-aliases.git "$(rbenv root)/plugins/rbenv-aliases" # install rbenv-aliases per its documentation
+The first time, it will prompt for a passphrase for the root certificate. You can put anything as long as you remember it, it's just for development. You will also want to make sure to [trust the root SSL certificate](#trust-the-root-ssl-certificate)
 
-  rbenv alias 2.3 2.3.5 # create the version alias
-  ```
+Run the app server with:
 
-2. Make sure Postgres is running.
+```
+$ make run
+```
 
-  For example, if you've installed the laptop script on OS X, you can start the services like this:
+### Running the app locally with the IDP
 
-  ```
-  $ brew services start postgresql
-  ```
+#### Trust the root SSL certificate
 
-3. Create the development and test databases:
+Most of the root certificate management is handled by `bin/setup` but there are some manual steps
 
-  ```
-  $ psql -c "CREATE DATABASE identity_pki_dev;"
-  $ psql -c "CREATE DATABASE identity_pki_test;"
-  ```
+1. Open the Keychain Access app
 
-4. Run the following command to set up the environment:
+2. Within your default keychain, search for the certificate "**identity-pki Development Certificate**"
 
-  ```
-  $ make setup
-  ```
+3. Double-click the certificate to view its details
 
-  This command copies sample configuration files, installs required gems
-  and sets up the database.
+4. Expand the "Trust" section and select "Always Trust" for the top-level "When using this certificate" dropdown
 
-5. Run the app server with:
+5. Close the details to save your changes. You'll be prompted to enter your password or PIN to confirm the changes.
+
+```
+
+#### Cleaning up the root SSL certificate
+
+1. Delete the certificate files:
 
   ```
-  $ make run
+  pushd config/local-certs/
+  make clean
+  popd
   ```
 
-**TODO** Instructions for setting up NGinx to handle TLS/SSL.
+2. Open Keychain Access and delete the certificate named "**identity-pki Development Certificate**"
 
-Before making any commits, you'll also need to run `overcommit --sign.`
-This verifies that the commit hooks defined in our `.overcommit.yml` file are
-the ones we expect. Each change to the `.overcommit.yml` file, including the initial install
-performed in the setup script, will necessitate a new signature.
+#### Using Docker Locally
 
-For more information, see [overcommit](https://github.com/brigade/overcommit)
+1. Download, install, and launch [Docker](https://www.docker.com/products/docker-desktop).
 
-If you want to measure the app's performance in development, set the
-`rack_mini_profiler` option to `'on'` in `config/application.yml` and
-restart the server. See the [rack_mini_profiler] gem for more details.
+1. Build the Docker containers: `docker-compose build`
 
-[Laptop]: https://github.com/18F/laptop
-[rack_mini_profiler]: https://github.com/MiniProfiler/rack-mini-profiler
+1. Run `make docker_setup` to copy configuration files and bootstrap the database.
 
-### Viewing the app locally
+1. Start the Docker containers `docker-compose up` and `open https://localhost:8443` (If you see an SSL error, check [Trust the root SSL certificate](#trust-the-root-ssl-certificate) instructions)
 
-Once it is up and running, the app will be accessible at
-`http://localhost:3001/` by default.
 
 ### Certificate Authority Management
 

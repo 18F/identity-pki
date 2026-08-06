@@ -1,0 +1,21 @@
+[req]
+default_bits = 2048
+default_md = sha256
+distinguished_name = dn
+prompt = no
+x509_extensions = v3_ca
+
+[dn]
+C = US
+ST = District of Columbia
+L = Washington
+O = login.gov development
+OU = identity-pki
+emailAddress = noreply@login.gov
+CN = localhost
+
+[v3_ca]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign

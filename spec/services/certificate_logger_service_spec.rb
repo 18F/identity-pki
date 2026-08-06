@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe CertificateLoggerService do
   let(:service) { described_class }
   let(:certificate) { Certificate.new(x509_cert) }
-  let(:ocsp_response) { OCSPResponse.new(service_request, response) }
+  let(:ocsp_response) { OcspResponse.new(service_request, response) }
 
   let(:cert_collection) do
     create_certificate_set(
@@ -25,13 +25,11 @@ RSpec.describe CertificateLoggerService do
   let(:status) { :valid }
 
   let(:ocsp_responder) do
-    OpenStruct.new(
-      call: OpenStruct.new(revoked?: ocsp_response_status)
-    )
+    double(revoked?: ocsp_response_status)
   end
 
   let(:service_request) do
-    service = OCSPService.new(certificate)
+    service = OcspService.new(certificate)
     service.send(:build_request)
     service
   end
@@ -55,10 +53,11 @@ RSpec.describe CertificateLoggerService do
   let(:root_cert_key_id) { Certificate.new(root_cert).key_id }
   before(:each) do
     allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-    allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(root_cert_key_id)
-    certificate_store.clear_trusted_ca_root_identifiers
+    allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).
+      and_return([root_cert_key_id])
+    certificate_store.clear_root_identifiers
     certificate_store.add_pem_file(ca_file_path)
-    allow(OCSPService).to receive(:new).and_return(service_request)
+    allow(OcspService).to receive(:new).and_return(service_request)
   end
 
   after(:each) do
@@ -67,7 +66,7 @@ RSpec.describe CertificateLoggerService do
 
   context 'with no bucket configured' do
     before(:each) do
-      allow(Figaro.env).to receive(:client_cert_logger_s3_bucket_name) {}
+      allow(IdentityConfig.store).to receive(:client_cert_logger_s3_bucket_name) {}
     end
 
     describe '#log_certificate' do
@@ -87,7 +86,9 @@ RSpec.describe CertificateLoggerService do
 
   context 'with a bucket configured' do
     before(:each) do
-      allow(Figaro.env).to receive(:client_cert_logger_s3_bucket_name) { 'cert_logging_bucket' }
+      allow(IdentityConfig.store).to receive(:client_cert_logger_s3_bucket_name) do
+        'cert_logging_bucket'
+      end
     end
 
     describe '#log_certificate' do

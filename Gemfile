@@ -1,57 +1,53 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
-ruby '~> 2.3.5'
+ruby '~> 3.4'
 
-gem 'rails', '~> 5.2', '>= 5.2.2.1'
+gem 'rails', '~> 8.0.0'
 
-gem 'activerecord-import'
-gem 'aws-sdk', require: false
+gem 'activerecord-import', '>= 1.0.2'
+# pod identity requires 3.188.0
+# https://docs.aws.amazon.com/eks/latest/userguide/pod-id-minimum-sdk.html
+gem 'aws-sdk-core', '>= 3.188.0'
+gem 'aws-sdk-s3'
 gem 'bloomfilter-rb'
-gem 'figaro'
-gem 'health_check'
-gem 'identity-hostdata', github: '18F/identity-hostdata', branch: 'master'
+gem 'csv'
+gem 'redis'
+gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v4.4.2'
+gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.1'
 gem 'mini_cache'
-gem 'newrelic_rpm'
+gem 'newrelic_rpm', '~> 8.0'
+gem 'nokogiri', '>= 1.19.4'
 gem 'pg'
 gem 'pry-rails'
-gem 'puma', '~> 3.7'
+gem 'puma', '~> 7.2.1'
+gem 'rack', '~> 3.2', '>= 3.2.6'
+gem 'bootsnap', '~> 1.0', require: false
+gem 'redacted_struct', '~> 2.0'
 gem 'rgl'
+gem 'concurrent-ruby', '>= 1.3.7'
 
 group :development, :test do
-  gem 'bullet'
+  gem 'bullet', '~> 8.0'
+  gem 'brakeman', require: false
+  gem 'listen'
   gem 'pry-byebug'
-  gem 'rspec-rails'
-  gem 'thin'
+  gem 'rspec-rails', '~> 6.0'
+  gem 'rubocop', require: false
+  gem 'rubocop-rails', '>= 2.19.0', require: false
+  gem 'rubocop-performance', '~> 1.17', require: false
 end
 
 group :development do
-  gem 'better_errors'
-  gem 'binding_of_caller'
-  gem 'brakeman', require: false
-  gem 'bummr', require: false
-  gem 'derailed'
-  gem 'fasterer', require: false
-  gem 'guard-rspec', require: false
-  gem 'overcommit', require: false
-  gem 'rack-mini-profiler', require: false
-  gem 'rails-erd'
-  gem 'reek'
-  gem 'rubocop', require: false
+  gem 'better_errors', '>= 2.5.1'
 end
 
 group :test do
-  gem 'axe-matchers', '~> 1.3.4'
-  gem 'codeclimate-test-reporter', require: false
-  gem 'database_cleaner'
-  gem 'factory_bot_rails'
-  gem 'fakefs', require: 'fakefs/safe'
-  gem 'rails-controller-testing'
-  gem 'shoulda-matchers', '~> 3.0', require: false
-  gem 'simplecov'
-  gem 'timecop'
+  gem 'bundler-audit', require: false
+  gem 'factory_bot_rails', '>= 5.2.0'
+  gem 'rails-controller-testing', '>= 1.0.4'
+  gem 'rspec_junit_formatter'
+  gem 'shoulda-matchers', '~> 3.1', '>= 3.1.3', require: false
+  gem 'simplecov', '>= 0.13.0'
   gem 'webmock'
-  gem 'zonebie'
 end
-
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]

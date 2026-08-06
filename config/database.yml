@@ -10,6 +10,7 @@ defaults: &defaults
   pool: 5
   <<: *postgresql
   reconnect: true
+  timeout: <%= IdentityConfig.store.database_timeout %> # ms
   connect_timeout: 2
   keepalives_idle: 10
   keepalives_interval: 10
@@ -17,18 +18,21 @@ defaults: &defaults
   checkout_timeout: 5
   reaping_frequency: 10
   variables:
-    statement_timeout: 2500 # ms
+    statement_timeout: <%= IdentityConfig.store.database_statement_timeout %> # ms
 
 development:
   <<: *defaults
 
 test:
   <<: *defaults
+  database: <%= ENV['POSTGRES_DB'] || "identity_pki_#{Rails.env}" %>
+  user: <%= ENV['POSTGRES_USER'] %>
+  password: <%= ENV['POSTGRES_PASSWORD'] %>
 
 production:
   <<: *defaults
-  username: <%= Figaro.env.database_username! %>
-  host: <%= Figaro.env.database_host! %>
-  password: <%= Figaro.env.database_password! %>
-  sslmode: 'verify-full'
+  username: <%= IdentityConfig.store.database_username %>
+  host: <%= IdentityConfig.store.database_host %>
+  password: <%= IdentityConfig.store.database_password %>
+  sslmode: <%= IdentityConfig.store.database_sslmode %>
   sslrootcert: '/usr/local/share/aws/rds-combined-ca-bundle.pem'

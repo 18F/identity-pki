@@ -29,14 +29,15 @@ RSpec.describe CertificateAuthority, type: :model do
   let(:expected_revoked_serials_list) { revoked_serials_list.map(&:to_s).sort }
 
   subject { authority }
-  it { is_expected.to validate_uniqueness_of(:key) }
+  it { is_expected.to validate_uniqueness_of(:key).case_insensitive }
   it { is_expected.to validate_presence_of(:dn) }
   it { is_expected.to validate_presence_of(:valid_not_after) }
   it { is_expected.to validate_presence_of(:valid_not_before) }
 
   describe 'revoked?' do
     it 'with no revocations' do
-      expect(authority.revoked?(OpenStruct.new(serial: '123'))).to be_falsey
+      cert = double(serial: '123')
+      expect(authority.revoked?(cert)).to be_falsey
     end
 
     describe 'with some revocations' do
@@ -46,11 +47,13 @@ RSpec.describe CertificateAuthority, type: :model do
       end
 
       it 'finds a revoked serial' do
-        expect(authority.revoked?(OpenStruct.new(serial: '234'))).to be_truthy
+        cert = double(serial: '234')
+        expect(authority.revoked?(cert)).to be_truthy
       end
 
       it 'fails to find a serial not revoked' do
-        expect(authority.revoked?(OpenStruct.new(serial: '123'))).to be_falsey
+        cert = double(serial: '123')
+        expect(authority.revoked?(cert)).to be_falsey
       end
     end
   end

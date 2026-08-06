@@ -15,6 +15,61 @@ RSpec.describe CertificateStore do
   let(:intermediate_certs) { certificates_in_collection(cert_collection, :type, :intermediate) }
   let(:leaf_certs) { certificates_in_collection(cert_collection, :type, :leaf) }
 
+  describe '#load_certs!' do
+    it 'loads the certs in a directory' do
+      expect { certificate_store.load_certs!(dir: Rails.root.join('config/certs')) }.
+        to(change { certificate_store.certificates.count })
+    end
+  end
+
+  describe '#x509_certificate_chain' do
+    let(:expired_cert) do
+      root_ca, root_key = create_root_certificate(
+        dn: 'CN=something',
+        serial: 1
+      )
+      create_leaf_certificate(
+        ca: root_ca,
+        ca_key: root_key,
+        dn: 'CN=else',
+        serial: 1,
+        not_after: Time.zone.now - 1.day,
+        not_before: Time.zone.now - 1.week
+      )
+    end
+    let(:good_cert) do
+      root_ca, root_key = create_root_certificate(
+        dn: 'CN=something',
+        serial: 1
+      )
+      create_leaf_certificate(
+        ca: root_ca,
+        ca_key: root_key,
+        dn: 'CN=else',
+        serial: 1,
+        not_after: Time.zone.now + 1.day,
+        not_before: Time.zone.now - 1.week
+      )
+    end
+    let(:key_id) { 'NOT:A:REAL:CERTIFICATE:KEY:ID' }
+
+    it 'alerts on an expired cert' do
+      allow(expired_cert).to receive(:signing_key_id).and_return(key_id)
+      allow(expired_cert).to receive(:key_id).and_return(key_id)
+      expect(NewRelic::Agent).to receive(:notice_error)
+
+      certificate_store.x509_certificate_chain(expired_cert)
+    end
+
+    it 'does not alert on an unexpired cert' do
+      allow(good_cert).to receive(:signing_key_id).and_return(key_id)
+      allow(good_cert).to receive(:key_id).and_return(key_id)
+      expect(NewRelic::Agent).to_not receive(:notice_error)
+
+      certificate_store.x509_certificate_chain(good_cert)
+    end
+  end
+
   describe 'with loaded certificates' do
     let(:ca_file_path) { data_file_path('certs.pem') }
 
@@ -30,7 +85,7 @@ RSpec.describe CertificateStore do
       leaf_certs.each do |cert|
         issuer = CertificateStore.instance[cert.signing_key_id]
         certificate_id = OpenSSL::OCSP::CertificateId.new(
-          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest::SHA1.new
+          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest.new('SHA1')
         )
         mapping[certificate_id] = {
           subject: cert,
@@ -42,10 +97,10 @@ RSpec.describe CertificateStore do
 
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-        root_cert_key_ids.join(',')
+      allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+        root_cert_key_ids
       )
-      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
 
       stub_request(:post, 'http://ocsp.example.com/').
@@ -70,11 +125,11 @@ RSpec.describe CertificateStore do
 
       describe 'with an untrusted root' do
         before(:each) do
-          allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-            root_cert_key_ids.first
+          allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+            [root_cert_key_ids.first]
           )
 
-          certificate_store.clear_trusted_ca_root_identifiers
+          certificate_store.clear_root_identifiers
         end
 
         it 'is false' do

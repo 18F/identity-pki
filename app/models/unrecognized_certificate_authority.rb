@@ -1,5 +1,5 @@
 class UnrecognizedCertificateAuthority < ApplicationRecord
-  validates :key, presence: true, uniqueness: true, case_sensitive: false,
+  validates :key, presence: true, uniqueness: { case_sensitive: false },
                   format: { with: /\A(\h{2})(:\h{2})+\Z/ }
   validates :dn, presence: true
 

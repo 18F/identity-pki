@@ -5,31 +5,38 @@
 # bin/ directory.
 
 CONFIG = config/application.yml
-PORT ?= 3001
+PORT ?= 8442
 
 all: check
 
-setup $(CONFIG): config/application.yml.example
+setup $(CONFIG): config/application.yml.default
 	bin/setup
 
 fast_setup:
 	bin/fast_setup
 
+docker_setup:
+	bin/docker_setup
+
 check: lint test
 
 lint:
 	@echo "--- rubocop ---"
-	bundle exec rubocop -R
-	@echo "--- reek ---"
-	bundle exec reek
-	@echo "--- fasterer ---"
-	bundle exec fasterer
+	bundle exec rubocop
+	@echo "--- brakeman ---"
+	bundle exec brakeman
+	@echo "--- bundler-audit ---"
+	bundle exec bundler-audit check --update
+	@echo "--- lint Gemfile.lock ---"
+	make lint_gemfile_lock
+
+lint_gemfile_lock: Gemfile Gemfile.lock ## Lints the Gemfile and its lockfile
+	@bundle check
+	@git diff-index --quiet HEAD Gemfile.lock || (echo "Error: There are uncommitted changes after running 'bundle install'"; exit 1)
 
 lintfix:
 	@echo "--- rubocop fix ---"
 	bundle exec rubocop -R -a
-	@echo "--- reek fix ---"
-	bundle exec reek -t
 
 test: $(CONFIG)
 	bundle exec rspec

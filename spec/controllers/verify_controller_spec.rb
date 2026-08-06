@@ -14,7 +14,7 @@ RSpec.describe VerifyController, type: :controller do
 
   describe 'POST /' do
     before(:each) do
-      allow(Figaro.env).to receive(:piv_cac_verify_token_secret).and_return(token_secret)
+      allow(IdentityConfig.store).to receive(:piv_cac_verify_token_secret).and_return(token_secret)
     end
 
     let(:response_data) { JSON.parse(response.body) }

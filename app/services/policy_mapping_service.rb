@@ -18,6 +18,7 @@ class PolicyMappingService
     @chain ||= begin
       signer = store[certificate.signing_key_id]
       while signer
+        break if set.include? signer
         set << signer
         signer = !signer.self_signed? && store[signer.signing_key_id]
       end
@@ -25,7 +26,6 @@ class PolicyMappingService
     end
   end
 
-  # :reek:UtilityFunction
   def new_mapping
     Hash.new { |_, key| key }
   end
@@ -42,7 +42,6 @@ class PolicyMappingService
     end
   end
 
-  # :reek:UtilityFunction
   def import_mapping(mapping, cert, allowed_depth)
     policy = CertificatePolicies.new(cert)
 

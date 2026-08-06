@@ -1,4 +1,4 @@
-class OCSPResponse
+class OcspResponse
   extend Forwardable
 
   attr_reader :response
@@ -86,9 +86,9 @@ class OCSPResponse
   end
 
   def to_text
+    statuses = response&.basic&.status&.map { |status| status_description(status) }&.join('')
     general_text_description +
-      "Basic Response:\n  Responses:\n" +
-      response.basic.status.map { |status| status_description(status) }.join('')
+      "Basic Response:\n  Responses:\n#{statuses || 'Invalid Response'}"
   end
 
   def log_if_interesting
@@ -106,8 +106,8 @@ class OCSPResponse
 
   def general_text_description
     "Subject Serial: #{subject.serial}\n" \
-      "Status String: #{response.status_string}\n" \
-      "Status Int: #{response.status}\n"
+      "Status String: #{response&.status_string}\n" \
+      "Status Int: #{response&.status}\n"
   end
 
   STATUS_STRINGS = {
@@ -116,7 +116,6 @@ class OCSPResponse
     OpenSSL::OCSP::V_CERTSTATUS_UNKNOWN => 'unknown',
   }.freeze
 
-  # :reek:UtilityFunction
   def status_description(status)
     (certid, status_code, reason_code) = status
     reason_code = status_code == OpenSSL::OCSP::V_CERTSTATUS_REVOKED ? reason_code : '-'

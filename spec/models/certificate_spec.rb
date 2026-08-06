@@ -32,7 +32,7 @@ RSpec.describe Certificate do
 
   before(:each) do
     described_class.clear_revocation_cache
-    OCSPService.clear_ocsp_response_cache
+    OcspService.clear_ocsp_response_cache
     stub_request(:post, 'http://ocsp.example.com/').
       with(
         headers: {
@@ -77,6 +77,39 @@ RSpec.describe Certificate do
     end
   end
 
+  describe '#valid?' do
+    it 'is invalid if leaf is oasdfasd' do
+      real_root_ca, _root_key = create_root_certificate(
+        dn: 'CN=something',
+        serial: 1
+      )
+
+      root_certificate = Certificate.new(real_root_ca)
+
+      impostor_root_ca, impostor_root_key = create_root_certificate(
+        dn: 'CN=something2',
+        serial: 2
+      )
+
+      allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+        [root_certificate.key_id]
+      )
+
+      CertificateStore.instance.add_certificate(root_certificate)
+
+      cert = create_leaf_certificate(
+        ca: impostor_root_ca,
+        ca_key: impostor_root_key,
+        dn: 'CN=else',
+        serial: 1,
+        subject_key_identifier: root_certificate.key_id
+      )
+
+      expect(Certificate.new(cert).valid?(is_leaf: true)).to eq false
+      expect(Certificate.new(cert).validate_cert(is_leaf: true)).to eq 'unverified'
+    end
+  end
+
   describe '#signature_verified?' do
     let(:x509_cert) { leaf_cert }
 
@@ -94,7 +127,7 @@ RSpec.describe Certificate do
       leaf_certs.each do |cert|
         issuer = CertificateStore.instance[cert.signing_key_id]
         certificate_id = OpenSSL::OCSP::CertificateId.new(
-          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest::SHA1.new
+          cert.x509_cert, issuer.x509_cert, OpenSSL::Digest.new('SHA1')
         )
         mapping[certificate_id] = {
           subject: cert,
@@ -106,10 +139,10 @@ RSpec.describe Certificate do
 
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-        root_cert_key_ids.join(',')
+      allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+        root_cert_key_ids
       )
-      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
     end
 
@@ -136,6 +169,8 @@ RSpec.describe Certificate do
     end
 
     context 'for a valid intermediate certificate' do
+      let(:x509_cert) { intermediate_cert }
+
       it 'has valid intermediates' do
         expect(intermediate_certs.all?(&:valid?)).to be_truthy
       end
@@ -143,6 +178,33 @@ RSpec.describe Certificate do
       it 'is valid' do
         expect(certificate.signature_verified?).to be_truthy
       end
+
+      it 'has subjectInfoAccess information' do
+        expect(certificate.subject_info_access).to_not be_nil
+        expect(certificate.subject_info_access).to have_key 'CA Repository'
+        expect(certificate.subject_info_access['CA Repository'].count).to eq 1
+      end
+    end
+
+    context 'for a intermediate certificate fetched from the IssuingCaService' do
+      it 'is valid if the policy OIDs are recognized and allowed' do
+        # Simulate the intermediate cert not being present in the certificate store
+        intermediate_cert = CertificateStore.instance.delete(certificate.signing_key_id)
+
+        expect(IssuingCaService).to receive(
+          :fetch_signing_key_for_cert,
+        ).with(certificate).and_return(intermediate_cert)
+
+        expect(certificate.signature_verified?).to be_truthy
+      end
+    end
+  end
+
+  describe '#pem_filename' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'formats the subject to match our naming conventions' do
+      expect(certificate.pem_filename).to eq('DC=com DC=example OU=foo CN=bar 0.pem')
     end
   end
 
@@ -195,6 +257,14 @@ RSpec.describe Certificate do
     end
   end
 
+  describe '#sha1_fingerprint' do
+    let(:x509_cert) { leaf_cert }
+
+    it 'returns a string' do
+      expect(certificate.sha1_fingerprint).to be_a(String)
+    end
+  end
+
   describe 'a root cert' do
     let(:x509_cert) { root_cert }
 
@@ -238,10 +308,24 @@ RSpec.describe Certificate do
 
     describe '#signing_key_id' do
       it 'handles multiline authorityKeyIdentifier' do
-        # stub multiline aKI
+        # stub multiline authorityKeyIdentifier
         expect(certificate).to receive(:get_extension).with('authorityKeyIdentifier').and_return(
           <<~CERT
             keyid:cf:ab:b1:cf:b3:eb:28:e2:e0:c7:24:75:72:3b:f5:b6:31:18:77:6f
+            DirName:/CN=my test CA
+            serial:89:20:39:72:B8:50:56:5E
+          CERT
+        )
+        expect(certificate.signing_key_id).to eq(
+          'CF:AB:B1:CF:B3:EB:28:E2:E0:C7:24:75:72:3B:F5:B6:31:18:77:6F'
+        )
+      end
+
+      it 'handles multiline authorityKeyIdentifier without keyid prefix' do
+        # stub multiline authorityKeyIdentifier
+        expect(certificate).to receive(:get_extension).with('authorityKeyIdentifier').and_return(
+          <<~CERT
+            cf:ab:b1:cf:b3:eb:28:e2:e0:c7:24:75:72:3b:f5:b6:31:18:77:6f
             DirName:/CN=my test CA
             serial:89:20:39:72:B8:50:56:5E
           CERT
@@ -278,10 +362,10 @@ RSpec.describe Certificate do
     let(:root_cert_key_ids) { root_certs.map(&:key_id) }
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-        root_cert_key_ids.join(',')
+      allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+        root_cert_key_ids
       )
-      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
     end
 
@@ -333,20 +417,43 @@ RSpec.describe Certificate do
 
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-      allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-        root_cert_key_id
+      allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+        [root_cert_key_id]
       )
-      certificate_store.clear_trusted_ca_root_identifiers
+      certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
     end
 
-    it 'verifies the certificate' do
-      expect(certificate.valid?).to be_truthy
+    context 'when its intermediate certs are in the CertificateStore' do
+      it 'verifies the certificate' do
+        expect(certificate.valid?(is_leaf: true)).to be_truthy
+      end
+
+      it 'logs the cert in S3 when creating a token' do
+        expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
+        certificate.token({})
+      end
     end
 
-    it 'logs the cert in S3 when creating a token' do
-      expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
-      certificate.token({})
+    context 'when its intermediate certs must be fetched from a CA issuer URL' do
+      it 'does not verify the certificate' do
+        intermediate_cert = CertificateStore.instance.delete(certificate.signing_key_id)
+        expect(IssuingCaService).to receive(
+          :fetch_signing_key_for_cert,
+        ).with(certificate).and_return(intermediate_cert)
+
+        expect(certificate.valid?(is_leaf: true)).to be_falsey
+      end
+
+      it 'logs the cert in S3 when creating a token' do
+        intermediate_cert = CertificateStore.instance.delete(certificate.signing_key_id)
+        expect(IssuingCaService).to receive(
+          :fetch_signing_key_for_cert,
+        ).twice.with(certificate).and_return(intermediate_cert)
+
+        expect(CertificateLoggerService).to receive(:log_certificate).with(certificate)
+        certificate.token({})
+      end
     end
   end
 end

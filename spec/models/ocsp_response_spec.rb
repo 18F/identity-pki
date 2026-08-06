@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe OCSPResponse do
+RSpec.describe OcspResponse do
   let(:ocsp_response) { described_class.new(service_request, response) }
   let(:certificate) { Certificate.new(x509_cert) }
 
@@ -32,7 +32,7 @@ RSpec.describe OCSPResponse do
   let(:valid_ocsp) { true }
 
   let(:service_request) do
-    service = OCSPService.new(certificate)
+    service = OcspService.new(certificate)
     service.send(:build_request)
     service
   end
@@ -54,10 +54,10 @@ RSpec.describe OCSPResponse do
   let(:root_cert_key_ids) { root_certs.map(&:key_id) }
   before(:each) do
     allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-    allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-      root_cert_key_ids.join(',')
+    allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+      root_cert_key_ids
     )
-    certificate_store.clear_trusted_ca_root_identifiers
+    certificate_store.clear_root_identifiers
     certificate_store.add_pem_file(ca_file_path)
   end
 
@@ -115,10 +115,10 @@ RSpec.describe OCSPResponse do
       let(:root_cert_key_ids) { root_certs.map(&:key_id) }
       before(:each) do
         allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
-        allow(Figaro.env).to receive(:trusted_ca_root_identifiers).and_return(
-          root_cert_key_ids.join(',')
+        allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
+          root_cert_key_ids
         )
-        certificate_store.clear_trusted_ca_root_identifiers
+        certificate_store.clear_root_identifiers
         certificate_store.add_pem_file(ca_file_path)
       end
 
@@ -136,6 +136,10 @@ RSpec.describe OCSPResponse do
 
       describe '#logging_content' do
         it { expect(ocsp_response.logging_content).to eq 'No Response' }
+      end
+
+      describe '#to_text' do
+        it { expect(ocsp_response.to_text).to match(/Invalid Response/) }
       end
     end
   end

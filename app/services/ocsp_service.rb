@@ -1,11 +1,15 @@
 require 'net/http'
-require 'openssl'
 require 'uri'
 
-class OCSPService
+class OcspService
   attr_reader :subject, :authority, :request
 
   OCSP_RESPONSE_CACHE_EXPIRATION = 5.minutes
+
+  Response = Struct.new(
+    :revoked?,
+    keyword_init: true,
+  )
 
   def initialize(subject)
     @subject = subject
@@ -15,12 +19,12 @@ class OCSPService
   end
 
   def call
-    return OpenStruct.new(revoked?: CertificateAuthority.revoked?(subject)) if no_request
+    return Response.new(revoked?: CertificateAuthority.revoked?(subject)) if no_request
 
     # we want to cache the call for a few minutes so we don't hammer on the same request
-    OCSPService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
+    OcspService.ocsp_response(ocsp_url_for_subject, authority.certificate, subject) do
       response = make_http_request(ocsp_url_for_subject, request.to_der)
-      OCSPResponse.new(self, response)
+      OcspResponse.new(self, response)
     end
   end
 
@@ -43,7 +47,7 @@ class OCSPService
   def certificate_id
     @certificate_id ||= begin
       issuer = authority.certificate
-      digest = OpenSSL::Digest::SHA1.new
+      digest = OpenSSL::Digest.new('SHA1')
       OpenSSL::OCSP::CertificateId.new(subject.x509_cert, issuer.x509_cert, digest)
     end
   end
@@ -79,23 +83,38 @@ class OCSPService
     end
   end
 
-  def make_single_http_request(uri, request, retries = 1)
+  def make_single_http_request(uri, request, retries = 0)
     make_single_http_request!(uri, request)
-  rescue Errno::ECONNRESET
+  rescue Errno::ECONNRESET, Timeout::Error => e
     retries -= 1
-    return if retries.negative?
+    if retries.negative?
+      log_ocsp_error(:ocsp_timeout, e)
+      return
+    end
     sleep(1)
     retry
   end
 
-  # :reek:UtilityFunction
   def make_single_http_request!(uri, request)
     http = Net::HTTP.new(uri.hostname, uri.port)
+    http.open_timeout = IdentityConfig.store.http_open_timeout
+    http.read_timeout = IdentityConfig.store.http_read_timeout
     http.post(uri.path.presence || '/', request, 'content-type' => 'application/ocsp-request')
   end
 
-  # :reek:UtilityFunction
   def process_http_response_body(body)
     OpenSSL::OCSP::Response.new(body) if body.present?
+  rescue OpenSSL::OCSP::OCSPError => e
+    log_ocsp_error(:ocsp_response_error, e)
+    nil
+  end
+
+  def log_ocsp_error(error_type, exception)
+    info = {
+      error_type: error_type,
+      ocsp_url_for_subject: ocsp_url_for_subject,
+      key_id: subject.key_id,
+    }
+    Rails.logger.warn("OCSP error: #{info.to_json}")
   end
 end

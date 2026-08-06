@@ -1,0 +1,557 @@
+# Jobs defined here use the idp/ci docker image from ECR by default. To find
+# other available images:
+#   aws ecr describe-repositories | jq '.repositories[].repositoryUri'
+# Images are built via the identity-devops GitLab pipeline.
+
+variables:
+  ECR_REGISTRY: '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com'
+  SECURE_ANALYZERS_PREFIX: "$ECR_REGISTRY/gitlab/security-products"
+  IDP_IMAGE_TAG: 'main'
+  DASHBOARD_IMAGE_TAG: 'main'
+  PIVCAC_CI_SHA: 'sha256:520cec7f553a164606f3489ef613a9e657286a606462be120c51851d9b8cabf9'
+  AWS_CLI_CI_SHA: 'sha256:a5faa1d6b65c5afe675052599027bf46eb02b020ec153deefe4317f109c4bb92'
+  KUBECTL_CI_SHA: 'sha256:96a7d245a74d461925a56e3024d2f027c2a7a822b3e9e0117ec558db42de9c35'
+  CI: 'true'
+  APPLICATION_MANIFEST: k8files/application.yaml
+
+default:
+  image: '${ECR_REGISTRY}/pivcac/ci@${PIVCAC_CI_SHA}'
+  tags:
+    - test-pool
+
+.bundle_install: &bundle_install
+  - bundle config set --local deployment true
+  - bundle config set --local frozen true
+  - bundle config set --local without deploy development doc production
+  - bundle config set --local path vendor/ruby
+  - bundle check || bundle install --jobs $(nproc) --retry=3
+
+.build_cache:
+  - &ruby_cache
+    key:
+      files:
+        - Gemfile.lock
+    paths:
+      - vendor/ruby
+    policy: pull
+
+stages:
+  - build
+  - test
+  - review
+  - scan
+  - deploy_eks
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "external_pull_request_event" || $CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "stages/prod"'
+    - if: '$CI_MERGE_REQUEST_IID || $CI_EXTERNAL_PULL_REQUEST_IID'
+
+install:
+  stage: build
+  variables:
+    RAILS_ENV: test
+  cache:
+    - <<: *ruby_cache
+      policy: pull-push
+
+  script:
+    - echo "'$CI_PIPELINE_SOURCE'"
+    - echo "'$CI_MERGE_REQUEST_IID'"
+    - echo "'$CI_EXTERNAL_PULL_REQUEST_IID'"
+    - *bundle_install
+
+specs:
+  tags:
+    - test-pool
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  variables:
+    COVERAGE: 'true'
+    DOCKER_DB_HOST: db-postgres
+    POSTGRES_DB: identity_idp_test
+    POSTGRES_USER: postgres_user
+    POSTGRES_PASSWORD: postgres_password
+    POSTGRES_HOST_AUTH_METHOD: trust
+    RAILS_ENV: test
+  services:
+    - name: postgres:16.4
+      alias: db-postgres
+      command: ['--fsync=false', '--synchronous_commit=false', '--full_page_writes=false']
+    - name: redis:7.0
+      alias: db-redis
+  artifacts:
+    expire_in: 31d
+    when: always
+    paths:
+      - coverage/
+      - rspec.xml
+      - rspec.json
+    reports:
+      junit: rspec.xml
+  script:
+    - *bundle_install
+    - "echo -e \"test:\n  nonce_bloom_filter_server: 'redis://redis:6379/0'\" > config/application.yml"
+    - bundle exec rake db:setup --trace
+    - bundle exec rspec --format documentation --format RspecJunitFormatter --out rspec.xml --format json --out rspec.json
+
+lint:
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  script:
+    - *bundle_install
+    - make lint
+
+check_certificate_bundle:
+  stage: test
+  cache:
+    - <<: *ruby_cache
+  variables:
+    DOCKER_DB_HOST: db-postgres
+    POSTGRES_DB: identity_idp_test
+    POSTGRES_USER: postgres_user
+    POSTGRES_PASSWORD: postgres_password
+    POSTGRES_HOST_AUTH_METHOD: trust
+    RAILS_ENV: test
+  services:
+    - name: postgres:16.4
+      alias: db-postgres
+      command: ['--fsync=false', '--synchronous_commit=false', '--full_page_writes=false']
+  script:
+    - *bundle_install
+    - bundle exec rake db:setup --trace
+    - bundle exec rake certs:check_certificate_bundle
+
+
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - local: .gitlab-ci-rules.yml
+  - local: .gitlab-ci-devenv.yml
+
+secret_detection:
+  tags:
+    - test-pool
+  stage: test
+  allow_failure: false
+  needs: []
+  artifacts:
+    paths:
+      - gl-secret-detection-report.json
+    reports:
+      secret_detection: gl-secret-detection-report.json
+  variables:
+    SECRET_DETECTION_EXCLUDED_PATHS: 'keys.example,config/artifacts.example,public/acuant/*/opencv.min.js,tmp/0.0.0.0-3000.key'
+    SECRET_DETECTION_REPORT_FILE: 'gl-secret-detection-report.json'
+  rules:
+    - if: $SECRET_DETECTION_DISABLED
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      variables:
+        SECRET_DETECTION_LOG_OPTIONS: ${CI_MERGE_REQUEST_DIFF_BASE_SHA}..${CI_COMMIT_SHA}
+  before_script:
+    - apk add --no-cache jq
+  script:
+    - |
+        echo "running analyzer"
+        /analyzer run
+        if [ -f "$SECRET_DETECTION_REPORT_FILE" ]; then
+          # check if '{ "vulnerabilities": [], ..' is empty in the report file if it exists
+          if [ "$(jq ".vulnerabilities | length" $SECRET_DETECTION_REPORT_FILE)" -gt 0 ]; then
+            echo "Vulnerabilities detected. Please analyze the artifact $SECRET_DETECTION_REPORT_FILE produced by the 'secret-detection' job."
+            echo "Check the \"Security\" tab on the overall pipeline run to download the report for more information."
+            exit 1
+          fi
+        else
+          echo "Artifact $SECRET_DETECTION_REPORT_FILE does not exist. The 'secret-detection' job likely didn't create one. Hence, no evaluation can be performed."
+        fi
+
+build-ci-image:
+  stage: build
+  interruptible: true
+  needs: []
+  tags:
+    - build-pool
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  rules:
+    # Build when there are changes to the Dockerfile
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_PIPELINE_SOURCE == "web"'
+      changes:
+        compare_to: 'refs/heads/main'
+        paths:
+          - dockerfiles/pivcac_ci.Dockerfile
+  script:
+    - mkdir -p /kaniko/.docker
+    - |-
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/dockerfiles/pivcac_ci.Dockerfile"
+      --destination "${ECR_REGISTRY}/pivcac/ci:latest"
+      --destination "${ECR_REGISTRY}/pivcac/ci:${CI_COMMIT_SHA}"
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+
+# Build a container image async, and don't block CI tests
+# Cache intermediate images for 1 week (168 hours)
+build-pivcac-image:
+  stage: review
+  needs: []
+  interruptible: true
+  variables:
+    BRANCH_TAGGING_STRING: ""
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        BRANCH_TAGGING_STRING: "--destination ${ECR_REGISTRY}/identity-pivcac/review:main"
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
+  tags:
+    - build-pool
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  script:
+    - mkdir -p /kaniko/.docker
+    - |-
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/k8.Dockerfile"
+      --destination "${ECR_REGISTRY}/identity-pivcac/review:${CI_COMMIT_SHA}"
+      ${BRANCH_TAGGING_STRING}
+      --cache-repo="${ECR_REGISTRY}/identity-pivcac/review/cache"
+      --cache-ttl=168h
+      --cache=true
+      --compressed-caching=false
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+
+# Build a container image async, and don't block CI tests
+# Cache intermediate images for 1 week (168 hours)
+build-prod-pivcac-image:
+  stage: review
+  needs: []
+  interruptible: true
+  variables:
+    BRANCH_TAGGING_STRING: ""
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        BRANCH_TAGGING_STRING: "--destination ${ECR_REGISTRY}/identity-pivcac/pivcac:main"
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
+  tags:
+    - build-pool
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  script:
+    - mkdir -p /kaniko/.docker
+    - |-
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/prod.Dockerfile"
+      --destination "${ECR_REGISTRY}/identity-pivcac/pivcac:${CI_COMMIT_SHA}"
+      ${BRANCH_TAGGING_STRING}
+      --cache-repo="${ECR_REGISTRY}/identity-pivcac/pivcac/cache"
+      --cache-ttl=168h
+      --cache=true
+      --compressed-caching=false
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+
+build-prod-nginx-image:
+  stage: review
+  needs: []
+  interruptible: true
+  variables:
+    BRANCH_TAGGING_STRING: ""
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        BRANCH_TAGGING_STRING: "--destination ${ECR_REGISTRY}/identity-pivcac/nginx:main"
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
+  tags:
+    - build-pool
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: ['']
+  script:
+    - mkdir -p /kaniko/.docker
+    - |-
+      KANIKOCFG="\"credsStore\":\"ecr-login\""
+      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
+        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
+      fi
+      KANIKOCFG="{ ${KANIKOCFG} }"
+      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/nginx.Dockerfile"
+      --destination "${ECR_REGISTRY}/identity-pivcac/nginx:${CI_COMMIT_SHA}"
+      ${BRANCH_TAGGING_STRING}
+      --cache-repo="${ECR_REGISTRY}/identity-pivcac/pivcac/cache"
+      --cache-ttl=168h
+      --cache=true
+      --compressed-caching=false
+      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
+
+review-app:
+  stage: review
+  allow_failure: true
+  needs:
+    - job: build-pivcac-image
+  resource_group: $CI_ENVIRONMENT_SLUG.pivcac.reviewapp.identitysandbox.gov
+  image:
+    name: ${ECR_REGISTRY}/docker-hub/alpine/kubectl@${KUBECTL_CI_SHA}
+    entrypoint: ['']
+  script:
+    - kubectl config get-contexts
+    - export CONTEXT=$(kubectl config get-contexts | grep reviewapp | awk '{print $1}' | head -1)
+    - kubectl config use-context "$CONTEXT"
+    - export SANITIZED_BRANCH_NAME=$(echo "$CI_COMMIT_REF_NAME" | tr '/' '-' | tr -c '[:alnum:]-_' '-' | sed 's/-*$//')
+    - echo "${CI_COMMIT_REF_NAME}"
+    - echo "${SANITIZED_BRANCH_NAME}"
+    # Dynamically populate review environment settings
+    - sed -i "s|{{ENVIRONMENT}}|${CI_ENVIRONMENT_SLUG}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{SANITIZED_BRANCH_NAME}}|${SANITIZED_BRANCH_NAME}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{IDP_CONTAINER_TAG}}|${IDP_IMAGE_TAG}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{DASHBOARD_CONTAINER_TAG}}|${DASHBOARD_IMAGE_TAG}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{PIVCAC_CONTAINER_TAG}}|${CI_COMMIT_SHA}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{ECR_REGISTRY}}|${ECR_REGISTRY}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{CI_MERGE_REQUEST_SOURCE_PROJECT_URL}}|${CI_MERGE_REQUEST_SOURCE_PROJECT_URL}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{CI_PROJECT_NAME}}|${CI_PROJECT_NAME}|g" ${APPLICATION_MANIFEST}
+    - sed -i "s|{{CI_MERGE_REQUEST_IID}}|${CI_MERGE_REQUEST_IID}|g" ${APPLICATION_MANIFEST}
+    - cat ${APPLICATION_MANIFEST}
+    # Apply our ArgoCD Application
+    - kubectl apply -f ${APPLICATION_MANIFEST} -n argocd
+    - echo "View your applications deployment progress at https://argocd.reviewapp.identitysandbox.gov/applications/argocd/${CI_ENVIRONMENT_SLUG}?view=tree&resource="
+    - echo "DNS may take a while to propagate, so be patient if it doesn't show up right away"
+    - echo "To access the rails console, first run 'aws-vault exec sandbox-power -- aws eks update-kubeconfig --name reviewapp'"
+    - echo "Then run aws-vault exec sandbox-power -- kubectl exec -it service/$CI_ENVIRONMENT_SLUG-idp -n review-apps -- /app/bin/rails console"
+    - echo "Address of IDP review app:"
+    - echo https://$CI_ENVIRONMENT_SLUG.reviewapps.identitysandbox.gov
+    - echo "Address of PIVCAC review app:"
+    - echo https://$CI_ENVIRONMENT_SLUG.pivcac.reviewapps.identitysandbox.gov
+    - echo "Address of Dashboard review app:"
+    - echo https://$CI_ENVIRONMENT_SLUG-portal.reviewapps.identitysandbox.gov
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.pivcac.reviewapp.identitysandbox.gov
+    on_stop: stop-review-app
+    auto_stop_in: 2 days
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
+
+stop-review-app:
+  resource_group: $CI_ENVIRONMENT_SLUG.pivcac.reviewapp.identitysandbox.gov
+  script:
+    - export CONTEXT=$(kubectl config get-contexts | grep reviewapp | awk '{print $1}' | head -1)
+    - kubectl config use-context "$CONTEXT"
+    - kubectl delete application "$CI_ENVIRONMENT_SLUG" -n argocd
+    - kubectl delete application "$CI_ENVIRONMENT_SLUG-db" -n argocd
+  stage: review
+  image:
+    name: ${ECR_REGISTRY}/docker-hub/alpine/kubectl@${KUBECTL_CI_SHA}
+    entrypoint: ['']
+  needs:
+    - job: review-app
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
+  when: manual
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
+
+# Export the automated ECR scan results into a format Gitlab can use
+# Report schema https://gitlab.com/gitlab-org/security-products/security-report-schemas/-/blob/master/dist/container-scanning-report-format.json
+ecr-scan:
+  stage: scan
+  interruptible: true
+  allow_failure: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: never
+  tags:
+    - build-pool
+  needs:
+    - job: build-pivcac-image
+  image:
+    name: ${ECR_REGISTRY}/ecr-public/aws-cli/aws-cli@${AWS_CLI_CI_SHA}
+    entrypoint: [""] 
+  before_script:
+    - curl -LO https://github.com/jqlang/jq/releases/download/jq-1.6/jq-linux64
+    - chmod +x jq-linux64
+    - mv jq-linux64 /usr/local/bin/jq
+  script:
+    - >
+      while true; do
+        SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/review --image-id imageTag=$CI_COMMIT_SHA --query 'imageScanStatus.status' --output text || true)
+        if echo "$SCAN_STATUS" | grep -q "ACTIVE"; then
+          echo "Scan Complete"
+          break
+        elif echo "$SCAN_STATUS" | grep -q "FAILED"; then
+          echo "ECR scan failed"
+          exit 1
+        else
+          echo "Waiting for ECR scan to complete"
+          sleep 15
+        fi
+      done
+    - SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/review --image-id imageTag=$CI_COMMIT_SHA)
+    - echo $SCAN_FINDINGS
+    - >
+      echo $SCAN_FINDINGS |
+      jq -r 'if (.imageScanFindings.enhancedFindings | length > 0) then
+      {
+        "version": "15.0.4",
+        "scan": {
+          "start_time": (.imageScanFindings.imageScanCompletedAt | sub("\\.[0-9]+"; "") | strptime("%Y-%m-%dT%H:%M:%S%z") | strftime("%Y-%m-%dT%H:%M:%S")),
+          "end_time": (.imageScanFindings.imageScanCompletedAt | sub("\\.[0-9]+"; "") | strptime("%Y-%m-%dT%H:%M:%S%z") | strftime("%Y-%m-%dT%H:%M:%S")),
+          "scanner": {
+            "id": "clair",
+            "name": "Amazon ECR Image Scan",
+            "version": "1.0.0",
+            "vendor": {
+              "name": "Amazon Web Services"
+            }
+          },
+          "analyzer": {
+            "id": "clair",
+            "name": "Amazon ECR Image Scan",
+            "version": "1.0.0",
+            "vendor": {
+              "name": "Amazon Web Services"
+            }
+          },
+          "status": "success",
+          "type": "container_scanning"
+        },
+        "vulnerabilities": [
+          .imageScanFindings.enhancedFindings[] |
+          {
+            "id": .packageVulnerabilityDetails.vulnerabilityId,
+            "name": .title,
+            "description": .description,
+            "severity": (if .severity == "HIGH" then "High"
+                        elif .severity == "MEDIUM" then "Medium"
+                        elif .severity == "LOW" then "Low"
+                        elif .severity == "CRITICAL" then "Critical"
+                        elif .severity == "INFORMATIONAL" then "Info"
+                        elif .severity == "UNTRIAGED" then "Info"
+                        else "Unknown" end),
+            "solution": .remediation.recommendation.text,
+            "identifiers": [
+              {
+                "type": "cve",
+                "name": .packageVulnerabilityDetails.vulnerabilityId,
+                "url": .packageVulnerabilityDetails.sourceUrl,
+                "value": .packageVulnerabilityDetails.vulnerabilityId
+              }
+            ],
+            "links": [
+              {
+                "name": .packageVulnerabilityDetails.vulnerabilityId,
+                "url": .packageVulnerabilityDetails.sourceUrl
+              }
+            ],
+            "location": {
+              "dependency": {
+                "package": {
+                  "name": .packageVulnerabilityDetails.vulnerablePackages[0].name
+                },
+                "version": .packageVulnerabilityDetails.vulnerablePackages[0].version
+              },
+              "operating_system": .resources[0].details.awsEcrContainerImage.platform,
+              "image": .resources[0].id
+            }
+          }
+        ]
+      }
+      else
+      {
+        "version": "15.0.4",
+        "scan": {
+          "start_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+          "end_time": (now | strftime("%Y-%m-%dT%H:%M:%S")),
+          "scanner": {
+            "id": "clair",
+            "name": "Amazon ECR Image Scan",
+            "version": "1.0.0",
+            "vendor": {
+              "name": "Amazon Web Services"
+            }
+          },
+          "analyzer": {
+            "id": "clair",
+            "name": "Amazon ECR Image Scan",
+            "version": "1.0.0",
+            "vendor": {
+              "name": "Amazon Web Services"
+            }
+          },
+          "status": "success",
+          "type": "container_scanning"
+        },
+        "vulnerabilities": []
+      }
+      end' > gl-container-scanning-report.json
+  artifacts:
+    paths: 
+      - gl-container-scanning-report.json
+    reports:
+      container_scanning: gl-container-scanning-report.json
+
+# EKS deployment
+deploy_eks:
+  trigger:
+    project: lg-public/identity-eks-control
+    branch: main
+  stage: deploy_eks
+  variables:
+    APP: pivcac
+    IMAGE_TAG: $CI_COMMIT_SHA
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# Triggers devops CD to deploy to dev
+trigger_devops:
+  stage: review
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  trigger: lg/identity-devops
