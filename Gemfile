@@ -3,7 +3,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}.git" }
 
 ruby '~> 3.4'
 
-gem 'rails', '~> 8.0.0'
+gem 'rails', '~> 8.1.0'
 
 gem 'activerecord-import', '>= 1.0.2'
 # pod identity requires 3.188.0
