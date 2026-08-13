@@ -17,7 +17,7 @@ gem 'identity-hostdata', github: '18F/identity-hostdata', tag: 'v4.4.2'
 gem 'identity-logging', github: '18F/identity-logging', tag: 'v0.1.1'
 gem 'mini_cache'
 gem 'newrelic_rpm', '~> 8.0'
-gem 'nokogiri', '>= 1.19.3'
+gem 'nokogiri', '>= 1.19.4'
 gem 'pg'
 gem 'pry-rails'
 gem 'puma', '~> 7.2.1'
@@ -25,6 +25,7 @@ gem 'rack', '~> 3.2', '>= 3.2.6'
 gem 'bootsnap', '~> 1.0', require: false
 gem 'redacted_struct', '~> 2.0'
 gem 'rgl'
+gem 'concurrent-ruby', '>= 1.3.7'
 
 group :development, :test do
   gem 'bullet', '~> 8.0'
