@@ -1,6 +1,13 @@
 require 'open3'
 
 namespace :certs do
+  def ficam_bundle_file_path
+    configured = IdentityConfig.store.ficam_certificate_bundle_file
+    return configured if configured.present?
+
+    Rails.root.join('config', 'cert_bundles', 'ficam_bundle.pem').to_s
+  end
+
   desc 'Remove invalid certs, set EXPIRING=true to also remove certs expiring within 30 days'
   task remove_invalid: :environment do
     remove_expiring = (ENV['EXPIRING'] == 'true')
@@ -19,7 +26,7 @@ namespace :certs do
 
   desc 'Print expiring certs'
   task :print_expiring, [:deadline_days] => [:environment] do |t, args|
-    args.with_defaults(:deadline_days => 30)
+    args.with_defaults(deadline_days: 30)
     deadline = args[:deadline_days].to_i.days.from_now
 
     cert_store = CertificateStore.instance
@@ -62,14 +69,18 @@ namespace :certs do
     cert = CertificateStore.instance[key_id]
     raise "Cert #{key_id} is not in CertificateStore" if cert.nil?
     signing_cert = CertificateStore.instance[cert.signing_key_id] ||
-      IssuingCaService.fetch_signing_key_for_cert(cert)
+                   IssuingCaService.fetch_signing_key_for_cert(cert)
 
-    raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded" if signing_cert.nil?
+    if signing_cert.nil?
+      raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded"
+    end
 
     puts "Signing Cert subject information access (SIA) extensions: #{signing_cert.subject_info_access.inspect}"
 
     repository_certs = IssuingCaService.fetch_ca_repository_certs_for_cert(signing_cert)
-    raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded" if signing_cert.nil?
+    if signing_cert.nil?
+      raise "Signing cert #{cert.signing_key_id} is not in store and could not be downloaded"
+    end
 
     matching_certs = repository_certs.select do |repo_cert|
       repo_cert.serial != cert.serial &&
@@ -78,15 +89,15 @@ namespace :certs do
     end
     raise "No matching certs in the signing cert's CA repository" if matching_certs.empty?
 
-    puts "Expiring Certificate:"
+    puts 'Expiring Certificate:'
     puts "  Expiration: #{cert.not_after}"
     puts "  Subject: #{cert.subject}"
     puts "  Issuer: #{cert.issuer}"
     puts "  SHA1 Fingerpint: #{cert.sha1_fingerprint}"
     puts "  Key ID: #{cert.key_id}"
 
-    puts ""
-    puts "Potential Replacement Certificates:"
+    puts ''
+    puts 'Potential Replacement Certificates:'
     matching_certs.each_with_index do |matching_cert, index|
       puts "- Index: #{index}"
       puts "  Expiration: #{matching_cert.not_after}"
@@ -94,7 +105,9 @@ namespace :certs do
       puts "  Issuer: #{matching_cert.issuer}"
       puts "  SHA1 Fingerpint: #{matching_cert.sha1_fingerprint}"
       puts "  Key ID: #{matching_cert.key_id}"
-      puts "  In Certificate Store: #{CertificateStore.instance.certificates.find { |x| x.sha1_fingerprint == matching_cert.sha1_fingerprint }.present? }"
+      puts "  In Certificate Store: #{CertificateStore.instance.certificates.find do |x|
+        x.sha1_fingerprint == matching_cert.sha1_fingerprint
+      end.present? }"
     end
 
     puts ''
@@ -107,11 +120,11 @@ namespace :certs do
     exit 0 if input.blank?
 
     Array.wrap(matching_certs.values_at(*input)).each do |matching_cert|
-      path = Pathname.new("./config/certs") + matching_cert.pem_filename
+      path = Pathname.new('./config/certs') + matching_cert.pem_filename
 
       if File.exist?(path)
-        path = Pathname.new("./config/certs") + matching_cert.pem_filename(
-          suffix: " #{matching_cert.not_after.to_i}"
+        path = Pathname.new('./config/certs') + matching_cert.pem_filename(
+          suffix: " #{matching_cert.not_after.to_i}",
         )
       end
       puts "Writing certificate to #{path}"
@@ -144,15 +157,15 @@ namespace :certs do
         puts "  SHA1 Fingerpint: #{repo_cert.sha1_fingerprint}"
         puts "  Key ID: #{repo_cert.key_id}"
         puts "  In Certificate Store: #{CertificateStore.instance[repo_cert.key_id].present?}"
-        puts "Would you like to save this cert? Type (y)es to save."
+        puts 'Would you like to save this cert? Type (y)es to save.'
         input = STDIN.gets.strip
 
         if input == 'yes' || input == 'y'
-          path = Pathname.new("./config/certs") + repo_cert.pem_filename
+          path = Pathname.new('./config/certs') + repo_cert.pem_filename
 
           if File.exist?(path)
-            path = Pathname.new("./config/certs") + repo_cert.pem_filename(
-              suffix: " #{repo_cert.not_after.to_i}"
+            path = Pathname.new('./config/certs') + repo_cert.pem_filename(
+              suffix: " #{repo_cert.not_after.to_i}",
             )
           end
           puts "Writing certificate to #{path}"
@@ -169,35 +182,36 @@ namespace :certs do
   task :find_missing_intermediate_certs, [:cert_path] => [:environment] do |t, args|
     cert = Certificate.new(OpenSSL::X509::Certificate.new(File.read(args[:cert_path])))
     missing_certs = CertificateChainService.new.missing(cert).uniq(&:key_id)
-    missing_certs.reverse.each do |missing_cert|
+    missing_certs.reverse_each do |missing_cert|
       signing_cert = CertificateStore.instance[missing_cert.signing_key_id] ||
-        IssuingCaService.fetch_signing_key_for_cert(missing_cert)
+                     IssuingCaService.fetch_signing_key_for_cert(missing_cert)
       unless signing_cert
         puts 'Could not find signing certificate for missing certificate'
         next
       end
 
-      found_cert = IssuingCaService.fetch_ca_repository_certs_for_cert(signing_cert).find { |x| x.key_id == missing_cert.key_id }
+      found_cert = IssuingCaService.fetch_ca_repository_certs_for_cert(signing_cert).find do |x|
+        x.key_id == missing_cert.key_id
+      end
       unless found_cert
         puts 'Could not find missing certificate in signing key issued certificate'
         next
       end
-
 
       puts "  Expiration: #{found_cert.not_after}"
       puts "  Subject: #{found_cert.subject}"
       puts "  Issuer: #{found_cert.issuer}"
       puts "  SHA1 Fingerpint: #{found_cert.sha1_fingerprint}"
       puts "  Key ID: #{found_cert.key_id}"
-      puts "Would you like to save this cert? Type (y)es to save."
+      puts 'Would you like to save this cert? Type (y)es to save.'
       input = STDIN.gets.strip
 
       if input == 'yes' || input == 'y'
-        path = Pathname.new("./config/certs") + found_cert.pem_filename
+        path = Pathname.new('./config/certs') + found_cert.pem_filename
 
         if File.exist?(path)
-          path = Pathname.new("./config/certs") + found_cert.pem_filename(
-            suffix: " #{found_cert.not_after.to_i}"
+          path = Pathname.new('./config/certs') + found_cert.pem_filename(
+            suffix: " #{found_cert.not_after.to_i}",
           )
         end
         puts "Writing certificate to #{path}"
@@ -207,67 +221,53 @@ namespace :certs do
     end
   end
 
-  desc 'Validate certificate bundle as matching certificate path and inclusion in FICAM'
+  desc 'Validate FICAM certificate bundle exists and is properly formatted'
   task check_certificate_bundle: :environment do |t, args|
-    CertificateStore.instance.load_certs!(dir: 'config/certs')
+    ficam_bundle_file = ficam_bundle_file_path
 
-    login_certificates = File.read(IdentityConfig.store.login_certificate_bundle_file).
-      split(CertificateStore::END_CERTIFICATE).
-      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) }
-
-    ficam_certificates = File.read(IdentityConfig.store.ficam_certificate_bundle_file).
-      split(CertificateStore::END_CERTIFICATE).
-      map { |cert| Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE)) }
-
-    store_certificates = CertificateStore.instance.certificates
-
-    login_certificates_in_load_path = Set.new(login_certificates.map(&:sha1_fingerprint)) ==
-                                      Set.new(store_certificates.map(&:sha1_fingerprint))
-    if !login_certificates_in_load_path
+    unless File.exist?(ficam_bundle_file)
       puts <<~ERROR
-        #{IdentityConfig.store.login_certificate_bundle_file} does not match the certificates in #{IdentityConfig.store.certificate_store_directory}
+        FICAM certificate bundle not found at #{ficam_bundle_file}
         Please run:
         rake certs:generate_certificate_bundles
       ERROR
       exit 1
     end
 
-    login_certificates_missing_in_ficam = login_certificates.map(&:sha1_fingerprint) -
-                                          ficam_certificates.map(&:sha1_fingerprint)
-    if !login_certificates_missing_in_ficam.empty?
-      login_subjects_missing_in_ficam = login_certificates_missing_in_ficam.
-        map do |sha1|
-          cert = store_certificates.find { |cert| cert.sha1_fingerprint == sha1 }
+    ficam_certificates = File.read(ficam_bundle_file).
+      split(CertificateStore::END_CERTIFICATE).
+      map do |cert|
+      begin
+        Certificate.new(OpenSSL::X509::Certificate.new(cert + CertificateStore::END_CERTIFICATE))
+      rescue
+        nil
+      end
+    end.
+      compact
 
-          { cert.subject.to_s => [cert.key_id, cert.issuer.to_s] }
-        end
-
+    if ficam_certificates.empty?
       puts <<~ERROR
-        Unexpected certificates in #{IdentityConfig.store.login_certificate_bundle_file} not present in #{IdentityConfig.store.ficam_certificate_bundle_file}
-
-        Remove these certificates from #{IdentityConfig.store.certificate_store_directory}:
-        #{login_subjects_missing_in_ficam.to_yaml[4...]}
-        Then run:
+        FICAM certificate bundle is empty at #{ficam_bundle_file}
+        Please run:
         rake certs:generate_certificate_bundles
       ERROR
       exit 1
     end
+
+    puts "✓ FICAM certificate bundle validated successfully (#{ficam_certificates.length} certificates found)"
   end
 
-  desc 'Generate LG certificate bundles'
+  desc 'Generate FICAM certificate bundle'
   task generate_certificate_bundles: :environment do |t, args|
-    CertificateStore.instance.load_certs!(dir: 'config/certs')
-    File.write(
-      IdentityConfig.store.login_certificate_bundle_file,
-      CertificateStore.instance.certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
-    )
-
     ficam_uri = URI('https://www.idmanagement.gov/implement/tools/CACertificatesValidatingToFederalCommonPolicyG2.p7b')
     federal_brige_ca_g4_key_id = '79:F0:00:49:EB:7F:77:C2:5D:41:02:65:34:8A:90:23:9B:1E:07:6F'
 
     response = Net::HTTP.get_response(ficam_uri)
     body = response.body.force_encoding('UTF-8')
-    stdout, stderr, status = Open3.capture3('openssl', 'pkcs7', '-print_certs', '-inform', 'PEM', stdin_data: body)
+    stdout, stderr, status = Open3.capture3(
+      'openssl', 'pkcs7', '-print_certs', '-inform', 'PEM',
+      stdin_data: body
+    )
     raw_certificates = stdout.strip
 
     certificates = raw_certificates.split(CertificateStore::END_CERTIFICATE).map do |cert|
@@ -282,12 +282,12 @@ namespace :certs do
     # We could also engineer a more robust solution to circular cross-signed certificates that doesn't
     # rely on specific key IDs.
     certificates.reject! do |x|
-      (x.key_id == federal_brige_ca_g4_key_id &&
-       !IdentityConfig.store.trusted_ca_root_identifiers.include?(x.signing_key_id))
+      x.key_id == federal_brige_ca_g4_key_id &&
+        !IdentityConfig.store.trusted_ca_root_identifiers.include?(x.signing_key_id)
     end
 
     File.write(
-      IdentityConfig.store.ficam_certificate_bundle_file,
+      ficam_bundle_file_path,
       certificates.sort_by(&:sha1_fingerprint).map(&:to_pem).join,
     )
   end

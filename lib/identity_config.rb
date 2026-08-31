@@ -25,7 +25,6 @@ module IdentityConfig
     config.add(:http_read_timeout, type: :integer)
     config.add(:identity_idp_host, type: :string)
     config.add(:log_to_stdout, type: :boolean)
-    config.add(:login_certificate_bundle_file, type: :string)
     config.add(:newrelic_license_key)
     config.add(:nonce_bloom_filter_enabled, type: :boolean)
     config.add(:nonce_bloom_filter_hash_count, type: :integer)
