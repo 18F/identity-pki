@@ -26,11 +26,8 @@ namespace :certs do
 
   desc 'List all certs in the FICAM bundle'
   task list_ficam_certs: :environment do
-    raw = File.read(ficam_bundle_file_path)
-    certs = raw.split('-----END CERTIFICATE-----').filter_map do |pem|
-      next if pem.strip.blank?
-
-      Certificate.new(OpenSSL::X509::Certificate.new("#{pem}-----END CERTIFICATE-----"))
+    certs = OpenSSL::X509::Certificate.load_file(ficam_bundle_file_path).map do |x509|
+      Certificate.new(x509)
     end
 
     puts "Found #{certs.length} certs in #{ficam_bundle_file_path}"
