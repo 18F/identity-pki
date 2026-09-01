@@ -24,6 +24,27 @@ namespace :certs do
     end
   end
 
+  desc 'List all certs in the FICAM bundle'
+  task list_ficam_certs: :environment do
+    raw = File.read(ficam_bundle_file_path)
+    certs = raw.split('-----END CERTIFICATE-----').filter_map do |pem|
+      next if pem.strip.blank?
+
+      Certificate.new(OpenSSL::X509::Certificate.new("#{pem}-----END CERTIFICATE-----"))
+    end
+
+    puts "Found #{certs.length} certs in #{ficam_bundle_file_path}"
+    certs.sort_by(&:not_after).each do |cert|
+      puts "- Subject: #{cert.subject}"
+      puts "  Issuer: #{cert.issuer}"
+      puts "  Key ID: #{cert.key_id}"
+      puts "  Expiration: #{cert.not_after}"
+      puts "  Expired: #{cert.expired?}"
+      puts "  Self-signed: #{cert.self_signed?}"
+      puts "  OCSP URI: #{cert.ocsp_http_url}"
+    end
+  end
+
   desc 'Print expiring certs'
   task :print_expiring, [:deadline_days] => [:environment] do |t, args|
     args.with_defaults(deadline_days: 30)
