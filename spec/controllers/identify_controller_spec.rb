@@ -13,7 +13,7 @@ RSpec.describe IdentifyController, type: :controller do
   let(:ocsp_response) { false }
   let(:ocsp_responder) do
     double(
-      call: OcspService::Response.new(revoked?: ocsp_response)
+      call: OcspService::Response.new(revoked?: ocsp_response),
     )
   end
 
@@ -85,7 +85,7 @@ RSpec.describe IdentifyController, type: :controller do
             dn: 'O=somewhere, OU=someplace, CN=something',
             serial: 1,
             not_after: Time.zone.now + 1.week,
-            not_before: Time.zone.now - 1.week
+            not_before: Time.zone.now - 1.week,
           )
         end
 
@@ -106,7 +106,7 @@ RSpec.describe IdentifyController, type: :controller do
             ca: root_cert,
             ca_key: root_key,
             not_after: expired_at,
-            not_before: Time.zone.now - 1.week
+            not_before: Time.zone.now - 1.week,
           )
         end
 
@@ -124,7 +124,7 @@ RSpec.describe IdentifyController, type: :controller do
           # create signing cert
           allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
           allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
-            root_cert_key_ids
+            root_cert_key_ids,
           )
           certificate_store.clear_root_identifiers
           certificate_store.add_pem_file(ca_file_path)
@@ -142,21 +142,24 @@ RSpec.describe IdentifyController, type: :controller do
 
             expect(Rails.logger).to receive(:info).with(/GET/).once
             expect(Rails.logger).to receive(:info).with(
-              'Returning a token for a valid certificate.'
+              'Returning a token for a valid certificate.',
             ).once
-            expect(Rails.logger).to receive(:info).with({
-              name: 'Certificate Processed',
-              signing_key_id: cert.signing_key_id,
-              key_id: cert.key_id,
-              certificate_chain_signing_key_ids: [cert.signing_key_id],
-              issuer: cert.issuer.to_s,
-              current_sp: 'None',
-              valid_policies: true,
-              mapped_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
-              valid: true,
-              error: nil,
-              matched_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
-            }.to_json).once
+            expect(Rails.logger).to receive(:info).with(
+              {
+                name: 'Certificate Processed',
+                signing_key_id: cert.signing_key_id,
+                key_id: cert.key_id,
+                certificate_chain_signing_key_ids: [cert.signing_key_id],
+                issuer: cert.issuer.to_s,
+                ocsp_uri: 'http://ocsp.example.com/',
+                current_sp: 'None',
+                valid_policies: true,
+                mapped_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
+                valid: true,
+                error: nil,
+                matched_policy_oids: { '2.16.840.1.101.3.2.1.3.7' => true },
+              }.to_json,
+            ).once
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
 
@@ -204,7 +207,7 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token with a uuid and subject' do
             allow(IdentityConfig.store).to receive(:client_cert_escaped).and_return(false)
-            @request.headers['X-Client-Cert'] = client_cert_pem.split(/\n/).join("\n\t")
+            @request.headers['X-Client-Cert'] = client_cert_pem.split("\n").join("\n\t")
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
@@ -247,7 +250,7 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a token as revoked' do
             ca = CertificateAuthority.find_or_create_for_certificate(
-              Certificate.new(root_cert)
+              Certificate.new(root_cert),
             )
             ca.certificate_revocations.create(serial: client_cert.serial)
 
@@ -272,7 +275,7 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a valid response after checking CRLs' do
             ca = CertificateAuthority.find_or_create_for_certificate(
-                Certificate.new(root_cert)
+              Certificate.new(root_cert),
             )
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
@@ -296,7 +299,7 @@ RSpec.describe IdentifyController, type: :controller do
 
           it 'returns a valid response after checking CRLs' do
             ca = CertificateAuthority.find_or_create_for_certificate(
-                Certificate.new(root_cert)
+              Certificate.new(root_cert),
             )
 
             @request.headers['X-Client-Cert'] = CGI.escape(client_cert_pem)
@@ -318,7 +321,7 @@ RSpec.describe IdentifyController, type: :controller do
               dn: 'O=somewhere, OU=someplace, CN=something',
               serial: 1,
               not_after: Time.zone.now + 1.week,
-              not_before: Time.zone.now - 1.week
+              not_before: Time.zone.now - 1.week,
             )
           end
 
@@ -332,7 +335,7 @@ RSpec.describe IdentifyController, type: :controller do
               ca: other_root_cert,
               ca_key: other_root_key,
               not_after: expired_at,
-              not_before: Time.zone.now - 1.week
+              not_before: Time.zone.now - 1.week,
             )
           end
 
@@ -358,17 +361,20 @@ RSpec.describe IdentifyController, type: :controller do
             expect(CertificateLoggerService).to receive(:log_certificate)
             expect(Rails.logger).to receive(:info).with(/GET/).once
 
-            expect(Rails.logger).to receive(:info).with({
-              name: 'Certificate Processed',
-              signing_key_id: cert.key_id,
-              key_id: cert.key_id,
-              certificate_chain_signing_key_ids: [cert.signing_key_id],
-              current_sp: 'None',
-              valid_policies: false,
-              mapped_policy_oids: {},
-              valid: false,
-              error: 'self-signed cert',
-            }.to_json).once
+            expect(Rails.logger).to receive(:info).with(
+              {
+                name: 'Certificate Processed',
+                signing_key_id: cert.key_id,
+                key_id: cert.key_id,
+                certificate_chain_signing_key_ids: [cert.signing_key_id],
+                ocsp_uri: nil,
+                current_sp: 'None',
+                valid_policies: false,
+                mapped_policy_oids: {},
+                valid: false,
+                error: 'self-signed cert',
+              }.to_json,
+            ).once
 
             get :create, params: { nonce: '123', redirect_uri: 'http://example.com/' }
             expect(response).to have_http_status(:found)
@@ -380,7 +386,6 @@ RSpec.describe IdentifyController, type: :controller do
             expect(token_contents['nonce']).to eq '123'
           end
         end
-
 
         context 'when the nonce param is missing' do
           it 'returns a bad request' do
