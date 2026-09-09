@@ -128,10 +128,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1753163524,
+        "lastModified": 1788343730,
         "owner": "bobvanderlinden",
         "repo": "nixpkgs-ruby",
-        "rev": "3da338974fc41303473c529af5fbb344d8957547",
+        "rev": "73a97f0be7df878d9656b937b8a5cda58a04bb26",
         "type": "github"
       },
       "original": {

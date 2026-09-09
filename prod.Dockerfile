@@ -1,5 +1,5 @@
 # this part builds everything
-FROM public.ecr.aws/docker/library/ruby:3.4.1-slim-bullseye as builder
+FROM public.ecr.aws/docker/library/ruby:3.4.10-bookworm as builder
 
 # Set environment variables
 ENV RAILS_ROOT /app
@@ -53,7 +53,7 @@ RUN bundle binstubs --all
 
 #####################################################
 # here is where the actual image gets built
-FROM public.ecr.aws/docker/library/ruby:3.4.1-slim-bullseye
+FROM public.ecr.aws/docker/library/ruby:3.4.10-bookworm
 
 SHELL ["/bin/bash", "-c"]
 
