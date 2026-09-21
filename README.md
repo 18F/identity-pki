@@ -7,7 +7,7 @@ PIV/CAC support for login.gov.
 
 #### Dependencies
 
-- Ruby 3.2
+- Ruby 3.4
 - OpenSSL
 - [PostgreSQL](http://www.postgresql.org/download/)
 - Nginx
