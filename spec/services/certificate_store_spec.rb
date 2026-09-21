@@ -22,6 +22,42 @@ RSpec.describe CertificateStore do
     end
   end
 
+  describe '#load_ficam_certificate_bundle!' do
+    it 'loads a configured bundle relative to the Rails root' do
+      bundle_file = 'spec/fixtures/certs/certs.pem'
+      allow(IdentityConfig.store).to receive(:ficam_certificate_bundle_file).
+        and_return(bundle_file)
+      expect(certificate_store).to receive(:add_pem_file).
+        with(Rails.root.join(bundle_file).to_s)
+
+      certificate_store.load_ficam_certificate_bundle!
+    end
+
+    it 'loads a configured bundle with an absolute path' do
+      bundle_file = data_file_path('certs.pem')
+      allow(IdentityConfig.store).to receive(:ficam_certificate_bundle_file).
+        and_return(bundle_file)
+      expect(certificate_store).to receive(:add_pem_file).with(bundle_file)
+
+      certificate_store.load_ficam_certificate_bundle!
+    end
+
+    it 'skips loading when the bundle is not configured' do
+      allow(IdentityConfig.store).to receive(:ficam_certificate_bundle_file).and_return('')
+      expect(certificate_store).to_not receive(:add_pem_file)
+
+      certificate_store.load_ficam_certificate_bundle!
+    end
+
+    it 'raises when the configured bundle does not exist' do
+      allow(IdentityConfig.store).to receive(:ficam_certificate_bundle_file).
+        and_return('config/cert_bundles/missing.pem')
+
+      expect { certificate_store.load_ficam_certificate_bundle! }.
+        to raise_error(Errno::ENOENT)
+    end
+  end
+
   describe '#x509_certificate_chain' do
     let(:expired_cert) do
       root_ca, root_key = create_root_certificate(

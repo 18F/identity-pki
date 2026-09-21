@@ -22,7 +22,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     instance.reset
   end
 
-  # load all of the files in config/certs
+  # Load manually managed certificates that are not available in the FICAM bundle.
   def load_certs!(dir: IdentityConfig.store.certificate_store_directory)
     Dir.chdir(dir) do
       Dir.glob(File.join('**', '*.pem')).each do |file|
@@ -42,8 +42,9 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     bundle_file = IdentityConfig.store.ficam_certificate_bundle_file
     return if bundle_file.blank?
 
-    bundle_path = Rails.root.join(bundle_file)
-    add_pem_file(bundle_path.to_s) if File.exist?(bundle_path)
+    bundle_path = Pathname.new(bundle_file)
+    bundle_path = Rails.root.join(bundle_path) unless bundle_path.absolute?
+    add_pem_file(bundle_path.to_s)
   end
 
   def_delegators :@certificates, :[], :count, :empty?, :map

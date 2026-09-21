@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Certificate store in config/certs' do
+describe 'Configured certificate store' do
   before do
     # We need to allow net connect to download CRLs and check for revocations
     WebMock.disallow_net_connect!(
@@ -18,9 +18,7 @@ describe 'Certificate store in config/certs' do
       CertificateStore.instance.add_pem_file(file)
     end
 
-    # Load the FICAM bundle so the intermediate and root CA certs needed to
-    # verify the certs we maintain in config/certs (e.g. cross-signed roots)
-    # are present in the store.
+    # The FICAM bundle is the primary source; config/certs contains only exceptions.
     CertificateStore.instance.add_pem_file(
       File.join('config', 'cert_bundles', 'ficam_bundle.pem'),
     )
@@ -30,12 +28,10 @@ describe 'Certificate store in config/certs' do
     WebMock.disallow_net_connect!
   end
 
-  it 'only contains valid certs' do
+  it 'only contains valid manually managed certs when any are present' do
     config_certs = Dir.glob(File.join('config', 'certs', '**', '*.pem')).flat_map do |file|
       CertificateStore.instance.add_pem_file(file)
     end
-
-    expect(config_certs).to_not be_empty
 
     invalid_certs = config_certs.filter do |cert|
       cert.token({})

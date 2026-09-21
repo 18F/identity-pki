@@ -13,7 +13,7 @@ class CertificateChainService
     chain(cert).each_with_index { |cert, step| print_cert(cert, step) }
   end
 
-  # Finds the missing certs in the chain and writes them to the config/certs repo
+  # Finds chain certificates that are absent from the configured certificate sources.
   # @param [Certificate]
   def missing(cert)
     chain(cert).reject { |cert| CertificateStore.instance[cert.key_id] }
