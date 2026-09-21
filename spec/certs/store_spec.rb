@@ -31,11 +31,10 @@ describe 'Certificate store in config/certs' do
   end
 
   it 'only contains valid certs' do
+    # config/certs may be empty when all certs are provided by the ficam bundle
     config_certs = Dir.glob(File.join('config', 'certs', '**', '*.pem')).flat_map do |file|
       CertificateStore.instance.add_pem_file(file)
     end
-
-    expect(config_certs).to_not be_empty
 
     invalid_certs = config_certs.filter do |cert|
       cert.token({})
@@ -72,5 +71,29 @@ describe 'Certificate store in config/certs' do
     failure_message = "Duplicate certs found:\n#{duplicate_cert_list}"
 
     expect(duplicate_certs).to be_empty, failure_message
+  end
+
+  it 'does not contain certs that are already in the ficam bundle' do
+    ficam_bundle_raw = File.read(File.join('config', 'cert_bundles', 'ficam_bundle.pem'))
+    ficam_key_ids = ficam_bundle_raw.split(CertificateStore::END_CERTIFICATE).filter_map do |pem|
+      next if pem.strip.blank?
+
+      Certificate.new(OpenSSL::X509::Certificate.new(pem + CertificateStore::END_CERTIFICATE)).key_id
+    end
+
+    duplicated_certs = Dir.glob(File.join('config', 'certs', '**', '*.pem')).filter do |file|
+      raw_cert = File.read(file)
+      cert = Certificate.new(OpenSSL::X509::Certificate.new(raw_cert))
+      ficam_key_ids.include?(cert.key_id)
+    end
+
+    failure_message = <<~MESSAGE
+      Certs found in config/certs that already exist in the ficam bundle:
+      #{duplicated_certs.join("\n")}
+
+      Remove these files; they are already provided by config/cert_bundles/ficam_bundle.pem
+    MESSAGE
+
+    expect(duplicated_certs).to be_empty, failure_message
   end
 end
