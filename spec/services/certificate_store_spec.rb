@@ -7,7 +7,7 @@ RSpec.describe CertificateStore do
     create_certificate_set(
       root_count: 2,
       intermediate_count: 2,
-      leaf_count: 2
+      leaf_count: 2,
     )
   end
 
@@ -16,9 +16,19 @@ RSpec.describe CertificateStore do
   let(:leaf_certs) { certificates_in_collection(cert_collection, :type, :leaf) }
 
   describe '#load_certs!' do
-    it 'loads the certs in a directory' do
+    it 'loads certs from the ficam bundle when configured' do
+      allow(IdentityConfig.store).to receive(:ficam_certificate_bundle_file).
+        and_return('config/cert_bundles/ficam_bundle.pem')
+
       expect { certificate_store.load_certs!(dir: Rails.root.join('config/certs')) }.
         to(change { certificate_store.certificates.count })
+    end
+
+    it 'does not load a ficam bundle when not configured' do
+      allow(IdentityConfig.store).to receive(:ficam_certificate_bundle_file).and_return('')
+
+      expect { certificate_store.load_certs!(dir: Rails.root.join('config/certs')) }.
+        to_not(change { certificate_store.certificates.count })
     end
   end
 
@@ -26,7 +36,7 @@ RSpec.describe CertificateStore do
     let(:expired_cert) do
       root_ca, root_key = create_root_certificate(
         dn: 'CN=something',
-        serial: 1
+        serial: 1,
       )
       create_leaf_certificate(
         ca: root_ca,
@@ -34,13 +44,13 @@ RSpec.describe CertificateStore do
         dn: 'CN=else',
         serial: 1,
         not_after: Time.zone.now - 1.day,
-        not_before: Time.zone.now - 1.week
+        not_before: Time.zone.now - 1.week,
       )
     end
     let(:good_cert) do
       root_ca, root_key = create_root_certificate(
         dn: 'CN=something',
-        serial: 1
+        serial: 1,
       )
       create_leaf_certificate(
         ca: root_ca,
@@ -48,7 +58,7 @@ RSpec.describe CertificateStore do
         dn: 'CN=else',
         serial: 1,
         not_after: Time.zone.now + 1.day,
-        not_before: Time.zone.now - 1.week
+        not_before: Time.zone.now - 1.week,
       )
     end
     let(:key_id) { 'NOT:A:REAL:CERTIFICATE:KEY:ID' }
@@ -98,7 +108,7 @@ RSpec.describe CertificateStore do
     before(:each) do
       allow(IO).to receive(:binread).with(ca_file_path).and_return(ca_file_content)
       allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
-        root_cert_key_ids
+        root_cert_key_ids,
       )
       certificate_store.clear_root_identifiers
       certificate_store.add_pem_file(ca_file_path)
@@ -107,7 +117,7 @@ RSpec.describe CertificateStore do
         with(
           headers: {
             'Content-Type' => 'application/ocsp-request',
-          }
+          },
         ).
         to_return do |request|
         {
@@ -126,7 +136,7 @@ RSpec.describe CertificateStore do
       describe 'with an untrusted root' do
         before(:each) do
           allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
-            [root_cert_key_ids.first]
+            [root_cert_key_ids.first],
           )
 
           certificate_store.clear_root_identifiers
