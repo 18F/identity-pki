@@ -1,7 +1,7 @@
 require 'rgl/dijkstra'
 require 'rgl/adjacency'
 
-class CertificateStore # rubocop:disable Metrics/ClassLength
+class CertificateStore
   include Singleton
 
   END_CERTIFICATE = "\n-----END CERTIFICATE-----\n".freeze
@@ -87,7 +87,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     alert_on_expired_cert(cert)
     trusted_ca_root_identifiers.each do |cert_root_id|
       sequence = x509_certificate_chain_to_root(cert, cert_root_id)
-      return sequence if sequence&.any? && sequence&.all?
+      return sequence if sequence&.any? && sequence.all?
     end
     []
   end
@@ -97,7 +97,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     return [] unless signing_key_id
 
     @certificates.values_at(
-      *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id)
+      *@graph.dijkstra_shortest_path(Hash.new(1), signing_key_id, cert_root_id),
     )
   rescue RGL::NoVertexError
     []
@@ -106,14 +106,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
   def delete(key)
     @graph.remove_vertex(key)
     @certificates.delete(key)
-  end
-
-  def remove_untrusted_certificates
-    (@certificates.keys - trusted_certificate_ids).each(&method(:delete))
-  end
-
-  def all_certificates_valid?
-    @certificates.values.all?(&:valid?)
   end
 
   def self.trusted_ca_root_identifiers
@@ -128,23 +120,6 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
 
   private
 
-  def trusted_certificate_ids
-    # start with the trusted roots and work down
-    trusted = trusted_ca_root_identifiers
-    next_round = key_ids_signed_by(trusted)
-    while next_round.any?
-      trusted += next_round.map(&:key_id)
-      next_round = key_ids_signed_by(trusted)
-    end
-    trusted
-  end
-
-  def key_ids_signed_by(trusted)
-    select do |cert|
-      !trusted.include?(cert.key_id) && trusted.include?(cert.signing_key_id) && cert.valid?
-    end
-  end
-
   def extract_certs(raw)
     raw.split(END_CERTIFICATE).map do |pem|
       Certificate.new(OpenSSL::X509::Certificate.new(pem + END_CERTIFICATE)) if pem.strip.present?
@@ -155,7 +130,7 @@ class CertificateStore # rubocop:disable Metrics/ClassLength
     return unless Certificate.new(cert).expired?
 
     NewRelic::Agent.notice_error(
-      <<-STR.squish
+      <<-STR.squish,
         Certificate Expired:
         Expiration: #{cert.not_after},
         Subject: #{cert.subject},

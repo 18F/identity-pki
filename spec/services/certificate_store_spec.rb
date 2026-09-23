@@ -128,36 +128,6 @@ RSpec.describe CertificateStore do
       end
     end
 
-    describe 'all_certificates_valid?' do
-      it 'is true when we only have roots and intermediate certs from those roots' do
-        expect(certificate_store.all_certificates_valid?).to be_truthy
-      end
-
-      describe 'with an untrusted root' do
-        before(:each) do
-          allow(IdentityConfig.store).to receive(:trusted_ca_root_identifiers).and_return(
-            [root_cert_key_ids.first],
-          )
-
-          certificate_store.clear_root_identifiers
-        end
-
-        it 'is false' do
-          expect(certificate_store.all_certificates_valid?).to be_falsey
-        end
-
-        describe 'after removing untrusted certificates' do
-          before(:each) do
-            certificate_store.remove_untrusted_certificates
-          end
-
-          it 'is true' do
-            expect(certificate_store.all_certificates_valid?).to be_truthy
-          end
-        end
-      end
-    end
-
     describe 'each' do
       let(:visited_ids) do
         ids = []
