@@ -49,6 +49,7 @@ namespace :certs do
 
     cert_store = CertificateStore.instance
     cert_store.load_certs!
+    cert_store.add_pem_file(ficam_bundle_file_path)
 
     expiring_certs = cert_store.select do |cert|
       cert.expired?(deadline)
