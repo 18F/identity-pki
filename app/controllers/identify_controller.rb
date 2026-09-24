@@ -101,7 +101,7 @@ class IdentifyController < ApplicationController
   end
 
   def current_sp
-    params[:current_sp].present? ? params[:current_sp] : 'None'
+    params[:current_sp].presence || 'None'
   end
 
   def log_certificate(cert)
@@ -113,6 +113,7 @@ class IdentifyController < ApplicationController
       key_id: cert.key_id,
       certificate_chain_signing_key_ids: cert.x509_certificate_chain_key_ids,
       issuer: cert.issuer.to_s,
+      ocsp_uri: cert.ocsp_http_url,
       current_sp: current_sp,
       valid_policies: cert.valid_policies?,
       mapped_policy_oids: cert.mapped_policies.map { |oid| [oid, true] }.to_h,
