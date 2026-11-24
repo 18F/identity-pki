@@ -206,47 +206,6 @@ build-ci-image:
 
 # Build a container image async, and don't block CI tests
 # Cache intermediate images for 1 week (168 hours)
-build-pivcac-image:
-  stage: review
-  needs: []
-  interruptible: true
-  variables:
-    BRANCH_TAGGING_STRING: ""
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      variables:
-        BRANCH_TAGGING_STRING: "--destination ${ECR_REGISTRY}/identity-pivcac/review:main"
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-    - if: $CI_PIPELINE_SOURCE != "merge_request_event"
-      when: never
-  tags:
-    - build-pool
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: ['']
-  script:
-    - mkdir -p /kaniko/.docker
-    - |-
-      KANIKOCFG="\"credsStore\":\"ecr-login\""
-      if [ "x${http_proxy}" != "x" -o "x${https_proxy}" != "x" ]; then
-        KANIKOCFG="${KANIKOCFG}, \"proxies\": { \"default\": { \"httpProxy\": \"${http_proxy}\", \"httpsProxy\": \"${https_proxy}\", \"noProxy\": \"${no_proxy}\"}}"
-      fi
-      KANIKOCFG="{ ${KANIKOCFG} }"
-      echo "${KANIKOCFG}" > /kaniko/.docker/config.json
-    - >-
-      /kaniko/executor
-      --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/k8.Dockerfile"
-      --destination "${ECR_REGISTRY}/identity-pivcac/review:${CI_COMMIT_SHA}"
-      ${BRANCH_TAGGING_STRING}
-      --cache-repo="${ECR_REGISTRY}/identity-pivcac/review/cache"
-      --cache-ttl=168h
-      --cache=true
-      --compressed-caching=false
-      --build-arg "http_proxy=${http_proxy}" --build-arg "https_proxy=${https_proxy}" --build-arg "no_proxy=${no_proxy}"
-
-# Build a container image async, and don't block CI tests
-# Cache intermediate images for 1 week (168 hours)
 build-prod-pivcac-image:
   stage: review
   needs: []
@@ -329,7 +288,8 @@ review-app:
   stage: review
   allow_failure: true
   needs:
-    - job: build-pivcac-image
+    - job: build-prod-pivcac-image
+    - job: build-prod-nginx-image
   resource_group: $CI_ENVIRONMENT_SLUG.pivcac.reviewapp.identitysandbox.gov
   image:
     name: ${ECR_REGISTRY}/docker-hub/alpine/kubectl@${KUBECTL_CI_SHA}
@@ -410,7 +370,7 @@ ecr-scan:
   tags:
     - build-pool
   needs:
-    - job: build-pivcac-image
+    - job: build-prod-pivcac-image
   image:
     name: ${ECR_REGISTRY}/ecr-public/aws-cli/aws-cli@${AWS_CLI_CI_SHA}
     entrypoint: [""] 
@@ -421,7 +381,7 @@ ecr-scan:
   script:
     - >
       while true; do
-        SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/review --image-id imageTag=$CI_COMMIT_SHA --query 'imageScanStatus.status' --output text || true)
+        SCAN_STATUS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/pivcac --image-id imageTag=$CI_COMMIT_SHA --query 'imageScanStatus.status' --output text || true)
         if echo "$SCAN_STATUS" | grep -q "ACTIVE"; then
           echo "Scan Complete"
           break
@@ -433,7 +393,7 @@ ecr-scan:
           sleep 15
         fi
       done
-    - SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/review --image-id imageTag=$CI_COMMIT_SHA)
+    - SCAN_FINDINGS=$(aws ecr describe-image-scan-findings --repository-name identity-pivcac/pivcac --image-id imageTag=$CI_COMMIT_SHA)
     - echo $SCAN_FINDINGS
     - >
       echo $SCAN_FINDINGS |
